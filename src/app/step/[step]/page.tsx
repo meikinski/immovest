@@ -14,9 +14,11 @@ import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
+import { ProgressIndicator } from '@/components/ProgressIndicator';
 
 
 
+type Step = 'input-method' | 'a' | 'b' | 'c' | 'tabs';
 const steps = ['a', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
 
 function cityFromAddress(addr: string): string {
@@ -40,6 +42,8 @@ export default function StepPage() {
   const step = Array.isArray(stepParam) ? stepParam[0]! : stepParam!;
   const idx = steps.indexOf(step);
   const nextStep = idx < steps.length - 1 ? steps[idx + 1] : 'tabs';
+  const showProgress = step !== 'tabs';
+
 
   // Hydration guard
   const [mounted, setMounted] = useState(false);
@@ -229,6 +233,14 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
     ? ((jahreskaltmiete - bewirtschaftungskostenJ - fkZinsenJahr) / ek) * 100
     : 0;
 
+    // Debt Service Coverage Ratio (DSCR): Nettoeinnahmen / Kreditrate
+const dscr =
+  ((warmmiete - hausgeldTotal - kalkKostenMonthly) /
+    (((darlehensSumme * (zins / 100)) / 12) +
+     ((darlehensSumme * (tilgung / 100)) / 12))) || 0;
+
+
+
   // Break-Even
   /*const breakEvenJahre = useImmoStore((s) =>
     s.cashflow_operativ > 0 ? s.ek / (s.cashflow_operativ * 12) : Infinity
@@ -328,137 +340,69 @@ useEffect(() => {
 
   setLoadingDetails(true);
 
-  setLoadingDetails(true);
+  (async () => {
+    try {
+      // das UI kennt alle Felder bereits – wir schicken sie an den Agent-Endpoint
+      const res = await fetch('/api/agent/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address: adresse,
+          adressse: adresse, // (Tippfehler abgefangen, falls woanders genutzt)
+          objektTyp: objekttyp === 'wohnung' ? 'Eigentumswohnung' : 'Haus',
+          kaufpreis,
+          flaeche,
+          zimmer,
+          baujahr,
+          miete,
+          hausgeld,
+          hausgeld_umlegbar,
+          ek,
+          zins,
+          tilgung,
+        }),
+      });
 
-Promise.all([
-  fetch('/api/locationProfile', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      address: adresse,
-      object: { baujahr, typ: objekttyp, zimmer, flaeche }
-    }),
-  }).then(r => r.json()).catch(() => null),
-  fetch('/api/invest', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      address: adresse,
-      livingArea: flaeche || 0,
-      targetPrice: kaufpreis || 0,
-      monthlyRent: miete || 0,
-      propertyType: objekttyp,
-      rooms: zimmer,
-      year: baujahr,
-    }),
-  }).then(r => r.json()).catch(() => null),
-])
-  .then(([loc, inv]) => {
-    const ort = cityFromAddress(adresse);
-    const locText = (loc?.text && typeof loc.text === 'string') ? loc.text.trim() : '';
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
 
+      const data = await res.json() as {
+        facts: unknown;
+        lage?: { html?: string };
+        miete?: { html?: string };
+        kauf?: { html?: string };
+        invest?: { html?: string };
+      };
 
-   setLageComment(
-  (ort ? `<p><strong>${ort}</strong></p>` : '') +
-  (locText || '<p>Für diese Adresse liegen aktuell zu wenige belegbare Lagehinweise vor.</p>')
-);
+      // Fallbacks „–“ vermeiden: leer -> kurzer Hinweis
+      setLageComment(data.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
+      setMietpreisComment(data.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
+      setQmPreisComment(data.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
+      setInvestComment(data.invest?.html?.trim() || '<p>Investitionsanalyse derzeit nicht verfügbar.</p>');
 
-    // Miete (Fließtext mit smarter Einordnung)
-    const rp   = inv?.snapshot?.rent_psqm;
-    const cmpR = inv?.snapshot?.comparisons?.rent_psqm;
-    const rentHtml = (rp && cmpR && cmpR.subject != null)
-      ? (() => {
-          const delta = Math.abs(cmpR.delta_pct);
-          const klasse =
-            zimmer >= 3 ? 'größere Wohnung' :
-            zimmer <= 1 ? 'kleine Wohnung' : 'typische Größe';
-          const nuance =
-            (baujahr && baujahr < 1980)
-              ? 'Bei Bestandsbauten vor 1980 spielt der Modernisierungsstand eine große Rolle.'
-              : (baujahr && baujahr >= 2010)
-              ? 'Jüngere Baujahre stützen tendenziell überdurchschnittliche €/m².'
-              : '';
-          return `<p>Die <strong>Kaltmiete</strong> deines Objekts liegt mit <strong>${cmpR.subject.toFixed(2)} €/m²</strong> ${
-            cmpR.verdict === 'im Markt'
-              ? '<strong>im Marktniveau</strong>'
-              : cmpR.verdict === 'unter Markt'
-              ? `<strong>ca. ${delta}% unter</strong> dem lokalen Median`
-              : `<strong>ca. ${delta}% über</strong> dem lokalen Median`
-          } (Median: ${rp.median.toFixed(2)} €/m²). Für eine <em>${klasse}</em> in ${ort} ist das ${
-            cmpR.verdict === 'im Markt' ? 'plausibel' : 'prüfenswert'
-          }. ${nuance}</p>`;
-        })()
-      : '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>';
-    setMietpreisComment(rentHtml);
-
-    // Kaufpreis €/m² (Fließtext + Heuristik nach Baujahr/Zimmer)
-    const sp   = inv?.snapshot?.sale_psqm;
-    const cmpP = inv?.snapshot?.comparisons?.price_psqm;
-    const saleHtml = (sp && cmpP && cmpP.subject != null)
-      ? (() => {
-          const delta = Math.abs(cmpP.delta_pct);
-          const bjahrHint =
-            (baujahr && baujahr < 1980) ? 'Für Baujahr vor 1980 ist dieser Preis meist nur durch hochwertige Modernisierung gerechtfertigt.' :
-            (baujahr && baujahr < 2000) ? 'Bei Baujahren < 2000 sollte der Modernisierungsstand (Fenster, Leitungen, Heizung) geprüft werden.' :
-            (baujahr && baujahr >= 2015) ? 'Jüngere Baujahre rechtfertigen oft höhere €/m², sofern Lage/Standard passen.' : '';
-          const zimmerHint =
-            zimmer >= 4 ? 'Große Grundrisse weisen häufig niedrigere €/m² aus.' :
-            zimmer === 1 ? '1-Zimmer-Einheiten sind pro m² oft teurer, aber mit spezieller Zielgruppe.' : '';
-          const zusamm = [bjahrHint, zimmerHint].filter(Boolean).join(' ');
-          return `<p>Der <strong>Kaufpreis je m²</strong> liegt mit <strong>${Math.round(cmpP.subject).toLocaleString('de-DE')} €/m²</strong> ${
-            cmpP.verdict === 'im Markt'
-              ? '<strong>im Marktniveau</strong>'
-              : cmpP.verdict === 'unter Markt'
-              ? `<strong>ca. ${delta}% unter</strong> dem lokalen Median`
-              : `<strong>ca. ${delta}% über</strong> dem lokalen Median`
-          } (Median: ${Math.round(sp.median).toLocaleString('de-DE')} €/m²). ${zusamm}</p>`;
-        })()
-      : '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreis-Daten vor.</p>';
-    setQmPreisComment(saleHtml);
-
-    // Optional: Trend (zunächst leer)
-    setLageTrendComment('');
-
-    // Investitionsanalyse (Expertenton + Hinweis auf Szenarien)
-    const yCmp = inv?.snapshot?.comparisons?.yield_pct;
-    const ekQuote = anschaffungskosten > 0 ? (ek / anschaffungskosten) * 100 : 0;
-    const bullets: string[] = [];
-
-    if (inv?.snapshot?.comparisons?.rent_psqm?.verdict === 'unter Markt') {
-      bullets.push('Mietniveau moderat zum Median prüfen (rechtliche Rahmenbedingungen beachten).');
+      // Optional: Trend könntest du aus data.facts ableiten und setzen
+      setLageTrendComment('');
+    } catch (e) {
+      console.error('Markt/Agent laden fehlgeschlagen', e);
+      setLageComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+      setMietpreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+      setQmPreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+      setInvestComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+    } finally {
+      setLoadingDetails(false);
     }
-    if (inv?.snapshot?.comparisons?.price_psqm?.verdict === 'über Markt') {
-      bullets.push('Kaufpreis verhandeln (oberhalb Median €/m²).');
-    }
-    if (yCmp?.currentPct != null && yCmp?.marketPct != null && yCmp.currentPct + 0.5 < yCmp.marketPct) {
-      bullets.push('Rendite-Potenzial durch Mietanpassung oder günstigeren Kaufpreis heben.');
-    }
-    bullets.push('Teste im nächsten Schritt Szenarien (Miete, Preis, Zins, Tilgung, EK) und sieh den Effekt auf Cashflow & Rendite.');
+  })();
+}, [
+  step, activeTab,
+  adresse, objekttyp,
+  kaufpreis, flaeche, zimmer, baujahr,
+  miete, hausgeld, hausgeld_umlegbar,
+  ek, zins, tilgung
+]);
 
-    const investHtml = `
-      <p><strong>Einordnung:</strong> ${
-        yCmp?.currentPct != null
-          ? `Bruttorendite aktuell ${yCmp.currentPct.toFixed(1)} %`
-          : 'Rendite aktuell schwer zu schätzen'
-      }${
-        yCmp?.marketPct != null
-          ? `; Marktniveau ~${yCmp.marketPct.toFixed(1)} %`
-          : ''
-      }. EK-Quote ${ekQuote.toFixed(1)} % ${
-        ekQuote >= 30 ? '(solide Basis).' : '(niedrig – Zinslast sensibler).'
-      }</p>
-      <ul class="mt-1 text-gray-700">${bullets.map(t => `<li>• ${t}</li>`).join('')}</ul>
-    `;
-    setInvestComment(investHtml);
-  })
-  .catch((err) => {
-    console.error('Fehler beim Laden der Details:', err);
-  })
-  .finally(() => setLoadingDetails(false));
 
-}, [step, activeTab, adresse, miete, flaeche, kaufpreis, zimmer, baujahr, ek, anschaffungskosten,bruttoMietrendite, nettoMietrendite, cashflowAfterTax,
-  warmmiete, hausgeld, hausgeld_umlegbar, hausgeldTotal, kalkKostenMonthly, darlehensSumme,
-  zins, tilgung, objekttyp]);
+
 
 // Anzeige-Adresse ohne Landeszusatz
 const shortAddress = React.useMemo(() => {
@@ -1291,6 +1235,11 @@ const exportPdf = React.useCallback(async () => {
   />
   <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Jahr, in dem der aufsummierte Cashflow ab Start den eingesetzten Betrag (vereinfacht) ausgleicht. Näherungswert." />
   <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Näherung: 1/(Zins+Tilgung). Unterstellt konstante Rate ohne Sondertilgungen."/>
+<KpiCard
+  title="DSCR"
+  value={`${dscr.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+  help="Schuldendienstdeckungsgrad: Verhältnis von Nettoeinnahmen zu Kreditrate. Werte > 1,2 gelten als solide, < 1,0 kritisch."
+/>
 </div>
 
 {/* KI-Kurzkommentar (deutlich beratender Ton) */}
@@ -1635,6 +1584,7 @@ const exportPdf = React.useCallback(async () => {
 
   return (
     <div className="max-w-xl mx-auto py-10">
+      {showProgress && <ProgressIndicator currentStep={step as Step} />}
       {content}
     </div>
   );

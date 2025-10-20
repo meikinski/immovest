@@ -59,7 +59,7 @@ ek: number;
   setEk: (v: number) => void;
   setZins: (v: number) => void;
   setTilgung: (v: number) => void;
-
+  importData: (data: Partial<ImmoState>) => void;
 }
 
 // Typ für die Set-Funktion: akzeptiert partielle ImmoState-Updates
@@ -210,4 +210,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set({ tilgung: v });
     get().updateDerived();
   },
+  importData: (data) => {
+  set(data);
+  get().updateDerived();
+},
 }));
