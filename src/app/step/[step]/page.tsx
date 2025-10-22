@@ -15,6 +15,7 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 
 
@@ -342,13 +343,12 @@ useEffect(() => {
 
   (async () => {
     try {
-      // das UI kennt alle Felder bereits – wir schicken sie an den Agent-Endpoint
       const res = await fetch('/api/agent/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Basis-Daten
           address: adresse,
-          adressse: adresse, // (Tippfehler abgefangen, falls woanders genutzt)
           objektTyp: objekttyp === 'wohnung' ? 'Eigentumswohnung' : 'Haus',
           kaufpreis,
           flaeche,
@@ -360,6 +360,15 @@ useEffect(() => {
           ek,
           zins,
           tilgung,
+          
+          // ⚡ NEU: Berechnete KPIs mitschicken
+          cashflowVorSteuer,
+          cashflowNachSteuern: cashflowAfterTax,
+          nettoMietrendite,
+          bruttoMietrendite,
+          ekRendite,
+          dscr,
+          anschaffungskosten,
         }),
       });
 
@@ -375,13 +384,11 @@ useEffect(() => {
         invest?: { html?: string };
       };
 
-      // Fallbacks „–“ vermeiden: leer -> kurzer Hinweis
       setLageComment(data.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
       setMietpreisComment(data.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
       setQmPreisComment(data.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
       setInvestComment(data.invest?.html?.trim() || '<p>Investitionsanalyse derzeit nicht verfügbar.</p>');
 
-      // Optional: Trend könntest du aus data.facts ableiten und setzen
       setLageTrendComment('');
     } catch (e) {
       console.error('Markt/Agent laden fehlgeschlagen', e);
@@ -398,7 +405,11 @@ useEffect(() => {
   adresse, objekttyp,
   kaufpreis, flaeche, zimmer, baujahr,
   miete, hausgeld, hausgeld_umlegbar,
-  ek, zins, tilgung
+  ek, zins, tilgung,
+  // ⚡ NEU: Dependencies für KPIs
+  cashflowVorSteuer, cashflowAfterTax,
+  nettoMietrendite, bruttoMietrendite, ekRendite,
+  dscr, anschaffungskosten,
 ]);
 
 
@@ -1249,8 +1260,16 @@ const exportPdf = React.useCallback(async () => {
     <Bot className="ml-2" />
   </div>
   {isLoadingComment ? (
-    <p className="text-gray-500">Lade Einschätzung…</p>
-  ) : (
+  <LoadingSpinner 
+    size="sm"
+    messages={[
+      'Analysiere Cashflow und Rendite...',
+      'Bewerte Eigenkapitalquote...',
+      'Prüfe Schuldendienstdeckung...',
+      'Erstelle Investment-Einschätzung...',
+    ]}
+  />
+) : (
     <HtmlContent className="text-gray-700" html={comment || '<p>–</p>'} />
   )}
   
@@ -1276,8 +1295,16 @@ const exportPdf = React.useCallback(async () => {
                 <Bot />
               </div>
               {loadingDetails ? (
-                <p className="text-gray-600">Lade Lagebewertung…</p>
-              ) : (
+  <LoadingSpinner 
+    messages={[
+      'Analysiere Lage und Umgebung...',
+      'Prüfe Infrastruktur und Anbindung...',
+      'Bewerte Nachfrage und Zielgruppen...',
+      'Schätze Vermietbarkeit ein...',
+      'Gleich fertig...'
+    ]}
+  />
+) : (
                 <HtmlContent className="text-gray-600" html={lageComment || '<p>–</p>'} />
               )}
             </div>
@@ -1288,8 +1315,16 @@ const exportPdf = React.useCallback(async () => {
                 <Bot />
               </div>
               {loadingDetails ? (
-                <p className="text-gray-600">Lade Mietpreisvergleich…</p>
-              ) : (
+  <LoadingSpinner 
+    messages={[
+      'Suche aktuelle Mietangebote...',
+      'Vergleiche Preise in der Umgebung...',
+      'Analysiere Preis pro Quadratmeter...',
+      'Bewerte Marktposition...',
+      'Hab noch kurz Geduld...'
+    ]}
+  />
+) : (
                 <HtmlContent className="text-gray-600" html={mietpreisComment || '<p>–</p>'} />
               )}
             </div>
@@ -1300,8 +1335,16 @@ const exportPdf = React.useCallback(async () => {
                 <Bot />
               </div>
               {loadingDetails ? (
-                <p className="text-gray-600">Lade Vergleich…</p>
-              ) : (
+  <LoadingSpinner 
+    messages={[
+      'Suche vergleichbare Verkaufsangebote...',
+      'Analysiere Kaufpreise je m²...',
+      'Prüfe Preisentwicklung...',
+      'Bewerte Kaufpreis-Niveau...',
+      'Noch einen kleinen Moment..'
+    ]}
+  />
+) : (
                 <HtmlContent className="text-gray-600" html={qmPreisComment || '<p>–</p>'} />
               )}
             </div>
@@ -1327,8 +1370,16 @@ const exportPdf = React.useCallback(async () => {
     <Bot />
   </div>
   {loadingDetails ? (
-    <p className="text-gray-600">Lade Investitionsanalyse…</p>
-  ) : (
+  <LoadingSpinner 
+    messages={[
+      'Konsolidiere alle Daten...',
+      'Erstelle Investment-Bewertung...',
+      'Prüfe Optimierungspotenzial...',
+      'Formuliere Empfehlung...',
+      'Fast geschafft...'
+    ]}
+  />
+) : (
     <HtmlContent className="text-gray-600" html={investComment || '<p>–</p>'} />
   )}
   
@@ -1520,39 +1571,50 @@ const exportPdf = React.useCallback(async () => {
             <h3 className="font-semibold mb-3">Szenario</h3>
             <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
               {rows.map((r) => {
-                const delta  = r.sc - r.base;
-                const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
-                const color  = nz(delta) ? "text-gray-600"
-                              : better ? "text-[hsl(var(--success))]"
-                                       : "text-[hsl(var(--danger))]";
-                const fd = r.fractionDigits ?? (r.unit === "%" ? 1 : r.unit === "€" ? 0 : 0);
+  const delta  = r.sc - r.base;
+  const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
+  const color  = nz(delta) ? "text-gray-600"
+                : better ? "text-[hsl(var(--success))]"
+                         : "text-[hsl(var(--danger))]";
+  const fd = r.fractionDigits ?? (r.unit === "%" ? 1 : r.unit === "€" ? 0 : 0);
 
-                return (
-                  <div className="contents" key={r.label}>
-                    <div>{r.label}</div>
-                    <div className="text-right">
-                      {/* Hauptwert */}
-                      <div className="text-gray-800">
-                        {r.renderMain ? r.renderMain() : fmt(r.sc, r.unit, fd)}
-                      </div>
-                      {/* Delta-Zeile */}
-                      <div className={`text-xs mt-0.5 ${r.renderDelta ? "" : color}`}>
-                        {r.renderDelta
-                          ? r.renderDelta()
-                          : nz(delta)
-                            ? "±0"
-                            : (delta > 0 ? "+" : "−") + (
-                                r.unit === "€"
-                                  ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " €"
-                                  : r.unit === "%"
-                                    ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " %"
-                                    : Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd })
-                              )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+  // Trennstrich vor "Cashflow (vor St.)" einfügen
+  const showSeparator = r.label === "Cashflow (vor St.)";
+
+  return (
+    <React.Fragment key={r.label}>
+      {/* Separator */}
+      {showSeparator && (
+        <div className="col-span-2 border-t border-gray-300 my-2" />
+      )}
+
+      {/* Label */}
+      <div className={showSeparator ? "font-medium pt-2" : ""}>{r.label}</div>
+
+      {/* Value */}
+      <div className={`text-right ${showSeparator ? "font-medium pt-2" : ""}`}>
+        {/* Hauptwert */}
+        <div className="text-gray-800">
+          {r.renderMain ? r.renderMain() : fmt(r.sc, r.unit, fd)}
+        </div>
+        {/* Delta-Zeile */}
+        <div className={`text-xs mt-0.5 ${r.renderDelta ? "" : color}`}>
+          {r.renderDelta
+            ? r.renderDelta()
+            : nz(delta)
+              ? "±0"
+              : (delta > 0 ? "+" : "−") + (
+                  r.unit === "€"
+                    ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " €"
+                    : r.unit === "%"
+                      ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " %"
+                      : Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd })
+                )}
+        </div>
+      </div>
+    </React.Fragment>
+  );
+})}
             </div>
           </div>
         </div>
@@ -1586,6 +1648,7 @@ const exportPdf = React.useCallback(async () => {
     <div className="max-w-xl mx-auto py-10">
       {showProgress && <ProgressIndicator currentStep={step as Step} />}
       {content}
+      
     </div>
   );
 }
