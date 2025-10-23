@@ -18,6 +18,7 @@ import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 
 
 
@@ -1683,9 +1684,7 @@ const exportPdf = React.useCallback(async () => {
 >
   {pdfBusy ? 'Exportiert…' : 'PDF exportieren'}
 </button>
-      <button className="btn-secondary">
-        Ergebnis speichern
-      </button>
+      <SaveAnalysisButton />
     </div>
   </>
 )}

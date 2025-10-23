@@ -7,15 +7,8 @@ import {
   Home, Plus, FileText, Crown, TrendingUp, Calendar, MapPin,
   BarChart3, ArrowRight, Sparkles
 } from 'lucide-react';
-
-type SavedAnalysis = {
-  id: string;
-  address: string;
-  kaufpreis: number;
-  nettorendite: number;
-  cashflow: number;
-  createdAt: string;
-};
+import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
+import { useImmoStore } from '@/store/useImmoStore';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -30,18 +23,17 @@ export default function DashboardPage() {
       return;
     }
 
-    if (isSignedIn && userId) {
-      // TODO: Fetch user data from Supabase
-      // For now, use localStorage as temporary storage
-      const storedAnalyses = localStorage.getItem(`analyses_${userId}`);
-      const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
+    if (isLoaded) {
+      // Load analyses from localStorage
+      const loadedAnalyses = getAllAnalyses(userId);
+      setAnalyses(loadedAnalyses);
 
-      if (storedAnalyses) {
-        setAnalyses(JSON.parse(storedAnalyses));
-      }
+      // Load premium usage
+      const storedUsage = localStorage.getItem(userId ? `premium_usage_${userId}` : 'guest_premium_usage');
       if (storedUsage) {
         setPremiumUsageCount(parseInt(storedUsage, 10));
       }
+
       setIsLoading(false);
     }
   }, [isLoaded, isSignedIn, userId, router]);
@@ -50,9 +42,17 @@ export default function DashboardPage() {
     router.push('/input-method');
   };
 
-  const handleOpenAnalysis = (id: string) => {
-    // TODO: Load analysis data from storage
-    router.push('/step/tabs');
+  const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
+
+  const handleOpenAnalysis = async (analysisId: string) => {
+    // Load analysis into store
+    const success = await loadAnalysis(analysisId);
+
+    if (success) {
+      router.push('/step/tabs');
+    } else {
+      alert('Fehler beim Laden der Analyse');
+    }
   };
 
   if (!isLoaded || isLoading) {
@@ -199,43 +199,43 @@ export default function DashboardPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {analyses.map((analysis) => (
                 <div
-                  key={analysis.id}
+                  key={analysis.analysisId}
                   className="border border-gray-200 rounded-xl p-4 hover:border-[hsl(var(--brand))] hover:shadow-md transition cursor-pointer"
-                  onClick={() => handleOpenAnalysis(analysis.id)}
+                  onClick={() => handleOpenAnalysis(analysis.analysisId)}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <MapPin className="w-5 h-5 text-[hsl(var(--brand))]" />
                     <span className="text-xs text-gray-500 flex items-center gap-1">
                       <Calendar size={12} />
-                      {new Date(analysis.createdAt).toLocaleDateString('de-DE')}
+                      {new Date(analysis.createdAt || Date.now()).toLocaleDateString('de-DE')}
                     </span>
                   </div>
 
                   <h3 className="font-semibold mb-2 line-clamp-2">
-                    {analysis.address}
+                    {analysis.analysisName || analysis.adresse || 'Unbenannte Analyse'}
                   </h3>
 
                   <div className="space-y-2 text-sm mb-4">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Kaufpreis:</span>
                       <span className="font-medium">
-                        {analysis.kaufpreis.toLocaleString('de-DE')} €
+                        {(analysis.kaufpreis || 0).toLocaleString('de-DE')} €
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Nettorend.:</span>
                       <span className="font-medium text-[hsl(var(--success))]">
-                        {analysis.nettorendite.toFixed(1)}%
+                        {(analysis.nettorendite || 0).toFixed(1)}%
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Cashflow:</span>
                       <span className={`font-medium ${
-                        analysis.cashflow >= 0
+                        (analysis.cashflow_operativ || 0) >= 0
                           ? 'text-[hsl(var(--success))]'
                           : 'text-[hsl(var(--danger))]'
                       }`}>
-                        {analysis.cashflow.toLocaleString('de-DE')} €
+                        {(analysis.cashflow_operativ || 0).toLocaleString('de-DE')} €
                       </span>
                     </div>
                   </div>

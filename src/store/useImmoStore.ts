@@ -5,12 +5,19 @@ import {
     berechneNettomietrendite,
     berechneScore
   } from '@/lib/calculations';
-  
+
 
 /**
  * State und Setter für ImmoInvest AI Eingaben (Schritt A)
  */
 export interface ImmoState {
+  // Analysis metadata
+  analysisId: string | null;
+  analysisName: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+
+  // Input fields
   kaufpreis: number;
   grunderwerbsteuer_pct: number;
   notar_pct: number;
@@ -24,20 +31,25 @@ export interface ImmoState {
   hausgeld_umlegbar: number;
   mietausfall_pct: number;
   instandhaltungskosten_pro_qm: number;
-    steuer: number;                    
-  afa: number;                       
-  ruecklagen: number;                
-  persoenlicher_steuersatz: number;  
-ek: number;        
-  zins: number;     
+  steuer: number;
+  afa: number;
+  ruecklagen: number;
+  persoenlicher_steuersatz: number;
+  ek: number;
+  zins: number;
   tilgung: number;
+
+  // Derived fields
   cashflow_operativ: number;
   nettorendite: number;
   score: number;
   anschaffungskosten: number;
 
-  
-  updateDerived: () => void;   
+  // Methods
+  updateDerived: () => void;
+  resetAnalysis: () => void;
+  loadAnalysis: (id: string) => Promise<boolean>;
+  exportState: () => Record<string, unknown>;
 
   setKaufpreis: (v: number) => void;
   setGrunderwerbsteuerPct: (v: number) => void;
@@ -65,7 +77,13 @@ ek: number;
 // Typ für die Set-Funktion: akzeptiert partielle ImmoState-Updates
 type SetFn = (state: Partial<ImmoState>) => void;
 
-export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
+const initialState = {
+  // Metadata
+  analysisId: null,
+  analysisName: '',
+  createdAt: null,
+  updatedAt: null,
+
   // Initialwerte
   kaufpreis: 0,
   grunderwerbsteuer_pct: 6.5,
@@ -91,6 +109,10 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   nettorendite: 0,
   score: 0,
   anschaffungskosten: 0,
+};
+
+export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
+  ...initialState,
   updateDerived: () => {
     const s = get();
     const cf = berechneCashflowOperativ(
@@ -211,7 +233,79 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   importData: (data) => {
-  set(data);
-  get().updateDerived();
-},
+    set(data);
+    get().updateDerived();
+  },
+
+  resetAnalysis: () => {
+    set(initialState);
+  },
+
+  loadAnalysis: async (id: string) => {
+    try {
+      // For now, load from localStorage
+      // TODO: Load from Supabase when implemented
+      if (typeof window === 'undefined') return false;
+
+      const { loadAnalysis: loadFromStorage } = await import('@/lib/storage');
+
+      // Try to get userId from Clerk
+      let userId: string | null = null;
+      try {
+        const { auth } = await import('@clerk/nextjs/server');
+        const authResult = await auth();
+        userId = authResult.userId;
+      } catch {
+        // Guest user
+        userId = null;
+      }
+
+      const data = loadFromStorage(userId, id);
+      if (!data) return false;
+
+      set({
+        ...data,
+        analysisId: id,
+      });
+      get().updateDerived();
+      return true;
+    } catch (error) {
+      console.error('Failed to load analysis:', error);
+      return false;
+    }
+  },
+
+  exportState: () => {
+    const state = get();
+    return {
+      analysisId: state.analysisId,
+      analysisName: state.analysisName || state.adresse || 'Unbenannte Analyse',
+      createdAt: state.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      kaufpreis: state.kaufpreis,
+      grunderwerbsteuer_pct: state.grunderwerbsteuer_pct,
+      notar_pct: state.notar_pct,
+      makler_pct: state.makler_pct,
+      flaeche: state.flaeche,
+      adresse: state.adresse,
+      zimmer: state.zimmer,
+      baujahr: state.baujahr,
+      miete: state.miete,
+      hausgeld: state.hausgeld,
+      hausgeld_umlegbar: state.hausgeld_umlegbar,
+      mietausfall_pct: state.mietausfall_pct,
+      instandhaltungskosten_pro_qm: state.instandhaltungskosten_pro_qm,
+      steuer: state.steuer,
+      afa: state.afa,
+      ruecklagen: state.ruecklagen,
+      persoenlicher_steuersatz: state.persoenlicher_steuersatz,
+      ek: state.ek,
+      zins: state.zins,
+      tilgung: state.tilgung,
+      cashflow_operativ: state.cashflow_operativ,
+      nettorendite: state.nettorendite,
+      score: state.score,
+      anschaffungskosten: state.anschaffungskosten,
+    };
+  },
 }));
