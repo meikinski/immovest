@@ -48,7 +48,7 @@ export interface ImmoState {
   // Methods
   updateDerived: () => void;
   resetAnalysis: () => void;
-  loadAnalysis: (id: string) => Promise<boolean>;
+  loadAnalysis: (id: string, userId?: string | null) => Promise<boolean>;
   exportState: () => Record<string, unknown>;
 
   setKaufpreis: (v: number) => void;
@@ -241,24 +241,13 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set(initialState);
   },
 
-  loadAnalysis: async (id: string) => {
+  loadAnalysis: async (id: string, userId: string | null = null) => {
     try {
       // For now, load from localStorage
       // TODO: Load from Supabase when implemented
       if (typeof window === 'undefined') return false;
 
       const { loadAnalysis: loadFromStorage } = await import('@/lib/storage');
-
-      // Try to get userId from Clerk
-      let userId: string | null = null;
-      try {
-        const { auth } = await import('@clerk/nextjs/server');
-        const authResult = await auth();
-        userId = authResult.userId;
-      } catch {
-        // Guest user
-        userId = null;
-      }
 
       const data = loadFromStorage(userId, id);
       if (!data) return false;
