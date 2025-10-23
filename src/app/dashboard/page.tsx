@@ -45,8 +45,8 @@ export default function DashboardPage() {
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
 
   const handleOpenAnalysis = async (analysisId: string) => {
-    // Load analysis into store
-    const success = await loadAnalysis(analysisId);
+    // Load analysis into store (pass userId from Clerk)
+    const success = await loadAnalysis(analysisId, userId);
 
     if (success) {
       router.push('/step/tabs');
