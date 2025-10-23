@@ -1,4 +1,4 @@
-// src/lib/agentWorkflow.ts
+// src/lib/agentWorkflow.ts - ALLE STRINGS EINZEILIG
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
 
@@ -51,154 +51,48 @@ const webSearchPreview = webSearchTool({
   userLocation: { type: 'approximate' },
 });
 
-// ⚡ Research auf gpt-4o (2-3x schneller als GPT-5 Nano!)
 const research = new Agent({
   name: 'Research',
-  instructions: `Ermittle Marktdaten für die Immobilie. Sei präzise und fokussiert.
-
-LOCATION: 
-- Extrahiere aus payload.address: Postleitzahl, Stadtteil/Ortsteil, Gemeinde/Stadt
-- Unterscheide: Großstadt, Kleinstadt, Gemeinde, Dorf
-- Confidence-Level (niedrig/mittel/hoch)
-
-BENCHMARKS:
-- Bezirks-Median (€/m²) für Miete & Kaufpreis
-- Preisspanne P25-P75 als {low, high} - falls nicht verfügbar: null setzen
-- NUR diese 2 Ebenen, keine weiteren Segment-Aufschlüsselungen
-
-LEERSTAND & NACHFRAGE:
-- vacancy.risk (niedrig/mittel/hoch) + rate (% falls verfügbar, sonst null)
-- demand.drivers: Max 3 konkrete Punkte zu Bewohnertypen & Beliebtheit
-
-QUELLEN: Mietspiegel 2024/2025, Immobilienportale, amtliche Statistik. Min. 2 Quellen.
-
-AUSGABE: Deutsch, strukturiert, nur Zahlen & kurze notes. Keine Fließtexte.`,
-  model: 'gpt-4o', // ⚡ Gewechselt von gpt-5-nano (2-3x schneller!)
+  instructions: 'Du bist Marktforscher. ABSOLUTE REGEL: Wenn Zahl NICHT in Quelle gefunden, setze NULL. NIEMALS schaetzen oder erfinden. Extrahiere aus payload: PLZ, Stadtteil, Stadt, objektTyp, zimmer, flaeche, baujahr. Diese Infos MUESSEN in rent.notes und price.notes dokumentiert werden. Benchmarks: 1) Gemeinde-Median Euro/qm MUSS aus Quelle, 2) Optional Segment-Median fuer aehnliche Objekte, 3) Preisspanne P25-P75 wenn verfuegbar, 4) Quelle plus Jahr plus Segmentierung in notes. Leerstand KRITISCH: vacancy.risk NUR wenn Quelle gefunden sonst NULL, vacancy.rate NUR wenn konkreter Prozent-Wert in Quelle sonst NULL, vacancy.notes GENAU dokumentieren was gefunden (Beispiel RICHTIG: Keine spezifischen Leerstandsdaten fuer Wettenberg gefunden, Landkreis Giessen 1,2 Prozent laut Statistik Hessen 2024 nur indikativ NICHT spezifisch fuer Gemeinde, Beispiel FALSCH: Leerstandsquote liegt bei 2,5 Prozent wenn nicht in Quelle). demand.drivers NUR aus Quellen. WENN KEINE DATEN: Lieber ehrlich Keine Daten gefunden als schaetzen. Quellen: Mietspiegel 2024/2025, Gutachterausschuss, Wohnungsmarktberichte, Immobilienportale nur ergaenzend. VERBOTEN: Schaetzungen wie etwa circa ungefaehr, Zahlen ohne Quellenangabe, Uebertragung von Kreis-Daten auf Gemeinde ohne Kennzeichnung, Erfindung von Segment-Daten.',
+  model: 'gpt-4o-mini',
   tools: [webSearchPreview],
   outputType: ResearchSchema,
-  modelSettings: { store: true },
+  modelSettings: { store: true, temperature: 0.05 },
 });
 
-// ✅ Lage Agent - Dynamisch basierend auf Stadt/Dorf/Gemeinde
 const lageagent = new Agent({
   name: 'LageAgent',
-  instructions: `Beschreibe die Lage in 4-5 Sätzen, Du-Anrede, investorenfreundlich.
-
-INHALTE (nutze facts konkret):
-- Ortstyp erkennbar machen (Großstadt/Kleinstadt/Gemeinde/Dorf/Ortsteil)
-- Bewohnertypen aus facts.demand.drivers
-- Charakter des Viertels (was gibt es dort)
-- Infrastruktur & Verkehrsanbindung
-- VERMIETBARKEIT: Wie schnell vermietbar? Begründung aus facts.demand
-- LEERSTANDSRISIKO: facts.vacancy.risk mit konkreter Begründung (warum niedrig/mittel/hoch)
-
-TONALITÄT anpassen an Ortsgröße:
-- Urban/dynamisch bei Großstadt
-- Ruhig/familienorientiert bei Kleinstadt/Gemeinde
-- Ländlich/Natur bei Dorf
-
-ZIEL: Nutzer soll Confidence für Investitionsentscheidung bekommen - sei konkret und begründe.
-
-STIL: Du-Anrede, keine Preise/KPIs, natürlich formulieren.`,
+  instructions: 'Beschreibe Lage wie Investor einem Freund sachlich aber locker. Nutze AUSSCHLIESSLICH facts. 4-5 Saetze: 1) FUER WEN INTERESSANT: Die Wohnung ist vor allem fuer Zielgruppe interessant, nutze NUR facts.demand.drivers KEINE eigenen Erfindungen. 2) WARUM: Erklaere WARUM aber NUR wenn in facts.demand.notes erwaehnt, wenn NICHTS in notes dann Die Lage bietet generische Vorteile fuer Zielgruppen. 3) NACHFRAGE-KONTEXT aus facts.location: Kleinstadt/Gemeinde bedeutet oft stabilere Mieter aber kleineren Pool an Interessenten, Grossstadt bedeutet grossen Pool aber mehr Fluktuation. 4) LEERSTANDSRISIKO NUR aus facts.vacancy, PRUEFE GENAU facts.vacancy.notes, WENN vacancy.rate ist NULL UND notes enthaelt Keine spezifischen Daten dann Konkrete Leerstandszahlen fuer Ort gibt es nicht, WENN vacancy.rate ist NUMBER UND notes enthaelt Landkreis ODER Region ODER indikativ dann Fuer Gemeinde selbst gibt es keine genauen Zahlen der Landkreis/Region liegt bei etwa X Prozent das ist aber nur grobe Richtung, WENN vacancy.rate ist NUMBER UND notes enthaelt NICHT indikativ ODER Landkreis dann Der Leerstand in Ort liegt bei X Prozent. 5) VERMIETBARKEIT KRITISCH KEINE Zeitangaben wie 2-3 Monate erfinden, basiere NUR auf facts.vacancy.risk: niedrig bedeutet Vermietung sollte zuegig klappen, mittel bedeutet Vermietung sollte machbar sein, hoch bedeutet Vermietung koennte laenger dauern, NULL bedeutet Zur Vermietungsdauer gibt es keine belastbaren Daten. VERBOTEN: Zeitangaben wie 2-3 Monate ohne Quelle, Leerstandszahlen ohne Quelle, POIs die nicht in facts stehen, Aussagen ueber Anbindung ohne facts. TON: Lockerer Experten-Ton ehrlich bei fehlenden Daten.',
   model: 'gpt-4o-mini',
   outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.3, maxTokens: 600, store: true },
+  modelSettings: { temperature: 0.25, maxTokens: 600, store: true },
 });
 
-
-// ✅ Miet Agent - Dynamische Empfehlung basierend auf Vergleich
 const mietagent = new Agent({
   name: 'MietAgent',
-  instructions: `Vergleiche die Miete mit dem Markt in 2-3 Sätzen, Du-Anrede.
-
-BERECHNE:
-- Aktuelle Miete/m²: payload.miete / payload.flaeche
-- Vergleich mit facts.rent.median_psqm
-- Abweichung in Prozent
-
-INHALTE:
-- Nenne aktuelle Miete/m² und Markt-Median
-- Erwähne Segment-Kontext (Zimmeranzahl, Größe)
-- Falls facts.rent.range_psqm vorhanden: Nenne die Spanne
-- Prozentuale Abweichung einordnen
-
-LOGIK für Empfehlung:
-- Miete deutlich unter Markt (>5%): Potenzial für Mieterhöhung ansprechen, Effekt auf Rendite/Cashflow
-- Miete deutlich über Markt (>5%): Kann durch Ausstattung/Lage gerechtfertigt sein
-- Miete im Marktniveau (±5%): Faire/marktgerechte Miete
-- NUR bei Miete unter Markt: Optimierungstipp geben
-
-STIL: Du-Anrede, konkret, keine Formeln, natürlich formulieren.`,
+  instructions: 'Vergleiche Miete mit Markt wie dein Kumpel der sich auskennt. Nutze facts.rent. Berechne: Aktuelle Miete/qm vs facts.rent.median_psqm, Abweichung in Prozent. STRUKTUR 2-3 Saetze FLIESSTEXT: Die 3-Zimmer-Wohnung 67 qm wird fuer 14,93 Euro/qm vermietet. In Wettenberg liegt der Schnitt bei 10,34 Euro/qm, vergleichbare 3-Zimmer-Wohnungen 60-80 qm kosten im Median etwa 10,32 Euro/qm die uebliche Spanne geht von 10 bis 10,50 Euro. Du liegst also 44 Prozent drueber was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen waere. WICHTIG: Spanne NATUERLICH in Satz einbauen nicht als Extra-Zeile, Segment-Median in gleichen Satz wie Gemeinde-Median, Du liegst X Prozent drueber/drunter statt Das ist X Prozent, Keine Aufzaehlungen nur Fliesstext. TONFALL: Wie beim Bier erklaeren locker direkt auf den Punkt.',
   model: 'gpt-4o-mini',
   outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.3, maxTokens: 500, store: true },
+  modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
 });
 
-// ✅ Kauf Agent - Dynamisch, Spanne nur wenn verfügbar
 const kaufagent = new Agent({
   name: 'KaufAgent',
-  instructions: `Vergleiche den Kaufpreis mit dem Markt in 2-3 Sätzen, Du-Anrede.
-
-BERECHNE:
-- Kaufpreis/m²: payload.kaufpreis / payload.flaeche
-- Vergleich mit facts.price.median_psqm
-- Abweichung in Prozent
-
-INHALTE:
-- Kaufpreis/m² und Markt-Median nennen
-- Segment-Kontext (Objekttyp, Größe, Baujahr)
-- Falls facts.price.range_psqm vorhanden: Spanne erwähnen (sonst weglassen)
-- Prozentuale Abweichung
-
-LOGIK für Empfehlung (nur EINE!):
-- Deutlich unter Markt (<-10%): Sehr guter Preis, aber Zustand/Unterlagen prüfen (WEG-Rücklagen, Sanierungsbedarf)
-- Deutlich über Markt (>+10%): Verhandlungsspielraum möglich, außer besondere Ausstattung/Lage
-- Im Marktniveau (±10%): Fairer Preis
-
-WICHTIG: Nicht widersprüchlich - entweder prüfen ODER verhandeln, nicht beides.
-
-STIL: Du-Anrede, kein Markdown, keine CTAs, natürlich formulieren.`,
+  instructions: 'Vergleiche Kaufpreis wie dein Kumpel der sich auskennt. Nutze facts.price. Berechne: Kaufpreis/qm vs facts.price.median_psqm, Abweichung in Prozent. WICHTIG BEI ANZEIGE: Wenn Zahl in Tausender (z.B. 2985 Euro/qm) schreibe 2.985 Euro/qm MIT Punkt, wenn Zahl unter Tausend keine besondere Formatierung. STRUKTUR 2-3 Saetze FLIESSTEXT: Fuer die 3-Zimmer-Wohnung 67 qm Baujahr 1900 werden 2.985 Euro/qm aufgerufen. In Wettenberg liegt der Schnitt bei 3.280 Euro/qm, vergleichbare Altbau-Wohnungen mit 3 Zimmern kosten im Median etwa 3.100 Euro/qm ueblich sind 3.000 bis 3.600 Euro. Du liegst 9 Prozent drunter das ist ein fairer bis guter Preis schau dir aber unbedingt die WEG-Unterlagen an (Protokolle Ruecklagen anstehende Sanierungen). WICHTIG: Spanne NATUERLICH einbauen, Segment-Median in gleichen Satz, Du liegst X Prozent drueber/drunter, Bei gutem Preis Zustand pruefen, Bei teurem Preis Verhandlung. TONFALL: Wie beim Bier locker direkt.',
   model: 'gpt-4o-mini',
   outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.3, maxTokens: 500, store: true },
+  modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
 });
 
-// ✅ Invest Agent - Nutzt ECHTE KPIs aus der App
 const investitionsanalyseagent = new Agent({
   name: 'InvestitionsanalyseAgent',
-  instructions: `Schreibe kompakte Investment-Einschätzung in Du-Anrede. MAX 120 Wörter, 3 Absätze.
-
-NUTZE DIESE DATEN:
-- payload.cashflowVorSteuer, .nettoMietrendite, .bruttoMietrendite, .ekRendite, .dscr
-- Ergebnisse aus lage.html, miete.html, kauf.html
-
-STRUKTUR:
-
-Absatz 1 - ZUSAMMENFASSUNG:
-- Beginne mit einleitender Formulierung (z.B. "Zusammenfassend", "Insgesamt", "Im Überblick")
-- Fasse Kernaussagen aus Lage/Miete/Kauf zusammen
-- KEINE Zahlen wiederholen - nur Essenz
-
-Absatz 2 - KPI-ANALYSE & OPTIMIERUNG:
-- Analysiere die wichtigsten KPIs aus payload
-- Bei negativem Cashflow: Thematisieren mit konkretem Wert
-- Bei schwacher Rendite (<3%): Optimierungspotenzial aufzeigen
-- Bei DSCR <1: Finanzierungsbedarf ansprechen
-- Bei guten Werten: Bestätigen
-- Verbinde mit Ergebnissen der anderen Agents (z.B. wenn Miete unter Markt + Rendite schwach → Mieterhöhung vorschlagen)
-- Konkrete Optimierungstipps mit geschätztem Effekt
-
-Absatz 3 - EMPFEHLUNG:
-- Bewerte als: "Top-Investment" / "Solide mit Optimierungsbedarf" / "Risikobehaftet"
-- Kriterien: Cashflow positiv, Rendite >3%, DSCR >1,2 = Top | 1-2 schwach = Solide | Mehrere schwach = Risikobehaftet
-- Kurze Begründung mit 1-2 KPIs
-
-WICHTIG: Nutze echte Werte aus payload, keine Wiederholungen aus anderen Agents.
-
-STIL: Du-Anrede, analytisch, investorenfreundlich, natürlich formulieren.`,
-  model: 'gpt-4o-mini',
+  instructions: 'Du erklaerst deinem Kumpel das Investment klar ehrlich ohne Zahlensalat. ZIEL: Was muss ich wissen, was ist das Risiko, was soll ich tun. 4 ABSAETZE 120-150 Woerter: ABSATZ 1 FUER WEN 20-25 Woerter: Aus lage.html Zielgruppen plus ob Nachfrage gut/mittel/schlecht. Die Wohnung passt fuer Zielgruppe, 1 Satz zur Nachfrage. ABSATZ 2 DIE ZAHLEN 30-40 Woerter: Ueberschrift Die Zahlen im Ueberblick. NUR die 3 wichtigsten KPIs: Cashflow von 265 Euro im Monat das laeuft solide, Rendite von 4,8 Prozent stark, Die Rate ist gut gedeckt DSCR 1,47. KEINE Detail-Zahlen wie EK Kaufpreis Anschaffungskosten zu viel Ballast. ABSATZ 3 DAS RISIKO 40-50 Woerter: Ueberschrift Hier ist der Haken. NUR DAS groesste Risiko OHNE Zahlen-Overkill. Die Miete liegt 44 Prozent ueber dem Markt 1000 statt ca 700 Euro. Problem Bei Mieterwechsel kriegst du keinen Nachmieter zu diesem Preis. Worst Case bei Markt-Miete Du zahlst jeden Monat drauf Rendite faellt auf ca 3 Prozent. Mittlerer Weg mit 750 Euro Gerade so plus-minus null. ABSATZ 4 WAS TUN 30-40 Woerter: Ueberschrift Meine Empfehlung. Max 2 Schritte KONKRET. 1) Kaufpreis ist gut WEG-Unterlagen checken Protokolle Ruecklagen Sanierungen. 2) Aktuellen Mieter halten oder bei Neuvermietung realistisch 11-12 Euro/qm ansetzen. ZUSAMMENFASSUNG 10-15 Woerter: Ja mit Vorbehalt Starker Cashflow und Rendite aber Miete deutlich ueber Markt. VERBOTEN: Zahlen wie EK 100000 Euro Kaufpreis 200000 Euro Anschaffungskosten 224140 Euro. Wiederholung von Zahlen aus miete/kauf. Mehr als 3 KPIs im Zahlen-Teil. Formeln oder Berechnungen zeigen. TONFALL: Wie beim Bier erklaeren direkt klar ohne Schnickschnack',
+  model: 'gpt-5-mini',
   outputType: z.object({ html: z.string() }),
-  modelSettings: { temperature: 0.4, maxTokens: 500, store: true },
+  modelSettings: { 
+    reasoning: { effort: 'low', summary: 'auto' },
+    store: true 
+  },
 });
 
 export type AgentWorkflowResult = {
@@ -209,13 +103,10 @@ export type AgentWorkflowResult = {
   invest: { html: string };
 };
 
-export async function runWorkflow(
-  workflow: WorkflowInput,
-): Promise<AgentWorkflowResult> {
-  const inputStr =
-    typeof workflow.input_as_text === 'string'
-      ? workflow.input_as_text
-      : JSON.stringify(workflow.payload ?? {});
+export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflowResult> {
+  const inputStr = typeof workflow.input_as_text === 'string'
+    ? workflow.input_as_text
+    : JSON.stringify(workflow.payload ?? {});
 
   let payload: unknown;
   try {
@@ -228,31 +119,54 @@ export async function runWorkflow(
     traceMetadata: { __trace_source__: 'agent-builder', workflow_id: 'wf_local_in_app' },
   });
 
-  // 1️⃣ Research (jetzt mit gpt-4o = 2-3x schneller!)
+  console.log('Research Agent starting...');
   const researchRes = await runner.run(research, [
     { role: 'user', content: [{ type: 'input_text', text: JSON.stringify(payload) }] },
   ]);
   if (!researchRes.finalOutput) throw new Error('Research fehlgeschlagen');
   const facts = researchRes.finalOutput;
+  
+  if (!facts.rent.median_psqm && !facts.price.median_psqm) {
+    console.warn('Research hat keine Median-Werte geliefert');
+  }
+  console.log('Research complete:', {
+    rent_median: facts.rent.median_psqm,
+    price_median: facts.price.median_psqm,
+    vacancy_rate: facts.vacancy.rate,
+    citations: facts.citations.length
+  });
 
-  // 2️⃣ Writer Agents PARALLEL
+  console.log('Writer Agents starting...');
+  const writerContext = {
+    payload,
+    facts: {
+      location: facts.location,
+      rent: facts.rent,
+      price: facts.price,
+      vacancy: facts.vacancy,
+      demand: facts.demand,
+    }
+  };
+  
   const [lageRes, mietRes, kaufRes] = await Promise.all([
     runner.run(lageagent, [
-      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify({ payload, facts }) }] },
+      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify(writerContext) }] },
     ]),
     runner.run(mietagent, [
-      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify({ payload, facts }) }] },
+      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify(writerContext) }] },
     ]),
     runner.run(kaufagent, [
-      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify({ payload, facts }) }] },
+      { role: 'user', content: [{ type: 'input_text', text: JSON.stringify(writerContext) }] },
     ]),
   ]);
 
   if (!lageRes.finalOutput) throw new Error('Lage fehlgeschlagen');
   if (!mietRes.finalOutput) throw new Error('Miete fehlgeschlagen');
   if (!kaufRes.finalOutput) throw new Error('Kauf fehlgeschlagen');
+  
+  console.log('Writer Agents complete');
 
-  // 3️⃣ Invest Agent (bekommt ALLE Daten inkl. berechnete KPIs)
+  console.log('Invest Agent starting...');
   const investRes = await runner.run(investitionsanalyseagent, [
     {
       role: 'user',
@@ -260,8 +174,8 @@ export async function runWorkflow(
         {
           type: 'input_text',
           text: JSON.stringify({
-            payload, // Enthält jetzt auch die KPIs!
-            facts,
+            payload,
+            facts: writerContext.facts,
             lage: lageRes.finalOutput,
             miete: mietRes.finalOutput,
             kauf: kaufRes.finalOutput,
@@ -271,6 +185,7 @@ export async function runWorkflow(
     },
   ]);
   if (!investRes.finalOutput) throw new Error('Investitionsanalyse fehlgeschlagen');
+  console.log('Invest Agent complete');
 
   return {
     facts,
