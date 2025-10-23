@@ -760,7 +760,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Zimmer & Fläche */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <div className='card'>
               <div className="mb-2 text-lg font-semibold flex items-center">
@@ -845,7 +845,7 @@ const exportPdf = React.useCallback(async () => {
             <span className="ml-2"><Wallet /></span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Kaltmiete gesamt */}
             <div className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -892,7 +892,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Mietnebenkosten */}
         <div className='card'>
           <div className="mb-2 text-lg font-semibold flex items-center">Mietnebenkosten&nbsp;<span><ChartBar /></span></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Umlagefähig */}
             <div
               onBlur={() => {
@@ -935,7 +935,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Kalkulatorische Kosten */}
         <div className='card'>
           <div className="mb-2 text-lg font-semibold flex items-center">Kalkulatorische Kosten&nbsp;<span><WrenchIcon /></span></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Mietausfall */}
             <div onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)} className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -974,7 +974,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="mb-2 text-lg font-semibold flex items-center">
             Steuern&nbsp;<span><SquarePercent /></span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* AfA Satz */}
             <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -1595,7 +1595,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Basis */}
           <div className="card bg-white">
             <h3 className="font-semibold mb-3">Aktuelle Eingaben</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
               <div>Kaufpreis</div>             <div className="text-right">{kaufpreis.toLocaleString('de-DE')} €</div>
               <div>Gesamtinvestition</div>     <div className="text-right">{anschaffungskosten.toLocaleString('de-DE')} €</div>
               <div>Eigenkapital</div>          <div className="text-right">{ek.toLocaleString('de-DE')} €</div>
@@ -1621,7 +1621,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Szenario – ohne Icons, Delta unter dem Wert */}
           <div className="card card-scenario">
             <h3 className="font-semibold mb-3">Szenario</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
               {rows.map((r) => {
   const delta  = r.sc - r.base;
   const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
