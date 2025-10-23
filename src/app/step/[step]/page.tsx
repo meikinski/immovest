@@ -7,8 +7,8 @@ import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
- BedSingle, Bot, Calculator, Calendar, ChartBar,
-  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon
+ BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar,
+  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock
 } from 'lucide-react';
 import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
@@ -16,6 +16,8 @@ import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { usePaywall } from '@/contexts/PaywallContext';
+import { UpgradeModal } from '@/components/UpgradeModal';
 
 
 
@@ -44,6 +46,10 @@ export default function StepPage() {
   const idx = steps.indexOf(step);
   const nextStep = idx < steps.length - 1 ? steps[idx + 1] : 'tabs';
   const showProgress = step !== 'tabs';
+
+  // Paywall
+  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
+  const hasIncrementedUsage = useRef(false);
 
 
   // Hydration guard
@@ -256,12 +262,23 @@ const dscr =
   const [comment, setComment] = useState<string>('');
   const [isLoadingComment, setIsLoadingComment] = useState<boolean>(false);
   const commentFetched = useRef(false);
+  const lastCommentInputs = useRef<string>('');
 
   useEffect(() => {
     if (step !== 'tabs') return;
     if (activeTab !== 'kpi') return;
-    if (commentFetched.current) return;
 
+    // Create fingerprint of inputs to detect real changes
+    const inputFingerprint = JSON.stringify({
+      kaufpreis, anschaffungskosten, adresse, flaeche, zimmer, baujahr,
+      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
+      cashflowVorSteuer, nettoMietrendite, bruttoMietrendite
+    });
+
+    // Skip if already fetched with same inputs
+    if (commentFetched.current && lastCommentInputs.current === inputFingerprint) return;
+
+    lastCommentInputs.current = inputFingerprint;
     setIsLoadingComment(true);
     fetch('/api/generateComment', {
       method: 'POST',
@@ -317,16 +334,7 @@ const dscr =
   cashflowVorSteuer, cashflowAfterTax, bruttoMietrendite, nettoMietrendite, ek, anschaffungskosten,
   adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, kalkKostenMonthly, warmmiete, objekttyp]);
 
-  // Bei relevanten Änderungen erneutes Laden des Kurzkommentars erlauben
-useEffect(() => {
-  if (step === 'tabs' && activeTab === 'kpi') {
-    commentFetched.current = false;
-  }
-}, [
-  step, activeTab,
-  cashflowVorSteuer, nettorendite, ek, anschaffungskosten,
-  adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis
-]);
+  // Note: Removed the reset effect - we now use fingerprint-based caching
 
   // === Markt & Lage (Tab 2) – Datencontainer/States ===
   const [lageComment, setLageComment]           = useState<string>('');
@@ -335,10 +343,36 @@ useEffect(() => {
   const [lageTrendComment, setLageTrendComment] = useState<string>('');
   const [investComment, setInvestComment]       = useState<string>('');
   const [loadingDetails, setLoadingDetails]     = useState<boolean>(false);
+  const marktFetched = useRef(false);
+  const lastMarktInputs = useRef<string>('');
 
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
+  // Check paywall access
+  if (!canAccessPremium) {
+    setShowUpgradeModal(true);
+    return;
+  }
+
+  // Create fingerprint of inputs to detect real changes
+  const inputFingerprint = JSON.stringify({
+    adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+    miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
+    cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
+  });
+
+  // Skip if already fetched with same inputs
+  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+
+  // Increment usage counter (only once per session/analysis)
+  if (!isPremium && !hasIncrementedUsage.current) {
+    incrementPremiumUsage();
+    hasIncrementedUsage.current = true;
+  }
+
+  lastMarktInputs.current = inputFingerprint;
+  marktFetched.current = true;
   setLoadingDetails(true);
 
   (async () => {
@@ -1149,10 +1183,16 @@ const exportPdf = React.useCallback(async () => {
         {/* Header */}
         <div className="flex items-center mb-4">
   <button onClick={() => router.back()} className="btn-back">←</button>
-  <div className="ml-4">
-    <h1 className="text-3xl font-bold">Analyse 📊</h1>
+  <div className="ml-4 flex items-center gap-3">
+    <BarChart3 size={32} className="text-[var(--color-primary)]" />
+    <h1 className="text-3xl font-bold">Analyse</h1>
   </div>
 </div>
+
+        {/* Progress Indicator */}
+        <div className="mb-6">
+          <ProgressIndicator currentStep={4} />
+        </div>
 
 
         {/* Eckdaten-Zeile */}
@@ -1183,24 +1223,33 @@ const exportPdf = React.useCallback(async () => {
 {/* Tabs */}
 <div className="mt-6 mb-5 flex flex-wrap gap-2">
   {([
-    { key: 'kpi', label: 'KPIs' },
-    { key: 'markt', label: 'Marktvergleich & Lage' },
-    { key: 'szenarien', label: 'Szenarien & Export' },
+    { key: 'kpi', label: 'KPIs', premium: false },
+    { key: 'markt', label: 'Marktvergleich & Lage', premium: true },
+    { key: 'szenarien', label: 'Szenarien & Export', premium: false },
   ] as const).map(t => {
     const active = activeTab === t.key;
+    const locked = t.premium && !canAccessPremium;
     return (
       <button
         key={t.key}
-        onClick={() => setActiveTab(t.key)}
+        onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.key)}
         className={[
-          'px-4 py-2 rounded-full border text-base transition',
+          'px-4 py-2 rounded-full border text-base transition flex items-center gap-2',
           active
             ? 'font-semibold bg-[hsl(var(--brand))] border-[hsl(var(--brand))] text-white'
+            : locked
+            ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-pointer hover:border-[hsl(var(--brand-2))]'
             : 'bg-white border-[hsl(var(--accent))] text-gray-700 hover:border-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))] hover:text-white'
         ].join(' ')}
         aria-current={active ? 'page' : undefined}
       >
+        {locked && <Lock size={16} />}
         {t.label}
+        {t.premium && !isPremium && (
+          <span className="px-1.5 py-0.5 bg-yellow-500 text-white text-xs font-semibold rounded">
+            Premium
+          </span>
+        )}
       </button>
     );
   })}
@@ -1555,8 +1604,11 @@ const exportPdf = React.useCallback(async () => {
               <div>Monatliche Rate</div>       <div className="text-right">{rateMonat.toLocaleString('de-DE', { maximumFractionDigits: 2 })} €</div>
               <div>Kaltmiete</div>             <div className="text-right">{miete.toLocaleString('de-DE')} €</div>
 
-              <div className="pt-2 border-t font-medium">Cashflow (vor Steuern)</div>
-              <div className="text-right pt-2 border-t font-medium">
+              {/* Separator */}
+              <div className="col-span-2 border-t border-gray-300 my-2" />
+
+              <div className="font-medium">Cashflow (vor Steuern)</div>
+              <div className="text-right font-medium">
                 {cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
               </div>
 
@@ -1644,11 +1696,20 @@ const exportPdf = React.useCallback(async () => {
     content = <p>Seite existiert nicht</p>;
   }
 
+  const freeUsagesRemaining = Math.max(0, 2 - premiumUsageCount);
+
   return (
-    <div className="max-w-xl mx-auto py-10">
-      {showProgress && <ProgressIndicator currentStep={step as Step} />}
-      {content}
-      
-    </div>
+    <>
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        remainingFreeUses={freeUsagesRemaining}
+      />
+
+      <div className="max-w-xl mx-auto py-10">
+        {showProgress && <ProgressIndicator currentStep={step as Step} />}
+        {content}
+      </div>
+    </>
   );
 }
