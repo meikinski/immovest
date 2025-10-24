@@ -10,6 +10,7 @@ type PaywallContextType = {
   incrementPremiumUsage: () => void;
   showUpgradeModal: boolean;
   setShowUpgradeModal: (show: boolean) => void;
+  refreshPremiumStatus: () => Promise<void>;
 };
 
 const PaywallContext = createContext<PaywallContextType | undefined>(undefined);
@@ -20,26 +21,50 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  // Load premium status and usage count
-  useEffect(() => {
-    if (isSignedIn && userId) {
-      // TODO: Load from Supabase/Database
-      // For now, use localStorage
-      const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
-      if (storedUsage) {
-        setPremiumUsageCount(parseInt(storedUsage, 10));
-      }
-
-      // TODO: Check premium status from user metadata or Stripe
-      const storedPremium = localStorage.getItem(`is_premium_${userId}`);
-      setIsPremium(storedPremium === 'true');
-    } else if (!isSignedIn) {
+  // Check premium status from database or localStorage
+  const checkPremiumStatus = async () => {
+    if (!isSignedIn || !userId) {
       // Guest users - use session storage
       const guestUsage = sessionStorage.getItem('guest_premium_usage');
       if (guestUsage) {
         setPremiumUsageCount(parseInt(guestUsage, 10));
       }
+      return;
     }
+
+    try {
+      // Try to fetch from API/Supabase
+      const response = await fetch('/api/premium/status');
+      if (response.ok) {
+        const data = await response.json();
+        setIsPremium(data.isPremium || false);
+        setPremiumUsageCount(data.usageCount || 0);
+
+        // Update localStorage as cache
+        localStorage.setItem(`is_premium_${userId}`, data.isPremium ? 'true' : 'false');
+        localStorage.setItem(`premium_usage_${userId}`, (data.usageCount || 0).toString());
+      } else {
+        // Fallback to localStorage
+        const storedPremium = localStorage.getItem(`is_premium_${userId}`);
+        const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
+
+        setIsPremium(storedPremium === 'true');
+        setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
+      }
+    } catch (error) {
+      console.error('Error checking premium status:', error);
+      // Fallback to localStorage
+      const storedPremium = localStorage.getItem(`is_premium_${userId}`);
+      const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
+
+      setIsPremium(storedPremium === 'true');
+      setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
+    }
+  };
+
+  // Load premium status on mount and when userId changes
+  useEffect(() => {
+    checkPremiumStatus();
   }, [isSignedIn, userId]);
 
   const incrementPremiumUsage = () => {
@@ -55,6 +80,10 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
 
   const canAccessPremium = isPremium || premiumUsageCount < 2;
 
+  const refreshPremiumStatus = async () => {
+    await checkPremiumStatus();
+  };
+
   return (
     <PaywallContext.Provider
       value={{
@@ -64,6 +93,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
         incrementPremiumUsage,
         showUpgradeModal,
         setShowUpgradeModal,
+        refreshPremiumStatus,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Crown, X, Check, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Crown, X, Check, Sparkles, Loader2 } from 'lucide-react';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -10,11 +10,41 @@ type UpgradeModalProps = {
 };
 
 export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModalProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!isOpen) return null;
 
-  const handleUpgrade = () => {
-    // TODO: Integrate with Stripe
-    alert('Stripe Integration kommt bald!');
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler beim Erstellen der Checkout-Session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Keine Checkout-URL erhalten');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,12 +110,28 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               Jederzeit kündbar • Keine versteckten Kosten
             </p>
 
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
             <button
               onClick={handleUpgrade}
-              className="w-full btn-primary py-4 text-lg flex items-center justify-center gap-3 hover:shadow-xl transition-all"
+              disabled={isLoading}
+              className="w-full btn-primary py-4 text-lg flex items-center justify-center gap-3 hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Sparkles size={20} />
-              Jetzt Premium werden
+              {isLoading ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  Weiterleitung zu Stripe...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={20} />
+                  Jetzt Premium werden
+                </>
+              )}
             </button>
           </div>
 
