@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useAuth } from '@clerk/nextjs';
 
 type PaywallContextType = {
@@ -22,7 +22,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Check premium status from database or localStorage
-  const checkPremiumStatus = async () => {
+  const checkPremiumStatus = useCallback(async () => {
     if (!isSignedIn || !userId) {
       // Guest users - use session storage
       const guestUsage = sessionStorage.getItem('guest_premium_usage');
@@ -60,14 +60,14 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
       setIsPremium(storedPremium === 'true');
       setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
     }
-  };
+  }, [isSignedIn, userId]);
 
   // Load premium status on mount and when userId changes
   useEffect(() => {
     checkPremiumStatus();
-  }, [isSignedIn, userId]);
+  }, [checkPremiumStatus]);
 
-  const incrementPremiumUsage = () => {
+  const incrementPremiumUsage = useCallback(() => {
     const newCount = premiumUsageCount + 1;
     setPremiumUsageCount(newCount);
 
@@ -76,13 +76,16 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
     } else {
       sessionStorage.setItem('guest_premium_usage', newCount.toString());
     }
-  };
+  }, [premiumUsageCount, isSignedIn, userId]);
 
-  const canAccessPremium = isPremium || premiumUsageCount < 2;
+  const canAccessPremium = useMemo(
+    () => isPremium || premiumUsageCount < 2,
+    [isPremium, premiumUsageCount]
+  );
 
-  const refreshPremiumStatus = async () => {
+  const refreshPremiumStatus = useCallback(async () => {
     await checkPremiumStatus();
-  };
+  }, [checkPremiumStatus]);
 
   return (
     <PaywallContext.Provider

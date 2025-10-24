@@ -445,6 +445,8 @@ const dscr =
   cashflowVorSteuer, cashflowAfterTax,
   nettoMietrendite, bruttoMietrendite, ekRendite,
   dscr, anschaffungskosten,
+  // Paywall context dependencies
+  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal,
 ]);
 
 
@@ -1192,7 +1194,7 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Progress Indicator */}
         <div className="mb-6">
-          <ProgressIndicator currentStep={4} />
+          <ProgressIndicator currentStep="tabs" />
         </div>
 
 
