@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    console.log('🔍 Scraping URL:', url);
+
     const portal = detectPortal(url);
     if (!portal) {
       return NextResponse.json(
@@ -89,29 +91,87 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
+    console.log('✅ Portal erkannt:', portal);
 
-    if (!response.ok) {
-      throw new Error('Seite konnte nicht geladen werden');
-    }
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1',
+          'Sec-Fetch-Dest': 'document',
+          'Sec-Fetch-Mode': 'navigate',
+          'Sec-Fetch-Site': 'none',
+          'Cache-Control': 'max-age=0',
+        },
+      });
 
-    const html = await response.text();
-    const data = await scrapeGeneric(html, PATTERNS[portal]);
+      console.log('📡 Response Status:', response.status);
+      console.log('📡 Response Headers:', Object.fromEntries(response.headers.entries()));
 
-    if (!data.kaufpreis && !data.flaeche) {
+      if (!response.ok) {
+        console.error('❌ Fetch failed:', response.status, response.statusText);
+
+        // Detailliertere Fehlermeldung
+        if (response.status === 403) {
+          return NextResponse.json(
+            {
+              error: 'Zugriff verweigert. Die Website blockiert automatische Anfragen. Bitte nutze die manuelle Eingabe.',
+              technicalDetails: `Status: ${response.status} - Die Website verwendet Anti-Bot-Schutz.`
+            },
+            { status: 400 }
+          );
+        } else if (response.status === 404) {
+          return NextResponse.json(
+            { error: 'Seite nicht gefunden. Bitte überprüfe die URL.' },
+            { status: 400 }
+          );
+        } else {
+          return NextResponse.json(
+            {
+              error: `Seite konnte nicht geladen werden (HTTP ${response.status})`,
+              technicalDetails: response.statusText
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      const html = await response.text();
+      console.log('📄 HTML Länge:', html.length, 'Zeichen');
+
+      const data = await scrapeGeneric(html, PATTERNS[portal]);
+      console.log('📊 Extrahierte Daten:', data);
+
+      if (!data.kaufpreis && !data.flaeche && !data.zimmer) {
+        return NextResponse.json(
+          {
+            error: 'Keine relevanten Daten gefunden. Die Seite nutzt möglicherweise ein anderes Format.',
+            hint: 'Tipp: Nutze die manuelle Eingabe für zuverlässigere Ergebnisse.'
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({ success: true, data });
+    } catch (fetchError) {
+      console.error('❌ Fetch Error:', fetchError);
+
       return NextResponse.json(
-        { error: 'Keine relevanten Daten gefunden. Bitte prüfe die URL.' },
-        { status: 400 }
+        {
+          error: 'Verbindung zur Website fehlgeschlagen',
+          technicalDetails: fetchError instanceof Error ? fetchError.message : 'Netzwerkfehler',
+          hint: 'Die Website könnte Anti-Bot-Schutz verwenden oder nicht erreichbar sein. Bitte nutze die manuelle Eingabe.'
+        },
+        { status: 500 }
       );
     }
-
-    return NextResponse.json({ success: true, data });
   } catch (error) {
-    console.error('Scraping error:', error);
+    console.error('❌ Scraping error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Scraping fehlgeschlagen' },
       { status: 500 }

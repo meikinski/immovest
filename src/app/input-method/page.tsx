@@ -36,13 +36,22 @@ export default function InputMethodPage() {
         body: JSON.stringify({ url }),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Scraping fehlgeschlagen');
+        // Zeige detaillierte Fehlermeldung
+        let errorMsg = result.error || 'Scraping fehlgeschlagen';
+        if (result.hint) {
+          errorMsg += ' ' + result.hint;
+        }
+        if (result.technicalDetails) {
+          console.error('Technical details:', result.technicalDetails);
+        }
+        throw new Error(errorMsg);
       }
 
-      const { data } = await response.json();
-      
+      const { data } = result;
+
       // Daten in Store importieren
       importData({
         kaufpreis: data.kaufpreis || 0,
@@ -52,7 +61,7 @@ export default function InputMethodPage() {
         baujahr: data.baujahr || new Date().getFullYear(),
         miete: data.miete || 0,
       });
-      
+
       // Weiterleitung zu Step A
       router.push('/step/a');
     } catch (err) {
