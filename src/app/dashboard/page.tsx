@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import {
   Home, Plus, FileText, Crown, TrendingUp, Calendar, MapPin,
-  BarChart3, ArrowRight, Sparkles
+  BarChart3, ArrowRight, Sparkles, Settings
 } from 'lucide-react';
 import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -94,6 +94,13 @@ export default function DashboardPage() {
               <Plus size={18} />
               Neue Analyse
             </button>
+            <button
+              onClick={() => router.push('/profile')}
+              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              title="Profil & Einstellungen"
+            >
+              <Settings size={20} className="text-gray-600" />
+            </button>
             <UserButton afterSignOutUrl="/" />
           </div>
         </div>
@@ -128,7 +135,10 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-600 mb-3">
                   {freeUsagesRemaining} von 2 Premium-Analysen verfügbar
                 </p>
-                <button className="w-full btn-secondary text-sm py-2">
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full btn-secondary text-sm py-2"
+                >
                   Upgrade auf Premium
                 </button>
               </>

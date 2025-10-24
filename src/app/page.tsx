@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Home, LogIn, UserCircle, Sparkles, TrendingUp, Shield, Zap } from 'lucide-react';
-import { useAuth, SignInButton } from '@clerk/nextjs';
+import { Home, LogIn, UserCircle, Sparkles, TrendingUp, Shield, Zap, LayoutDashboard } from 'lucide-react';
+import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -42,13 +42,16 @@ export default function WelcomePage() {
         )}
 
         {isSignedIn && (
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="btn-secondary flex items-center gap-2"
-          >
-            <UserCircle size={18} />
-            Dashboard
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="btn-primary flex items-center gap-2"
+            >
+              <LayoutDashboard size={18} />
+              Dashboard
+            </button>
+            <UserButton afterSignOutUrl="/" />
+          </div>
         )}
       </header>
 
