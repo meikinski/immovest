@@ -7,7 +7,7 @@ import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
- BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar,
+ BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock
 } from 'lucide-react';
 import { KpiCard } from '@/components/KpiCard';
@@ -351,9 +351,12 @@ const dscr =
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
-  // Check paywall access
+  // If no premium access, show placeholder content
   if (!canAccessPremium) {
-    setShowUpgradeModal(true);
+    setLageComment('<p>Premium-Inhalte sind hier verfügbar. Die Lageanalyse bietet detaillierte Einblicke in die Umgebung, Infrastruktur und Entwicklungspotenzial der Immobilie.</p>');
+    setMietpreisComment('<p>Hier findest du einen umfassenden Vergleich der Mietpreise in der Umgebung, inklusive Marktpositionierung und Preisentwicklung.</p>');
+    setQmPreisComment('<p>Der Kaufpreisvergleich zeigt dir, wie der Quadratmeterpreis im Vergleich zu ähnlichen Objekten in der Gegend einzuordnen ist.</p>');
+    setInvestComment('<p>Die Investitionsanalyse kombiniert alle Faktoren und gibt dir eine fundierte Empfehlung für deine Kaufentscheidung.</p>');
     return;
   }
 
@@ -1341,7 +1344,36 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Tab 2 – Marktvergleich & Lage */}
         {activeTab === 'markt' && (
-          <>
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {!canAccessPremium && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-8 max-w-md">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <Lock className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-6">
+                    Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
+                  </p>
+                  <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <Crown size={20} />
+                    Jetzt freischalten
+                  </button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    {2 - premiumUsageCount > 0
+                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                      : 'Nur 19,90 €/Monat'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
             <div className="card-gradient">
               <div className="flex items-center space-x-2">
                 <span className="text-medium font-bold">Lagebewertung</span>
@@ -1445,10 +1477,8 @@ const exportPdf = React.useCallback(async () => {
       Szenarien testen →
     </button>
   </div>
-
-
-
-          </>
+            </div>
+          </div>
         )}
 
         {/* Tab 3 – Szenarien & Export */}
