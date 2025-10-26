@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
+import Image from 'next/image';
 import { Keyboard, Link2, Sparkles, ChevronRight, Camera, Upload, X, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -259,6 +260,7 @@ export default function InputMethodPage() {
               </div>
             ) : (
               <div className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={imagePreview}
                   alt="Preview"

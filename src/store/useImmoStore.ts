@@ -19,6 +19,7 @@ export interface ImmoState {
 
   // Input fields
   kaufpreis: number;
+  objekttyp: 'wohnung' | 'haus';
   grunderwerbsteuer_pct: number;
   notar_pct: number;
   makler_pct: number;
@@ -52,6 +53,7 @@ export interface ImmoState {
   exportState: () => Record<string, unknown>;
 
   setKaufpreis: (v: number) => void;
+  setObjekttyp: (v: 'wohnung' | 'haus') => void;
   setGrunderwerbsteuerPct: (v: number) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
@@ -86,6 +88,7 @@ const initialState = {
 
   // Initialwerte
   kaufpreis: 0,
+  objekttyp: 'wohnung' as const,
   grunderwerbsteuer_pct: 6.5,
   notar_pct: 2,
   makler_pct: 3.57,
@@ -155,6 +158,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setKaufpreis: (v: number) => {
     set({ kaufpreis: v });
     get().updateDerived();
+  },
+  setObjekttyp: (v: 'wohnung' | 'haus') => {
+    set({ objekttyp: v });
   },
   setGrunderwerbsteuerPct: (v: number) => {
     set({ grunderwerbsteuer_pct: v });
