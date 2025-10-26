@@ -19,6 +19,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
+import { Header } from '@/components/Header';
 
 
 
@@ -1701,13 +1702,15 @@ const exportPdf = React.useCallback(async () => {
 
   return (
     <>
+      <Header variant="fixed" showDashboardLink={true} />
+
       <UpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
         remainingFreeUses={freeUsagesRemaining}
       />
 
-      <div className="max-w-xl mx-auto py-10">
+      <div className="max-w-xl mx-auto py-10 pt-24">
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
         {content}
       </div>

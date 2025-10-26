@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth, UserButton } from '@clerk/nextjs';
+import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 
 export default function InputMethodPage() {
@@ -129,7 +129,25 @@ export default function InputMethodPage() {
             ImmoVest
           </button>
 
-          {isSignedIn && <UserButton afterSignOutUrl="/" />}
+          <div className="flex items-center gap-4">
+            {!isSignedIn ? (
+              <SignInButton mode="modal">
+                <button className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
+                  Anmelden
+                </button>
+              </SignInButton>
+            ) : (
+              <>
+                <button
+                  onClick={() => router.push('/dashboard')}
+                  className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
+                >
+                  Dashboard
+                </button>
+                <UserButton afterSignOutUrl="/" />
+              </>
+            )}
+          </div>
         </div>
       </header>
 
