@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Image from 'next/image';
 import { Keyboard, Link2, Sparkles, ChevronRight, Camera, Upload, X, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
