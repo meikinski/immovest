@@ -779,7 +779,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   console.log('🔍 Research Agent starting...');
   const facts = await runAgentWithRetry<z.infer<typeof ResearchSchema>>(
     runner,
-    research as Agent<unknown>,
+    research as unknown as Agent<unknown>,
     payload,
     validateResearchOutput,
     'Research',
@@ -811,7 +811,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   const [lage, miete, kauf] = await Promise.all([
     runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      lageagent as Agent<unknown>,
+      lageagent as unknown as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'lage'),
       'LageAgent',
@@ -819,7 +819,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
     ),
     runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      mietagent as Agent<unknown>,
+      mietagent as unknown as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'miete'),
       'MietAgent',
@@ -827,7 +827,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
     ),
     runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      kaufagent as Agent<unknown>,
+      kaufagent as unknown as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'kauf'),
       'KaufAgent',
@@ -843,7 +843,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   console.log('💰 Invest Agent starting...');
   const invest = await runAgentWithRetry<{ html: string }>(
     runner,
-    investitionsanalyseagent as Agent<unknown>,
+    investitionsanalyseagent as unknown as Agent<unknown>,
     {
       payload,
       facts: writerContext.facts,
