@@ -41,15 +41,7 @@ export default function LandingPage() {
                 </button>
               </SignInButton>
             ) : (
-              <>
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
-                >
-                  Dashboard
-                </button>
-                <UserButton afterSignOutUrl="/" />
-              </>
+              <UserButton afterSignOutUrl="/" />
             )}
           </div>
         </div>

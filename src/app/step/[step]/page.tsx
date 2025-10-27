@@ -1727,7 +1727,7 @@ const exportPdf = React.useCallback(async () => {
 
   return (
     <>
-      <Header variant="fixed" showDashboardLink={true} />
+      <Header variant="fixed" />
 
       <UpgradeModal
         isOpen={showUpgradeModal}

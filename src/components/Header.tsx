@@ -7,10 +7,9 @@ import { BarChart3 } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'fixed' | 'sticky' | 'static';
-  showDashboardLink?: boolean;
 }
 
-export function Header({ variant = 'fixed', showDashboardLink = false }: HeaderProps) {
+export function Header({ variant = 'fixed' }: HeaderProps) {
   const router = useRouter();
   const { isSignedIn } = useAuth();
 
@@ -45,17 +44,7 @@ export function Header({ variant = 'fixed', showDashboardLink = false }: HeaderP
               </button>
             </SignInButton>
           ) : (
-            <>
-              {showDashboardLink && (
-                <button
-                  onClick={() => router.push('/dashboard')}
-                  className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
-                >
-                  Dashboard
-                </button>
-              )}
-              <UserButton afterSignOutUrl="/" />
-            </>
+            <UserButton afterSignOutUrl="/" />
           )}
         </div>
       </div>
