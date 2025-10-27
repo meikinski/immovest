@@ -23,6 +23,7 @@ export default function InputMethodPage() {
   const [url, setUrl] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
+  const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -130,6 +131,7 @@ export default function InputMethodPage() {
 
     setUrlLoading(true);
     setUrlError('');
+    setUrlWarnings([]);
 
     try {
       const response = await fetch('/api/scrape-with-agent', {
@@ -147,6 +149,12 @@ export default function InputMethodPage() {
       // Import data into store
       if (result.data) {
         importData(result.data);
+
+        // Show warnings if any
+        if (result.warnings && result.warnings.length > 0) {
+          setUrlWarnings(result.warnings);
+        }
+
         router.push('/step/a');
       } else {
         throw new Error('Keine Daten gefunden');
@@ -393,6 +401,15 @@ export default function InputMethodPage() {
                 {urlError && (
                   <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                     {urlError}
+                  </div>
+                )}
+
+                {urlWarnings.length > 0 && (
+                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-xs space-y-1">
+                    <p className="font-semibold">⚠️ Hinweise:</p>
+                    {urlWarnings.map((warning, idx) => (
+                      <p key={idx}>• {warning}</p>
+                    ))}
                   </div>
                 )}
               </div>
