@@ -2,6 +2,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 
+/**
+ * Normalisiert objekttyp auf erlaubte Werte (safety layer)
+ */
+function normalizeObjekttyp(rawTyp: string | null | undefined): 'wohnung' | 'haus' {
+  if (!rawTyp) return 'wohnung';
+
+  const normalized = rawTyp.toLowerCase().trim();
+
+  // Haus variants
+  if (normalized.includes('haus') || normalized.includes('efh') || normalized.includes('mfh')) {
+    return 'haus';
+  }
+
+  // Default to wohnung
+  return 'wohnung';
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -32,7 +49,7 @@ export async function POST(req: NextRequest) {
       // Wenn hausgeld_nicht_umlegbar nicht angegeben, berechne aus Differenz
       hausgeld_nicht_umlegbar: result.hausgeld_nicht_umlegbar ||
         ((result.hausgeld || 0) - (result.hausgeld_umlegbar || 0)),
-      objekttyp: result.objekttyp || 'wohnung',
+      objekttyp: normalizeObjekttyp(result.objekttyp),
       _meta: {
         confidence: result.confidence,
         notes: result.notes,

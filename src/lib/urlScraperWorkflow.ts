@@ -44,7 +44,13 @@ WAS EXTRAHIEREN:
 6) Kaltmiete NUR MONATLICH - KRITISCH siehe unten
 7) Hausgeld/Nebenkosten - KRITISCH siehe unten
 8) Maklergebühr falls angegeben
-9) Objekttyp wohnung oder haus
+9) Objekttyp - WICHTIG siehe unten
+
+KRITISCH OBJEKTTYP:
+- NUR diese Werte erlaubt: "wohnung" oder "haus"
+- WENN Text sagt Wohnung, Eigentumswohnung, ETW → setze "wohnung"
+- WENN Text sagt Haus, Einfamilienhaus, Mehrfamilienhaus, EFH, MFH → setze "haus"
+- Standard bei Unsicherheit: "wohnung"
 
 KRITISCH KALTMIETE:
 - WENN Miete steht und Text sagt JAHRESKALTMIETE oder Jahres-Kaltmiete oder ähnlich DANN teile durch 12 für monatliche Miete
@@ -100,11 +106,18 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     throw new Error('URL ist erforderlich');
   }
 
-  // Validate URL
+  // Validate URL (lenient - just check basic format)
+  const trimmedUrl = input.url.trim();
+  if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+    throw new Error('URL muss mit http:// oder https:// beginnen');
+  }
+
+  // Try parsing, but don't fail on fragments or complex query params
   try {
-    new URL(input.url);
-  } catch {
-    throw new Error('Ungültige URL');
+    new URL(trimmedUrl);
+  } catch (err) {
+    console.warn('[URL Scraper] URL parse warning (proceeding anyway):', err);
+    // Continue anyway - web search tool might handle it
   }
 
   const runner = new Runner({
@@ -114,14 +127,14 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     },
   });
 
-  console.log(`[URL Scraper] Starting for: ${input.url}`);
+  console.log(`[URL Scraper] Starting for: ${trimmedUrl}`);
 
   const result = await runner.run(scraperAgent, [
     {
       role: 'user',
       content: [{
         type: 'input_text',
-        text: `Extrahiere Immobilien-Daten von dieser URL: ${input.url}`
+        text: `Extrahiere Immobilien-Daten von dieser URL: ${trimmedUrl}`
       }]
     },
   ]);
