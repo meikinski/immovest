@@ -37,6 +37,36 @@ const InputPayloadSchema = z.object({
 type InputPayload = z.infer<typeof InputPayloadSchema>;
 
 /**
+ * Normalisiert objektTyp auf erlaubte Enum-Werte
+ */
+function normalizeObjektTyp(rawTyp: string | undefined): 'wohnung' | 'haus' | 'gewerbe' {
+  if (!rawTyp) return 'wohnung';
+
+  const normalized = rawTyp.toLowerCase().trim();
+
+  // Wohnung variants
+  if (normalized.includes('wohnung') || normalized.includes('eigentum') || normalized.includes('etw')) {
+    return 'wohnung';
+  }
+
+  // Haus variants
+  if (normalized.includes('haus') || normalized.includes('efh') || normalized.includes('mfh') ||
+      normalized.includes('einfamilienhaus') || normalized.includes('mehrfamilienhaus') ||
+      normalized.includes('reihenhaus') || normalized.includes('doppelhaus')) {
+    return 'haus';
+  }
+
+  // Gewerbe variants
+  if (normalized.includes('gewerbe') || normalized.includes('büro') || normalized.includes('laden') ||
+      normalized.includes('halle') || normalized.includes('praxis')) {
+    return 'gewerbe';
+  }
+
+  // Default
+  return 'wohnung';
+}
+
+/**
  * Zusätzliche Business Logic Validierung
  */
 function validateBusinessLogic(payload: InputPayload): { valid: boolean; errors: string[] } {
@@ -93,7 +123,7 @@ export async function POST(req: NextRequest) {
     try {
       validatedPayload = InputPayloadSchema.parse({
         address: body.address ?? body.adresse,
-        objektTyp: body.objektTyp,
+        objektTyp: normalizeObjektTyp(body.objektTyp),
         kaufpreis: Number(body.kaufpreis),
         flaeche: Number(body.flaeche),
         zimmer: Number(body.zimmer),
