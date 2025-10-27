@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -18,6 +18,11 @@ export default function InputMethodPage() {
   const [imageError, setImageError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // URL Import State
+  const [url, setUrl] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -117,6 +122,42 @@ export default function InputMethodPage() {
     }
   };
 
+  const handleUrlSubmit = async () => {
+    if (!url.trim()) {
+      setUrlError('Bitte gib eine URL ein');
+      return;
+    }
+
+    setUrlLoading(true);
+    setUrlError('');
+
+    try {
+      const response = await fetch('/api/scrape-with-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url.trim() }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.details || 'Fehler beim Laden der Daten');
+      }
+
+      // Import data into store
+      if (result.data) {
+        importData(result.data);
+        router.push('/step/a');
+      } else {
+        throw new Error('Keine Daten gefunden');
+      }
+    } catch (err) {
+      setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+    } finally {
+      setUrlLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header with gradient background */}
@@ -164,8 +205,8 @@ export default function InputMethodPage() {
             </p>
           </div>
 
-          {/* Method Cards - 2 Column Grid */}
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-12">
+          {/* Method Cards - 3 Column Grid */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Screenshot Upload - PRIMARY */}
             <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
               {/* Recommended Badge */}
@@ -298,8 +339,77 @@ export default function InputMethodPage() {
               </div>
             </div>
 
+            {/* URL Import with AI */}
+            <div className="relative bg-gradient-to-br from-white to-purple-50 rounded-3xl border-2 border-purple-200 p-6 md:p-8 shadow-xl">
+              {/* AI Badge */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-purple-600 to-purple-500 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
+                <Sparkles size={14} />
+                <span>KI-Power</span>
+              </div>
+
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <LinkIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  URL Import
+                </h3>
+                <p className="text-gray-600">
+                  KI analysiert automatisch die Immobilien-Anzeige
+                </p>
+              </div>
+
+              {/* URL Input */}
+              <div className="space-y-4">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://www.immobilienscout24.de/..."
+                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleUrlSubmit();
+                  }}
+                />
+
+                <button
+                  onClick={handleUrlSubmit}
+                  disabled={urlLoading || !url.trim()}
+                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {urlLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Analysiere...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={20} />
+                      <span>Mit KI analysieren</span>
+                    </>
+                  )}
+                </button>
+
+                {urlError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
+                    {urlError}
+                  </div>
+                )}
+              </div>
+
+              {/* Benefits */}
+              <div className="mt-6 space-y-2">
+                {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Manual Input */}
-            <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
+            <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Keyboard className="w-8 h-8 text-gray-600" />
@@ -332,7 +442,7 @@ export default function InputMethodPage() {
           {/* Help Text */}
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              💡 <strong>Tipp:</strong> Mit dem Screenshot-Upload sparst du Zeit – einfach Inserat fotografieren und fertig!
+              💡 <strong>Tipp:</strong> Screenshot-Upload oder URL Import mit KI – beide Methoden sind schneller als manuelle Eingabe!
             </p>
           </div>
         </div>
