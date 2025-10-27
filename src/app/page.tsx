@@ -99,6 +99,15 @@ export default function LandingPage() {
             </button>
           </div>
 
+          {/* Login Benefits */}
+          {!isSignedIn && (
+            <div className="mb-8 text-center">
+              <p className="text-sm text-gray-500 mb-2">
+                Mit Account: Analysen speichern & unbegrenzter Zugriff
+              </p>
+            </div>
+          )}
+
           {/* Social Proof */}
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))]" />

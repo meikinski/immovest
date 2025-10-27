@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import { usePaywall } from '@/contexts/PaywallContext';
+import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
+import { useImmoStore } from '@/store/useImmoStore';
 import {
   User,
   Crown,
@@ -15,6 +17,12 @@ import {
   CheckCircle2,
   XCircle,
   ArrowLeft,
+  BarChart3,
+  MapPin,
+  Calendar,
+  FileText,
+  Plus,
+  ArrowRight,
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -24,6 +32,8 @@ export default function ProfilePage() {
     usePaywall();
   const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
+  const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -33,8 +43,11 @@ export default function ProfilePage() {
 
     if (isSignedIn) {
       loadPremiumDetails();
+      // Load analyses
+      const loadedAnalyses = getAllAnalyses(userId);
+      setAnalyses(loadedAnalyses);
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, userId, router]);
 
   const loadPremiumDetails = async () => {
     try {
@@ -57,6 +70,19 @@ export default function ProfilePage() {
     );
   };
 
+  const handleNewAnalysis = () => {
+    router.push('/input-method');
+  };
+
+  const handleOpenAnalysis = async (analysisId: string) => {
+    const success = await loadAnalysis(analysisId, userId);
+    if (success) {
+      router.push('/step/tabs');
+    } else {
+      alert('Fehler beim Laden der Analyse');
+    }
+  };
+
   if (!isLoaded || !isSignedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -76,7 +102,7 @@ export default function ProfilePage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/')}
                 className="p-2 hover:bg-gray-100 rounded-lg transition"
               >
                 <ArrowLeft size={20} />
@@ -84,7 +110,7 @@ export default function ProfilePage() {
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Profil & Einstellungen</h1>
                 <p className="text-sm text-gray-600">
-                  Verwalte dein Konto und deine Einstellungen
+                  Verwalte dein Konto, Analysen und Einstellungen
                 </p>
               </div>
             </div>
@@ -222,31 +248,92 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Account Settings */}
+          {/* Saved Analyses */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-              <User size={20} />
-              Account-Einstellungen
-            </h3>
-            <div className="space-y-2">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-semibold text-lg flex items-center gap-2">
+                <BarChart3 size={20} />
+                Meine Analysen
+              </h3>
               <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg transition"
+                onClick={handleNewAnalysis}
+                className="px-4 py-2 bg-[hsl(var(--brand))] text-white rounded-lg hover:bg-[hsl(var(--brand-2))] transition text-sm font-medium flex items-center gap-2"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <User size={18} className="text-gray-600" />
-                  </div>
-                  <div className="text-left">
-                    <p className="font-medium">Meine Analysen</p>
-                    <p className="text-sm text-gray-600">
-                      Gespeicherte Immobilien-Analysen
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight size={20} className="text-gray-400" />
+                <Plus size={16} />
+                Neue Analyse
               </button>
             </div>
+
+            {analyses.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">Noch keine Analysen</h3>
+                <p className="text-gray-600 mb-6">
+                  Erstelle deine erste Immobilien-Analyse und sie wird hier gespeichert
+                </p>
+                <button
+                  onClick={handleNewAnalysis}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-[hsl(var(--brand))] text-white rounded-lg hover:bg-[hsl(var(--brand-2))] transition font-medium"
+                >
+                  <Plus size={18} />
+                  Erste Analyse erstellen
+                </button>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-4">
+                {analyses.map((analysis) => (
+                  <div
+                    key={analysis.analysisId}
+                    className="border border-gray-200 rounded-xl p-4 hover:border-[hsl(var(--brand))] hover:shadow-md transition cursor-pointer"
+                    onClick={() => handleOpenAnalysis(analysis.analysisId)}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <MapPin className="w-5 h-5 text-[hsl(var(--brand))]" />
+                      <span className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar size={12} />
+                        {new Date(analysis.createdAt || Date.now()).toLocaleDateString('de-DE')}
+                      </span>
+                    </div>
+
+                    <h3 className="font-semibold mb-2 line-clamp-2">
+                      {analysis.analysisName || analysis.adresse || 'Unbenannte Analyse'}
+                    </h3>
+
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Kaufpreis:</span>
+                        <span className="font-medium">
+                          {(analysis.kaufpreis || 0).toLocaleString('de-DE')} €
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Nettorend.:</span>
+                        <span className="font-medium text-[hsl(var(--success))]">
+                          {(analysis.nettorendite || 0).toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Cashflow:</span>
+                        <span className={`font-medium ${
+                          (analysis.cashflow_operativ || 0) >= 0
+                            ? 'text-[hsl(var(--success))]'
+                            : 'text-[hsl(var(--danger))]'
+                        }`}>
+                          {(analysis.cashflow_operativ || 0).toLocaleString('de-DE')} €
+                        </span>
+                      </div>
+                    </div>
+
+                    <button className="w-full flex items-center justify-center gap-2 py-2 border border-[hsl(var(--brand))] text-[hsl(var(--brand))] rounded-lg hover:bg-[hsl(var(--brand))] hover:text-white transition">
+                      Öffnen
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Danger Zone */}

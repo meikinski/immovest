@@ -1232,7 +1232,7 @@ const exportPdf = React.useCallback(async () => {
   {([
     { key: 'kpi', label: 'KPIs', premium: false },
     { key: 'markt', label: 'Marktvergleich & Lage', premium: true },
-    { key: 'szenarien', label: 'Szenarien & Export', premium: false },
+    { key: 'szenarien', label: 'Szenarien & Export', premium: true },
   ] as const).map(t => {
     const active = activeTab === t.key;
     const locked = t.premium && !canAccessPremium;
@@ -1478,6 +1478,36 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Tab 3 – Szenarien & Export */}
         {activeTab === 'szenarien' && (
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {!canAccessPremium && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-8 max-w-md">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <Lock className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-6">
+                    Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
+                  </p>
+                  <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <Crown size={20} />
+                    Jetzt freischalten
+                  </button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    {2 - premiumUsageCount > 0
+                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                      : 'Nur 19,90 €/Monat'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
   <>
     {/* Kein H2, Tab-Button dient als Titel */}
 <p className="text-gray-600 mt-1 pb-6">
@@ -1715,7 +1745,9 @@ const exportPdf = React.useCallback(async () => {
       <SaveAnalysisButton />
     </div>
   </>
-)}
+            </div>
+          </div>
+        )}
 
       </>
     );
