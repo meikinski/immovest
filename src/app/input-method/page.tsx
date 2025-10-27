@@ -243,6 +243,7 @@ export default function InputMethodPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="relative rounded-2xl overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={imagePreview}
                       alt="Preview"
