@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, LayoutDashboard, Save } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'fixed' | 'sticky' | 'static';
@@ -44,7 +44,20 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
               </button>
             </SignInButton>
           ) : (
-            <UserButton afterSignOutUrl="/" />
+            <UserButton afterSignOutUrl="/">
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Dashboard"
+                  labelIcon={<LayoutDashboard size={16} />}
+                  href="/dashboard"
+                />
+                <UserButton.Link
+                  label="Gespeicherte Analysen"
+                  labelIcon={<Save size={16} />}
+                  href="/profile"
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           )}
         </div>
       </div>

@@ -3,11 +3,12 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { BarChart3, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
+import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
 
   const handleGetStarted = () => {
     router.push('/input-method');
@@ -62,6 +63,13 @@ export default function LandingPage() {
             </span>
           </div>
 
+          {/* Welcome Message for Logged In Users */}
+          {isSignedIn && user?.firstName && (
+            <p className="text-xl text-gray-700 mb-6">
+              Willkommen zurück, {user.firstName}!
+            </p>
+          )}
+
           {/* Headline */}
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent leading-tight">
             Investiere smarter<br />in Immobilien
@@ -74,47 +82,61 @@ export default function LandingPage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            {!isSignedIn ? (
-              <SignInButton mode="modal">
-                <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group">
-                  Kostenlos starten
+            {isSignedIn ? (
+              <>
+                {/* Logged In: Primary CTA */}
+                <button
+                  onClick={handleGetStarted}
+                  className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group"
+                >
+                  Jetzt Immobilie bewerten
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-              </SignInButton>
+                {/* Logged In: Secondary CTA */}
+                <button
+                  onClick={() => router.push('/profile')}
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
+                >
+                  Zu meinen gespeicherten Immobilien
+                </button>
+              </>
             ) : (
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group"
-              >
-                Zum Dashboard
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              <>
+                {/* Not Logged In: Primary CTA */}
+                <SignInButton mode="modal">
+                  <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group">
+                    Einloggen/Anmelden
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </SignInButton>
+                {/* Not Logged In: Secondary CTA */}
+                <button
+                  onClick={handleGetStarted}
+                  className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
+                >
+                  Als Gast testen
+                </button>
+              </>
             )}
-
-            <button
-              onClick={handleGetStarted}
-              className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
-            >
-              Als Gast testen
-            </button>
           </div>
 
           {/* Login Benefits */}
           {!isSignedIn && (
-            <div className="mb-8 text-center">
-              <p className="text-sm text-gray-500 mb-2">
-                Mit Account: Analysen speichern & unbegrenzter Zugriff
-              </p>
+            <div className="flex flex-col items-center justify-center gap-3 text-sm text-gray-600">
+              <div className="flex items-start gap-2 max-w-xl">
+                <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))] mt-0.5 flex-shrink-0" />
+                <p>
+                  Mit kostenlosem Account: Analysen speichern und unbegrenzter Zugriff auf alle Features.
+                </p>
+              </div>
+              <div className="flex items-start gap-2 max-w-xl">
+                <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))] mt-0.5 flex-shrink-0" />
+                <p>
+                  Starte ohne Kreditkarte mit 2 Premium-Analysen gratis.
+                </p>
+              </div>
             </div>
           )}
-
-          {/* Social Proof */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500">
-            <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))]" />
-            <span>Keine Kreditkarte erforderlich</span>
-            <span className="text-gray-300 hidden sm:inline">•</span>
-            <span>2 Premium-Analysen gratis</span>
-          </div>
         </div>
       </section>
 

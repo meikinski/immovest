@@ -23,6 +23,8 @@ import {
   FileText,
   Plus,
   ArrowRight,
+  LayoutDashboard,
+  Save,
 } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -114,7 +116,20 @@ export default function ProfilePage() {
                 </p>
               </div>
             </div>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton afterSignOutUrl="/">
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="Dashboard"
+                  labelIcon={<LayoutDashboard size={16} />}
+                  href="/dashboard"
+                />
+                <UserButton.Link
+                  label="Gespeicherte Analysen"
+                  labelIcon={<Save size={16} />}
+                  href="/profile"
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </div>
         </div>
       </div>

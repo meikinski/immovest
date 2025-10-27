@@ -19,8 +19,8 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
   const currentIndex = STEPS.findIndex(s => s.key === currentStep);
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-8">
-      <div className="relative">
+    <div className="w-full max-w-4xl mx-auto mb-8 px-4">
+      <div className="relative overflow-x-auto">
         {/* Background Line */}
         <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ zIndex: 0 }} />
 
@@ -33,14 +33,14 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
           }}
         />
 
-        {/* Steps */}
-        <div className="relative flex items-center justify-between" style={{ zIndex: 2 }}>
+        {/* Steps Container with min-width to prevent collapse */}
+        <div className="relative flex items-center justify-between min-w-[400px]" style={{ zIndex: 2 }}>
           {STEPS.map((step, idx) => {
             const isActive = idx === currentIndex;
             const isCompleted = idx < currentIndex;
 
             return (
-              <div key={step.key} className="flex flex-col items-center">
+              <div key={step.key} className="flex flex-col items-center flex-shrink-0">
                 {/* Step Circle */}
                 <div
                   className={`
@@ -60,10 +60,10 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
                   )}
                 </div>
 
-                {/* Label */}
+                {/* Label - Hidden on smaller screens with more granular breakpoints */}
                 <span
                   className={`
-                    mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap hidden sm:block
+                    mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap hidden md:block
                     ${isActive
                       ? 'text-[hsl(var(--brand))]'
                       : isCompleted
@@ -78,7 +78,7 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
                 {/* Mobile: Show only for active step */}
                 <span
                   className={`
-                    mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap sm:hidden
+                    mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap md:hidden
                     ${isActive ? 'text-[hsl(var(--brand))]' : 'hidden'}
                   `}
                 >
