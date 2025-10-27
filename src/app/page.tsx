@@ -15,12 +15,16 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Clean & Minimal */}
-      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-gray-100 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      {/* Header - Clean & Minimal with gradient background */}
+      <header className="fixed top-0 left-0 right-0 z-50">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--brand))]/20 to-transparent"></div>
+
+        <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[hsl(var(--brand))]/20">
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
@@ -51,9 +55,13 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section - Modern & Clean */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* Hero Section - Modern & Clean with gradient background */}
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-white to-[hsl(var(--brand-2))]/5"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[hsl(var(--brand))]/10 to-transparent rounded-full blur-3xl"></div>
+
+        <div className="relative max-w-4xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--brand))]/5 border border-[hsl(var(--brand))]/10 rounded-full mb-8">
             <Sparkles className="w-4 h-4 text-[hsl(var(--brand))]" />
@@ -74,22 +82,29 @@ export default function LandingPage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <button
-              onClick={handleGetStarted}
-              className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group"
-            >
-              Kostenlos starten
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-
-            {!isSignedIn && (
+            {!isSignedIn ? (
+              <SignInButton mode="modal">
+                <button className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group">
+                  Kostenlos starten
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              </SignInButton>
+            ) : (
               <button
-                onClick={handleGetStarted}
-                className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
+                onClick={() => router.push('/dashboard')}
+                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all duration-300 flex items-center justify-center gap-2 group"
               >
-                Als Gast testen
+                Zum Dashboard
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             )}
+
+            <button
+              onClick={handleGetStarted}
+              className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
+            >
+              Als Gast testen
+            </button>
           </div>
 
           {/* Social Proof */}
@@ -124,13 +139,13 @@ export default function LandingPage() {
               },
               {
                 icon: '🤖',
-                title: 'KI-Marktdaten',
+                title: 'Marktdaten',
                 description: 'Automatische Bewertung von Lage und Marktpreisen',
               },
               {
-                icon: '⚡',
-                title: 'Screenshot-Import',
-                description: 'Einfach Inserat fotografieren – KI extrahiert alle Daten',
+                icon: '📄',
+                title: 'PDF Export',
+                description: 'Professioneller Report – perfekte Vorbereitung fürs Bankgespräch',
               },
             ].map((feature, idx) => (
               <div

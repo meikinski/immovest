@@ -1187,6 +1187,11 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'tabs') {
     content = (
       <>
+        {/* Progress Indicator */}
+        <div className="mb-6">
+          <ProgressIndicator currentStep="tabs" />
+        </div>
+
         {/* Header */}
         <div className="flex items-center mb-4">
   <button onClick={() => router.back()} className="btn-back">←</button>
@@ -1195,11 +1200,6 @@ const exportPdf = React.useCallback(async () => {
     <h1 className="text-3xl font-bold">Analyse</h1>
   </div>
 </div>
-
-        {/* Progress Indicator */}
-        <div className="mb-6">
-          <ProgressIndicator currentStep="tabs" />
-        </div>
 
 
         {/* Eckdaten-Zeile */}
@@ -1252,11 +1252,6 @@ const exportPdf = React.useCallback(async () => {
       >
         {locked && <Lock size={16} />}
         {t.label}
-        {t.premium && !isPremium && (
-          <span className="px-1.5 py-0.5 bg-yellow-500 text-white text-xs font-semibold rounded">
-            Premium
-          </span>
-        )}
       </button>
     );
   })}

@@ -8,11 +8,11 @@ interface ProgressProps {
 }
 
 const STEPS: Array<{ key: Step; label: string }> = [
-  { key: 'input-method', label: 'Start' },
-  { key: 'a', label: 'Objektdaten' },
-  { key: 'b', label: 'Kosten' },
-  { key: 'c', label: 'Finanzierung' },
-  { key: 'tabs', label: 'Analyse' },
+  { key: 'input-method', label: 'Schritt 1' },
+  { key: 'a', label: 'Schritt 2' },
+  { key: 'b', label: 'Schritt 3' },
+  { key: 'c', label: 'Schritt 4' },
+  { key: 'tabs', label: 'Schritt 5' },
 ];
 
 export function ProgressIndicator({ currentStep }: ProgressProps) {
