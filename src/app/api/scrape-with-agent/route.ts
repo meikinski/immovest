@@ -42,14 +42,14 @@ export async function POST(req: NextRequest) {
     };
 
     console.log(`[API] Scraping complete - Confidence: ${result.confidence}`);
-    if (result.warnings && result.warnings.length > 0) {
+    if (result.warnings.length > 0) {
       console.log(`[API] Warnings:`, result.warnings);
     }
 
     return NextResponse.json({
       success: true,
       data,
-      warnings: result.warnings || [],
+      warnings: result.warnings,
     });
 
   } catch (err: unknown) {

@@ -21,7 +21,7 @@ const ImmobilienDataSchema = z.object({
   objekttyp: z.enum(['wohnung', 'haus']).nullable(),
   confidence: z.enum(['niedrig', 'mittel', 'hoch']),
   notes: z.string().nullable(),
-  warnings: z.array(z.string()).optional(), // Warnungen für User
+  warnings: z.array(z.string()), // Warnungen für User - immer Array (auch wenn leer)
 });
 
 // Web Search Tool mit medium context für bessere Ergebnisse
@@ -77,10 +77,11 @@ CONFIDENCE:
 NOTES STRUKTUR:
 Kaufpreis X Euro, Y m², Z Zimmer, Baujahr YYYY, Adresse gefunden. Kaltmiete X Euro monatlich. Hausgeld X Euro (Default-Verteilung angewendet). Makler: provisionsfrei.
 
-WARNINGS FÜR USER (Array):
-Nur wenn relevant z.B.:
+WARNINGS FÜR USER (Array - IMMER zurückgeben, auch wenn leer):
+Nur hinzufügen wenn relevant z.B.:
 - Hausgeld-Verteilung ist Schätzung (60% umlegbar, 40% nicht umlegbar). Bitte nach Erhalt der WEG-Unterlagen genaue Werte eintragen.
 - Miete evtl. Jahreswert bitte prüfen
+WENN keine Warnungen DANN leeres Array []
 
 ABSOLUTE REGEL: Nur Daten aus Quelle. KEINE Schätzungen außer Hausgeld-Verteilung mit warning.`,
   model: 'gpt-4o-mini',

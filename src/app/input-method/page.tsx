@@ -151,7 +151,7 @@ export default function InputMethodPage() {
         importData(result.data);
 
         // Show warnings if any
-        if (result.warnings && result.warnings.length > 0) {
+        if (result.warnings.length > 0) {
           setUrlWarnings(result.warnings);
         }
 
