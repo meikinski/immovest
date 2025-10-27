@@ -165,9 +165,9 @@ export default function InputMethodPage() {
           </div>
 
           {/* Method Cards - 2 Column Grid */}
-          <div className="grid md:grid-cols-2 gap-8 mb-12">
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-12">
             {/* Screenshot Upload - PRIMARY */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-8 shadow-xl">
+            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
               {/* Recommended Badge */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg">
                 ⚡ Empfohlen

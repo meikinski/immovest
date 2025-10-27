@@ -109,10 +109,10 @@ export default function LandingPage() {
           )}
 
           {/* Social Proof */}
-          <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500">
             <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))]" />
             <span>Keine Kreditkarte erforderlich</span>
-            <span className="text-gray-300">•</span>
+            <span className="text-gray-300 hidden sm:inline">•</span>
             <span>2 Premium-Analysen gratis</span>
           </div>
         </div>

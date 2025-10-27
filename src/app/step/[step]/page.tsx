@@ -1767,7 +1767,7 @@ const exportPdf = React.useCallback(async () => {
         remainingFreeUses={freeUsagesRemaining}
       />
 
-      <div className="max-w-xl mx-auto py-10 pt-24">
+      <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 pt-24">
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
         {content}
       </div>
