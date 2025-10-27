@@ -695,8 +695,8 @@ function validateInvestOutput(output: { html: string }): ValidationResult {
  */
 async function runAgentWithRetry<T>(
   runner: Runner,
-  agent: Agent<any>,
-  input: any,
+  agent: Agent<unknown>,
+  input: unknown,
   validator: (output: T) => ValidationResult,
   agentName: string,
   maxRetries = 1
@@ -715,8 +715,9 @@ async function runAgentWithRetry<T>(
         throw new Error(`${agentName}: Kein finalOutput`);
       }
 
-      // Validate Output
-      const validation = validator(result.finalOutput);
+      // Validate Output (Type assertion needed because Agent SDK returns unknown)
+      const output = result.finalOutput as T;
+      const validation = validator(output);
 
       // Log Warnings
       if (validation.warnings.length > 0) {
@@ -736,7 +737,7 @@ async function runAgentWithRetry<T>(
 
       // Success!
       console.log(`${agentName}: ✅ Success (Attempt ${attempt + 1})`);
-      return result.finalOutput;
+      return output;
 
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
@@ -776,9 +777,9 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   // 1. RESEARCH AGENT (mit Retry & Validation)
   // ============================================
   console.log('🔍 Research Agent starting...');
-  const facts = await runAgentWithRetry(
+  const facts = await runAgentWithRetry<z.infer<typeof ResearchSchema>>(
     runner,
-    research,
+    research as Agent<unknown>,
     payload,
     validateResearchOutput,
     'Research',
@@ -808,25 +809,25 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   };
 
   const [lage, miete, kauf] = await Promise.all([
-    runAgentWithRetry(
+    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      lageagent,
+      lageagent as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'lage'),
       'LageAgent',
       1
     ),
-    runAgentWithRetry(
+    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      mietagent,
+      mietagent as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'miete'),
       'MietAgent',
       1
     ),
-    runAgentWithRetry(
+    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
       runner,
-      kaufagent,
+      kaufagent as Agent<unknown>,
       writerContext,
       (output) => validateWriterOutput(output, 'kauf'),
       'KaufAgent',
@@ -840,9 +841,9 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   // 3. INVEST AGENT (mit Retry & Validation)
   // ============================================
   console.log('💰 Invest Agent starting...');
-  const invest = await runAgentWithRetry(
+  const invest = await runAgentWithRetry<{ html: string }>(
     runner,
-    investitionsanalyseagent,
+    investitionsanalyseagent as Agent<unknown>,
     {
       payload,
       facts: writerContext.facts,
