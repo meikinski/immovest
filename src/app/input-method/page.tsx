@@ -216,10 +216,10 @@ export default function InputMethodPage() {
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Manual Input - FIRST */}
-            <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
+            <div className="relative bg-gradient-to-br from-white to-gray-50 rounded-3xl border-2 border-gray-300 p-6 md:p-8 hover:border-gray-400 hover:shadow-xl transition-all">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Keyboard className="w-8 h-8 text-gray-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-600 to-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Keyboard className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
                   Manuelle Eingabe
@@ -231,17 +231,20 @@ export default function InputMethodPage() {
 
               <button
                 onClick={() => router.push('/step/a')}
-                className="w-full py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/5 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-gradient-to-r from-gray-600 to-gray-500 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt eingeben</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
-              {/* Info */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                <p className="text-sm text-gray-600">
-                  <strong>Perfekt wenn:</strong> Du bereits alle Daten hast oder selbst eingeben möchtest
-                </p>
+              {/* Benefits */}
+              <div className="mt-6 space-y-2">
+                {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                    <CheckCircle2 className="w-4 h-4 text-gray-600" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
               </div>
             </div>
 

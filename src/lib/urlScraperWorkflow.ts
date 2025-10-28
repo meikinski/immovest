@@ -52,14 +52,21 @@ KRITISCH OBJEKTTYP:
 - WENN Text sagt Haus, Einfamilienhaus, Mehrfamilienhaus, EFH, MFH → setze "haus"
 - Standard bei Unsicherheit: "wohnung"
 
-KRITISCH KALTMIETE:
+KRITISCH KALTMIETE vs HAUSGELD - NIEMALS VERWECHSELN:
+- KALTMIETE = Was der Mieter als Miete zahlt (nicht Hausgeld!)
+  * Suche nach: Kaltmiete, Nettokaltmiete, Grundmiete, monatliche Miete
+  * NICHT: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten
+- HAUSGELD = Nebenkosten für Eigentümer (nicht Miete!)
+  * Suche nach: Hausgeld, monatliches Hausgeld, Nebenkosten, Wohngeld, Betriebskosten
+  * NICHT verwechseln mit Kaltmiete!
 - WENN Miete steht und Text sagt JAHRESKALTMIETE oder Jahres-Kaltmiete oder ähnlich DANN teile durch 12 für monatliche Miete
 - WENN Miete steht OHNE Hinweis auf Jahr DANN ist es monatlich übernimm direkt
 - WENN unklar füge zu warnings hinzu: Miete evtl. Jahreswert bitte prüfen
 - Setze miete = monatlicher Wert NIE Jahreswert
 
 KRITISCH HAUSGELD/NEBENKOSTEN:
-- Suche nach: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten, monatliche Kosten
+- Suche nach: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten, monatliche Kosten (für Eigentümer)
+- NIEMALS Kaltmiete als Hausgeld verwenden!
 - WENN Hausgeld gefunden UND keine Aufteilung angegeben:
   * hausgeld = Gesamtbetrag
   * hausgeld_umlegbar = 60 Prozent von Gesamtbetrag
@@ -68,12 +75,18 @@ KRITISCH HAUSGELD/NEBENKOSTEN:
 - WENN Hausgeld MIT Aufteilung angegeben übernimm die Werte
 - WENN Hausgeld NICHT gefunden setze alle auf NULL
 
-MAKLERGEBÜHR:
+MAKLERGEBÜHR - IMMER PROZENTSATZ PRÜFEN:
 - Kann sein: 3,57 Prozent, 7 Prozent Provision, 10.000 Euro, provisionsfrei
 - WENN provisionsfrei DANN maklergebuehr = 0
-- WENN Prozent angegeben DANN setze NULL (kann nicht berechnen ohne Kaufpreis)
-- WENN Euro-Betrag DANN übernimm
-- Dokumentiere in notes
+- WENN Prozent angegeben UND Kaufpreis vorhanden:
+  * Berechne Euro-Betrag: maklergebuehr = Kaufpreis * (Prozent / 100)
+  * Dokumentiere in notes: Maklergebühr X% = Y Euro (berechnet)
+- WENN Prozent angegeben ABER Kaufpreis fehlt:
+  * Setze maklergebuehr = NULL
+  * Füge zu warnings hinzu: Maklergebühr X% bekannt - Betrag wird nach Eingabe des Kaufpreises berechnet
+  * Dokumentiere Prozentsatz in notes: Maklergebühr X% (noch nicht berechnet)
+- WENN Euro-Betrag DANN übernimm und dokumentiere in notes
+- IMMER prüfen ob Maklergebühr vorhanden ist
 
 CONFIDENCE:
 - hoch: Kaufpreis Fläche Zimmer Adresse alle da
