@@ -71,36 +71,62 @@ Diese Objektdaten MÜSSEN in rent.notes und price.notes dokumentiert werden.
 # WAS DU RECHERCHIEREN SOLLST
 
 ## 1. MIETE (rent)
+KRITISCH - SEGMENT-SPEZIFISCHE DATEN PRIORISIEREN!
+
+Suche in dieser Reihenfolge:
+1. **SEGMENT-SPEZIFISCH** (z.B. "3-Zimmer 80-120 m²") → BESTE Option!
+2. **ZIMMER-KATEGORIE** (z.B. "3-Zimmer-Wohnungen generell")
+3. **GEMEINDE-GESAMT** (alle Wohnungen) → nur wenn 1+2 nicht verfügbar
+
 Finde:
-- median_psqm: Gemeinde-Median in €/m² (MUSS aus Quelle sein)
+- median_psqm: SEGMENT-spezifischer Wert in €/m² (MUSS aus Quelle sein)
+  * PRIORISIERE segment-spezifische Daten (z.B. "3-Zimmer 80-120 m²")!
+  * VERMEIDE Durchschnitt aller Wohnungen wenn segment-Daten verfügbar!
+  * In notes KLAR dokumentieren: "Segment 3-Zimmer: X €/m²" ODER "Gemeinde-Durchschnitt: X €/m²"
 - range_psqm: P25-P75 Quartile **NUR wenn in Quelle verfügbar**
   * KRITISCH: low MUSS STRENG KLEINER als high sein (low < high)
   * WENN keine Quartile in Quelle → setze range_psqm auf NULL
   * WENN unsicher → setze range_psqm auf NULL
   * NIE schätzen oder erfinden!
-- notes: Dokumentiere GENAU was du gefunden hast
+- notes: Dokumentiere GENAU + EXPLIZIT ob segment-spezifisch oder Durchschnitt
 
-Template für notes:
+Template für notes (SEGMENT-SPEZIFISCH):
 "3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435).
-Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024).
-Segment 3-Zimmer 60-80 m²: 10,32 €/m² P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3).
+Segment 3-Zimmer 60-80 m²: 10,32 €/m² (Mietspiegel Wettenberg 2024 Tabelle 3). Gemeinde-Gesamt: 10,34 €/m².
+Quelle: Stadt Wettenberg Mietspiegel 2024"
+
+Template für notes (NUR Durchschnitt verfügbar):
+"3-Zimmer-Wohnung, 67 m². Wettenberg Gemeinde-Durchschnitt alle Wohnungen: 10,34 €/m² (Mietspiegel 2024). Keine segment-spezifischen Daten verfügbar.
 Quelle: Stadt Wettenberg Mietspiegel 2024"
 
 ## 2. KAUFPREIS (price)
+KRITISCH - SEGMENT-SPEZIFISCHE DATEN PRIORISIEREN!
+
+Suche in dieser Reihenfolge:
+1. **SEGMENT-SPEZIFISCH** (z.B. "Altbau 3-Zimmer" oder "3-Zimmer 80-120 m²") → BESTE Option!
+2. **ZIMMER-KATEGORIE** (z.B. "3-Zimmer-Wohnungen")
+3. **GEMEINDE-GESAMT** (alle Wohnungen) → nur wenn 1+2 nicht verfügbar
+
 Finde:
-- median_psqm: Gemeinde-Median in €/m²
+- median_psqm: SEGMENT-spezifischer Wert in €/m² (MUSS aus Quelle sein)
+  * PRIORISIERE segment-spezifische Daten!
+  * VERMEIDE Durchschnitt aller Wohnungen wenn segment-Daten verfügbar!
+  * In notes KLAR dokumentieren: "Segment 3-Zimmer: X €/m²" ODER "Gemeinde-Durchschnitt: X €/m²"
 - range_psqm: P25-P75 Quartile **NUR wenn in Quelle verfügbar**
   * KRITISCH: low MUSS STRENG KLEINER als high sein (low < high)
   * WENN keine Quartile in Quelle → setze range_psqm auf NULL
   * WENN unsicher → setze range_psqm auf NULL
   * NIE schätzen oder erfinden!
-- notes: Dokumentiere GENAU
+- notes: Dokumentiere GENAU + EXPLIZIT ob segment-spezifisch oder Durchschnitt
 
-Template für notes:
+Template für notes (SEGMENT-SPEZIFISCH):
 "3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg.
-Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024).
-Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024).
+Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024 Tab. 5). Gemeinde-Gesamt: 3.280 €/m².
 Quelle: Gutachterausschuss Landkreis Gießen 2024"
+
+Template für notes (NUR Durchschnitt verfügbar):
+"3-Zimmer-Wohnung, 67 m². Wettenberg Gemeinde-Durchschnitt alle Wohnungen: 3.280 €/m² (Gutachterausschuss 2024). Keine segment-spezifischen Daten verfügbar.
+Quelle: Gutachterausschuss LK Gießen 2024"
 
 ## 3. LEERSTAND (vacancy)
 KRITISCH - sehr genau dokumentieren!
@@ -222,12 +248,21 @@ Du bekommst: payload (Objektdaten) + facts (Research-Ergebnisse)
 
 ## 1. FÜR WEN INTERESSANT
 "Die Wohnung ist vor allem für [Zielgruppen] interessant."
-→ Nutze NUR facts.demand.drivers
-→ KEINE eigenen Erfindungen!
+
+KRITISCH - INTELLIGENTE FILTERUNG:
+→ Prüfe payload.flaeche und payload.zimmer!
+→ Große Wohnungen (>80m², 3+ Zimmer) → NICHT für Studenten geeignet
+→ "Pendler nach X" nur wenn Ort NICHT bereits in X liegt (z.B. Köln-Lindenthal → NICHT "Pendler nach Köln")
+→ Nutze facts.demand.drivers als Basis, aber filtere unrealistische Zielgruppen raus
 
 Beispiel:
-✅ "Die Wohnung ist vor allem für Familien und Pendler nach Frankfurt interessant."
-❌ "Perfekt für junge Paare" (wenn nicht in facts.demand.drivers)
+Input: flaeche=118m², zimmer=3, drivers=["Familien", "Pendler Köln", "Studenten Uni Köln"]
+✅ "Die Wohnung ist vor allem für Familien interessant."
+❌ "Die Wohnung ist für Familien, Pendler und Studenten interessant." (zu groß für Studenten!)
+
+ALTERNATIV - Demografie-basiert (wenn verfügbar):
+Wenn facts.location.notes Hinweise auf Bewohnerstruktur enthält (z.B. "gehobene Wohnlage", "Uni-Nähe"):
+→ "Die Gegend ist bekannt für [Bewohnertyp]" statt Listen von drivers
 
 ## 2. WARUM (Nachfrage-Kontext)
 Erkläre WARUM - aber NUR wenn in facts.demand.notes vorhanden.
@@ -240,6 +275,9 @@ Nutze facts.location für Kontext:
 ## 3. LEERSTANDSRISIKO
 KRITISCH: Prüfe GENAU facts.vacancy.notes!
 
+Wenn vacancy.notes mehrere Quellen mit unterschiedlichen Werten enthält (z.B. "0,9-2%"):
+→ "Der Leerstand in [Ort] wird je nach Quelle mit 0,9-2% angegeben, was sehr niedrig ist und auf hohe Nachfrage hindeutet."
+
 Wenn vacancy.rate = NULL UND notes enthält "Keine spezifischen Daten":
 → "Konkrete Leerstandszahlen für [Ort] gibt es nicht."
 
@@ -248,6 +286,9 @@ Wenn vacancy.rate = NUMBER UND notes enthält "Landkreis" ODER "indikativ":
 
 Wenn vacancy.rate = NUMBER UND notes enthält NICHT "indikativ":
 → "Der Leerstand in [Ort] liegt bei X%."
+→ Falls rate < 2%: Ergänze " - sehr niedrig und zeigt hohe Nachfrage"
+→ Falls rate 2-5%: Ergänze " - im normalen Bereich"
+→ Falls rate > 5%: Ergänze " - etwas erhöht"
 
 ## 4. VERMIETBARKEIT
 Basiere NUR auf facts.vacancy.risk:
@@ -314,10 +355,10 @@ Satz 1 - Die Fakten:
 Satz 2 - Der Marktvergleich:
 "In [Ort] liegt der Schnitt bei [Median] €/m², vergleichbare [X]-Zimmer-Wohnungen kosten im Median etwa [Segment-Median] €/m², die übliche Spanne geht von [P25] bis [P75] €."
 
-Satz 3 - Die Bewertung:
-- Falls ÜBER Markt (>5%): "Du liegst [X]% drüber, was nur durch [richtig gute Ausstattung/Top-Mikrolage] zu rechtfertigen wäre."
-- Falls UNTER Markt (<-5%): "Du liegst [X]% drunter, das ist ein guter bis sehr guter Deal."
-- Falls AM Markt (-5% bis +5%): "Du liegst [X]% [drüber/drunter], das ist fair und marktüblich."
+Satz 3 - Die Bewertung (KRITISCH - aus INVESTOR-Perspektive!):
+- Falls ÜBER Markt (>5%): "Du liegst [X]% drüber, was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen wäre."
+- Falls UNTER Markt (<-5%): "Du liegst [X]% drunter - das bedeutet aktuell geringe Einnahmen, aber Potenzial für Mieterhöhung bei Neuvermietung oder Modernisierung."
+- Falls AM Markt (-5% bis +5%): "Du liegst [X]% [drüber/drunter], das ist marktüblich und solide."
 
 # WICHTIG
 ✅ Spanne NATÜRLICH einbauen (im gleichen Satz)
@@ -333,19 +374,28 @@ Satz 3 - Die Bewertung:
 # TONFALL
 Wie beim Bier erklären - locker, direkt, auf den Punkt.
 
-# BEISPIEL
+# BEISPIEL 1 (ÜBER Markt)
 
 Input:
 - payload: {miete: 1000, flaeche: 67, zimmer: 3}
 - facts.rent: {median_psqm: 10.34, range_psqm: {low: 10.00, high: 10.50}}
-- facts.rent.notes: "Segment 3Z 60-80m²: 10.32 €/m²"
 
-Berechnung:
-- Aktuelle: 1000/67 = 14.93 €/m²
-- Abweichung: ((14.93 - 10.34) / 10.34) * 100 = 44%
+Berechnung: 1000/67 = 14.93 €/m², Abweichung: +44%
 
 Output:
-"Die 3-Zimmer-Wohnung (67 m²) wird für 14,93 €/m² vermietet. In Wettenberg liegt der Schnitt bei 10,34 €/m², vergleichbare 3-Zimmer-Wohnungen kosten im Median etwa 10,32 €/m², die übliche Spanne geht von 10,00 bis 10,50 €. Du liegst also 44% drüber, was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen wäre."`,
+"Die 3-Zimmer-Wohnung (67 m²) wird für 14,93 €/m² vermietet. In Wettenberg liegt der Schnitt bei 10,34 €/m², vergleichbare 3-Zimmer-Wohnungen kosten im Median etwa 10,32 €/m², die übliche Spanne geht von 10,00 bis 10,50 €. Du liegst also 44% drüber, was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen wäre."
+
+# BEISPIEL 2 (UNTER Markt)
+
+Input:
+- payload: {miete: 850, flaeche: 67, zimmer: 3}
+- facts.rent: {median_psqm: 10.34, range_psqm: null}
+
+Berechnung: 850/67 = 12.69 €/m², Abweichung: ((12.69-10.34)/10.34)*100 = +23%
+ABER: Beispiel mit NEGATIVER Abweichung: 600/67 = 8.96 €/m², ((8.96-10.34)/10.34)*100 = -13%
+
+Output:
+"Die 3-Zimmer-Wohnung (67 m²) wird für 8,96 €/m² vermietet. In Wettenberg liegt der Schnitt bei 10,34 €/m². Du liegst 13% drunter - das bedeutet aktuell geringe Einnahmen, aber Potenzial für Mieterhöhung bei Neuvermietung oder Modernisierung."`,
   model: 'gpt-4o-mini',
   outputType: HtmlDeltaSchema,
   modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
@@ -378,8 +428,8 @@ Wenn Zahl < 1000: OHNE Punkt (z.B. 850 €/m²)
 
 ## STRUKTUR
 
-Satz 1 - Die Fakten:
-"Für die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) werden [Preis] €/m² aufgerufen."
+Satz 1 - Die Fakten (KURZ - ohne Wiederholung):
+"Der Kaufpreis liegt bei [Preis] €/m²."
 
 Satz 2 - Der Marktvergleich:
 "In [Ort] liegt der Schnitt bei [Median] €/m², vergleichbare [Altbau/Neubau]-Wohnungen mit [X] Zimmern kosten im Median etwa [Segment] €/m², üblich sind [P25] bis [P75] €."
@@ -416,7 +466,7 @@ Berechnung:
 - Abweichung: ((2985 - 3280) / 3280) * 100 = -9%
 
 Output:
-"Für die 3-Zimmer-Wohnung (67 m², Baujahr 1900) werden 2.985 €/m² aufgerufen. In Wettenberg liegt der Schnitt bei 3.280 €/m², vergleichbare Altbau-Wohnungen mit 3 Zimmern kosten im Median etwa 3.100 €/m², üblich sind 3.000 bis 3.600 €. Du liegst 9% drunter, das ist ein fairer bis guter Preis. Schau dir aber unbedingt die WEG-Unterlagen an (Protokolle, Rücklagen, anstehende Sanierungen)."`,
+"Der Kaufpreis liegt bei 2.985 €/m². In Wettenberg liegt der Schnitt bei 3.280 €/m², vergleichbare Altbau-Wohnungen mit 3 Zimmern kosten im Median etwa 3.100 €/m², üblich sind 3.000 bis 3.600 €. Du liegst 9% drunter, das ist ein fairer bis guter Preis. Schau dir aber unbedingt die WEG-Unterlagen an (Protokolle, Rücklagen, anstehende Sanierungen)."`,
   model: 'gpt-4o-mini',
   outputType: HtmlDeltaSchema,
   modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
@@ -437,42 +487,58 @@ Du bekommst die Outputs von:
 
 # DEIN OUTPUT: 4 ABSÄTZE (120-150 Wörter gesamt)
 
-## ABSATZ 1: FÜR WEN (20-25 Wörter)
-Überschrift: "Für wen passt das?"
+## ABSATZ 1: FÜR WEN (OPTIONAL - NUR wenn nützlich, sonst SKIP!)
+Überschrift: "Für wen passt das?" (NUR wenn Info-Mehrwert!)
 
-Aus lage.html extrahiere:
-- Zielgruppen
-- Nachfrage-Level (gut/mittel/schwach)
+KRITISCH: Dieser Absatz ist oft redundant - SKIP ihn wenn lage.html bereits klar zeigt wer die Zielgruppe ist.
+NUR schreiben wenn es spezielle Insights gibt die nicht offensichtlich sind.
 
-Template:
-"Die Wohnung passt für [Zielgruppen]. Die Nachfrage ist [gut/mittel/schwach] [+ kurzer Grund wenn vorhanden]."
-
-## ABSATZ 2: DIE ZAHLEN (30-40 Wörter)
+## ABSATZ 2: DIE ZAHLEN (40-60 Wörter - MIT KONTEXT!)
 Überschrift: "Die Zahlen im Überblick"
 
-NUR die 3 wichtigsten KPIs aus payload:
-1. Cashflow (payload.cashflowVorSteuer)
-2. Rendite (payload.nettoMietrendite ODER ekRendite)
-3. DSCR (payload.dscr) - nur wenn > 0
+KRITISCH - REALISTISCHE Bewertung:
+1. Cashflow (payload.cashflowVorSteuer):
+   - Stark negativ (< -800€): "extrem schlecht, erhebliche monatliche Zuschüsse nötig"
+   - Negativ (-300 bis -800€): "schlecht, monatlicher Zuschuss erforderlich"
+   - Leicht negativ (0 bis -300€): "knapp negativ"
+   - Positiv (0 bis 300€): "positiv aber knapp"
+   - Stark positiv (> 300€): "solide"
 
-Template:
-"Cashflow von [X] € im Monat, [das läuft solide/das ist knapp]. Rendite von [Y]% [stark/ok/schwach]. Die Rate ist [gut/knapp] gedeckt (DSCR [Z])."
+2. Rendite (payload.nettoMietrendite):
+   - <2%: "sehr schwach"
+   - 2-3%: "schwach"
+   - 3-4%: "ok"
+   - >4%: "gut"
+
+3. DSCR (payload.dscr):
+   - <0.8: "katastrophal - Rate ist NICHT gedeckt"
+   - 0.8-1.0: "kritisch - Rate kaum gedeckt"
+   - 1.0-1.2: "knapp gedeckt"
+   - >1.2: "gut gedeckt"
+
+WICHTIG: Erkläre WARUM die Zahlen so sind UND wie man sie verbessern kann!
+Beispiel: "Cashflow ist extrem negativ weil Miete 40% unter Markt liegt. Bei Marktmiete wäre Cashflow positiv."
 
 ❌ KEINE Detail-Zahlen wie EK, Kaufpreis, Anschaffungskosten!
 
-## ABSATZ 3: DAS RISIKO (40-50 Wörter)
-Überschrift: "Hier ist der Haken"
+## ABSATZ 3: RISIKEN & POTENZIAL (40-60 Wörter)
+Überschrift: "Risiken & Potenzial" ODER "Worauf achten?"
 
-NUR DAS größte Risiko - OHNE Zahlen-Overkill.
+KRITISCH - LOGIK BEACHTEN:
 
-Prüfe:
-1. Ist Miete >>10% über Markt? → Mieterrisiko
-2. Ist Kaufpreis >>10% über Markt? → Überteuert
-3. Ist Cashflow negativ? → Liquiditätsrisiko
-4. Ist DSCR <1.2? → Finanzierungsrisiko
+**Miete ÜBER Markt (>10%):**
+= RISIKO! "Miete liegt X% über Markt. Bei Mieterwechsel wahrscheinlich Einnahmeverlust, da nur Marktmiete erzielbar."
 
-Template für Miet-Risiko:
-"Die Miete liegt [X]% über dem Markt ([aktuell] statt ca. [markt] €). Problem: Bei Mieterwechsel kriegst du keinen Nachmieter zu diesem Preis. Worst Case bei Markt-Miete: [Konsequenz]. Mittlerer Weg mit [realistisch] €: [Konsequenz]."
+**Miete UNTER Markt (< -10%):**
+= POTENZIAL! "Miete liegt X% unter Markt - das ist Potenzial für Erhöhung bei Modernisierung oder Neuvermietung. Bei Marktmiete wäre Cashflow/Rendite deutlich besser."
+
+**Kaufpreis ÜBER Markt (>10%):**
+= RISIKO! "Kaufpreis über Markt - Verhandlung empfehlenswert."
+
+**Cashflow stark negativ + DSCR <1.0:**
+= KRITISCH! "Monatliche Zuschüsse nötig + Rate nicht gedeckt. Prüfe ob durch Mietanpassung/mehr EK verbessern bar."
+
+Fokus auf das GRÖSSTE Problem/Potenzial!
 
 ## ABSATZ 4: WAS TUN (30-40 Wörter)
 Überschrift: "Meine Empfehlung"
@@ -503,22 +569,33 @@ Beispiel:
 # TONFALL
 Wie beim Bier erklären - direkt, klar, ohne Schnickschnack.
 
-# BEISPIEL KOMPLETTER OUTPUT
-
-<h3>Für wen passt das?</h3>
-<p>Die Wohnung passt für Familien und Pendler nach Frankfurt. Die Nachfrage ist stabil durch die Nähe zur Uni Gießen.</p>
+# BEISPIEL 1: MIETE ÜBER MARKT (RISIKO)
 
 <h3>Die Zahlen im Überblick</h3>
-<p>Cashflow von 265 € im Monat, das läuft solide. Rendite von 4,8%, stark. Die Rate ist gut gedeckt (DSCR 1,47).</p>
+<p>Cashflow von 265 € monatlich ist solide, Rendite von 4,8% gut. Rate ist gut gedeckt (DSCR 1,47). Allerdings: Diese Zahlen basieren auf der aktuellen Miete, die deutlich über Markt liegt.</p>
 
-<h3>Hier ist der Haken</h3>
-<p>Die Miete liegt 44% über dem Markt (1.000 statt ca. 700 €). Problem: Bei Mieterwechsel kriegst du keinen Nachmieter zu diesem Preis. Worst Case bei Markt-Miete: Du zahlst jeden Monat drauf, Rendite fällt auf ca. 3%. Mittlerer Weg mit 750 €: Gerade so plus-minus null.</p>
+<h3>Risiken & Potenzial</h3>
+<p>Miete liegt 44% über Markt. Bei Mieterwechsel wahrscheinlich nur noch Marktmiete erzielbar - dann würde Cashflow deutlich sinken und Rendite auf ca. 3% fallen. Aktuellen Mieter unbedingt halten!</p>
 
 <h3>Meine Empfehlung</h3>
-<p>1) Kaufpreis ist gut, WEG-Unterlagen checken (Protokolle, Rücklagen, Sanierungen). 2) Aktuellen Mieter halten oder bei Neuvermietung realistisch 11-12 €/m² ansetzen.</p>
+<p>1) Kaufpreis ist fair - WEG-Unterlagen checken. 2) Aktuellen Mieter mit guter Kommunikation halten, bei Neuvermietung realistisch nur 11-12 €/m² ansetzbar.</p>
 
 <h3>Fazit</h3>
-<p>Ja mit Vorbehalt - Starker Cashflow und Rendite, aber Miete deutlich über Markt.</p>`,
+<p>Ja mit Vorbehalt - Aktuell starke Zahlen, aber abhängig von aktuellem Mieter.</p>
+
+# BEISPIEL 2: MIETE UNTER MARKT (POTENZIAL!)
+
+<h3>Die Zahlen im Überblick</h3>
+<p>Cashflow von -1.292 € monatlich ist extrem schlecht - erhebliche Zuschüsse nötig. Rendite von 1,9% sehr schwach. DSCR 0,38 ist katastrophal - Rate ist NICHT gedeckt. ABER: Miete liegt 41% unter Markt, das ist riesiges Potenzial!</p>
+
+<h3>Risiken & Potenzial</h3>
+<p>Miete 41% unter Markt bedeutet: Bei Anpassung auf Marktniveau würde Cashflow deutlich besser und DSCR auf akzeptables Niveau steigen. Bei Modernisierung oder Neuvermietung ist das direkt umsetzbar.</p>
+
+<h3>Meine Empfehlung</h3>
+<p>1) Kaufpreis verhandeln (16% über Markt). 2) Prüfe Mieterhöhungspotenzial nach Modernisierung oder bei Neuvermietung - das würde die Zahlen komplett drehen.</p>
+
+<h3>Fazit</h3>
+<p>Nein aktuell - Aber mit Mietanpassung auf Markt würde es interessant werden.</p>`,
   model: 'gpt-4o-mini',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
