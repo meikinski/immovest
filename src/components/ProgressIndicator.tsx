@@ -66,12 +66,12 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
 
               {/* Connecting Line */}
               {!isLast && (
-                <div className="flex-1 h-0.5 mx-2 relative" style={{ top: '-12px' }}>
+                <div className="flex-1 relative mx-2" style={{ alignSelf: 'flex-start', marginTop: '20px' }}>
                   <div
                     className={`
-                      h-full transition-all duration-500
-                      ${idx < currentIndex 
-                        ? 'bg-[hsl(var(--brand))]' 
+                      h-0.5 transition-all duration-500
+                      ${idx < currentIndex
+                        ? 'bg-[hsl(var(--brand))]'
                         : 'bg-gray-200'
                       }
                     `}

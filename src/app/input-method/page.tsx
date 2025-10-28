@@ -42,7 +42,7 @@ export default function InputMethodPage() {
       }
 
       const { data } = await response.json();
-      
+
       // Daten in Store importieren
       importData({
         kaufpreis: data.kaufpreis || 0,
@@ -51,6 +51,8 @@ export default function InputMethodPage() {
         zimmer: data.zimmer || 0,
         baujahr: data.baujahr || new Date().getFullYear(),
         miete: data.miete || 0,
+        hausgeld: data.hausgeld || 0,
+        makler_pct: data.makler_pct || 0,
       });
       
       // Weiterleitung zu Step A
@@ -81,7 +83,7 @@ export default function InputMethodPage() {
           {/* Manual Input */}
           <button
             onClick={() => router.push('/step/a')}
-            className="card p-8 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group text-left"
+            className="card p-8 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 group text-left border-2 border-transparent hover:border-[hsl(var(--brand))]/20"
           >
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-[hsl(var(--brand))]/10 rounded-xl flex items-center justify-center group-hover:bg-[hsl(var(--brand))]/20 transition-colors">
@@ -96,7 +98,7 @@ export default function InputMethodPage() {
           </button>
 
           {/* URL Import */}
-          <div className="card p-8 border-2 border-[hsl(var(--brand-2))]/20">
+          <div className="card p-8 border-2 border-[hsl(var(--brand-2))]/20 hover:shadow-xl hover:border-[hsl(var(--brand-2))]/40 transition-all duration-300">
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-[hsl(var(--brand-2))]/10 rounded-xl flex items-center justify-center">
                 <Link2 className="w-6 h-6 text-[hsl(var(--brand-2))]" />
