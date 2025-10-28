@@ -1202,28 +1202,110 @@ const exportPdf = React.useCallback(async () => {
 </div>
 
 
-        {/* Eckdaten-Zeile */}
-        {/* Eckdaten */}
+        {/* Eckdaten-Zeile - Verbessert */}
 <div className="card mb-6">
-  <h2 className="text-sm font-semibold text-gray-800 mb-3">Eckdaten</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-700">
-<div>
-      <span className="icon-badge"><MapPin size={16} /></span>{' '}
-      {shortAddress ? (
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline text-[var(--color-primary)]"
-        >
-          {shortAddress}
-        </a>
-      ) : '–'}
-    </div>    <div><span className="font-medium"></span> <span className="text-gray-700 font-medium text-sm"></span></div>
-    <div><span className="icon-badge mr-2"><EuroIcon size={16} /></span><span className="font-medium">Kaufpreis:</span>  <span className="text-gray-700 font-medium text-sm">{kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Ruler size={16} /></span><span className="font-medium">Fläche:</span><span className="text-gray-700 font-medium text-sm">{flaeche ? `${flaeche.toLocaleString('de-DE')} m²` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Wallet size={16} /></span><span className="font-medium">Gesamtinvestition:</span><span className="text-gray-700 font-medium text-sm">{anschaffungskosten ? `${anschaffungskosten.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><BedSingle size={16} /></span><span className="font-medium">Zimmer:</span> <span className="text-gray-700 font-medium text-sm">{zimmer || '–'}</span></div>
+  <h2 className="text-base font-bold text-gray-900 mb-4 flex items-center">
+    <House className="mr-2" size={20} />
+    Objektübersicht
+  </h2>
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {/* Standort */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <MapPin size={18} className="text-[hsl(var(--brand))]" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-xs text-gray-500 mb-1">Standort</div>
+        {shortAddress ? (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-[hsl(var(--brand))] hover:underline truncate block"
+          >
+            {shortAddress}
+          </a>
+        ) : (
+          <span className="text-sm font-semibold text-gray-700">–</span>
+        )}
+      </div>
+    </div>
+
+    {/* Kaufpreis */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <EuroIcon size={18} className="text-[hsl(var(--brand))]" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-gray-500 mb-1">Kaufpreis</div>
+        <div className="text-sm font-semibold text-gray-900">
+          {kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}
+        </div>
+        {kaufpreis && flaeche ? (
+          <div className="text-xs text-gray-500 mt-0.5">
+            {(kaufpreis / flaeche).toLocaleString('de-DE', { maximumFractionDigits: 0 })} €/m²
+          </div>
+        ) : null}
+      </div>
+    </div>
+
+    {/* Gesamtinvestition */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand-2))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <Wallet size={18} className="text-[hsl(var(--brand-2))]" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-gray-500 mb-1">Gesamtinvestition</div>
+        <div className="text-sm font-semibold text-gray-900">
+          {anschaffungskosten ? `${anschaffungskosten.toLocaleString('de-DE')} €` : '–'}
+        </div>
+        {anschaffungskosten && kaufpreis ? (
+          <div className="text-xs text-gray-500 mt-0.5">
+            inkl. {((anschaffungskosten - kaufpreis) / kaufpreis * 100).toFixed(1)}% NK
+          </div>
+        ) : null}
+      </div>
+    </div>
+
+    {/* Wohnfläche */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <Ruler size={18} className="text-[hsl(var(--brand))]" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-gray-500 mb-1">Wohnfläche</div>
+        <div className="text-sm font-semibold text-gray-900">
+          {flaeche ? `${flaeche.toLocaleString('de-DE')} m²` : '–'}
+        </div>
+      </div>
+    </div>
+
+    {/* Zimmer */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <BedSingle size={18} className="text-[hsl(var(--brand))]" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-gray-500 mb-1">Zimmer</div>
+        <div className="text-sm font-semibold text-gray-900">{zimmer || '–'}</div>
+      </div>
+    </div>
+
+    {/* Baujahr */}
+    <div className="flex items-start space-x-3 p-3 rounded-lg bg-gray-50">
+      <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <Calendar size={18} className="text-[hsl(var(--brand))]" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-gray-500 mb-1">Baujahr</div>
+        <div className="text-sm font-semibold text-gray-900">{baujahr || '–'}</div>
+        {baujahr ? (
+          <div className="text-xs text-gray-500 mt-0.5">
+            {new Date().getFullYear() - baujahr} Jahre alt
+          </div>
+        ) : null}
+      </div>
+    </div>
   </div>
 </div>
 

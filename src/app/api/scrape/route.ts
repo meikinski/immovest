@@ -8,20 +8,28 @@ type ScrapedData = {
   baujahr?: number;
   adresse?: string;
   miete?: number;
+  hausgeld?: number;
+  makler_pct?: number;
 };
 
 const PATTERNS = {
   immoscout: {
-    kaufpreis: /(\d+\.?\d*\.?\d*)\s*€/i,
+    kaufpreis: /Kaufpreis[:\s]*(\d+\.?\d*\.?\d*)\s*€|(\d+\.?\d*\.?\d*)\s*€/i,
     flaeche: /(\d+\.?\d*)\s*m²/i,
     zimmer: /(\d+\.?\d*)\s*Zimmer/i,
     baujahr: /Baujahr[:\s]*(\d{4})/i,
+    kaltmiete: /Kaltmiete[:\s]*(\d+\.?\d*\.?\d*)\s*€/i,
+    hausgeld: /Hausgeld[:\s]*(\d+\.?\d*\.?\d*)\s*€|Nebenkosten[:\s]*(\d+\.?\d*\.?\d*)\s*€/i,
+    makler: /Provision[:\s]*(\d+[,.]?\d*)\s*%|Makler[:\s]*(\d+[,.]?\d*)\s*%|Courtage[:\s]*(\d+[,.]?\d*)\s*%/i,
   },
   immowelt: {
     kaufpreis: /Kaufpreis[:\s]*(\d+\.?\d*\.?\d*)\s*€/i,
     flaeche: /Wohnfläche[:\s]*(\d+\.?\d*)\s*m²/i,
     zimmer: /Zimmer[:\s]*(\d+\.?\d*)/i,
     baujahr: /Baujahr[:\s]*(\d{4})/i,
+    kaltmiete: /Kaltmiete[:\s]*(\d+\.?\d*\.?\d*)\s*€/i,
+    hausgeld: /Hausgeld[:\s]*(\d+\.?\d*\.?\d*)\s*€|Nebenkosten[:\s]*(\d+\.?\d*\.?\d*)\s*€/i,
+    makler: /Provision[:\s]*(\d+[,.]?\d*)\s*%|Makler[:\s]*(\d+[,.]?\d*)\s*%|Courtage[:\s]*(\d+[,.]?\d*)\s*%/i,
   },
 };
 
@@ -43,13 +51,37 @@ function extractNumber(text: string, pattern: RegExp): number | undefined {
 async function scrapeGeneric(html: string, patterns: typeof PATTERNS.immoscout): Promise<ScrapedData> {
   const $ = cheerio.load(html);
   const text = $('body').text();
-  
+
   const data: ScrapedData = {
     kaufpreis: extractNumber(text, patterns.kaufpreis),
     flaeche: extractNumber(text, patterns.flaeche),
     zimmer: extractNumber(text, patterns.zimmer),
     baujahr: extractNumber(text, patterns.baujahr),
   };
+
+  // Kaltmiete extrahieren (priorisiert vor allgemeiner Miete)
+  if ('kaltmiete' in patterns) {
+    const kaltmiete = extractNumber(text, patterns.kaltmiete);
+    if (kaltmiete) {
+      data.miete = kaltmiete;
+    }
+  }
+
+  // Hausgeld extrahieren
+  if ('hausgeld' in patterns) {
+    const hausgeld = extractNumber(text, patterns.hausgeld);
+    if (hausgeld) {
+      data.hausgeld = hausgeld;
+    }
+  }
+
+  // Maklergebühr extrahieren (als Prozentsatz)
+  if ('makler' in patterns) {
+    const maklerPct = extractNumber(text, patterns.makler);
+    if (maklerPct) {
+      data.makler_pct = maklerPct;
+    }
+  }
 
   // Adresse versuchen zu extrahieren
   const addressSelectors = [
