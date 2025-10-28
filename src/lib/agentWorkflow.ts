@@ -73,7 +73,11 @@ Diese Objektdaten MÜSSEN in rent.notes und price.notes dokumentiert werden.
 ## 1. MIETE (rent)
 Finde:
 - median_psqm: Gemeinde-Median in €/m² (MUSS aus Quelle sein)
-- range_psqm.low/high: P25-P75 Quartile wenn verfügbar
+- range_psqm: P25-P75 Quartile **NUR wenn in Quelle verfügbar**
+  * KRITISCH: low MUSS STRENG KLEINER als high sein (low < high)
+  * WENN keine Quartile in Quelle → setze range_psqm auf NULL
+  * WENN unsicher → setze range_psqm auf NULL
+  * NIE schätzen oder erfinden!
 - notes: Dokumentiere GENAU was du gefunden hast
 
 Template für notes:
@@ -85,7 +89,11 @@ Quelle: Stadt Wettenberg Mietspiegel 2024"
 ## 2. KAUFPREIS (price)
 Finde:
 - median_psqm: Gemeinde-Median in €/m²
-- range_psqm.low/high: P25-P75 wenn verfügbar
+- range_psqm: P25-P75 Quartile **NUR wenn in Quelle verfügbar**
+  * KRITISCH: low MUSS STRENG KLEINER als high sein (low < high)
+  * WENN keine Quartile in Quelle → setze range_psqm auf NULL
+  * WENN unsicher → setze range_psqm auf NULL
+  * NIE schätzen oder erfinden!
 - notes: Dokumentiere GENAU
 
 Template für notes:
@@ -132,9 +140,11 @@ Dokumentiere ALLE verwendeten Quellen mit:
 ❌ Kreis-Daten als Gemeinde-Daten verkaufen (ohne "indikativ" Kennzeichnung)
 ❌ Segment-Daten erfinden wenn nicht in Quelle
 ❌ Veraltete Quellen (älter als 2023)
+❌ range_psqm mit low >= high (IMMER low < high oder NULL!)
 
 # BEISPIEL KORREKTER OUTPUT
 
+## Beispiel 1: MIT Quartile-Daten
 Szenario: 3-Zimmer-Wohnung, 67 m², Baujahr 1900, Wettenberg PLZ 35435
 
 {
@@ -168,6 +178,24 @@ Szenario: 3-Zimmer-Wohnung, 67 m², Baujahr 1900, Wettenberg PLZ 35435
     {"title": "Gutachterausschuss LK Gießen 2024", "url": "https://...", "domain": "lkgi.de"}
   ]
 }
+
+## Beispiel 2: OHNE Quartile-Daten (range_psqm = NULL)
+Szenario: Keine P25-P75 Quartile in Quelle verfügbar
+
+{
+  "rent": {
+    "median_psqm": 12.50,
+    "range_psqm": null,
+    "notes": "3-Zimmer, 70 m². Gemeinde-Median: 12,50 €/m² (Mietspiegel 2024). Keine Quartile-Daten verfügbar. Quelle: Stadt XY Mietspiegel 2024"
+  },
+  "price": {
+    "median_psqm": 4200,
+    "range_psqm": null,
+    "notes": "3-Zimmer, 70 m². Gemeinde-Median: 4.200 €/m² (Gutachterausschuss 2024). Keine Quartile-Angaben im Bericht. Quelle: Gutachterausschuss 2024"
+  }
+}
+
+WICHTIG: Quartile NIE erfinden! Wenn nicht in Quelle → range_psqm = null
 
 # QUALITY CHECKS vor dem Output
 1. Sind median_psqm Werte plausibel? (Miete 5-25 €/m², Kauf 1000-8000 €/m²)
@@ -557,12 +585,12 @@ function validateResearchOutput(facts: z.infer<typeof ResearchSchema>): Validati
     warnings.push('price.notes zu kurz oder leer - sollte Segment-Infos enthalten');
   }
 
-  // 6. Check: Range plausibel (low < high)
+  // 6. Check: Range plausibel (low < high) - KRITISCH
   if (facts.rent.range_psqm && facts.rent.range_psqm.low >= facts.rent.range_psqm.high) {
-    errors.push('rent.range_psqm: low >= high ist nicht plausibel');
+    errors.push(`rent.range_psqm: low >= high ist nicht plausibel (low: ${facts.rent.range_psqm.low}, high: ${facts.rent.range_psqm.high}). Setze auf NULL wenn keine Quartile-Daten!`);
   }
   if (facts.price.range_psqm && facts.price.range_psqm.low >= facts.price.range_psqm.high) {
-    errors.push('price.range_psqm: low >= high ist nicht plausibel');
+    errors.push(`price.range_psqm: low >= high ist nicht plausibel (low: ${facts.price.range_psqm.low}, high: ${facts.price.range_psqm.high}). Setze auf NULL wenn keine Quartile-Daten!`);
   }
 
   // 7. Check: Vacancy Konsistenz
