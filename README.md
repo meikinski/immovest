@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ImmoVest - KI-gestützte Immobilien-Investitionsanalyse
+
+Deine intelligente Plattform für Immobilien-Investment-Analysen mit KI-Unterstützung.
+
+## Features
+
+### Analyse & Berechnung
+- **Multi-Step Analyse-Workflow**: Objektdaten → Einnahmen & Kosten → Finanzierung → Analyse
+- **KI-gestützte Marktanalyse**: Automatische Lage- und Preisprognosen via OpenAI
+- **URL-Import**: Automatischer Import von ImmobilienScout24, Immowelt
+- **Szenario-Rechner**: Teste verschiedene Parameter und vergleiche Szenarien
+- **Smart Tab Navigation**: Verhindert unnötige API-Reloads bei unveränderter Eingabe
+- **PDF-Export**: Professionelle PDF-Berichte mit allen KPIs
+
+### Speichern & Verwalten
+- **Gespeicherte Analysen**: Speichere und verwalte deine Analysen im Dashboard
+- **User Authentication**: Sichere Anmeldung mit Clerk
+- **Profil-Seite**: Verwalte dein Konto und Premium-Status
+
+### Premium & Paywall
+- **Premium Features**: Erweiterte Marktanalysen (Markt & Lage Tab)
+- **2 Kostenlose Premium-Zugriffe**: Teste Premium-Features kostenlos
+- **Stripe Integration**: Sichere Zahlungsabwicklung für Premium-Abos
+- **Flexibles Abo**: 19,90 €/Monat, jederzeit kündbar
+
+### Design & UX
+- **Responsive Design**: Funktioniert perfekt auf Desktop und Mobile
+- **Fortschrittsanzeige**: Visuelles Feedback bei laufenden Analysen
+- **Welcome Page**: Ansprechende Landing Page mit Login/Guest-Option
 
 ## Getting Started
 
-First, run the development server:
+### Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Öffne [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Setup Guides
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database Setup für Analysen-Speicherung
+2. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Payment Setup für Premium-Abos
 
-## Learn More
+### Minimale Konfiguration (.env.local)
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Clerk Authentication (erforderlich)
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Stripe (optional für Premium)
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_ID=price_...
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Supabase (optional für Persistenz)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
+SUPABASE_SERVICE_ROLE_KEY=xxx
+```
 
-## Deploy on Vercel
+## Architektur
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Tech Stack
+- **Framework**: Next.js 15.3 (App Router)
+- **Language**: TypeScript 5.8
+- **Styling**: Tailwind CSS 4.1
+- **State Management**: Zustand 5.0
+- **Authentication**: Clerk
+- **Database**: Supabase (PostgreSQL)
+- **Payments**: Stripe
+- **AI**: OpenAI GPT-4 + Agents
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Projektstruktur
+```
+/src
+  /app
+    /api              # API Routes (Stripe, Premium, Analysis)
+    /dashboard        # User Dashboard
+    /profile          # User Profile & Settings
+    /step/[step]      # Multi-Step Analyse Workflow
+    page.tsx          # Landing Page
+  /components         # React Components
+  /contexts           # Context Providers (Paywall)
+  /lib                # Utilities (calculations, storage, supabase)
+  /store              # Zustand Stores
+```

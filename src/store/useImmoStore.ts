@@ -5,13 +5,21 @@ import {
     berechneNettomietrendite,
     berechneScore
   } from '@/lib/calculations';
-  
+
 
 /**
  * State und Setter für ImmoInvest AI Eingaben (Schritt A)
  */
 export interface ImmoState {
+  // Analysis metadata
+  analysisId: string | null;
+  analysisName: string;
+  createdAt: string | null;
+  updatedAt: string | null;
+
+  // Input fields
   kaufpreis: number;
+  objekttyp: 'wohnung' | 'haus';
   grunderwerbsteuer_pct: number;
   notar_pct: number;
   makler_pct: number;
@@ -24,22 +32,28 @@ export interface ImmoState {
   hausgeld_umlegbar: number;
   mietausfall_pct: number;
   instandhaltungskosten_pro_qm: number;
-    steuer: number;                    
-  afa: number;                       
-  ruecklagen: number;                
-  persoenlicher_steuersatz: number;  
-ek: number;        
-  zins: number;     
+  steuer: number;
+  afa: number;
+  ruecklagen: number;
+  persoenlicher_steuersatz: number;
+  ek: number;
+  zins: number;
   tilgung: number;
+
+  // Derived fields
   cashflow_operativ: number;
   nettorendite: number;
   score: number;
   anschaffungskosten: number;
 
-  
-  updateDerived: () => void;   
+  // Methods
+  updateDerived: () => void;
+  resetAnalysis: () => void;
+  loadAnalysis: (id: string, userId?: string | null) => Promise<boolean>;
+  exportState: () => Record<string, unknown>;
 
   setKaufpreis: (v: number) => void;
+  setObjekttyp: (v: 'wohnung' | 'haus') => void;
   setGrunderwerbsteuerPct: (v: number) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
@@ -65,9 +79,16 @@ ek: number;
 // Typ für die Set-Funktion: akzeptiert partielle ImmoState-Updates
 type SetFn = (state: Partial<ImmoState>) => void;
 
-export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
+const initialState = {
+  // Metadata
+  analysisId: null,
+  analysisName: '',
+  createdAt: null,
+  updatedAt: null,
+
   // Initialwerte
   kaufpreis: 0,
+  objekttyp: 'wohnung' as const,
   grunderwerbsteuer_pct: 6.5,
   notar_pct: 2,
   makler_pct: 3.57,
@@ -91,6 +112,10 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   nettorendite: 0,
   score: 0,
   anschaffungskosten: 0,
+};
+
+export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
+  ...initialState,
   updateDerived: () => {
     const s = get();
     const cf = berechneCashflowOperativ(
@@ -133,6 +158,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setKaufpreis: (v: number) => {
     set({ kaufpreis: v });
     get().updateDerived();
+  },
+  setObjekttyp: (v: 'wohnung' | 'haus') => {
+    set({ objekttyp: v });
   },
   setGrunderwerbsteuerPct: (v: number) => {
     set({ grunderwerbsteuer_pct: v });
@@ -211,7 +239,68 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   importData: (data) => {
-  set(data);
-  get().updateDerived();
-},
+    set(data);
+    get().updateDerived();
+  },
+
+  resetAnalysis: () => {
+    set(initialState);
+  },
+
+  loadAnalysis: async (id: string, userId: string | null = null) => {
+    try {
+      // For now, load from localStorage
+      // TODO: Load from Supabase when implemented
+      if (typeof window === 'undefined') return false;
+
+      const { loadAnalysis: loadFromStorage } = await import('@/lib/storage');
+
+      const data = loadFromStorage(userId, id);
+      if (!data) return false;
+
+      set({
+        ...data,
+        analysisId: id,
+      });
+      get().updateDerived();
+      return true;
+    } catch (error) {
+      console.error('Failed to load analysis:', error);
+      return false;
+    }
+  },
+
+  exportState: () => {
+    const state = get();
+    return {
+      analysisId: state.analysisId,
+      analysisName: state.analysisName || state.adresse || 'Unbenannte Analyse',
+      createdAt: state.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      kaufpreis: state.kaufpreis,
+      grunderwerbsteuer_pct: state.grunderwerbsteuer_pct,
+      notar_pct: state.notar_pct,
+      makler_pct: state.makler_pct,
+      flaeche: state.flaeche,
+      adresse: state.adresse,
+      zimmer: state.zimmer,
+      baujahr: state.baujahr,
+      miete: state.miete,
+      hausgeld: state.hausgeld,
+      hausgeld_umlegbar: state.hausgeld_umlegbar,
+      mietausfall_pct: state.mietausfall_pct,
+      instandhaltungskosten_pro_qm: state.instandhaltungskosten_pro_qm,
+      steuer: state.steuer,
+      afa: state.afa,
+      ruecklagen: state.ruecklagen,
+      persoenlicher_steuersatz: state.persoenlicher_steuersatz,
+      ek: state.ek,
+      zins: state.zins,
+      tilgung: state.tilgung,
+      cashflow_operativ: state.cashflow_operativ,
+      nettorendite: state.nettorendite,
+      score: state.score,
+      anschaffungskosten: state.anschaffungskosten,
+    };
+  },
 }));

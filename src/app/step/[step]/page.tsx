@@ -7,8 +7,8 @@ import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
- BedSingle, Bot, Calculator, Calendar, ChartBar,
-  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon
+ BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar, Crown,
+  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock
 } from 'lucide-react';
 import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
@@ -16,6 +16,10 @@ import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { usePaywall } from '@/contexts/PaywallContext';
+import { UpgradeModal } from '@/components/UpgradeModal';
+import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
+import { Header } from '@/components/Header';
 
 
 
@@ -44,6 +48,10 @@ export default function StepPage() {
   const idx = steps.indexOf(step);
   const nextStep = idx < steps.length - 1 ? steps[idx + 1] : 'tabs';
   const showProgress = step !== 'tabs';
+
+  // Paywall
+  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
+  const hasIncrementedUsage = useRef(false);
 
 
   // Hydration guard
@@ -256,12 +264,23 @@ const dscr =
   const [comment, setComment] = useState<string>('');
   const [isLoadingComment, setIsLoadingComment] = useState<boolean>(false);
   const commentFetched = useRef(false);
+  const lastCommentInputs = useRef<string>('');
 
   useEffect(() => {
     if (step !== 'tabs') return;
     if (activeTab !== 'kpi') return;
-    if (commentFetched.current) return;
 
+    // Create fingerprint of inputs to detect real changes
+    const inputFingerprint = JSON.stringify({
+      kaufpreis, anschaffungskosten, adresse, flaeche, zimmer, baujahr,
+      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
+      cashflowVorSteuer, nettoMietrendite, bruttoMietrendite
+    });
+
+    // Skip if already fetched with same inputs
+    if (commentFetched.current && lastCommentInputs.current === inputFingerprint) return;
+
+    lastCommentInputs.current = inputFingerprint;
     setIsLoadingComment(true);
     fetch('/api/generateComment', {
       method: 'POST',
@@ -317,16 +336,7 @@ const dscr =
   cashflowVorSteuer, cashflowAfterTax, bruttoMietrendite, nettoMietrendite, ek, anschaffungskosten,
   adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, kalkKostenMonthly, warmmiete, objekttyp]);
 
-  // Bei relevanten Änderungen erneutes Laden des Kurzkommentars erlauben
-useEffect(() => {
-  if (step === 'tabs' && activeTab === 'kpi') {
-    commentFetched.current = false;
-  }
-}, [
-  step, activeTab,
-  cashflowVorSteuer, nettorendite, ek, anschaffungskosten,
-  adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis
-]);
+  // Note: Removed the reset effect - we now use fingerprint-based caching
 
   // === Markt & Lage (Tab 2) – Datencontainer/States ===
   const [lageComment, setLageComment]           = useState<string>('');
@@ -335,10 +345,39 @@ useEffect(() => {
   const [lageTrendComment, setLageTrendComment] = useState<string>('');
   const [investComment, setInvestComment]       = useState<string>('');
   const [loadingDetails, setLoadingDetails]     = useState<boolean>(false);
+  const marktFetched = useRef(false);
+  const lastMarktInputs = useRef<string>('');
 
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
+  // If no premium access, show placeholder content
+  if (!canAccessPremium) {
+    setLageComment('<p>Premium-Inhalte sind hier verfügbar. Die Lageanalyse bietet detaillierte Einblicke in die Umgebung, Infrastruktur und Entwicklungspotenzial der Immobilie.</p>');
+    setMietpreisComment('<p>Hier findest du einen umfassenden Vergleich der Mietpreise in der Umgebung, inklusive Marktpositionierung und Preisentwicklung.</p>');
+    setQmPreisComment('<p>Der Kaufpreisvergleich zeigt dir, wie der Quadratmeterpreis im Vergleich zu ähnlichen Objekten in der Gegend einzuordnen ist.</p>');
+    setInvestComment('<p>Die Investitionsanalyse kombiniert alle Faktoren und gibt dir eine fundierte Empfehlung für deine Kaufentscheidung.</p>');
+    return;
+  }
+
+  // Create fingerprint of inputs to detect real changes
+  const inputFingerprint = JSON.stringify({
+    adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+    miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
+    cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
+  });
+
+  // Skip if already fetched with same inputs
+  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+
+  // Increment usage counter (only once per session/analysis)
+  if (!isPremium && !hasIncrementedUsage.current) {
+    incrementPremiumUsage();
+    hasIncrementedUsage.current = true;
+  }
+
+  lastMarktInputs.current = inputFingerprint;
+  marktFetched.current = true;
   setLoadingDetails(true);
 
   (async () => {
@@ -410,6 +449,8 @@ useEffect(() => {
   cashflowVorSteuer, cashflowAfterTax,
   nettoMietrendite, bruttoMietrendite, ekRendite,
   dscr, anschaffungskosten,
+  // Paywall context dependencies
+  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal,
 ]);
 
 
@@ -726,7 +767,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Zimmer & Fläche */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <div className='card'>
               <div className="mb-2 text-lg font-semibold flex items-center">
@@ -811,7 +852,7 @@ const exportPdf = React.useCallback(async () => {
             <span className="ml-2"><Wallet /></span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Kaltmiete gesamt */}
             <div className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -858,7 +899,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Mietnebenkosten */}
         <div className='card'>
           <div className="mb-2 text-lg font-semibold flex items-center">Mietnebenkosten&nbsp;<span><ChartBar /></span></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Umlagefähig */}
             <div
               onBlur={() => {
@@ -901,7 +942,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Kalkulatorische Kosten */}
         <div className='card'>
           <div className="mb-2 text-lg font-semibold flex items-center">Kalkulatorische Kosten&nbsp;<span><WrenchIcon /></span></div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Mietausfall */}
             <div onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)} className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -940,7 +981,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="mb-2 text-lg font-semibold flex items-center">
             Steuern&nbsp;<span><SquarePercent /></span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* AfA Satz */}
             <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
@@ -1146,11 +1187,17 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'tabs') {
     content = (
       <>
+        {/* Progress Indicator */}
+        <div className="mb-6">
+          <ProgressIndicator currentStep="tabs" />
+        </div>
+
         {/* Header */}
         <div className="flex items-center mb-4">
   <button onClick={() => router.back()} className="btn-back">←</button>
-  <div className="ml-4">
-    <h1 className="text-3xl font-bold">Analyse 📊</h1>
+  <div className="ml-4 flex items-center gap-3">
+    <BarChart3 size={32} className="text-[var(--color-primary)]" />
+    <h1 className="text-3xl font-bold">Analyse</h1>
   </div>
 </div>
 
@@ -1183,23 +1230,27 @@ const exportPdf = React.useCallback(async () => {
 {/* Tabs */}
 <div className="mt-6 mb-5 flex flex-wrap gap-2">
   {([
-    { key: 'kpi', label: 'KPIs' },
-    { key: 'markt', label: 'Marktvergleich & Lage' },
-    { key: 'szenarien', label: 'Szenarien & Export' },
+    { key: 'kpi', label: 'KPIs', premium: false },
+    { key: 'markt', label: 'Marktvergleich & Lage', premium: true },
+    { key: 'szenarien', label: 'Szenarien & Export', premium: true },
   ] as const).map(t => {
     const active = activeTab === t.key;
+    const locked = t.premium && !canAccessPremium;
     return (
       <button
         key={t.key}
-        onClick={() => setActiveTab(t.key)}
+        onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.key)}
         className={[
-          'px-4 py-2 rounded-full border text-base transition',
+          'px-4 py-2 rounded-full border text-base transition flex items-center gap-2',
           active
             ? 'font-semibold bg-[hsl(var(--brand))] border-[hsl(var(--brand))] text-white'
+            : locked
+            ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-pointer hover:border-[hsl(var(--brand-2))]'
             : 'bg-white border-[hsl(var(--accent))] text-gray-700 hover:border-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))] hover:text-white'
         ].join(' ')}
         aria-current={active ? 'page' : undefined}
       >
+        {locked && <Lock size={16} />}
         {t.label}
       </button>
     );
@@ -1288,7 +1339,36 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Tab 2 – Marktvergleich & Lage */}
         {activeTab === 'markt' && (
-          <>
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {!canAccessPremium && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-8 max-w-md">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <Lock className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-6">
+                    Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
+                  </p>
+                  <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <Crown size={20} />
+                    Jetzt freischalten
+                  </button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    {2 - premiumUsageCount > 0
+                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                      : 'Nur 19,90 €/Monat'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
             <div className="card-gradient">
               <div className="flex items-center space-x-2">
                 <span className="text-medium font-bold">Lagebewertung</span>
@@ -1392,14 +1472,42 @@ const exportPdf = React.useCallback(async () => {
       Szenarien testen →
     </button>
   </div>
-
-
-
-          </>
+            </div>
+          </div>
         )}
 
         {/* Tab 3 – Szenarien & Export */}
         {activeTab === 'szenarien' && (
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {!canAccessPremium && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-8 max-w-md">
+                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <Lock className="w-10 h-10 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-6">
+                    Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
+                  </p>
+                  <button
+                    onClick={() => setShowUpgradeModal(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                  >
+                    <Crown size={20} />
+                    Jetzt freischalten
+                  </button>
+                  <p className="text-sm text-gray-500 mt-4">
+                    {2 - premiumUsageCount > 0
+                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                      : 'Nur 19,90 €/Monat'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
   <>
     {/* Kein H2, Tab-Button dient als Titel */}
 <p className="text-gray-600 mt-1 pb-6">
@@ -1546,7 +1654,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Basis */}
           <div className="card bg-white">
             <h3 className="font-semibold mb-3">Aktuelle Eingaben</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
               <div>Kaufpreis</div>             <div className="text-right">{kaufpreis.toLocaleString('de-DE')} €</div>
               <div>Gesamtinvestition</div>     <div className="text-right">{anschaffungskosten.toLocaleString('de-DE')} €</div>
               <div>Eigenkapital</div>          <div className="text-right">{ek.toLocaleString('de-DE')} €</div>
@@ -1555,8 +1663,11 @@ const exportPdf = React.useCallback(async () => {
               <div>Monatliche Rate</div>       <div className="text-right">{rateMonat.toLocaleString('de-DE', { maximumFractionDigits: 2 })} €</div>
               <div>Kaltmiete</div>             <div className="text-right">{miete.toLocaleString('de-DE')} €</div>
 
-              <div className="pt-2 border-t font-medium">Cashflow (vor Steuern)</div>
-              <div className="text-right pt-2 border-t font-medium">
+              {/* Separator */}
+              <div className="col-span-2 border-t border-gray-300 my-2" />
+
+              <div className="font-medium">Cashflow (vor Steuern)</div>
+              <div className="text-right font-medium">
                 {cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
               </div>
 
@@ -1569,7 +1680,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Szenario – ohne Icons, Delta unter dem Wert */}
           <div className="card card-scenario">
             <h3 className="font-semibold mb-3">Szenario</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
               {rows.map((r) => {
   const delta  = r.sc - r.base;
   const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
@@ -1631,12 +1742,12 @@ const exportPdf = React.useCallback(async () => {
 >
   {pdfBusy ? 'Exportiert…' : 'PDF exportieren'}
 </button>
-      <button className="btn-secondary">
-        Ergebnis speichern
-      </button>
+      <SaveAnalysisButton />
     </div>
   </>
-)}
+            </div>
+          </div>
+        )}
 
       </>
     );
@@ -1644,11 +1755,22 @@ const exportPdf = React.useCallback(async () => {
     content = <p>Seite existiert nicht</p>;
   }
 
+  const freeUsagesRemaining = Math.max(0, 2 - premiumUsageCount);
+
   return (
-    <div className="max-w-xl mx-auto py-10">
-      {showProgress && <ProgressIndicator currentStep={step as Step} />}
-      {content}
-      
-    </div>
+    <>
+      <Header variant="fixed" />
+
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        remainingFreeUses={freeUsagesRemaining}
+      />
+
+      <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 pt-24">
+        {showProgress && <ProgressIndicator currentStep={step as Step} />}
+        {content}
+      </div>
+    </>
   );
 }
