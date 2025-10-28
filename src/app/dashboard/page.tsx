@@ -150,32 +150,74 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Total Analyses */}
-          <div className="card p-6">
-            <div className="flex items-center gap-3 mb-3">
+          {/* Portfolio Overview */}
+          <div className="card p-6 border-2 border-[hsl(var(--brand))]/20">
+            <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-[hsl(var(--brand))]/10 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-[hsl(var(--brand))]" />
+                <BarChart3 className="w-6 h-6 text-[hsl(var(--brand))]" />
               </div>
               <div>
-                <p className="text-2xl font-bold">{analyses.length}</p>
-                <p className="text-sm text-gray-600">Gespeicherte Analysen</p>
+                <h3 className="font-semibold">Portfolio Übersicht</h3>
+                <p className="text-xs text-gray-600">{analyses.length} {analyses.length === 1 ? 'Analyse' : 'Analysen'}</p>
               </div>
             </div>
+            {analyses.length > 0 ? (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Ø Rendite:</span>
+                  <span className="font-semibold text-[hsl(var(--success))]">
+                    {(analyses.reduce((sum, a) => sum + (a.nettorendite || 0), 0) / analyses.length).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Beste Rendite:</span>
+                  <span className="font-semibold text-[hsl(var(--success))]">
+                    {Math.max(...analyses.map(a => a.nettorendite || 0)).toFixed(1)}%
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Ges. Investiert:</span>
+                  <span className="font-semibold">
+                    {analyses.reduce((sum, a) => sum + (a.kaufpreis || 0), 0).toLocaleString('de-DE')} €
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-2">
+                Erstelle deine erste Analyse
+              </p>
+            )}
           </div>
 
           {/* Quick Action */}
           <div className="card p-6 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white">
-            <Sparkles className="w-6 h-6 mb-3" />
-            <h3 className="font-semibold mb-2">Schnellstart</h3>
-            <p className="text-sm mb-3 opacity-90">
-              Analysiere eine neue Immobilie in wenigen Minuten
+            <div className="flex items-center justify-between mb-3">
+              <Sparkles className="w-6 h-6" />
+              {analyses.length > 0 && (
+                <span className="text-xs opacity-75">
+                  Letzte: {new Date(analyses[0]?.createdAt || Date.now()).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' })}
+                </span>
+              )}
+            </div>
+            <h3 className="font-semibold mb-2">Neue Analyse starten</h3>
+            <p className="text-sm mb-4 opacity-90">
+              Wähle deine bevorzugte Eingabemethode
             </p>
-            <button
-              onClick={handleNewAnalysis}
-              className="w-full bg-white text-[hsl(var(--brand))] py-2 rounded-lg font-medium hover:bg-opacity-90 transition"
-            >
-              Jetzt starten
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={handleNewAnalysis}
+                className="w-full bg-white text-[hsl(var(--brand))] py-2.5 rounded-lg font-medium hover:bg-opacity-90 transition flex items-center justify-center gap-2"
+              >
+                <Sparkles size={16} />
+                Schnellstart
+              </button>
+              <button
+                onClick={() => router.push('/input-method')}
+                className="w-full bg-white/10 backdrop-blur-sm border border-white/20 py-2 rounded-lg font-medium hover:bg-white/20 transition text-sm"
+              >
+                Methode wählen
+              </button>
+            </div>
           </div>
         </div>
 

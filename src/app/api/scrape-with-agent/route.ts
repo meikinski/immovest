@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
       // Wenn hausgeld_nicht_umlegbar nicht angegeben, berechne aus Differenz
       hausgeld_nicht_umlegbar: result.hausgeld_nicht_umlegbar ||
         ((result.hausgeld || 0) - (result.hausgeld_umlegbar || 0)),
+      maklergebuehr: result.maklergebuehr || 0,
       objekttyp: normalizeObjekttyp(result.objekttyp),
       _meta: {
         confidence: result.confidence,
