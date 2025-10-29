@@ -475,11 +475,12 @@ export async function POST(req: Request) {
         ensure(60);
         // Title mit Brand-Color Akzent
         drawText(title, MARGIN, y, 11, true, PRIMARY);
-        y -= 18;
+        y -= 22;
 
-        // Content Box
-        const lines = wrap(content, WIDTH - 20, 10);
-        const boxHeight = lines.length * 12 + 16;
+        // Content Box mit mehr Padding
+        const lines = wrap(content, WIDTH - 40, 10);
+        const lineHeight = 14; // Erhöht von 12 auf 14
+        const boxHeight = lines.length * lineHeight + 28; // Erhöht von 16 auf 28
         page.drawRectangle({
           x: MARGIN,
           y: y - boxHeight + 4,
@@ -491,10 +492,10 @@ export async function POST(req: Request) {
         });
 
         for (const line of lines) {
-          drawText(line, MARGIN + 10, y - 4, 10, false, NEUTRAL);
-          y -= 12;
+          drawText(line, MARGIN + 16, y - 8, 10, false, NEUTRAL); // Erhöht von +10/-4 auf +16/-8
+          y -= lineHeight;
         }
-        y -= 20;
+        y -= 28; // Erhöht von 20 auf 28 für mehr Abstand zwischen Blöcken
       };
 
       if (d.lageText) textBlock('Standortanalyse', d.lageText);
@@ -548,12 +549,12 @@ export async function POST(req: Request) {
       };
 
       // Anpassungen Box
-      ensure(140);
+      ensure(160);
       drawText('Anpassungen gegenüber Basis', MARGIN, y, 13, true, PRIMARY);
       y -= 28;
 
       // Hintergrund-Box für alle Anpassungen
-      const adjustBoxHeight = 100;
+      const adjustBoxHeight = 120;
       page.drawRectangle({
         x: MARGIN - 8,
         y: y - adjustBoxHeight + 8,
@@ -565,18 +566,27 @@ export async function POST(req: Request) {
       });
 
       // Helper: Draw adjustment row
-      const adjustRow = (label: string, value: string, color: ReturnType<typeof rgb>, xPos: number, yPos: number) => {
+      const adjustRow = (label: string, value: string, newValue: string, color: ReturnType<typeof rgb>, xPos: number, yPos: number) => {
         drawText(label, xPos + 8, yPos, 9, false, MUTED);
         drawText(value, xPos + 8, yPos - 14, 11, true, color);
+        drawText(newValue, xPos + 8, yPos - 28, 10, false, NEUTRAL);
       };
 
       const colWidth = (WIDTH + 16) / 3;
       const startY = y - 16;
 
+      // Neue Werte berechnen
+      const sMiete   = s.miete   ?? d.miete;
+      const sPreis   = s.kaufpreis ?? d.kaufpreis;
+      const sZins    = s.zins    ?? d.zins;
+      const sTilgung = s.tilgung ?? d.tilgung;
+      const sEk      = s.ek      ?? d.ek;
+
       // Row 1: Miete, Kaufpreis, Zins
       adjustRow(
         'Kaltmiete',
         `${dmiete >= 0 ? '+' : ''}${dmiete}%`,
+        eur(Math.round(sMiete)),
         colFor('miete', dmiete),
         MARGIN - 8,
         startY
@@ -584,6 +594,7 @@ export async function POST(req: Request) {
       adjustRow(
         'Kaufpreis',
         `${dpreis >= 0 ? '+' : ''}${dpreis}%`,
+        eur(Math.round(sPreis)),
         colFor('preis', dpreis),
         MARGIN - 8 + colWidth,
         startY
@@ -591,6 +602,7 @@ export async function POST(req: Request) {
       adjustRow(
         'Zins',
         `${dzins >= 0 ? '+' : ''}${dzins.toFixed(2)} pp`,
+        `${sZins.toFixed(2)} %`,
         colFor('zins', dzins),
         MARGIN - 8 + colWidth * 2,
         startY
@@ -600,37 +612,21 @@ export async function POST(req: Request) {
       adjustRow(
         'Tilgung',
         `${dtilg >= 0 ? '+' : ''}${dtilg.toFixed(2)} pp`,
+        `${sTilgung.toFixed(2)} %`,
         NEUTRAL,
         MARGIN - 8,
-        startY - 46
+        startY - 56
       );
       adjustRow(
         'Eigenkapital',
         `${dek >= 0 ? '+' : ''}${dek}%`,
+        eur(Math.round(sEk)),
         colFor('ek', dek),
         MARGIN - 8 + colWidth,
-        startY - 46
+        startY - 56
       );
 
       y -= adjustBoxHeight + 10;
-
-      // Neue Werte 2×2 (immer anzeigen, ggf. Basis)
-      const sMiete   = s.miete   ?? d.miete;
-      const sPreis   = s.kaufpreis ?? d.kaufpreis;
-      const sZins    = s.zins    ?? d.zins;
-      const sTilgung = s.tilgung ?? d.tilgung;
-      const sEk      = s.ek      ?? d.ek;
-
-      twoCols(
-        [
-          ['Kaltmiete (neu)', eur(Math.round(sMiete))],
-          ['Kaufpreis (neu)', eur(Math.round(sPreis))],
-        ],
-        [
-          ['Zins / Tilgung (neu)', `${sZins.toFixed(2)} % / ${sTilgung.toFixed(2)} %`],
-          ['Eigenkapital (neu)', eur(Math.round(sEk))],
-        ]
-      );
 
       // Szenario-KPIs Headline
       hr(12, 14, rgb(0.95, 0.9, 0.85)); // Peach-ish Linie
