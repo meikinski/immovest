@@ -1014,10 +1014,10 @@ const exportPdf = React.useCallback(async () => {
           <div className="mb-2 text-lg font-semibold flex items-center">
             Steuern&nbsp;<span><SquarePercent /></span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
             {/* AfA Satz */}
             <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
+              <label className="text-xs text-gray-600 mb-1 flex items-center min-h-[2.5rem]">
                 AfA Satz (% p.a.)
                 <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
                   <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
@@ -1033,7 +1033,7 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Anteil Gebäude */}
             <div onBlur={() => setSteuer(Number(gebText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
+              <label className="text-xs text-gray-600 mb-1 flex items-center min-h-[2.5rem]">
                 Anteil Gebäude am Kaufpreis (%)
                 <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
                   <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
