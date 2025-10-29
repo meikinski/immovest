@@ -40,13 +40,13 @@ const scraperAgent = new Agent({
 In deutschen Immobilien-Anzeigen gibt es zwei VERSCHIEDENE monatliche Beträge:
 
 1) KALTMIETE = Miete die der Mieter zahlt (Einnahmen für Eigentümer)
-   - Wird genannt: "Kaltmiete", "Nettokaltmiete", "Grundmiete"
+   - Wird genannt: "Kaltmiete", "Nettokaltmiete", "Grundmiete", "Kalt-Miete"
    - Typisch: 600-2000€ pro Monat
    - Beispiel im Inserat: "Kaltmiete: 950,00 €"
    - → Extrahiere diesen Wert ins Feld "miete"
 
 2) HAUSGELD = Nebenkosten die der Eigentümer zahlt (Ausgaben)
-   - Wird genannt: "Hausgeld", "monatliches Hausgeld", "Nebenkosten", "Wohngeld"
+   - Wird genannt: "Hausgeld", "monatliches Hausgeld", "Wohngeld"
    - Typisch: 150-400€ pro Monat
    - Beispiel im Inserat: "Hausgeld: 245,00 €"
    - → Extrahiere diesen Wert ins Feld "hausgeld"
@@ -55,6 +55,32 @@ WICHTIG: Das sind ZWEI VERSCHIEDENE Werte!
 - Wenn du "Kaltmiete: 950€" siehst → miete = 950, NICHT hausgeld!
 - Wenn du "Hausgeld: 245€" siehst → hausgeld = 245, NICHT miete!
 - Kaltmiete ist IMMER höher als Hausgeld!
+
+📋 BEISPIEL-EXTRAKTION:
+
+Aus einem Inserat mit folgendem Text:
+"Kaufpreis: 350.000 €
+Wohnfläche: 75 m²
+Zimmer: 3
+Kaltmiete: 950 €
+Hausgeld: 245 €
+Käuferprovision: 3,57% inkl. MwSt."
+
+RICHTIGE Extraktion:
+{
+  kaufpreis: 350000,
+  flaeche: 75,
+  zimmer: 3,
+  miete: 950,          ← Die GRÖSSERE Zahl (Kaltmiete)
+  hausgeld: 245,       ← Die KLEINERE Zahl (Hausgeld)
+  maklergebuehr: 12495  ← 350000 * 3.57 / 100
+}
+
+FALSCH wäre:
+- miete: 245 (das ist Hausgeld!)
+- hausgeld: 950 (das ist Kaltmiete!)
+- miete: null und hausgeld: 950 (beide Werte verwechselt!)
+- maklergebuehr: null (wenn Prozent angegeben und Kaufpreis bekannt!)
 
 DATEN EXTRAHIEREN:
 
@@ -94,14 +120,24 @@ DATEN EXTRAHIEREN:
      * hausgeld_nicht_umlegbar = 40% vom Hausgeld
      * Warning: "Hausgeld-Verteilung ist Schätzung"
 
-8) MAKLERGEBÜHR / PROVISION:
-   - Suche: "Provision", "Maklergebühr", "Käuferprovision"
-   - Falls "provisionsfrei" → maklergebuehr = 0
-   - Falls Prozent (z.B. "3,57%"):
-     * UND Kaufpreis bekannt → berechne Euro-Betrag
-     * ABER Kaufpreis unbekannt → maklergebuehr = null
-   - Falls Euro-Betrag angegeben → übernehmen
-   - Falls nichts gefunden → maklergebuehr = null
+8) MAKLERGEBÜHR / PROVISION (Käuferprovision):
+   - Suche gezielt nach: "Provision", "Maklergebühr", "Käuferprovision", "Innen­courtage", "Außen­courtage"
+   - Häufige Formulierungen:
+     * "Provision: 3,57%" oder "3,57% inkl. MwSt."
+     * "Käuferprovision beträgt 3,0%"
+     * "provisionsfrei" oder "Keine Käuferprovision"
+   - WICHTIG - Prozent zu Euro konvertieren:
+     * Falls Prozent gefunden (z.B. "3,0%") UND Kaufpreis bekannt:
+       → maklergebuehr = (Kaufpreis * Prozent / 100)
+       → Beispiel: 573000 * 3.0 / 100 = 17190
+     * Falls Prozent gefunden ABER Kaufpreis unbekannt:
+       → maklergebuehr = null
+   - Falls "provisionsfrei" oder "Keine Provision":
+     → maklergebuehr = 0
+   - Falls Euro-Betrag direkt angegeben:
+     → maklergebuehr = Betrag
+   - Falls nichts gefunden:
+     → maklergebuehr = null (NICHT 0!)
 
 9) OBJEKTTYP:
    - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
@@ -210,8 +246,13 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
   const warnings = [...(output.warnings || [])];
   let swapped = false;
 
+  // Typical ranges for validation
+  const TYPICAL_KALTMIETE_MIN = 500;  // Minimum for typical Kaltmiete
+  const TYPICAL_HAUSGELD_MAX = 600;   // Maximum for typical Hausgeld
+  const TYPICAL_HAUSGELD_MIN = 100;   // Minimum for typical Hausgeld
+
   // CRITICAL: Validate Kaltmiete vs Hausgeld
-  if (validated.miete !== null && validated.hausgeld !== null) {
+  if (validated.miete !== null && validated.hausgeld !== null && validated.miete > 0 && validated.hausgeld > 0) {
     console.log('[VALIDATION] Both values present - checking relationship...');
 
     // If Hausgeld > Kaltmiete, they are definitely swapped!
@@ -238,24 +279,54 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
       console.warn('[VALIDATION] ⚠️ Unusual: Kaltmiete is only', (validated.miete / validated.hausgeld).toFixed(2), 'times Hausgeld');
       warnings.push('⚠️ ACHTUNG: Kaltmiete erscheint ungewöhnlich niedrig im Verhältnis zum Hausgeld. Bitte die Werte in der Originalanzeige überprüfen!');
     }
-  } else if (validated.miete === null && validated.hausgeld !== null) {
-    // Only Hausgeld found, no Kaltmiete - suspicious!
-    console.warn('[VALIDATION] ⚠️ Only Hausgeld found, no Kaltmiete - might be wrong');
-    warnings.push('⚠️ Nur Hausgeld gefunden, keine Kaltmiete. Bitte manuell prüfen!');
-  } else if (validated.miete !== null && validated.hausgeld === null) {
-    console.log('[VALIDATION] Only Kaltmiete found - OK (property might be owner-occupied)');
+  }
+  // NEW: Smart detection when miete is suspiciously low AND hausgeld is missing
+  else if (validated.miete !== null && validated.miete > 0 &&
+           (validated.hausgeld === null || validated.hausgeld === 0)) {
+    console.log('[VALIDATION] Checking if low miete value is actually Hausgeld...');
+
+    // If "miete" is in typical Hausgeld range (100-600€) but below typical Kaltmiete (500+€)
+    // AND Hausgeld is missing/zero, then miete is likely misidentified Hausgeld!
+    if (validated.miete >= TYPICAL_HAUSGELD_MIN && validated.miete < TYPICAL_KALTMIETE_MIN) {
+      console.error('[VALIDATION] 🚨 ERROR DETECTED: Miete value is too low and in Hausgeld range!');
+      console.error(`[VALIDATION] miete=${validated.miete} is below ${TYPICAL_KALTMIETE_MIN} - likely this is Hausgeld!`);
+
+      // Move miete to hausgeld, set miete to null
+      validated.hausgeld = validated.miete;
+      validated.miete = null;
+      swapped = true;
+
+      console.error(`[VALIDATION] After correction: miete=null, hausgeld=${validated.hausgeld}`);
+      warnings.push('⚠️ AUTOMATISCH KORRIGIERT: Agent hat Hausgeld als Kaltmiete erkannt. Wert wurde ins Hausgeld-Feld verschoben. Kaltmiete konnte nicht gefunden werden.');
+    } else if (validated.miete >= TYPICAL_KALTMIETE_MIN) {
+      console.log('[VALIDATION] ✓ Miete is in normal range, Hausgeld just not found - OK');
+    } else {
+      console.warn('[VALIDATION] ⚠️ Miete value is very low and unusual:', validated.miete);
+      warnings.push('⚠️ Kaltmiete erscheint sehr niedrig. Bitte manuell in der Originalanzeige überprüfen!');
+    }
+  }
+  else if (validated.miete === null && validated.hausgeld !== null) {
+    // Only Hausgeld found, no Kaltmiete - could be OK for owner-occupied
+    console.warn('[VALIDATION] ⚠️ Only Hausgeld found, no Kaltmiete');
+    warnings.push('⚠️ Nur Hausgeld gefunden, keine Kaltmiete. Falls die Wohnung vermietet ist, bitte Kaltmiete manuell nachtragen.');
   }
 
-  // Check if Kaltmiete is suspiciously low
-  if (validated.miete !== null && validated.miete > 0 && validated.miete < 200) {
+  // Check if Kaltmiete is suspiciously low (but still high enough to not be Hausgeld)
+  if (validated.miete !== null && validated.miete > 0 && validated.miete < 400) {
     console.warn('[VALIDATION] ⚠️ Kaltmiete is very low:', validated.miete);
-    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 200€). Bitte manuell überprüfen!');
+    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400€). Bitte manuell überprüfen!');
   }
 
   // Check if Kaltmiete is suspiciously high (might be yearly)
   if (validated.miete !== null && validated.miete > 5000) {
     console.warn('[VALIDATION] ⚠️ Kaltmiete is very high:', validated.miete);
     warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5000€). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
+  }
+
+  // Check if Hausgeld is suspiciously high
+  if (validated.hausgeld !== null && validated.hausgeld > TYPICAL_HAUSGELD_MAX) {
+    console.warn('[VALIDATION] ⚠️ Hausgeld is unusually high:', validated.hausgeld);
+    warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über ${TYPICAL_HAUSGELD_MAX}€). Bitte manuell überprüfen!`);
   }
 
   // Update warnings array
