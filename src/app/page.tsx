@@ -97,7 +97,7 @@ export default function LandingPage() {
                   onClick={() => router.push('/profile')}
                   className="w-full sm:w-auto px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border-2 border-gray-200 hover:border-[hsl(var(--brand))] hover:text-[hsl(var(--brand))] transition-all duration-300"
                 >
-                  Zu meinen gespeicherten Immobilien
+                  Profil & Einstellungen
                 </button>
               </>
             ) : (

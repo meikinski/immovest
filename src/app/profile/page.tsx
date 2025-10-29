@@ -119,12 +119,7 @@ export default function ProfilePage() {
             <UserButton afterSignOutUrl="/">
               <UserButton.MenuItems>
                 <UserButton.Link
-                  label="Dashboard"
-                  labelIcon={<LayoutDashboard size={16} />}
-                  href="/dashboard"
-                />
-                <UserButton.Link
-                  label="Gespeicherte Analysen"
+                  label="Profil & Einstellungen"
                   labelIcon={<Save size={16} />}
                   href="/profile"
                 />
@@ -189,7 +184,14 @@ export default function ProfilePage() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => router.push('/dashboard')}
+                    onClick={async () => {
+                      // Start Stripe checkout
+                      const response = await fetch('/api/stripe/checkout', {
+                        method: 'POST',
+                      });
+                      const { url } = await response.json();
+                      if (url) window.location.href = url;
+                    }}
                     className="px-4 py-2 bg-[hsl(var(--brand))] text-white rounded-lg hover:bg-[hsl(var(--brand-2))] transition flex items-center gap-2"
                   >
                     <Sparkles size={18} />
