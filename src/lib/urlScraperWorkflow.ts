@@ -199,7 +199,7 @@ ABSOLUTE REGEL: Nur Daten aus Quelle. KEINE Schätzungen außer Hausgeld-Verteil
   outputType: ImmobilienDataSchema,
   modelSettings: {
     store: true,
-    temperature: 0.05  // Sehr niedrig für konsistente Extraktion
+    temperature: 0.01  // Extrem niedrig für konsistente Extraktion
   },
 });
 
@@ -247,11 +247,66 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     throw new Error('URL Scraping fehlgeschlagen - keine Daten extrahiert');
   }
 
-  console.log('[URL Scraper] Complete:', {
+  console.log('[URL Scraper] Complete (before validation):', {
     kaufpreis: result.finalOutput.kaufpreis,
     flaeche: result.finalOutput.flaeche,
+    miete: result.finalOutput.miete,
+    hausgeld: result.finalOutput.hausgeld,
     confidence: result.finalOutput.confidence,
   });
 
-  return result.finalOutput;
+  // POST-PROCESSING VALIDATION: Fix common AI mistakes
+  const validatedOutput = validateAndFixOutput(result.finalOutput);
+
+  console.log('[URL Scraper] After validation:', {
+    miete: validatedOutput.miete,
+    hausgeld: validatedOutput.hausgeld,
+    swapped: validatedOutput.miete !== result.finalOutput.miete,
+  });
+
+  return validatedOutput;
+}
+
+/**
+ * Post-processing validation to fix common AI agent mistakes
+ */
+function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
+  const validated = { ...output };
+  const warnings = [...(output.warnings || [])];
+
+  // CRITICAL: Validate Kaltmiete vs Hausgeld
+  if (validated.miete !== null && validated.hausgeld !== null) {
+    // If Hausgeld > Kaltmiete, they are swapped!
+    if (validated.hausgeld > validated.miete) {
+      console.warn('[VALIDATION] ⚠️ Kaltmiete and Hausgeld are swapped! Fixing...');
+
+      // Swap them
+      const temp = validated.miete;
+      validated.miete = validated.hausgeld;
+      validated.hausgeld = temp;
+
+      // Add warning
+      warnings.push('⚠️ KORRIGIERT: Kaltmiete und Hausgeld waren vertauscht und wurden automatisch korrigiert.');
+    }
+
+    // Additional check: Kaltmiete should be at least 2x Hausgeld
+    if (validated.miete < validated.hausgeld * 1.5) {
+      warnings.push('⚠️ WARNUNG: Kaltmiete erscheint ungewöhnlich niedrig im Verhältnis zum Hausgeld. Bitte manuell prüfen!');
+    }
+  }
+
+  // Check if Kaltmiete is suspiciously low
+  if (validated.miete !== null && validated.miete > 0 && validated.miete < 200) {
+    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 200€). Bitte manuell prüfen!');
+  }
+
+  // Check if Kaltmiete is suspiciously high (might be yearly)
+  if (validated.miete !== null && validated.miete > 5000) {
+    warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5000€). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
+  }
+
+  // Update warnings array
+  validated.warnings = warnings;
+
+  return validated;
 }
