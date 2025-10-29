@@ -121,23 +121,34 @@ DATEN EXTRAHIEREN:
      * Warning: "Hausgeld-Verteilung ist Schätzung"
 
 8) MAKLERGEBÜHR / PROVISION (Käuferprovision):
-   - Suche gezielt nach: "Provision", "Maklergebühr", "Käuferprovision", "Innen­courtage", "Außen­courtage"
-   - Häufige Formulierungen:
-     * "Provision: 3,57%" oder "3,57% inkl. MwSt."
-     * "Käuferprovision beträgt 3,0%"
-     * "provisionsfrei" oder "Keine Käuferprovision"
-   - WICHTIG - Prozent zu Euro konvertieren:
-     * Falls Prozent gefunden (z.B. "3,0%") UND Kaufpreis bekannt:
-       → maklergebuehr = (Kaufpreis * Prozent / 100)
-       → Beispiel: 573000 * 3.0 / 100 = 17190
-     * Falls Prozent gefunden ABER Kaufpreis unbekannt:
-       → maklergebuehr = null
-   - Falls "provisionsfrei" oder "Keine Provision":
-     → maklergebuehr = 0
-   - Falls Euro-Betrag direkt angegeben:
-     → maklergebuehr = Betrag
-   - Falls nichts gefunden:
-     → maklergebuehr = null (NICHT 0!)
+   WICHTIG: Maklergebühr ist ein häufiges Feld in Immobilien-Anzeigen!
+
+   - Suche SEHR SORGFÄLTIG nach diesen Begriffen im kompletten Text:
+     * "Provision", "Maklergebühr", "Käuferprovision", "Innen­courtage"
+     * "Käufer­provision beträgt", "Provision beträgt"
+     * Auch suchen nach: "3,57%", "3,0 %", Prozentzahlen im Text
+
+   - SCHRITT 1: Text gefunden?
+
+     A) Falls "provisionsfrei" oder "Keine Käuferprovision":
+        → maklergebuehr = 0
+
+     B) Falls Prozent-Angabe gefunden (z.B. "3,0%", "3,57%", "Provision beträgt 3,0%"):
+        → BERECHNE Euro-Betrag:
+        → maklergebuehr = (Kaufpreis × Prozent) / 100
+        → Beispiele:
+          * "3,0%" bei Kaufpreis 573000 → 573000 × 3.0 / 100 = 17190
+          * "3,57%" bei Kaufpreis 350000 → 350000 × 3.57 / 100 = 12495
+        → Falls Kaufpreis NICHT bekannt → maklergebuehr = null
+
+     C) Falls Euro-Betrag direkt angegeben (z.B. "12.000 €"):
+        → maklergebuehr = Betrag (z.B. 12000)
+
+     D) Falls GAR NICHTS über Provision im Text:
+        → maklergebuehr = null
+
+   - ❌ NIEMALS maklergebuehr = 0 setzen, außer bei explizit "provisionsfrei"!
+   - ❌ NIEMALS Prozentangabe ignorieren wenn Kaufpreis bekannt ist!
 
 9) OBJEKTTYP:
    - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
@@ -250,10 +261,10 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
   const warnings = [...(output.warnings || [])];
   let swapped = false;
 
-  // Typical ranges for validation
-  const TYPICAL_KALTMIETE_MIN = 500;  // Minimum for typical Kaltmiete
-  const TYPICAL_HAUSGELD_MAX = 600;   // Maximum for typical Hausgeld
-  const TYPICAL_HAUSGELD_MIN = 100;   // Minimum for typical Hausgeld
+  // Typical ranges for validation (€/m² based - much smarter!)
+  const TYPICAL_KALTMIETE_MIN_PER_SQM = 8;    // Minimum for Kaltmiete: 8 €/m²
+  const TYPICAL_HAUSGELD_MAX_PER_SQM = 10;    // Maximum for Hausgeld: 10 €/m²
+  const TYPICAL_HAUSGELD_MIN_PER_SQM = 1.5;   // Minimum for Hausgeld: 1.5 €/m²
 
   // CRITICAL: Validate Kaltmiete vs Hausgeld
   if (validated.miete !== null && validated.hausgeld !== null && validated.miete > 0 && validated.hausgeld > 0) {
@@ -285,15 +296,19 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     }
   }
   // NEW: Smart detection when miete is suspiciously low AND hausgeld is missing
+  // Uses €/m² ratio for more accurate detection (works for any apartment size!)
   else if (validated.miete !== null && validated.miete > 0 &&
-           (validated.hausgeld === null || validated.hausgeld === 0)) {
-    console.log('[VALIDATION] Checking if low miete value is actually Hausgeld...');
+           (validated.hausgeld === null || validated.hausgeld === 0) &&
+           validated.flaeche !== null && validated.flaeche > 0) {
 
-    // If "miete" is in typical Hausgeld range (100-600€) but below typical Kaltmiete (500+€)
-    // AND Hausgeld is missing/zero, then miete is likely misidentified Hausgeld!
-    if (validated.miete >= TYPICAL_HAUSGELD_MIN && validated.miete < TYPICAL_KALTMIETE_MIN) {
-      console.error('[VALIDATION] 🚨 ERROR DETECTED: Miete value is too low and in Hausgeld range!');
-      console.error(`[VALIDATION] miete=${validated.miete} is below ${TYPICAL_KALTMIETE_MIN} - likely this is Hausgeld!`);
+    const mietePerSqm = validated.miete / validated.flaeche;
+    console.log(`[VALIDATION] Checking if low miete value is actually Hausgeld... (${mietePerSqm.toFixed(2)} €/m²)`);
+
+    // If "miete" per m² is in Hausgeld range but below Kaltmiete range, it's misidentified!
+    // Typical: Kaltmiete 8-25 €/m², Hausgeld 1.5-10 €/m²
+    if (mietePerSqm < TYPICAL_KALTMIETE_MIN_PER_SQM && mietePerSqm >= TYPICAL_HAUSGELD_MIN_PER_SQM) {
+      console.error('[VALIDATION] 🚨 ERROR DETECTED: Miete per m² is too low and in Hausgeld range!');
+      console.error(`[VALIDATION] miete/m²=${mietePerSqm.toFixed(2)} is below ${TYPICAL_KALTMIETE_MIN_PER_SQM} €/m² - likely this is Hausgeld!`);
 
       // Move miete to hausgeld, set miete to null
       validated.hausgeld = validated.miete;
@@ -308,13 +323,25 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
         warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlegbar, 40% nicht umlegbar (Standardverteilung)');
       }
 
-      console.error(`[VALIDATION] After correction: miete=null, hausgeld=${validated.hausgeld}`);
+      console.error(`[VALIDATION] After correction: miete=null, hausgeld=${validated.hausgeld} (${mietePerSqm.toFixed(2)} €/m²)`);
       warnings.push('⚠️ AUTOMATISCH KORRIGIERT: Agent hat Hausgeld als Kaltmiete erkannt. Wert wurde ins Hausgeld-Feld verschoben. Kaltmiete konnte nicht gefunden werden.');
-    } else if (validated.miete >= TYPICAL_KALTMIETE_MIN) {
-      console.log('[VALIDATION] ✓ Miete is in normal range, Hausgeld just not found - OK');
+    } else if (mietePerSqm >= TYPICAL_KALTMIETE_MIN_PER_SQM) {
+      console.log(`[VALIDATION] ✓ Miete per m² (${mietePerSqm.toFixed(2)} €/m²) is in normal range - OK`);
     } else {
-      console.warn('[VALIDATION] ⚠️ Miete value is very low and unusual:', validated.miete);
-      warnings.push('⚠️ Kaltmiete erscheint sehr niedrig. Bitte manuell in der Originalanzeige überprüfen!');
+      console.warn(`[VALIDATION] ⚠️ Miete per m² is very low: ${mietePerSqm.toFixed(2)} €/m²`);
+      warnings.push(`⚠️ Kaltmiete erscheint sehr niedrig (${mietePerSqm.toFixed(2)} €/m²). Bitte manuell in der Originalanzeige überprüfen!`);
+    }
+  }
+  // Fallback for when flaeche is missing - use absolute values
+  else if (validated.miete !== null && validated.miete > 0 &&
+           (validated.hausgeld === null || validated.hausgeld === 0) &&
+           (!validated.flaeche || validated.flaeche === 0)) {
+    console.log('[VALIDATION] Cannot calculate per m² (flaeche missing), using absolute threshold...');
+
+    // Fallback to absolute values when area is unknown
+    if (validated.miete < 400) {
+      console.warn('[VALIDATION] ⚠️ Miete value is suspiciously low:', validated.miete);
+      warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400€). Falls dies Hausgeld ist, bitte manuell korrigieren!');
     }
   }
   else if (validated.miete === null && validated.hausgeld !== null) {
@@ -335,10 +362,19 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5000€). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
   }
 
-  // Check if Hausgeld is suspiciously high
-  if (validated.hausgeld !== null && validated.hausgeld > TYPICAL_HAUSGELD_MAX) {
-    console.warn('[VALIDATION] ⚠️ Hausgeld is unusually high:', validated.hausgeld);
-    warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über ${TYPICAL_HAUSGELD_MAX}€). Bitte manuell überprüfen!`);
+  // Check if Hausgeld is suspiciously high (using €/m² if available)
+  if (validated.hausgeld !== null && validated.hausgeld > 0) {
+    if (validated.flaeche !== null && validated.flaeche > 0) {
+      const hausgeldPerSqm = validated.hausgeld / validated.flaeche;
+      if (hausgeldPerSqm > TYPICAL_HAUSGELD_MAX_PER_SQM) {
+        console.warn(`[VALIDATION] ⚠️ Hausgeld per m² is unusually high: ${hausgeldPerSqm.toFixed(2)} €/m²`);
+        warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (${hausgeldPerSqm.toFixed(2)} €/m²). Bitte manuell überprüfen!`);
+      }
+    } else if (validated.hausgeld > 800) {
+      // Fallback: absolute value check when flaeche missing
+      console.warn('[VALIDATION] ⚠️ Hausgeld is unusually high:', validated.hausgeld);
+      warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über 800€). Bitte manuell überprüfen!`);
+    }
   }
 
   // ALWAYS apply 60/40 split if Hausgeld present but split missing
@@ -353,6 +389,12 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     if (!warnings.some(w => w.includes('Hausgeld-Aufteilung'))) {
       warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlegbar, 40% nicht umlegbar (Standardverteilung)');
     }
+  }
+
+  // Check Maklergebühr: If 0 but there's a Kaufpreis, that's suspicious
+  if (validated.maklergebuehr === 0 && validated.kaufpreis !== null && validated.kaufpreis > 0) {
+    console.warn('[VALIDATION] ⚠️ Maklergebühr is 0 but Kaufpreis exists - agent may have missed it');
+    warnings.push('⚠️ Maklergebühr wurde als 0 erkannt. Falls eine Käuferprovision angegeben ist, bitte manuell nachtragen.');
   }
 
   // Update warnings array
