@@ -471,8 +471,14 @@ export async function POST(req: Request) {
       hr();
       section('Markt & Lage');
 
-      const textBlock = (title: string, content: string) => {
+      const textBlock = (title: string, content: string, isFirst = false) => {
         ensure(60);
+
+        // Mehr Abstand vor der Überschrift (außer beim ersten Block)
+        if (!isFirst) {
+          y -= 12;
+        }
+
         // Title mit Brand-Color Akzent
         drawText(title, MARGIN, y, 11, true, PRIMARY);
         y -= 22;
@@ -498,9 +504,18 @@ export async function POST(req: Request) {
         y -= 28; // Erhöht von 20 auf 28 für mehr Abstand zwischen Blöcken
       };
 
-      if (d.lageText) textBlock('Standortanalyse', d.lageText);
-      if (d.mietvergleich) textBlock('Mietpreisvergleich', d.mietvergleich);
-      if (d.preisvergleich) textBlock('Kaufpreisvergleich', d.preisvergleich);
+      let isFirstBlock = true;
+      if (d.lageText) {
+        textBlock('Standortanalyse', d.lageText, isFirstBlock);
+        isFirstBlock = false;
+      }
+      if (d.mietvergleich) {
+        textBlock('Mietpreisvergleich', d.mietvergleich, isFirstBlock);
+        isFirstBlock = false;
+      }
+      if (d.preisvergleich) {
+        textBlock('Kaufpreisvergleich', d.preisvergleich, isFirstBlock);
+      }
     }
 
     // ===== Szenario → IMMER Seite 2 =====
