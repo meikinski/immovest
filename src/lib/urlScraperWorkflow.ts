@@ -35,6 +35,38 @@ const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
   instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, etc.).
 
+🚨🚨🚨 SCHRITT 1 - PROVISION ZUERST SUCHEN! 🚨🚨🚨
+
+BEVOR du IRGENDWELCHE anderen Daten extrahierst, MUSST du nach der Käuferprovision suchen!
+Die Provision wird STÄNDIG übersehen - das ist INAKZEPTABEL!
+
+SUCH-STRATEGIE für Provision:
+1. Lade die GESAMTE Seite mit dem Web Search Tool
+2. Suche nach diesen EXAKTEN Textmustern:
+   - "Provision für Käufer"
+   - "Käuferprovision beträgt"
+   - "Käuferprovision"
+   - "Provision beträgt"
+   - "Provision:"
+   - "Maklergebühr"
+   - "Courtage"
+3. Wenn du IRGENDEINEN dieser Texte findest, extrahiere den Prozentsatz!
+
+BEISPIELE die du finden MUSST:
+- "Käuferprovision beträgt 3,0 % (inkl. MwSt.)" → maklergebuehr = 3.0
+- "Provision für Käufer: 3,57%" → maklergebuehr = 3.57
+- "Provision: 2,38% inkl. MwSt." → maklergebuehr = 2.38
+- "provisionsfrei" → maklergebuehr = 0
+
+🔴 WICHTIG:
+- Speichere NUR den Prozentsatz (3.0, 3.57, etc.)
+- NICHT den Euro-Betrag!
+- Wenn du "3,57%" findest → maklergebuehr = 3.57
+- Komma durch Punkt ersetzen!
+- Falls GAR NICHTS über Provision → maklergebuehr = null
+
+Nach dieser PROVISIONS-SUCHE, extrahiere die anderen Daten:
+
 🔴 KRITISCH - Kaltmiete vs Hausgeld verstehen:
 
 In deutschen Immobilien-Anzeigen gibt es zwei VERSCHIEDENE monatliche Beträge:
@@ -122,49 +154,17 @@ DATEN EXTRAHIEREN:
      * Warning: "Hausgeld-Verteilung ist Schätzung"
 
 8) MAKLERGEBÜHR / PROVISION (Käuferprovision):
-   🔴 ABSOLUT KRITISCH: Provision wird SEHR OFT übersehen - suche INTENSIV!
+   🔴 Siehe SCHRITT 1 oben - Provision ZUERST suchen!
 
-   WICHTIG: Speichere NUR DEN PROZENTSATZ, NICHT den Euro-Betrag!
-   Die Berechnung erfolgt später automatisch in der Anwendung!
+   Zusammenfassung:
+   - Suche: "Provision für Käufer", "Käuferprovision beträgt", "Provision:", etc.
+   - Extrahiere NUR Prozentsatz: "3,0%" → maklergebuehr = 3.0
+   - Komma zu Punkt: "3,57%" → 3.57
+   - Falls "provisionsfrei" → maklergebuehr = 0
+   - Falls nichts gefunden → maklergebuehr = null
+   - Falls nur Euro-Betrag → berechne Prozent: (Betrag / Kaufpreis) × 100
 
-   - Suche SEHR GRÜNDLICH nach diesen Begriffen im GESAMTEN TEXT:
-     * "Provision", "Maklergebühr", "Käuferprovision", "Innenprovision", "Courtage"
-     * "Käuferprovision beträgt", "Provision beträgt", "Maklerprovision"
-     * "Käufercourtage", "Provisionspflichtig"
-     * Auch nach Prozentzahlen im Text suchen: "3,57%", "3.57%", "3,0 %", "3.0%"
-     * WICHTIG: Auch am Ende der Seite / im Kleingedruckten suchen!
-
-   - EXTRAKTION nach Priorität:
-
-     A) Falls "provisionsfrei", "Keine Käuferprovision", "0% Provision":
-        → maklergebuehr = 0
-
-     B) Falls Prozent-Angabe gefunden (z.B. "3,0%", "3,57%", "3.57%"):
-        → EXTRAHIERE NUR DEN PROZENTSATZ als Zahl
-        → Beispiele:
-          * "3,0%" → maklergebuehr = 3.0
-          * "3,57%" → maklergebuehr = 3.57
-          * "2.38% inkl. MwSt" → maklergebuehr = 2.38
-          * "Provision: 3 %" → maklergebuehr = 3.0
-        → WICHTIG: Komma durch Punkt ersetzen! "3,57%" → 3.57
-        → ❌ NICHT den Euro-Betrag berechnen!
-
-     C) Falls Euro-Betrag DIREKT angegeben (z.B. "Provision: 12.000 €"):
-        → Falls AUCH Kaufpreis bekannt:
-          → BERECHNE Prozentsatz: (Euro-Betrag / Kaufpreis) × 100
-          → Beispiel: 12000€ bei Kaufpreis 350000€ → (12000/350000)×100 = 3.43
-        → Falls Kaufpreis NICHT bekannt:
-          → maklergebuehr = null (können keinen Prozentsatz berechnen)
-
-     D) Falls GAR NICHTS über Provision gefunden:
-        → maklergebuehr = null
-
-   - 🚨 KRITISCHE REGELN:
-     * ❌ NIEMALS maklergebuehr = 0 setzen, außer bei explizit "provisionsfrei"!
-     * ❌ NIEMALS eine Prozentangabe im Text ignorieren!
-     * ❌ NIEMALS Euro-Betrag statt Prozent speichern!
-     * ✅ IMMER intensiv nach Provision suchen - sie ist oft versteckt!
-     * ✅ IMMER Komma zu Punkt konvertieren: "3,57" → 3.57
+   🚨 KRITISCH: NIEMALS maklergebuehr = 0 setzen ohne "provisionsfrei" zu finden!
 
 9) OBJEKTTYP:
    - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
@@ -407,14 +407,16 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     }
   }
 
-  // Check Maklergebühr: If null but there's a Kaufpreis, agent may have missed it
-  if (validated.maklergebuehr === null && validated.kaufpreis !== null && validated.kaufpreis > 0) {
-    console.warn('[VALIDATION] ⚠️ Maklergebühr is null but Kaufpreis exists - agent may have missed it');
-    warnings.push('⚠️ Maklergebühr wurde nicht gefunden. Falls eine Käuferprovision angegeben ist, bitte manuell als Prozentsatz (z.B. 3.57) nachtragen.');
-  }
-  // Check if Maklergebühr looks suspicious (too high percentage)
-  if (validated.maklergebuehr !== null && validated.maklergebuehr > 0) {
-    if (validated.maklergebuehr > 10) {
+  // Check Maklergebühr: Both null and 0 are suspicious
+  if (validated.kaufpreis !== null && validated.kaufpreis > 0) {
+    if (validated.maklergebuehr === null) {
+      console.error('[VALIDATION] 🚨 Maklergebühr is NULL but Kaufpreis exists - agent FAILED to find it!');
+      warnings.push('🚨 KRITISCH: Maklergebühr wurde nicht gefunden! Bitte manuell als Prozentsatz (z.B. 3.0 für 3%) nachtragen.');
+    } else if (validated.maklergebuehr === 0) {
+      console.error('[VALIDATION] 🚨 Maklergebühr is 0 - agent should only set this if "provisionsfrei"!');
+      warnings.push('⚠️ Maklergebühr wurde als 0 erkannt. Falls KEINE explizite "provisionsfrei" Angabe existiert, bitte manuell nachtragen!');
+    } else if (validated.maklergebuehr > 10) {
+      // Check if percentage looks suspicious (too high)
       console.warn('[VALIDATION] ⚠️ Maklergebühr percentage seems very high:', validated.maklergebuehr);
       warnings.push(`⚠️ Maklergebühr erscheint sehr hoch (${validated.maklergebuehr}%). Bitte überprüfen - normalerweise 2-4%.`);
     }
