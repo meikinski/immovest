@@ -226,13 +226,13 @@ export default function InputMethodPage() {
 
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Manual Input - FIRST - Navy Blue Brand */}
+            {/* Manual Input - FIRST - Navy Blue Brand with Gradients */}
             <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Keyboard className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent mb-2">
                   Manuelle Eingabe
                 </h3>
                 <p className="text-gray-600">
@@ -242,7 +242,7 @@ export default function InputMethodPage() {
 
               <button
                 onClick={() => router.push('/step/a')}
-                className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt eingeben</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -259,19 +259,19 @@ export default function InputMethodPage() {
               </div>
             </div>
 
-            {/* URL Import with AI - SECOND - Gradient Background */}
+            {/* URL Import with AI - SECOND - Full Gradient Theme */}
             <div className="relative bg-gradient-to-br from-[hsl(var(--brand))]/10 via-[hsl(var(--brand-2))]/10 to-white rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
               {/* KI Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
                 <Sparkles size={14} />
                 <span>KI-Power</span>
               </div>
 
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))]/80 to-[hsl(var(--brand))]/70 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <LinkIcon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent mb-2">
                   URL Import
                 </h3>
                 <p className="text-gray-600">
@@ -295,7 +295,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))]/90 to-[hsl(var(--brand))]/80 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -337,13 +337,13 @@ export default function InputMethodPage() {
               </div>
             </div>
 
-            {/* Foto machen - THIRD - Orange Brand Color */}
+            {/* Foto machen - THIRD - Orange Brand with Full Gradients */}
             <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 p-6 md:p-8 shadow-xl">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand-2))] to-[hsl(var(--brand-2))]/90 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Camera className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] bg-clip-text text-transparent mb-2">
                   Foto machen
                 </h3>
                 <p className="text-gray-600">
@@ -415,7 +415,7 @@ export default function InputMethodPage() {
                   <button
                     onClick={handleImageSubmit}
                     disabled={imageLoading}
-                    className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand-2))]/90 text-white font-semibold rounded-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                   >
                     {imageLoading ? (
                       <>
