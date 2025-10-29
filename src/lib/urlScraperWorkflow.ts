@@ -218,7 +218,7 @@ REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
   outputType: ImmobilienDataSchema,
   modelSettings: {
     store: true,
-    temperature: 0.01  // Extrem niedrig für konsistente Extraktion
+    // Note: gpt-5-mini doesn't support temperature parameter (reasoning models use fixed settings)
   },
 });
 
