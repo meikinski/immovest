@@ -20,27 +20,28 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-8 px-4">
-      <div className="relative">
-        {/* Background Line */}
-        <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ zIndex: 0 }} />
+      <div className="relative min-w-[320px]">
+        {/* Background Line - Offset to align with circles */}
+        <div className="absolute top-5 h-0.5 bg-gray-200" style={{ left: '20px', right: '20px', zIndex: 0 }} />
 
-        {/* Progress Line */}
+        {/* Progress Line - Offset to align with circles */}
         <div
-          className="absolute top-5 left-0 h-0.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] transition-all duration-700 ease-out"
+          className="absolute top-5 h-0.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] transition-all duration-700 ease-out"
           style={{
-            width: `${(currentIndex / (STEPS.length - 1)) * 100}%`,
+            left: '20px',
+            width: `calc(${(currentIndex / (STEPS.length - 1)) * 100}% - 40px)`,
             zIndex: 1
           }}
         />
 
-        {/* Steps Container - Evenly distributed with flex-1 */}
-        <div className="relative flex items-center justify-between w-full" style={{ zIndex: 2 }}>
+        {/* Steps Container - Grid for perfect distribution */}
+        <div className="relative grid grid-cols-5 gap-2" style={{ zIndex: 2 }}>
           {STEPS.map((step, idx) => {
             const isActive = idx === currentIndex;
             const isCompleted = idx < currentIndex;
 
             return (
-              <div key={step.key} className="flex flex-col items-center flex-1">
+              <div key={step.key} className="flex flex-col items-center">
                 {/* Step Circle */}
                 <div
                   className={`

@@ -36,7 +36,11 @@ export default function LandingPage() {
           {/* Right Side */}
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
-              <SignInButton mode="modal">
+              <SignInButton
+                mode="modal"
+                forceRedirectUrl="/input-method"
+                fallbackRedirectUrl="/input-method"
+              >
                 <button className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
                   Anmelden
                 </button>

@@ -191,7 +191,11 @@ export default function InputMethodPage() {
           {/* Right Side */}
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
-              <SignInButton mode="modal">
+              <SignInButton
+                mode="modal"
+                forceRedirectUrl="/input-method"
+                fallbackRedirectUrl="/input-method"
+              >
                 <button className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
                   Anmelden
                 </button>
@@ -255,8 +259,8 @@ export default function InputMethodPage() {
               </div>
             </div>
 
-            {/* URL Import with AI - SECOND - Faded Brand Colors */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/15 p-6 md:p-8 shadow-xl">
+            {/* URL Import with AI - SECOND - Gradient Background */}
+            <div className="relative bg-gradient-to-br from-[hsl(var(--brand))]/10 via-[hsl(var(--brand-2))]/10 to-white rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
               {/* KI Badge */}
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
                 <Sparkles size={14} />

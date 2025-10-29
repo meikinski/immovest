@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const result = await runUrlScraper(input);
 
     // Konvertiere zu Frontend-Format
-    const data = {
+    const data: any = {
       kaufpreis: result.kaufpreis || 0,
       flaeche: result.flaeche || 0,
       zimmer: result.zimmer || 0,
@@ -49,7 +49,6 @@ export async function POST(req: NextRequest) {
       // Wenn hausgeld_nicht_umlegbar nicht angegeben, berechne aus Differenz
       hausgeld_nicht_umlegbar: result.hausgeld_nicht_umlegbar ||
         ((result.hausgeld || 0) - (result.hausgeld_umlegbar || 0)),
-      maklergebuehr: result.maklergebuehr || 0,
       objekttyp: normalizeObjekttyp(result.objekttyp),
       _meta: {
         confidence: result.confidence,
@@ -58,6 +57,12 @@ export async function POST(req: NextRequest) {
         method: 'ai-agent-web-search'
       }
     };
+
+    // CRITICAL: Only include maklergebuehr if it was found in listing
+    // If null, don't send it - let frontend use store default
+    if (result.maklergebuehr !== null && result.maklergebuehr !== undefined) {
+      data.maklergebuehr = result.maklergebuehr;
+    }
 
     console.log(`[API] Scraping complete - Confidence: ${result.confidence}`);
     if (result.warnings.length > 0) {
