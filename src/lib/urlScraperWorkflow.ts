@@ -213,12 +213,12 @@ BEVOR du die Daten zurückgibst, PRÜFE NOCHMAL:
 NUR wenn du diese 3 Punkte geprüft hast, darfst du das Ergebnis zurückgeben!
 
 REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
-  model: 'gpt-5-mini',  // Upgraded to gpt-5-mini for best reasoning and accuracy
+  model: 'gpt-4o',  // Fast and accurate with improved prompts - fallback to gpt-5-mini if needed
   tools: [webSearchForScraping],
   outputType: ImmobilienDataSchema,
   modelSettings: {
     store: true,
-    // Note: gpt-5-mini doesn't support temperature parameter (reasoning models use fixed settings)
+    temperature: 0.01  // Very low for consistent extraction (gpt-4o supports this)
   },
 });
 
