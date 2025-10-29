@@ -123,8 +123,15 @@ export async function POST(req: Request) {
         .replace(/\u2212/g, '-')            // Unicode minus → ASCII '-'
         .replace(/[\u2013\u2014]/g, '-')    // en/em dash → '-'
         .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ') // NBSP/thin/figure → space
-        .replace(/[“”]/g, '"')
-        .replace(/[‘’]/g, "'");
+        .replace(/[""]/g, '"')
+        .replace(/['']/g, "'")
+        .replace(/↑/g, '^')                 // Pfeil hoch → ^
+        .replace(/↓/g, 'v')                 // Pfeil runter → v
+        .replace(/→/g, '-')                 // Pfeil rechts → -
+        .replace(/►/g, '>')                 // Triangle → >
+        .replace(/📍/g, '')                 // Emoji entfernen
+        .replace(/💰/g, '')                 // Emoji entfernen
+        .replace(/🏠/g, '');                // Emoji entfernen
 
     let y = 841.89;
     const drawText = (t: string, x: number, yy: number, size = 11, isBold = false, color = rgb(0,0,0)) =>
