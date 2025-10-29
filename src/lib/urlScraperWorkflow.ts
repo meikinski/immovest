@@ -52,17 +52,41 @@ KRITISCH OBJEKTTYP:
 - WENN Text sagt Haus, Einfamilienhaus, Mehrfamilienhaus, EFH, MFH → setze "haus"
 - Standard bei Unsicherheit: "wohnung"
 
-KRITISCH KALTMIETE vs HAUSGELD - NIEMALS VERWECHSELN:
-- KALTMIETE = Was der Mieter als Miete zahlt (nicht Hausgeld!)
-  * Suche nach: Kaltmiete, Nettokaltmiete, Grundmiete, monatliche Miete
-  * NICHT: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten
-- HAUSGELD = Nebenkosten für Eigentümer (nicht Miete!)
-  * Suche nach: Hausgeld, monatliches Hausgeld, Nebenkosten, Wohngeld, Betriebskosten
-  * NICHT verwechseln mit Kaltmiete!
-- WENN Miete steht und Text sagt JAHRESKALTMIETE oder Jahres-Kaltmiete oder ähnlich DANN teile durch 12 für monatliche Miete
-- WENN Miete steht OHNE Hinweis auf Jahr DANN ist es monatlich übernimm direkt
-- WENN unklar füge zu warnings hinzu: Miete evtl. Jahreswert bitte prüfen
-- Setze miete = monatlicher Wert NIE Jahreswert
+═══════════════════════════════════════════════════════════════════
+KRITISCH KALTMIETE vs HAUSGELD - ABSOLUT NIEMALS VERWECHSELN!!!
+═══════════════════════════════════════════════════════════════════
+
+🔴 EXTREM WICHTIG - LESE DIES MEHRMALS:
+
+KALTMIETE (miete):
+  ✓ Das ist was der MIETER zahlt
+  ✓ Das ist das EINKOMMEN des Eigentümers
+  ✓ Nur suchen nach: "Kaltmiete", "Nettokaltmiete", "Grundmiete", "Mieteinnahmen"
+  ✗ NIEMALS: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten nehmen!
+
+HAUSGELD (hausgeld):
+  ✓ Das sind KOSTEN für den EIGENTÜMER
+  ✓ Das sind AUSGABEN des Eigentümers
+  ✓ Nur suchen nach: "Hausgeld", "Nebenkosten", "Wohngeld", "Betriebskosten", "WEG-Kosten"
+  ✗ NIEMALS: Kaltmiete, Mieteinnahmen, Nettokaltmiete nehmen!
+
+VALIDIERUNG - PRÜFE DEINE WERTE:
+- Kaltmiete ist normalerweise HÖHER als Hausgeld
+- Wenn Kaltmiete < Hausgeld → PRÜFE NOCHMAL ob du nicht vertauscht hast!
+- Wenn Kaltmiete = Hausgeld → PRÜFE NOCHMAL!
+- Typisches Verhältnis: Kaltmiete ist 2-5x höher als Hausgeld
+
+SCHRITT-FÜR-SCHRITT VORGEHEN:
+1. ZUERST: Suche explizit nach "Kaltmiete" oder "Nettokaltmiete" → setze als miete
+2. DANACH: Suche explizit nach "Hausgeld" oder "Nebenkosten" → setze als hausgeld
+3. VALIDIERE: Ist Kaltmiete > Hausgeld? Wenn NEIN → Fehler gemacht!
+4. Bei Unsicherheit → setze warnings und dokumentiere in notes
+
+JAHRESMIETE UMRECHNUNG:
+- WENN Text sagt "Jahreskaltmiete" oder "jährliche Miete" → teile durch 12
+- WENN Text sagt "monatliche Kaltmiete" oder nur "Kaltmiete" → direkt übernehmen
+- WENN unklar → füge warning hinzu: "Miete evtl. Jahreswert bitte prüfen"
+- Setze miete = IMMER monatlicher Wert, NIE Jahreswert
 
 KRITISCH HAUSGELD/NEBENKOSTEN:
 - Suche nach: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten, monatliche Kosten (für Eigentümer)
@@ -93,13 +117,19 @@ CONFIDENCE:
 - mittel: Kaufpreis Fläche da aber Rest fehlt teilweise
 - niedrig: wichtige Daten fehlen
 
-NOTES STRUKTUR:
-Kaufpreis X Euro, Y m², Z Zimmer, Baujahr YYYY, Adresse gefunden. Kaltmiete X Euro monatlich. Hausgeld X Euro (Default-Verteilung angewendet). Makler: provisionsfrei.
+NOTES STRUKTUR (immer dokumentieren was gefunden wurde):
+Kaufpreis: X Euro, Fläche: Y m², Zimmer: Z, Baujahr: YYYY, Adresse: [gefunden/nicht gefunden].
+Kaltmiete: X Euro/Monat (gefunden als: "Kaltmiete" im Text).
+Hausgeld: X Euro/Monat (gefunden als: "Hausgeld" im Text, Verteilung geschätzt).
+Validierung: Kaltmiete > Hausgeld ✓ [oder Warnung wenn nicht].
+Makler: [provisionsfrei/X%/X Euro].
 
 WARNINGS FÜR USER (Array - IMMER zurückgeben, auch wenn leer):
 Nur hinzufügen wenn relevant z.B.:
 - Hausgeld-Verteilung ist Schätzung (60% umlegbar, 40% nicht umlegbar). Bitte nach Erhalt der WEG-Unterlagen genaue Werte eintragen.
 - Miete evtl. Jahreswert bitte prüfen
+- ⚠️ WARNUNG: Kaltmiete scheint ungewöhnlich niedrig oder gleich Hausgeld - bitte manuell prüfen!
+- ⚠️ WARNUNG: Hausgeld fehlt komplett im Inserat - bitte nach WEG-Unterlagen fragen
 WENN keine Warnungen DANN leeres Array []
 
 ABSOLUTE REGEL: Nur Daten aus Quelle. KEINE Schätzungen außer Hausgeld-Verteilung mit warning.`,

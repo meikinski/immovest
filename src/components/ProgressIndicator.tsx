@@ -33,8 +33,8 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
           }}
         />
 
-        {/* Steps Container with responsive min-width to prevent collapse */}
-        <div className="relative flex items-center justify-between min-w-[280px] sm:min-w-[320px] md:min-w-[400px] lg:min-w-[500px]" style={{ zIndex: 2 }}>
+        {/* Steps Container - Fully responsive without hardcoded widths */}
+        <div className="relative flex items-center justify-between w-full" style={{ zIndex: 2 }}>
           {STEPS.map((step, idx) => {
             const isActive = idx === currentIndex;
             const isCompleted = idx < currentIndex;

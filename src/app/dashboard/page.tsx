@@ -150,7 +150,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Portfolio Overview */}
+          {/* Portfolio Overview - Enhanced */}
           <div className="card p-6 border-2 border-[hsl(var(--brand))]/20">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 bg-[hsl(var(--brand))]/10 rounded-xl flex items-center justify-center">
@@ -170,15 +170,30 @@ export default function DashboardPage() {
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Beste Rendite:</span>
-                  <span className="font-semibold text-[hsl(var(--success))]">
-                    {Math.max(...analyses.map(a => a.nettorendite || 0)).toFixed(1)}%
+                  <span className="text-gray-600">Ø Score:</span>
+                  <span className="font-semibold text-[hsl(var(--brand))]">
+                    {(analyses.reduce((sum, a) => sum + (a.score || 0), 0) / analyses.length).toFixed(0)}/100
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Ges. Cashflow/Mon.:</span>
+                  <span className={`font-semibold ${
+                    (analyses.reduce((sum, a) => sum + (a.cashflow_operativ || 0), 0)) >= 0
+                      ? 'text-[hsl(var(--success))]'
+                      : 'text-[hsl(var(--danger))]'
+                  }`}>
+                    {analyses.reduce((sum, a) => sum + (a.cashflow_operativ || 0), 0).toLocaleString('de-DE')} €
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Ges. Investiert:</span>
                   <span className="font-semibold">
                     {analyses.reduce((sum, a) => sum + (a.kaufpreis || 0), 0).toLocaleString('de-DE')} €
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <span className="text-gray-600 text-xs">
+                    {analyses.filter(a => a.objekttyp === 'wohnung').length} Wohnung{analyses.filter(a => a.objekttyp === 'wohnung').length !== 1 ? 'en' : ''} • {analyses.filter(a => a.objekttyp === 'haus').length} Haus/Häuser
                   </span>
                 </div>
               </div>
