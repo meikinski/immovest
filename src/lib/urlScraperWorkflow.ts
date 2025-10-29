@@ -219,6 +219,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     flaeche: result.finalOutput.flaeche,
     miete: result.finalOutput.miete,
     hausgeld: result.finalOutput.hausgeld,
+    maklergebuehr: result.finalOutput.maklergebuehr,
     confidence: result.finalOutput.confidence,
   });
 
@@ -228,6 +229,9 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
   console.log('[URL Scraper] After validation:', {
     miete: validatedOutput.miete,
     hausgeld: validatedOutput.hausgeld,
+    hausgeld_umlegbar: validatedOutput.hausgeld_umlegbar,
+    hausgeld_nicht_umlegbar: validatedOutput.hausgeld_nicht_umlegbar,
+    maklergebuehr: validatedOutput.maklergebuehr,
     swapped: validatedOutput.miete !== result.finalOutput.miete,
   });
 
@@ -296,6 +300,14 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
       validated.miete = null;
       swapped = true;
 
+      // Apply 60/40 split if not already present
+      if (!validated.hausgeld_umlegbar && !validated.hausgeld_nicht_umlegbar) {
+        validated.hausgeld_umlegbar = Math.round(validated.hausgeld * 0.6 * 100) / 100;
+        validated.hausgeld_nicht_umlegbar = Math.round(validated.hausgeld * 0.4 * 100) / 100;
+        console.log(`[VALIDATION] Applied 60/40 split: umlegbar=${validated.hausgeld_umlegbar}, nicht_umlegbar=${validated.hausgeld_nicht_umlegbar}`);
+        warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlegbar, 40% nicht umlegbar (Standardverteilung)');
+      }
+
       console.error(`[VALIDATION] After correction: miete=null, hausgeld=${validated.hausgeld}`);
       warnings.push('⚠️ AUTOMATISCH KORRIGIERT: Agent hat Hausgeld als Kaltmiete erkannt. Wert wurde ins Hausgeld-Feld verschoben. Kaltmiete konnte nicht gefunden werden.');
     } else if (validated.miete >= TYPICAL_KALTMIETE_MIN) {
@@ -327,6 +339,20 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
   if (validated.hausgeld !== null && validated.hausgeld > TYPICAL_HAUSGELD_MAX) {
     console.warn('[VALIDATION] ⚠️ Hausgeld is unusually high:', validated.hausgeld);
     warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über ${TYPICAL_HAUSGELD_MAX}€). Bitte manuell überprüfen!`);
+  }
+
+  // ALWAYS apply 60/40 split if Hausgeld present but split missing
+  if (validated.hausgeld !== null && validated.hausgeld > 0 &&
+      (!validated.hausgeld_umlegbar || validated.hausgeld_umlegbar === 0) &&
+      (!validated.hausgeld_nicht_umlegbar || validated.hausgeld_nicht_umlegbar === 0)) {
+    validated.hausgeld_umlegbar = Math.round(validated.hausgeld * 0.6 * 100) / 100;
+    validated.hausgeld_nicht_umlegbar = Math.round(validated.hausgeld * 0.4 * 100) / 100;
+    console.log(`[VALIDATION] Applied default 60/40 split: umlegbar=${validated.hausgeld_umlegbar}, nicht_umlegbar=${validated.hausgeld_nicht_umlegbar}`);
+
+    // Only add warning if not already added earlier
+    if (!warnings.some(w => w.includes('Hausgeld-Aufteilung'))) {
+      warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlegbar, 40% nicht umlegbar (Standardverteilung)');
+    }
   }
 
   // Update warnings array
