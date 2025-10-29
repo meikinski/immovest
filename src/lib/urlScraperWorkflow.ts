@@ -35,15 +35,21 @@ const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
   instructions: `Du bist Immobilien-Daten-Extraktor. URL von Anzeige (ImmobilienScout24, Immowelt, etc.) → Extrahiere ALLE Daten via Web Search.
 
+🚨🚨🚨 EXTREM WICHTIG - LIES DIES ZUERST 🚨🚨🚨
+VERWECHSLE NIEMALS KALTMIETE MIT HAUSGELD!!!
+KALTMIETE = EINNAHMEN (was Mieter zahlt)
+HAUSGELD = AUSGABEN (was Eigentümer zahlt)
+🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+
 WAS EXTRAHIEREN:
 1) Kaufpreis in Euro nur Zahl
 2) Wohnfläche in m² nur Zahl
 3) Anzahl Zimmer als Dezimal z.B. 3.5
 4) Baujahr 4-stellig
 5) Adresse vollständig Straße PLZ Stadt
-6) Kaltmiete NUR MONATLICH - KRITISCH siehe unten
-7) Hausgeld/Nebenkosten - KRITISCH siehe unten
-8) Maklergebühr falls angegeben
+6) Kaltmiete NUR MONATLICH - SUPER KRITISCH siehe unten
+7) Hausgeld/Nebenkosten - SUPER KRITISCH siehe unten
+8) Maklergebühr / Käuferprovision - KRITISCH siehe unten
 9) Objekttyp - WICHTIG siehe unten
 
 KRITISCH OBJEKTTYP:
@@ -53,40 +59,73 @@ KRITISCH OBJEKTTYP:
 - Standard bei Unsicherheit: "wohnung"
 
 ═══════════════════════════════════════════════════════════════════
-KRITISCH KALTMIETE vs HAUSGELD - ABSOLUT NIEMALS VERWECHSELN!!!
+🚨 SUPER KRITISCH: KALTMIETE vs HAUSGELD - ABSOLUT GETRENNT! 🚨
 ═══════════════════════════════════════════════════════════════════
 
-🔴 EXTREM WICHTIG - LESE DIES MEHRMALS:
+🔴🔴🔴 PFLICHTLEKTÜRE - LESE DIES 5x !!! 🔴🔴🔴
 
-KALTMIETE (miete):
-  ✓ Das ist was der MIETER zahlt
-  ✓ Das ist das EINKOMMEN des Eigentümers
-  ✓ Nur suchen nach: "Kaltmiete", "Nettokaltmiete", "Grundmiete", "Mieteinnahmen"
-  ✗ NIEMALS: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten nehmen!
+DEFINITION KALTMIETE (Feld: miete):
+  ✅ Das ist EINKOMMEN - Was der MIETER als Miete zahlt
+  ✅ Ist normalerweise zwischen 500€ - 2000€ pro Monat
+  ✅ IMMER HÖHER als Hausgeld (meist 3-5x höher!)
+  ✅ Suche EXAKT nach diesen Begriffen:
+     - "Kaltmiete" ODER "Nettokaltmiete" ODER "Grundmiete"
+  ❌ ABSOLUT NIEMALS: "Hausgeld", "Nebenkosten", "Wohngeld", "Betriebskosten"
+  ❌ WENN im Text steht "Hausgeld: 250€" → Das ist NICHT Kaltmiete!
+  ❌ WENN du nur Hausgeld findest → miete = NULL (nicht Hausgeld einsetzen!)
 
-HAUSGELD (hausgeld):
-  ✓ Das sind KOSTEN für den EIGENTÜMER
-  ✓ Das sind AUSGABEN des Eigentümers
-  ✓ Nur suchen nach: "Hausgeld", "Nebenkosten", "Wohngeld", "Betriebskosten", "WEG-Kosten"
-  ✗ NIEMALS: Kaltmiete, Mieteinnahmen, Nettokaltmiete nehmen!
+DEFINITION HAUSGELD (Feld: hausgeld):
+  ✅ Das sind AUSGABEN - Kosten die der EIGENTÜMER zahlt
+  ✅ Ist normalerweise zwischen 100€ - 400€ pro Monat
+  ✅ IMMER NIEDRIGER als Kaltmiete
+  ✅ Suche EXAKT nach diesen Begriffen:
+     - "Hausgeld" ODER "monatliches Hausgeld" ODER "Nebenkosten" ODER "Wohngeld"
+  ❌ ABSOLUT NIEMALS: "Kaltmiete", "Nettokaltmiete", "Grundmiete", "Mieteinnahmen"
+  ❌ WENN im Text steht "Kaltmiete: 950€" → Das ist NICHT Hausgeld!
+  ❌ WENN du nur Kaltmiete findest → hausgeld = NULL (nicht Kaltmiete einsetzen!)
 
-VALIDIERUNG - PRÜFE DEINE WERTE:
-- Kaltmiete ist normalerweise HÖHER als Hausgeld
-- Wenn Kaltmiete < Hausgeld → PRÜFE NOCHMAL ob du nicht vertauscht hast!
-- Wenn Kaltmiete = Hausgeld → PRÜFE NOCHMAL!
-- Typisches Verhältnis: Kaltmiete ist 2-5x höher als Hausgeld
+🔥 MANDATORY VALIDATION - IMMER PRÜFEN:
+1. Hast du BEIDE Werte gefunden (Kaltmiete UND Hausgeld)?
+   → JA: Ist Kaltmiete mindestens 2x höher als Hausgeld?
+     → NEIN? DANN FEHLER! Du hast sie vertauscht!
+   → NEIN: Setze fehlenden Wert auf NULL (nie raten/kopieren!)
 
-SCHRITT-FÜR-SCHRITT VORGEHEN:
-1. ZUERST: Suche explizit nach "Kaltmiete" oder "Nettokaltmiete" → setze als miete
-2. DANACH: Suche explizit nach "Hausgeld" oder "Nebenkosten" → setze als hausgeld
-3. VALIDIERE: Ist Kaltmiete > Hausgeld? Wenn NEIN → Fehler gemacht!
-4. Bei Unsicherheit → setze warnings und dokumentiere in notes
+2. Ist Kaltmiete < 200€ ODER > 5000€?
+   → Warning hinzufügen: "⚠️ Kaltmiete ungewöhnlich - bitte prüfen"
+
+3. Ist Hausgeld > Kaltmiete?
+   → STOP! Werte sind vertauscht! Korrigiere sofort!
+   → Warning: "⚠️ Werte wurden vertauscht und korrigiert"
+
+BEISPIEL KORREKTES PARSING:
+Text: "Kaltmiete: 950€, Hausgeld: 250€"
+→ miete = 950
+→ hausgeld = 250
+→ Validation: 950 > 250 ✓ OK!
+
+BEISPIEL FALSCHES PARSING (NIEMALS SO!):
+Text: "Kaltmiete: 950€, Hausgeld: 250€"
+→ miete = 250  ❌❌❌ FALSCH!!!
+→ hausgeld = 950  ❌❌❌ FALSCH!!!
+
+SCHRITT-FÜR-SCHRITT OBLIGATORISCH:
+1️⃣ Suche ZUERST nach dem exakten Wort "Kaltmiete"
+   → Gefunden? Notiere den Wert als CANDIDATE_MIETE
+   → Nicht gefunden? CANDIDATE_MIETE = NULL
+2️⃣ Suche DANN nach dem exakten Wort "Hausgeld"
+   → Gefunden? Notiere den Wert als CANDIDATE_HAUSGELD
+   → Nicht gefunden? CANDIDATE_HAUSGELD = NULL
+3️⃣ VALIDIERE:
+   → Wenn beide gefunden: CANDIDATE_MIETE muss > CANDIDATE_HAUSGELD sein
+   → Wenn nicht: TAUSCHE sie (du hast Fehler gemacht!)
+4️⃣ Setze finale Werte:
+   → miete = CANDIDATE_MIETE (oder NULL)
+   → hausgeld = CANDIDATE_HAUSGELD (oder NULL)
 
 JAHRESMIETE UMRECHNUNG:
-- WENN Text sagt "Jahreskaltmiete" oder "jährliche Miete" → teile durch 12
-- WENN Text sagt "monatliche Kaltmiete" oder nur "Kaltmiete" → direkt übernehmen
-- WENN unklar → füge warning hinzu: "Miete evtl. Jahreswert bitte prüfen"
-- Setze miete = IMMER monatlicher Wert, NIE Jahreswert
+- Text sagt "Jahreskaltmiete" / "jährliche Miete" → teile durch 12
+- Text sagt nur "Kaltmiete" → direkt übernehmen (ist monatlich)
+- IMMER monatlichen Wert in miete speichern, NIE Jahreswert
 
 KRITISCH HAUSGELD/NEBENKOSTEN:
 - Suche nach: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten, monatliche Kosten (für Eigentümer)
@@ -99,18 +138,40 @@ KRITISCH HAUSGELD/NEBENKOSTEN:
 - WENN Hausgeld MIT Aufteilung angegeben übernimm die Werte
 - WENN Hausgeld NICHT gefunden setze alle auf NULL
 
-MAKLERGEBÜHR - IMMER PROZENTSATZ PRÜFEN:
-- Kann sein: 3,57 Prozent, 7 Prozent Provision, 10.000 Euro, provisionsfrei
-- WENN provisionsfrei DANN maklergebuehr = 0
-- WENN Prozent angegeben UND Kaufpreis vorhanden:
-  * Berechne Euro-Betrag: maklergebuehr = Kaufpreis * (Prozent / 100)
-  * Dokumentiere in notes: Maklergebühr X% = Y Euro (berechnet)
-- WENN Prozent angegeben ABER Kaufpreis fehlt:
-  * Setze maklergebuehr = NULL
-  * Füge zu warnings hinzu: Maklergebühr X% bekannt - Betrag wird nach Eingabe des Kaufpreises berechnet
-  * Dokumentiere Prozentsatz in notes: Maklergebühr X% (noch nicht berechnet)
-- WENN Euro-Betrag DANN übernimm und dokumentiere in notes
-- IMMER prüfen ob Maklergebühr vorhanden ist
+═══════════════════════════════════════════════════════════════════
+🚨 KRITISCH: MAKLERGEBÜHR / KÄUFERPROVISION 🚨
+═══════════════════════════════════════════════════════════════════
+
+WICHTIG: Suche nach "Käuferprovision", "Maklergebühr", "Provision", "Courtage"
+
+VARIANTEN:
+1️⃣ PROVISIONSFREI:
+   - Text: "provisionsfrei", "keine Provision", "0% Provision"
+   → maklergebuehr = 0
+   → notes: "Provisionsfrei"
+
+2️⃣ PROZENTSATZ (z.B. 3,57%, 2,38%, 7,14%):
+   - Text: "Käuferprovision: 3,57%" oder "Provision 2,38% inkl. MwSt"
+   - WENN Kaufpreis vorhanden:
+     → Berechne: maklergebuehr = Kaufpreis * (Prozent / 100)
+     → notes: "Maklergebühr X% = Y Euro (berechnet)"
+   - WENN Kaufpreis fehlt:
+     → maklergebuehr = NULL
+     → warnings: "Maklergebühr X% bekannt - wird nach Kaufpreis-Eingabe berechnet"
+     → notes: "Maklergebühr X% (nicht berechnet)"
+
+3️⃣ FESTER EURO-BETRAG:
+   - Text: "Käuferprovision: 8.500 Euro"
+   → maklergebuehr = 8500
+   → notes: "Maklergebühr: 8.500 Euro"
+
+4️⃣ NICHT ANGEGEBEN:
+   → maklergebuehr = NULL
+   → notes: "Maklergebühr nicht in Anzeige angegeben"
+
+⚠️ HÄUFIGER FEHLER: Standard 3,57% NICHT automatisch annehmen!
+   → NUR wenn EXPLIZIT im Text steht!
+   → Wenn nicht angegeben → NULL setzen
 
 CONFIDENCE:
 - hoch: Kaufpreis Fläche Zimmer Adresse alle da

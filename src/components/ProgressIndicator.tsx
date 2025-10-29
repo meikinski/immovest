@@ -20,7 +20,7 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-8 px-4">
-      <div className="relative overflow-x-auto">
+      <div className="relative">
         {/* Background Line */}
         <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-200" style={{ zIndex: 0 }} />
 
@@ -33,14 +33,14 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
           }}
         />
 
-        {/* Steps Container - Fully responsive without hardcoded widths */}
+        {/* Steps Container - Evenly distributed with flex-1 */}
         <div className="relative flex items-center justify-between w-full" style={{ zIndex: 2 }}>
           {STEPS.map((step, idx) => {
             const isActive = idx === currentIndex;
             const isCompleted = idx < currentIndex;
 
             return (
-              <div key={step.key} className="flex flex-col items-center flex-shrink-0">
+              <div key={step.key} className="flex flex-col items-center flex-1">
                 {/* Step Circle */}
                 <div
                   className={`

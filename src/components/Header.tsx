@@ -47,12 +47,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
             <UserButton afterSignOutUrl="/">
               <UserButton.MenuItems>
                 <UserButton.Link
-                  label="Dashboard"
-                  labelIcon={<LayoutDashboard size={16} />}
-                  href="/dashboard"
-                />
-                <UserButton.Link
-                  label="Gespeicherte Analysen"
+                  label="Profil & Einstellungen"
                   labelIcon={<Save size={16} />}
                   href="/profile"
                 />

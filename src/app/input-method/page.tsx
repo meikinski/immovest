@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
+import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -168,20 +168,27 @@ export default function InputMethodPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header with gradient background */}
+      {/* Header - Clean & Minimal with gradient background */}
       <header className="fixed top-0 left-0 right-0 z-50">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--brand))]/20 to-transparent"></div>
 
         <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
           <button
             onClick={() => router.push('/')}
-            className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent"
+            className="flex items-center gap-2"
           >
-            ImmoVest
+            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[hsl(var(--brand))]/20">
+              <BarChart3 className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+              ImmoVest
+            </span>
           </button>
 
+          {/* Right Side */}
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal">
@@ -215,10 +222,10 @@ export default function InputMethodPage() {
 
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Manual Input - FIRST */}
-            <div className="relative bg-gradient-to-br from-white to-blue-50 rounded-3xl border-2 border-blue-200 p-6 md:p-8 hover:border-blue-300 hover:shadow-xl transition-all">
+            {/* Manual Input - FIRST - Navy Blue Brand */}
+            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Keyboard className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -231,7 +238,7 @@ export default function InputMethodPage() {
 
               <button
                 onClick={() => router.push('/step/a')}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt eingeben</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -241,23 +248,23 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand))]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* URL Import with AI - SECOND */}
-            <div className="relative bg-gradient-to-br from-white to-purple-50 rounded-3xl border-2 border-purple-200 p-6 md:p-8 shadow-xl">
-              {/* AI Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-purple-600 to-purple-500 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
+            {/* URL Import with AI - SECOND - Faded Brand Colors */}
+            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/15 p-6 md:p-8 shadow-xl">
+              {/* KI Badge */}
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand))]/90 text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
                 <Sparkles size={14} />
                 <span>KI-Power</span>
               </div>
 
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))]/80 to-[hsl(var(--brand))]/70 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <LinkIcon className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -275,7 +282,7 @@ export default function InputMethodPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.immobilienscout24.de/..."
-                  className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition"
+                  className="w-full px-4 py-3 border-2 border-[hsl(var(--brand))]/20 rounded-xl focus:border-[hsl(var(--brand))] focus:outline-none transition"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
                   }}
@@ -284,7 +291,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-gradient-to-r from-purple-600 to-purple-500 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))]/90 to-[hsl(var(--brand))]/80 text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -319,22 +326,17 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-purple-600" />
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand))]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Foto machen - THIRD */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
-              {/* Recommended Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg">
-                ⚡ Empfohlen
-              </div>
-
+            {/* Foto machen - THIRD - Orange Brand Color */}
+            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 p-6 md:p-8 shadow-xl">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand-2))] to-[hsl(var(--brand-2))]/90 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Camera className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">
@@ -345,49 +347,21 @@ export default function InputMethodPage() {
                 </p>
               </div>
 
-              {/* Upload Area */}
+              {/* Camera Access Only */}
               {!imagePreview ? (
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  className="border-2 border-dashed border-[hsl(var(--brand))]/30 rounded-2xl p-12 text-center bg-white hover:border-[hsl(var(--brand))] hover:bg-[hsl(var(--brand))]/5 transition-all cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-12 h-12 text-[hsl(var(--brand))] mx-auto mb-4" />
-                  <p className="text-base font-semibold text-gray-900 mb-2">
-                    Bild hochladen
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Klicken oder Drag & Drop
-                  </p>
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        fileInputRef.current?.click();
-                      }}
-                      className="px-4 py-2 bg-[hsl(var(--brand))] text-white rounded-lg hover:bg-[hsl(var(--brand-2))] transition text-sm font-medium"
-                    >
-                      Datei wählen
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        cameraInputRef.current?.click();
-                      }}
-                      className="px-4 py-2 border-2 border-[hsl(var(--brand))] text-[hsl(var(--brand))] rounded-lg hover:bg-[hsl(var(--brand))]/5 transition text-sm font-medium flex items-center gap-2"
-                    >
-                      <Camera size={16} />
-                      Foto machen
-                    </button>
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileInputChange}
-                  />
+                <div className="text-center">
+                  <button
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="w-full py-16 border-2 border-dashed border-[hsl(var(--brand-2))]/40 rounded-2xl bg-white hover:border-[hsl(var(--brand-2))] hover:bg-[hsl(var(--brand-2))]/5 transition-all"
+                  >
+                    <Camera className="w-16 h-16 text-[hsl(var(--brand-2))] mx-auto mb-4" />
+                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                      Foto aufnehmen
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Klicken um Kamera zu öffnen
+                    </p>
+                  </button>
                   <input
                     ref={cameraInputRef}
                     type="file"
@@ -396,7 +370,14 @@ export default function InputMethodPage() {
                     className="hidden"
                     onChange={handleFileInputChange}
                   />
-                  <p className="text-xs text-gray-400">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileInputChange}
+                  />
+                  <p className="text-xs text-gray-400 mt-4">
                     Max. 10 MB • PNG, JPG, WebP
                   </p>
                 </div>
@@ -430,7 +411,7 @@ export default function InputMethodPage() {
                   <button
                     onClick={handleImageSubmit}
                     disabled={imageLoading}
-                    className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand-2))]/90 text-white font-semibold rounded-xl hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                   >
                     {imageLoading ? (
                       <>
@@ -451,7 +432,7 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--success))]" />
+                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand-2))]" />
                     <span>{benefit}</span>
                   </div>
                 ))}

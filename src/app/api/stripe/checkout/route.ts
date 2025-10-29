@@ -40,8 +40,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get('origin')}/dashboard?success=true`,
-      cancel_url: `${req.headers.get('origin')}/dashboard?canceled=true`,
+      success_url: `${req.headers.get('origin')}/profile?success=true`,
+      cancel_url: `${req.headers.get('origin')}/profile?canceled=true`,
       metadata: {
         userId,
       },
