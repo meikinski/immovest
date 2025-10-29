@@ -226,13 +226,13 @@ export default function InputMethodPage() {
 
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Manual Input - FIRST - Navy Blue Brand with Gradients */}
+            {/* Manual Input - FIRST - Solid Navy Blue */}
             <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <div className="w-16 h-16 bg-[hsl(var(--brand))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Keyboard className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent mb-2">
+                <h3 className="text-2xl font-bold text-[hsl(var(--brand))] mb-2">
                   Manuelle Eingabe
                 </h3>
                 <p className="text-gray-600">
@@ -242,7 +242,7 @@ export default function InputMethodPage() {
 
               <button
                 onClick={() => router.push('/step/a')}
-                className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt eingeben</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -337,13 +337,13 @@ export default function InputMethodPage() {
               </div>
             </div>
 
-            {/* Foto machen - THIRD - Orange Brand with Full Gradients */}
+            {/* Foto machen - THIRD - Solid Orange */}
             <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 p-6 md:p-8 shadow-xl">
               <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                <div className="w-16 h-16 bg-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                   <Camera className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] bg-clip-text text-transparent mb-2">
+                <h3 className="text-2xl font-bold text-[hsl(var(--brand-2))] mb-2">
                   Foto machen
                 </h3>
                 <p className="text-gray-600">
@@ -415,7 +415,7 @@ export default function InputMethodPage() {
                   <button
                     onClick={handleImageSubmit}
                     disabled={imageLoading}
-                    className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand-2))] to-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                   >
                     {imageLoading ? (
                       <>

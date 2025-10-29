@@ -30,65 +30,102 @@ const webSearchForScraping = webSearchTool({
   userLocation: { type: 'approximate' },
 });
 
-// Scraper Agent mit gpt-4o für bessere Genauigkeit
+// Scraper Agent - back to gpt-4o-mini with clearer instructions
 const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
-  instructions: `Du bist ein präziser Daten-Extraktor für Immobilien-Anzeigen.
+  instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, etc.).
 
-WICHTIGSTE REGEL - LESE DIES 3x:
-"Kaltmiete" und "Hausgeld" sind VERSCHIEDENE Werte!
-- Suche nach dem WORT "Kaltmiete" → das ist die Miete
-- Suche nach dem WORT "Hausgeld" → das ist das Hausgeld
-- NIEMALS verwechseln oder einen Wert für beide benutzen!
+🔴 KRITISCH - Kaltmiete vs Hausgeld verstehen:
 
-EXTRAKTIONS-ANLEITUNG:
+In deutschen Immobilien-Anzeigen gibt es zwei VERSCHIEDENE monatliche Beträge:
 
-Schritt 1: Suche nach "Kaufpreis" → nur die Zahl
-Schritt 2: Suche nach "Wohnfläche" oder "m²" → nur die Zahl
-Schritt 3: Suche nach "Zimmer" → als Zahl (z.B. 3 oder 3.5)
-Schritt 4: Suche nach "Baujahr" → 4-stellige Jahreszahl
-Schritt 5: Suche nach Adresse → vollständiger Text
+1) KALTMIETE = Miete die der Mieter zahlt (Einnahmen für Eigentümer)
+   - Wird genannt: "Kaltmiete", "Nettokaltmiete", "Grundmiete"
+   - Typisch: 600-2000€ pro Monat
+   - Beispiel im Inserat: "Kaltmiete: 950,00 €"
+   - → Extrahiere diesen Wert ins Feld "miete"
 
-Schritt 6 - KALTMIETE (sehr wichtig!):
-- Suche nach dem genauen Wort "Kaltmiete"
-- Oder: "Nettokaltmiete" oder "Grundmiete"
-- Nimm nur diesen Wert
-- Falls "Jahreskaltmiete" → teile durch 12
-- Setze in Feld: miete
+2) HAUSGELD = Nebenkosten die der Eigentümer zahlt (Ausgaben)
+   - Wird genannt: "Hausgeld", "monatliches Hausgeld", "Nebenkosten", "Wohngeld"
+   - Typisch: 150-400€ pro Monat
+   - Beispiel im Inserat: "Hausgeld: 245,00 €"
+   - → Extrahiere diesen Wert ins Feld "hausgeld"
 
-Schritt 7 - HAUSGELD (sehr wichtig!):
-- Suche nach dem genauen Wort "Hausgeld"
-- Oder: "monatliches Hausgeld" oder "Nebenkosten"
-- Nimm nur diesen Wert
-- Setze in Feld: hausgeld
+WICHTIG: Das sind ZWEI VERSCHIEDENE Werte!
+- Wenn du "Kaltmiete: 950€" siehst → miete = 950, NICHT hausgeld!
+- Wenn du "Hausgeld: 245€" siehst → hausgeld = 245, NICHT miete!
+- Kaltmiete ist IMMER höher als Hausgeld!
 
-Schritt 8 - MAKLERGEBÜHR:
-- Suche nach "Provision" oder "Maklergebühr" oder "Käuferprovision"
-- Falls "provisionsfrei" → maklergebuehr = 0
-- Falls Prozent (z.B. "3,57%") UND Kaufpreis bekannt → berechne Betrag
-- Falls Prozent ABER Kaufpreis unbekannt → NULL
-- Sonst → nimm Euro-Betrag
+DATEN EXTRAHIEREN:
 
-Schritt 9 - OBJEKTTYP:
-- "Wohnung" oder "ETW" → "wohnung"
-- "Haus" oder "EFH" oder "MFH" → "haus"
-- Standard: "wohnung"
+1) KAUFPREIS:
+   - Suche: "Kaufpreis", "Preis"
+   - Nur die Zahl (z.B. 350000)
 
-HAUSGELD-VERTEILUNG:
-- Falls nur Gesamt-Hausgeld gefunden:
-  * hausgeld_umlegbar = 60% vom Hausgeld
-  * hausgeld_nicht_umlegbar = 40% vom Hausgeld
-  * Warning: "Hausgeld-Verteilung ist Schätzung (60/40). Bitte WEG-Unterlagen prüfen."
+2) WOHNFLÄCHE:
+   - Suche: "Wohnfläche", "m²"
+   - Nur die Zahl (z.B. 75)
 
-CONFIDENCE & NOTES:
-- confidence "hoch": Alle Hauptdaten vorhanden
-- confidence "mittel": Einige Daten fehlen
-- confidence "niedrig": Viele Daten fehlen
-- notes: Kurze Zusammenfassung was gefunden wurde
-- warnings: Array mit Hinweisen für User (oder leeres Array [])
+3) ZIMMER:
+   - Suche: "Zimmer"
+   - Als Zahl (z.B. 3 oder 3.5)
 
-WICHTIG: Nur Daten aus Quelle extrahieren. KEINE Schätzungen außer Hausgeld-Verteilung.`,
-  model: 'gpt-4o',  // Upgraded to gpt-4o for better accuracy
+4) BAUJAHR:
+   - Suche: "Baujahr"
+   - 4-stellig (z.B. 1995)
+
+5) ADRESSE:
+   - Vollständige Adresse mit Straße, PLZ, Stadt
+
+6) KALTMIETE:
+   - Suche im Text nach: "Kaltmiete", "Nettokaltmiete", "Grundmiete"
+   - Nimm NUR den Wert bei diesem Label
+   - Falls "Jahreskaltmiete" → teile durch 12
+   - → Speichere in Feld "miete"
+   - Falls nicht gefunden → miete = null
+
+7) HAUSGELD:
+   - Suche im Text nach: "Hausgeld", "monatliches Hausgeld", "Wohngeld"
+   - Nimm NUR den Wert bei diesem Label
+   - → Speichere in Feld "hausgeld"
+   - Falls nicht gefunden → hausgeld = null
+   - Falls Hausgeld gefunden OHNE Aufteilung:
+     * hausgeld_umlegbar = 60% vom Hausgeld
+     * hausgeld_nicht_umlegbar = 40% vom Hausgeld
+     * Warning: "Hausgeld-Verteilung ist Schätzung"
+
+8) MAKLERGEBÜHR / PROVISION:
+   - Suche: "Provision", "Maklergebühr", "Käuferprovision"
+   - Falls "provisionsfrei" → maklergebuehr = 0
+   - Falls Prozent (z.B. "3,57%"):
+     * UND Kaufpreis bekannt → berechne Euro-Betrag
+     * ABER Kaufpreis unbekannt → maklergebuehr = null
+   - Falls Euro-Betrag angegeben → übernehmen
+   - Falls nichts gefunden → maklergebuehr = null
+
+9) OBJEKTTYP:
+   - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
+   - "Haus", "EFH", "MFH" → objekttyp = "haus"
+   - Standard: "wohnung"
+
+OUTPUT-QUALITÄT:
+
+confidence:
+- "hoch": Kaufpreis, Fläche, Zimmer, Adresse alle gefunden
+- "mittel": Kaufpreis und Fläche gefunden, Rest teilweise
+- "niedrig": Wichtige Daten fehlen
+
+notes:
+- Kurze Zusammenfassung was gefunden wurde
+- Beispiel: "Kaufpreis 350.000€, 75m², 3 Zimmer, Baujahr 1995, Kaltmiete 950€/Mon, Hausgeld 245€/Mon"
+
+warnings (Array):
+- Leeres Array [] wenn alles OK
+- Hinweise für User wenn etwas geschätzt oder unklar ist
+- Beispiel: ["Hausgeld-Verteilung ist Schätzung (60/40)"]
+
+REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
+  model: 'gpt-4o-mini',  // Optimized for cost/performance with clear instructions
   tools: [webSearchForScraping],
   outputType: ImmobilienDataSchema,
   modelSettings: {
