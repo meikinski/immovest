@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 
 type Payload = {
   address: string;
@@ -98,9 +99,21 @@ export async function POST(req: Request) {
 
     // ===== pdf init =====
     const pdf = await PDFDocument.create();
+    pdf.registerFontkit(fontkit);
+
+    // Load Unicode-compatible font from Google Fonts
+    const fontUrlRegular = 'https://fonts.gstatic.com/s/notosans/v36/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A9-P.ttf';
+    const fontUrlBold = 'https://fonts.gstatic.com/s/notosans/v36/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjc16L1SoM-jCpoiyD9A9-P.ttf';
+
+    const [fontBytesRegular, fontBytesBold] = await Promise.all([
+      fetch(fontUrlRegular).then(res => res.arrayBuffer()),
+      fetch(fontUrlBold).then(res => res.arrayBuffer())
+    ]);
+
+    const font = await pdf.embedFont(fontBytesRegular);
+    const bold = await pdf.embedFont(fontBytesBold);
+
     let page = pdf.addPage([595.28, 841.89]); // A4
-    const font = await pdf.embedFont(StandardFonts.Helvetica);
-    const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
 
     const MARGIN = 40;
     const WIDTH  = 595.28 - MARGIN * 2;
@@ -114,24 +127,20 @@ export async function POST(req: Request) {
     const NEUTRAL = rgb(48/255, 56/255, 69/255);     // dunkles Slate
     const SKYLINE = rgb(0.86, 0.89, 0.94);           // dezente Linie
 
-    // ===== WinAnsi-Sanitize =====
+    // ===== Unicode-Sanitize (minimal, da wir Noto Sans verwenden) =====
     const stripEmoji = (s: string) =>
-      (s ?? '').replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+      (s ?? '')
+        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '')  // Emoji-Bereich entfernen
+        .replace(/📍/g, '')                               // Spezifische Emojis
+        .replace(/💰/g, '')
+        .replace(/🏠/g, '');
+
     const sanitizeAnsi = (s: string) =>
       stripEmoji(s)
-        .replace(/≈/g, 'ca.')
-        .replace(/\u2212/g, '-')            // Unicode minus → ASCII '-'
-        .replace(/[\u2013\u2014]/g, '-')    // en/em dash → '-'
-        .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ') // NBSP/thin/figure → space
+        .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ')     // NBSP/thin/figure → space
         .replace(/[""]/g, '"')
-        .replace(/['']/g, "'")
-        .replace(/↑/g, '^')                 // Pfeil hoch → ^
-        .replace(/↓/g, 'v')                 // Pfeil runter → v
-        .replace(/→/g, '-')                 // Pfeil rechts → -
-        .replace(/►/g, '>')                 // Triangle → >
-        .replace(/📍/g, '')                 // Emoji entfernen
-        .replace(/💰/g, '')                 // Emoji entfernen
-        .replace(/🏠/g, '');                // Emoji entfernen
+        .replace(/['']/g, "'");
+        // Pfeile (↑↓→►) bleiben erhalten, da Noto Sans sie unterstützt!
 
     let y = 841.89;
     const drawText = (t: string, x: number, yy: number, size = 11, isBold = false, color = rgb(0,0,0)) =>
@@ -496,9 +505,9 @@ export async function POST(req: Request) {
         y -= 16;
       };
 
-      if (d.lageText) textBlock('Standortanalyse', d.lageText, '►');
-      if (d.mietvergleich) textBlock('Mietpreisvergleich', d.mietvergleich, '►');
-      if (d.preisvergleich) textBlock('Kaufpreisvergleich', d.preisvergleich, '►');
+      if (d.lageText) textBlock('Standortanalyse', d.lageText, '▶');
+      if (d.mietvergleich) textBlock('Mietpreisvergleich', d.mietvergleich, '▶');
+      if (d.preisvergleich) textBlock('Kaufpreisvergleich', d.preisvergleich, '▶');
     }
 
     // ===== Szenario → IMMER Seite 2 =====
