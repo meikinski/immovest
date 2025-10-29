@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 type Payload = {
   address: string;
@@ -101,14 +103,12 @@ export async function POST(req: Request) {
     const pdf = await PDFDocument.create();
     pdf.registerFontkit(fontkit);
 
-    // Load Unicode-compatible font from Google Fonts
-    const fontUrlRegular = 'https://fonts.gstatic.com/s/notosans/v36/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A9-P.ttf';
-    const fontUrlBold = 'https://fonts.gstatic.com/s/notosans/v36/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjc16L1SoM-jCpoiyD9A9-P.ttf';
+    // Load Unicode-compatible font from local files
+    const fontPathRegular = join(process.cwd(), 'public', 'fonts', 'NotoSans-Regular.ttf');
+    const fontPathBold = join(process.cwd(), 'public', 'fonts', 'NotoSans-Bold.ttf');
 
-    const [fontBytesRegular, fontBytesBold] = await Promise.all([
-      fetch(fontUrlRegular).then(res => res.arrayBuffer()),
-      fetch(fontUrlBold).then(res => res.arrayBuffer())
-    ]);
+    const fontBytesRegular = readFileSync(fontPathRegular);
+    const fontBytesBold = readFileSync(fontPathBold);
 
     const font = await pdf.embedFont(fontBytesRegular);
     const bold = await pdf.embedFont(fontBytesBold);
