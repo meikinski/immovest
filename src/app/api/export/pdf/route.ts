@@ -127,20 +127,13 @@ export async function POST(req: Request) {
     const NEUTRAL = rgb(48/255, 56/255, 69/255);     // dunkles Slate
     const SKYLINE = rgb(0.86, 0.89, 0.94);           // dezente Linie
 
-    // ===== Unicode-Sanitize (minimal, da wir Noto Sans verwenden) =====
-    const stripEmoji = (s: string) =>
+    // ===== Text-Sanitize =====
+    const sanitizeAnsi = (s: string) =>
       (s ?? '')
         .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '')  // Emoji-Bereich entfernen
-        .replace(/📍/g, '')                               // Spezifische Emojis
-        .replace(/💰/g, '')
-        .replace(/🏠/g, '');
-
-    const sanitizeAnsi = (s: string) =>
-      stripEmoji(s)
         .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ')     // NBSP/thin/figure → space
         .replace(/[""]/g, '"')
         .replace(/['']/g, "'");
-        // Pfeile (↑↓→►) bleiben erhalten, da Noto Sans sie unterstützt!
 
     let y = 841.89;
     const drawText = (t: string, x: number, yy: number, size = 11, isBold = false, color = rgb(0,0,0)) =>
@@ -198,16 +191,16 @@ export async function POST(req: Request) {
       }
     };
 
-    // ===== Delta Indicator mit Pfeil =====
+    // ===== Delta Indicator (ohne Pfeile, nur Text) =====
     const deltaIndicator = (
       delta: number,
       formatter: (n: number) => string,
       betterIfHigher = true
-    ): { text: string; color: ReturnType<typeof rgb>; arrow: string } => {
-      const arrow = delta > 0 ? '↑' : delta < 0 ? '↓' : '→';
+    ): { text: string; color: ReturnType<typeof rgb>; prefix: string } => {
+      const prefix = delta > 0 ? '+' : delta < 0 ? '-' : '±';
       const color = valColor(delta, betterIfHigher);
-      const text = `${arrow} ${formatter(Math.abs(delta))}`;
-      return { text, color, arrow };
+      const text = `${prefix}${formatter(Math.abs(delta))}`;
+      return { text, color, prefix };
     };
 
     // ===== Progress Bar =====
@@ -478,36 +471,35 @@ export async function POST(req: Request) {
       hr();
       section('Markt & Lage');
 
-      const textBlock = (title: string, content: string, icon: string) => {
+      const textBlock = (title: string, content: string) => {
         ensure(60);
-        // Icon + Title
-        drawText(icon, MARGIN, y, 12, false, PRIMARY);
-        drawText(title, MARGIN + 18, y, 11, true, NEUTRAL);
-        y -= 16;
+        // Title mit Brand-Color Akzent
+        drawText(title, MARGIN, y, 11, true, PRIMARY);
+        y -= 18;
 
         // Content Box
         const lines = wrap(content, WIDTH - 20, 10);
-        const boxHeight = lines.length * 12 + 12;
+        const boxHeight = lines.length * 12 + 16;
         page.drawRectangle({
           x: MARGIN,
           y: y - boxHeight + 4,
           width: WIDTH,
           height: boxHeight,
           color: rgb(0.98, 0.98, 0.98),
-          borderColor: SKYLINE,
-          borderWidth: 0.8
+          borderColor: PRIMARY,
+          borderWidth: 1
         });
 
         for (const line of lines) {
-          drawText(line, MARGIN + 10, y, 10, false, NEUTRAL);
+          drawText(line, MARGIN + 10, y - 4, 10, false, NEUTRAL);
           y -= 12;
         }
-        y -= 16;
+        y -= 20;
       };
 
-      if (d.lageText) textBlock('Standortanalyse', d.lageText, '▶');
-      if (d.mietvergleich) textBlock('Mietpreisvergleich', d.mietvergleich, '▶');
-      if (d.preisvergleich) textBlock('Kaufpreisvergleich', d.preisvergleich, '▶');
+      if (d.lageText) textBlock('Standortanalyse', d.lageText);
+      if (d.mietvergleich) textBlock('Mietpreisvergleich', d.mietvergleich);
+      if (d.preisvergleich) textBlock('Kaufpreisvergleich', d.preisvergleich);
     }
 
     // ===== Szenario → IMMER Seite 2 =====
@@ -556,12 +548,12 @@ export async function POST(req: Request) {
       };
 
       // Anpassungen Box
-      ensure(120);
+      ensure(140);
       drawText('Anpassungen gegenüber Basis', MARGIN, y, 13, true, PRIMARY);
-      y -= 24;
+      y -= 28;
 
       // Hintergrund-Box für alle Anpassungen
-      const adjustBoxHeight = 80;
+      const adjustBoxHeight = 100;
       page.drawRectangle({
         x: MARGIN - 8,
         y: y - adjustBoxHeight + 8,
@@ -569,41 +561,58 @@ export async function POST(req: Request) {
         height: adjustBoxHeight,
         color: rgb(0.98, 0.98, 0.98),
         borderColor: BRAND2,
-        borderWidth: 1
+        borderWidth: 1.5
       });
 
-      // Row 1: Miete und Kaufpreis
-      const rowGap = 28;
-      drawText('Kaltmiete:', MARGIN + 4, y, 10, false, MUTED);
-      const mieteDelta = deltaIndicator(dmiete, (n) => `${n}%`, true);
-      drawText(`${dmiete >= 0 ? '+' : ''}${dmiete}%`, MARGIN + 100, y, 11, true, mieteDelta.color);
-      drawText(mieteDelta.arrow, MARGIN + 80, y, 12, false, mieteDelta.color);
+      // Helper: Draw adjustment row
+      const adjustRow = (label: string, value: string, color: ReturnType<typeof rgb>, xPos: number, yPos: number) => {
+        drawText(label, xPos + 8, yPos, 9, false, MUTED);
+        drawText(value, xPos + 8, yPos - 14, 11, true, color);
+      };
 
-      drawText('Kaufpreis:', MARGIN + WIDTH / 2 + 4, y, 10, false, MUTED);
-      const preisDelta = deltaIndicator(dpreis, (n) => `${n}%`, false);
-      drawText(`${dpreis >= 0 ? '+' : ''}${dpreis}%`, MARGIN + WIDTH / 2 + 100, y, 11, true, preisDelta.color);
-      drawText(preisDelta.arrow, MARGIN + WIDTH / 2 + 80, y, 12, false, preisDelta.color);
-      y -= rowGap;
+      const colWidth = (WIDTH + 16) / 3;
+      const startY = y - 16;
 
-      // Row 2: Zins und Tilgung
-      drawText('Zins:', MARGIN + 4, y, 10, false, MUTED);
-      const zinsDelta = deltaIndicator(dzins, (n) => `${n.toFixed(2)} pp`, false);
-      drawText(`${dzins >= 0 ? '+' : ''}${dzins.toFixed(2)} pp`, MARGIN + 100, y, 11, true, zinsDelta.color);
-      drawText(zinsDelta.arrow, MARGIN + 80, y, 12, false, zinsDelta.color);
+      // Row 1: Miete, Kaufpreis, Zins
+      adjustRow(
+        'Kaltmiete',
+        `${dmiete >= 0 ? '+' : ''}${dmiete}%`,
+        colFor('miete', dmiete),
+        MARGIN - 8,
+        startY
+      );
+      adjustRow(
+        'Kaufpreis',
+        `${dpreis >= 0 ? '+' : ''}${dpreis}%`,
+        colFor('preis', dpreis),
+        MARGIN - 8 + colWidth,
+        startY
+      );
+      adjustRow(
+        'Zins',
+        `${dzins >= 0 ? '+' : ''}${dzins.toFixed(2)} pp`,
+        colFor('zins', dzins),
+        MARGIN - 8 + colWidth * 2,
+        startY
+      );
 
-      drawText('Tilgung:', MARGIN + WIDTH / 2 + 4, y, 10, false, MUTED);
-      const tilgDelta = deltaIndicator(dtilg, (n) => `${n.toFixed(2)} pp`, true);
-      drawText(`${dtilg >= 0 ? '+' : ''}${dtilg.toFixed(2)} pp`, MARGIN + WIDTH / 2 + 100, y, 11, true, NEUTRAL);
-      drawText(tilgDelta.arrow, MARGIN + WIDTH / 2 + 80, y, 12, false, NEUTRAL);
-      y -= rowGap;
+      // Row 2: Tilgung, Eigenkapital
+      adjustRow(
+        'Tilgung',
+        `${dtilg >= 0 ? '+' : ''}${dtilg.toFixed(2)} pp`,
+        NEUTRAL,
+        MARGIN - 8,
+        startY - 46
+      );
+      adjustRow(
+        'Eigenkapital',
+        `${dek >= 0 ? '+' : ''}${dek}%`,
+        colFor('ek', dek),
+        MARGIN - 8 + colWidth,
+        startY - 46
+      );
 
-      // Row 3: Eigenkapital
-      drawText('Eigenkapital:', MARGIN + 4, y, 10, false, MUTED);
-      const ekDelta = deltaIndicator(dek, (n) => `${n}%`, true);
-      drawText(`${dek >= 0 ? '+' : ''}${dek}%`, MARGIN + 100, y, 11, true, ekDelta.color);
-      drawText(ekDelta.arrow, MARGIN + 80, y, 12, false, ekDelta.color);
-
-      y -= adjustBoxHeight - rowGap * 3 + 10;
+      y -= adjustBoxHeight + 10;
 
       // Neue Werte 2×2 (immer anzeigen, ggf. Basis)
       const sMiete   = s.miete   ?? d.miete;
