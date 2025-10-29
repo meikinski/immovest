@@ -17,7 +17,7 @@ const ImmobilienDataSchema = z.object({
   hausgeld: z.number().nullable(), // Gesamt-Hausgeld
   hausgeld_umlegbar: z.number().nullable(), // Umlegbarer Anteil
   hausgeld_nicht_umlegbar: z.number().nullable(), // Nicht umlegbarer Anteil
-  maklergebuehr: z.number().nullable(), // Maklergebühr in Euro oder Prozent
+  maklergebuehr: z.number().nullable(), // Maklergebühr als Prozentsatz (z.B. 3.57) oder Euro-Betrag (z.B. 15000)
   objekttyp: z.enum(['wohnung', 'haus']).nullable(),
   confidence: z.enum(['niedrig', 'mittel', 'hoch']),
   notes: z.string().nullable(),
@@ -73,14 +73,15 @@ RICHTIGE Extraktion:
   zimmer: 3,
   miete: 950,          ← Die GRÖSSERE Zahl (Kaltmiete)
   hausgeld: 245,       ← Die KLEINERE Zahl (Hausgeld)
-  maklergebuehr: 12495  ← 350000 * 3.57 / 100
+  maklergebuehr: 3.57  ← NUR der Prozentsatz (NICHT berechnen!)
 }
 
 FALSCH wäre:
 - miete: 245 (das ist Hausgeld!)
 - hausgeld: 950 (das ist Kaltmiete!)
 - miete: null und hausgeld: 950 (beide Werte verwechselt!)
-- maklergebuehr: null (wenn Prozent angegeben und Kaufpreis bekannt!)
+- maklergebuehr: null (wenn Prozent angegeben!)
+- maklergebuehr: 12495 (NICHT in Euro umrechnen!)
 
 DATEN EXTRAHIEREN:
 
@@ -121,34 +122,40 @@ DATEN EXTRAHIEREN:
      * Warning: "Hausgeld-Verteilung ist Schätzung"
 
 8) MAKLERGEBÜHR / PROVISION (Käuferprovision):
-   WICHTIG: Maklergebühr ist ein häufiges Feld in Immobilien-Anzeigen!
+   WICHTIG: Extrahiere NUR den Prozentsatz, KEINE Berechnung!
 
    - Suche SEHR SORGFÄLTIG nach diesen Begriffen im kompletten Text:
      * "Provision", "Maklergebühr", "Käuferprovision", "Innen­courtage"
      * "Käufer­provision beträgt", "Provision beträgt"
-     * Auch suchen nach: "3,57%", "3,0 %", Prozentzahlen im Text
+     * Prozentzahlen wie "3,57%", "3,0 %", "3.0%", etc.
 
-   - SCHRITT 1: Text gefunden?
+   - EXTRAKTION:
 
      A) Falls "provisionsfrei" oder "Keine Käuferprovision":
         → maklergebuehr = 0
 
-     B) Falls Prozent-Angabe gefunden (z.B. "3,0%", "3,57%", "Provision beträgt 3,0%"):
-        → BERECHNE Euro-Betrag:
-        → maklergebuehr = (Kaufpreis × Prozent) / 100
-        → Beispiele:
-          * "3,0%" bei Kaufpreis 573000 → 573000 × 3.0 / 100 = 17190
-          * "3,57%" bei Kaufpreis 350000 → 350000 × 3.57 / 100 = 12495
-        → Falls Kaufpreis NICHT bekannt → maklergebuehr = null
+     B) Falls Prozent-Angabe gefunden (z.B. "3,0%", "3,57%", "Provision beträgt 3,0 % inkl. MwSt."):
+        → Extrahiere NUR die Zahl (z.B. "3,0" oder "3.57")
+        → maklergebuehr = 3.0  oder  maklergebuehr = 3.57
+        → ⚠️ NICHT in Euro umrechnen! Nur den Prozentsatz!
 
-     C) Falls Euro-Betrag direkt angegeben (z.B. "12.000 €"):
-        → maklergebuehr = Betrag (z.B. 12000)
+     C) Falls Euro-Betrag direkt angegeben (z.B. "Maklergebühr: 15.000 €"):
+        → maklergebuehr = 15000
+        → (Großer Wert > 100 wird als Euro interpretiert)
 
      D) Falls GAR NICHTS über Provision im Text:
         → maklergebuehr = null
 
+   - Beispiele:
+     * "Käuferprovision beträgt 3,0 % (inkl. MwSt.)" → maklergebuehr = 3.0
+     * "Provision: 3,57%" → maklergebuehr = 3.57
+     * "Provision: 2.38% inkl. gesetzl. MwSt." → maklergebuehr = 2.38
+     * "Provisionsfrei" → maklergebuehr = 0
+     * "Maklergebühr: 12.000 €" → maklergebuehr = 12000
+
    - ❌ NIEMALS maklergebuehr = 0 setzen, außer bei explizit "provisionsfrei"!
-   - ❌ NIEMALS Prozentangabe ignorieren wenn Kaufpreis bekannt ist!
+   - ❌ NIEMALS den Prozentsatz in Euro umrechnen!
+   - ✅ Einfach den Prozentsatz als Zahl extrahieren (z.B. 3.0)
 
 9) OBJEKTTYP:
    - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
@@ -391,10 +398,11 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     }
   }
 
-  // Check Maklergebühr: If 0 but there's a Kaufpreis, that's suspicious
-  if (validated.maklergebuehr === 0 && validated.kaufpreis !== null && validated.kaufpreis > 0) {
-    console.warn('[VALIDATION] ⚠️ Maklergebühr is 0 but Kaufpreis exists - agent may have missed it');
-    warnings.push('⚠️ Maklergebühr wurde als 0 erkannt. Falls eine Käuferprovision angegeben ist, bitte manuell nachtragen.');
+  // Check Maklergebühr: If 0 or null but there's a Kaufpreis, warn user
+  if ((validated.maklergebuehr === 0 || validated.maklergebuehr === null) &&
+      validated.kaufpreis !== null && validated.kaufpreis > 0) {
+    console.warn('[VALIDATION] ⚠️ Maklergebühr is 0/null but Kaufpreis exists - agent may have missed it');
+    warnings.push('⚠️ Käuferprovision wurde nicht erkannt. Falls im Inserat ein Prozentsatz angegeben ist (z.B. "3,57%"), bitte manuell in Step A eintragen.');
   }
 
   // Update warnings array
