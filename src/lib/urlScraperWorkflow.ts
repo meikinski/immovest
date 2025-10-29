@@ -30,171 +30,65 @@ const webSearchForScraping = webSearchTool({
   userLocation: { type: 'approximate' },
 });
 
-// Scraper Agent der Web Search nutzt statt direktem Fetch
+// Scraper Agent mit gpt-4o für bessere Genauigkeit
 const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
-  instructions: `Du bist Immobilien-Daten-Extraktor. URL von Anzeige (ImmobilienScout24, Immowelt, etc.) → Extrahiere ALLE Daten via Web Search.
+  instructions: `Du bist ein präziser Daten-Extraktor für Immobilien-Anzeigen.
 
-🚨🚨🚨 EXTREM WICHTIG - LIES DIES ZUERST 🚨🚨🚨
-VERWECHSLE NIEMALS KALTMIETE MIT HAUSGELD!!!
-KALTMIETE = EINNAHMEN (was Mieter zahlt)
-HAUSGELD = AUSGABEN (was Eigentümer zahlt)
-🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨
+WICHTIGSTE REGEL - LESE DIES 3x:
+"Kaltmiete" und "Hausgeld" sind VERSCHIEDENE Werte!
+- Suche nach dem WORT "Kaltmiete" → das ist die Miete
+- Suche nach dem WORT "Hausgeld" → das ist das Hausgeld
+- NIEMALS verwechseln oder einen Wert für beide benutzen!
 
-WAS EXTRAHIEREN:
-1) Kaufpreis in Euro nur Zahl
-2) Wohnfläche in m² nur Zahl
-3) Anzahl Zimmer als Dezimal z.B. 3.5
-4) Baujahr 4-stellig
-5) Adresse vollständig Straße PLZ Stadt
-6) Kaltmiete NUR MONATLICH - SUPER KRITISCH siehe unten
-7) Hausgeld/Nebenkosten - SUPER KRITISCH siehe unten
-8) Maklergebühr / Käuferprovision - KRITISCH siehe unten
-9) Objekttyp - WICHTIG siehe unten
+EXTRAKTIONS-ANLEITUNG:
 
-KRITISCH OBJEKTTYP:
-- NUR diese Werte erlaubt: "wohnung" oder "haus"
-- WENN Text sagt Wohnung, Eigentumswohnung, ETW → setze "wohnung"
-- WENN Text sagt Haus, Einfamilienhaus, Mehrfamilienhaus, EFH, MFH → setze "haus"
-- Standard bei Unsicherheit: "wohnung"
+Schritt 1: Suche nach "Kaufpreis" → nur die Zahl
+Schritt 2: Suche nach "Wohnfläche" oder "m²" → nur die Zahl
+Schritt 3: Suche nach "Zimmer" → als Zahl (z.B. 3 oder 3.5)
+Schritt 4: Suche nach "Baujahr" → 4-stellige Jahreszahl
+Schritt 5: Suche nach Adresse → vollständiger Text
 
-═══════════════════════════════════════════════════════════════════
-🚨 SUPER KRITISCH: KALTMIETE vs HAUSGELD - ABSOLUT GETRENNT! 🚨
-═══════════════════════════════════════════════════════════════════
+Schritt 6 - KALTMIETE (sehr wichtig!):
+- Suche nach dem genauen Wort "Kaltmiete"
+- Oder: "Nettokaltmiete" oder "Grundmiete"
+- Nimm nur diesen Wert
+- Falls "Jahreskaltmiete" → teile durch 12
+- Setze in Feld: miete
 
-🔴🔴🔴 PFLICHTLEKTÜRE - LESE DIES 5x !!! 🔴🔴🔴
+Schritt 7 - HAUSGELD (sehr wichtig!):
+- Suche nach dem genauen Wort "Hausgeld"
+- Oder: "monatliches Hausgeld" oder "Nebenkosten"
+- Nimm nur diesen Wert
+- Setze in Feld: hausgeld
 
-DEFINITION KALTMIETE (Feld: miete):
-  ✅ Das ist EINKOMMEN - Was der MIETER als Miete zahlt
-  ✅ Ist normalerweise zwischen 500€ - 2000€ pro Monat
-  ✅ IMMER HÖHER als Hausgeld (meist 3-5x höher!)
-  ✅ Suche EXAKT nach diesen Begriffen:
-     - "Kaltmiete" ODER "Nettokaltmiete" ODER "Grundmiete"
-  ❌ ABSOLUT NIEMALS: "Hausgeld", "Nebenkosten", "Wohngeld", "Betriebskosten"
-  ❌ WENN im Text steht "Hausgeld: 250€" → Das ist NICHT Kaltmiete!
-  ❌ WENN du nur Hausgeld findest → miete = NULL (nicht Hausgeld einsetzen!)
+Schritt 8 - MAKLERGEBÜHR:
+- Suche nach "Provision" oder "Maklergebühr" oder "Käuferprovision"
+- Falls "provisionsfrei" → maklergebuehr = 0
+- Falls Prozent (z.B. "3,57%") UND Kaufpreis bekannt → berechne Betrag
+- Falls Prozent ABER Kaufpreis unbekannt → NULL
+- Sonst → nimm Euro-Betrag
 
-DEFINITION HAUSGELD (Feld: hausgeld):
-  ✅ Das sind AUSGABEN - Kosten die der EIGENTÜMER zahlt
-  ✅ Ist normalerweise zwischen 100€ - 400€ pro Monat
-  ✅ IMMER NIEDRIGER als Kaltmiete
-  ✅ Suche EXAKT nach diesen Begriffen:
-     - "Hausgeld" ODER "monatliches Hausgeld" ODER "Nebenkosten" ODER "Wohngeld"
-  ❌ ABSOLUT NIEMALS: "Kaltmiete", "Nettokaltmiete", "Grundmiete", "Mieteinnahmen"
-  ❌ WENN im Text steht "Kaltmiete: 950€" → Das ist NICHT Hausgeld!
-  ❌ WENN du nur Kaltmiete findest → hausgeld = NULL (nicht Kaltmiete einsetzen!)
+Schritt 9 - OBJEKTTYP:
+- "Wohnung" oder "ETW" → "wohnung"
+- "Haus" oder "EFH" oder "MFH" → "haus"
+- Standard: "wohnung"
 
-🔥 MANDATORY VALIDATION - IMMER PRÜFEN:
-1. Hast du BEIDE Werte gefunden (Kaltmiete UND Hausgeld)?
-   → JA: Ist Kaltmiete mindestens 2x höher als Hausgeld?
-     → NEIN? DANN FEHLER! Du hast sie vertauscht!
-   → NEIN: Setze fehlenden Wert auf NULL (nie raten/kopieren!)
+HAUSGELD-VERTEILUNG:
+- Falls nur Gesamt-Hausgeld gefunden:
+  * hausgeld_umlegbar = 60% vom Hausgeld
+  * hausgeld_nicht_umlegbar = 40% vom Hausgeld
+  * Warning: "Hausgeld-Verteilung ist Schätzung (60/40). Bitte WEG-Unterlagen prüfen."
 
-2. Ist Kaltmiete < 200€ ODER > 5000€?
-   → Warning hinzufügen: "⚠️ Kaltmiete ungewöhnlich - bitte prüfen"
+CONFIDENCE & NOTES:
+- confidence "hoch": Alle Hauptdaten vorhanden
+- confidence "mittel": Einige Daten fehlen
+- confidence "niedrig": Viele Daten fehlen
+- notes: Kurze Zusammenfassung was gefunden wurde
+- warnings: Array mit Hinweisen für User (oder leeres Array [])
 
-3. Ist Hausgeld > Kaltmiete?
-   → STOP! Werte sind vertauscht! Korrigiere sofort!
-   → Warning: "⚠️ Werte wurden vertauscht und korrigiert"
-
-BEISPIEL KORREKTES PARSING:
-Text: "Kaltmiete: 950€, Hausgeld: 250€"
-→ miete = 950
-→ hausgeld = 250
-→ Validation: 950 > 250 ✓ OK!
-
-BEISPIEL FALSCHES PARSING (NIEMALS SO!):
-Text: "Kaltmiete: 950€, Hausgeld: 250€"
-→ miete = 250  ❌❌❌ FALSCH!!!
-→ hausgeld = 950  ❌❌❌ FALSCH!!!
-
-SCHRITT-FÜR-SCHRITT OBLIGATORISCH:
-1️⃣ Suche ZUERST nach dem exakten Wort "Kaltmiete"
-   → Gefunden? Notiere den Wert als CANDIDATE_MIETE
-   → Nicht gefunden? CANDIDATE_MIETE = NULL
-2️⃣ Suche DANN nach dem exakten Wort "Hausgeld"
-   → Gefunden? Notiere den Wert als CANDIDATE_HAUSGELD
-   → Nicht gefunden? CANDIDATE_HAUSGELD = NULL
-3️⃣ VALIDIERE:
-   → Wenn beide gefunden: CANDIDATE_MIETE muss > CANDIDATE_HAUSGELD sein
-   → Wenn nicht: TAUSCHE sie (du hast Fehler gemacht!)
-4️⃣ Setze finale Werte:
-   → miete = CANDIDATE_MIETE (oder NULL)
-   → hausgeld = CANDIDATE_HAUSGELD (oder NULL)
-
-JAHRESMIETE UMRECHNUNG:
-- Text sagt "Jahreskaltmiete" / "jährliche Miete" → teile durch 12
-- Text sagt nur "Kaltmiete" → direkt übernehmen (ist monatlich)
-- IMMER monatlichen Wert in miete speichern, NIE Jahreswert
-
-KRITISCH HAUSGELD/NEBENKOSTEN:
-- Suche nach: Hausgeld, Nebenkosten, Wohngeld, Betriebskosten, monatliche Kosten (für Eigentümer)
-- NIEMALS Kaltmiete als Hausgeld verwenden!
-- WENN Hausgeld gefunden UND keine Aufteilung angegeben:
-  * hausgeld = Gesamtbetrag
-  * hausgeld_umlegbar = 60 Prozent von Gesamtbetrag
-  * hausgeld_nicht_umlegbar = 40 Prozent von Gesamtbetrag
-  * Füge zu warnings hinzu: Hausgeld-Verteilung ist Schätzung (60% umlegbar, 40% nicht umlegbar). Bitte nach Erhalt der WEG-Unterlagen genaue Werte eintragen.
-- WENN Hausgeld MIT Aufteilung angegeben übernimm die Werte
-- WENN Hausgeld NICHT gefunden setze alle auf NULL
-
-═══════════════════════════════════════════════════════════════════
-🚨 KRITISCH: MAKLERGEBÜHR / KÄUFERPROVISION 🚨
-═══════════════════════════════════════════════════════════════════
-
-WICHTIG: Suche nach "Käuferprovision", "Maklergebühr", "Provision", "Courtage"
-
-VARIANTEN:
-1️⃣ PROVISIONSFREI:
-   - Text: "provisionsfrei", "keine Provision", "0% Provision"
-   → maklergebuehr = 0
-   → notes: "Provisionsfrei"
-
-2️⃣ PROZENTSATZ (z.B. 3,57%, 2,38%, 7,14%):
-   - Text: "Käuferprovision: 3,57%" oder "Provision 2,38% inkl. MwSt"
-   - WENN Kaufpreis vorhanden:
-     → Berechne: maklergebuehr = Kaufpreis * (Prozent / 100)
-     → notes: "Maklergebühr X% = Y Euro (berechnet)"
-   - WENN Kaufpreis fehlt:
-     → maklergebuehr = NULL
-     → warnings: "Maklergebühr X% bekannt - wird nach Kaufpreis-Eingabe berechnet"
-     → notes: "Maklergebühr X% (nicht berechnet)"
-
-3️⃣ FESTER EURO-BETRAG:
-   - Text: "Käuferprovision: 8.500 Euro"
-   → maklergebuehr = 8500
-   → notes: "Maklergebühr: 8.500 Euro"
-
-4️⃣ NICHT ANGEGEBEN:
-   → maklergebuehr = NULL
-   → notes: "Maklergebühr nicht in Anzeige angegeben"
-
-⚠️ HÄUFIGER FEHLER: Standard 3,57% NICHT automatisch annehmen!
-   → NUR wenn EXPLIZIT im Text steht!
-   → Wenn nicht angegeben → NULL setzen
-
-CONFIDENCE:
-- hoch: Kaufpreis Fläche Zimmer Adresse alle da
-- mittel: Kaufpreis Fläche da aber Rest fehlt teilweise
-- niedrig: wichtige Daten fehlen
-
-NOTES STRUKTUR (immer dokumentieren was gefunden wurde):
-Kaufpreis: X Euro, Fläche: Y m², Zimmer: Z, Baujahr: YYYY, Adresse: [gefunden/nicht gefunden].
-Kaltmiete: X Euro/Monat (gefunden als: "Kaltmiete" im Text).
-Hausgeld: X Euro/Monat (gefunden als: "Hausgeld" im Text, Verteilung geschätzt).
-Validierung: Kaltmiete > Hausgeld ✓ [oder Warnung wenn nicht].
-Makler: [provisionsfrei/X%/X Euro].
-
-WARNINGS FÜR USER (Array - IMMER zurückgeben, auch wenn leer):
-Nur hinzufügen wenn relevant z.B.:
-- Hausgeld-Verteilung ist Schätzung (60% umlegbar, 40% nicht umlegbar). Bitte nach Erhalt der WEG-Unterlagen genaue Werte eintragen.
-- Miete evtl. Jahreswert bitte prüfen
-- ⚠️ WARNUNG: Kaltmiete scheint ungewöhnlich niedrig oder gleich Hausgeld - bitte manuell prüfen!
-- ⚠️ WARNUNG: Hausgeld fehlt komplett im Inserat - bitte nach WEG-Unterlagen fragen
-WENN keine Warnungen DANN leeres Array []
-
-ABSOLUTE REGEL: Nur Daten aus Quelle. KEINE Schätzungen außer Hausgeld-Verteilung mit warning.`,
-  model: 'gpt-4o-mini',
+WICHTIG: Nur Daten aus Quelle extrahieren. KEINE Schätzungen außer Hausgeld-Verteilung.`,
+  model: 'gpt-4o',  // Upgraded to gpt-4o for better accuracy
   tools: [webSearchForScraping],
   outputType: ImmobilienDataSchema,
   modelSettings: {
@@ -269,44 +163,67 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
 /**
  * Post-processing validation to fix common AI agent mistakes
+ * This is our safety net!
  */
 function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
+  console.log('[VALIDATION] Starting validation...');
+  console.log('[VALIDATION] Input - miete:', output.miete, 'hausgeld:', output.hausgeld);
+
   const validated = { ...output };
   const warnings = [...(output.warnings || [])];
+  let swapped = false;
 
   // CRITICAL: Validate Kaltmiete vs Hausgeld
   if (validated.miete !== null && validated.hausgeld !== null) {
-    // If Hausgeld > Kaltmiete, they are swapped!
+    console.log('[VALIDATION] Both values present - checking relationship...');
+
+    // If Hausgeld > Kaltmiete, they are definitely swapped!
     if (validated.hausgeld > validated.miete) {
-      console.warn('[VALIDATION] ⚠️ Kaltmiete and Hausgeld are swapped! Fixing...');
+      console.error('[VALIDATION] 🚨 ERROR DETECTED: Hausgeld > Kaltmiete - SWAPPING!');
+      console.error(`[VALIDATION] Before: miete=${validated.miete}, hausgeld=${validated.hausgeld}`);
 
       // Swap them
       const temp = validated.miete;
       validated.miete = validated.hausgeld;
       validated.hausgeld = temp;
+      swapped = true;
+
+      console.error(`[VALIDATION] After: miete=${validated.miete}, hausgeld=${validated.hausgeld}`);
 
       // Add warning
-      warnings.push('⚠️ KORRIGIERT: Kaltmiete und Hausgeld waren vertauscht und wurden automatisch korrigiert.');
+      warnings.push('⚠️ AUTOMATISCH KORRIGIERT: Agent hatte Kaltmiete und Hausgeld vertauscht. Werte wurden korrigiert.');
+    } else {
+      console.log('[VALIDATION] ✓ Kaltmiete > Hausgeld - Correct relationship');
     }
 
-    // Additional check: Kaltmiete should be at least 2x Hausgeld
+    // Additional check: Kaltmiete should be significantly higher than Hausgeld
     if (validated.miete < validated.hausgeld * 1.5) {
-      warnings.push('⚠️ WARNUNG: Kaltmiete erscheint ungewöhnlich niedrig im Verhältnis zum Hausgeld. Bitte manuell prüfen!');
+      console.warn('[VALIDATION] ⚠️ Unusual: Kaltmiete is only', (validated.miete / validated.hausgeld).toFixed(2), 'times Hausgeld');
+      warnings.push('⚠️ ACHTUNG: Kaltmiete erscheint ungewöhnlich niedrig im Verhältnis zum Hausgeld. Bitte die Werte in der Originalanzeige überprüfen!');
     }
+  } else if (validated.miete === null && validated.hausgeld !== null) {
+    // Only Hausgeld found, no Kaltmiete - suspicious!
+    console.warn('[VALIDATION] ⚠️ Only Hausgeld found, no Kaltmiete - might be wrong');
+    warnings.push('⚠️ Nur Hausgeld gefunden, keine Kaltmiete. Bitte manuell prüfen!');
+  } else if (validated.miete !== null && validated.hausgeld === null) {
+    console.log('[VALIDATION] Only Kaltmiete found - OK (property might be owner-occupied)');
   }
 
   // Check if Kaltmiete is suspiciously low
   if (validated.miete !== null && validated.miete > 0 && validated.miete < 200) {
-    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 200€). Bitte manuell prüfen!');
+    console.warn('[VALIDATION] ⚠️ Kaltmiete is very low:', validated.miete);
+    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 200€). Bitte manuell überprüfen!');
   }
 
   // Check if Kaltmiete is suspiciously high (might be yearly)
   if (validated.miete !== null && validated.miete > 5000) {
+    console.warn('[VALIDATION] ⚠️ Kaltmiete is very high:', validated.miete);
     warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5000€). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
   }
 
   // Update warnings array
   validated.warnings = warnings;
 
+  console.log('[VALIDATION] Complete - swapped:', swapped, '- warnings:', warnings.length);
   return validated;
 }
