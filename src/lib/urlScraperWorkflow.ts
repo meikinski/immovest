@@ -180,15 +180,40 @@ confidence:
 
 notes:
 - Kurze Zusammenfassung was gefunden wurde
-- Beispiel: "Kaufpreis 350.000€, 75m², 3 Zimmer, Baujahr 1995, Kaltmiete 950€/Mon, Hausgeld 245€/Mon"
+- Beispiel: "Kaufpreis 350.000€, 75m², 3 Zimmer, Baujahr 1995, Kaltmiete 950€/Mon, Hausgeld 245€/Mon, Provision 3.0%"
 
 warnings (Array):
 - Leeres Array [] wenn alles OK
 - Hinweise für User wenn etwas geschätzt oder unklar ist
 - Beispiel: ["Hausgeld-Verteilung ist Schätzung (60/40)"]
 
+🚨🚨🚨 FINAL CHECK - BEVOR DU DAS ERGEBNIS ZURÜCKGIBST! 🚨🚨🚨
+
+BEVOR du die Daten zurückgibst, PRÜFE NOCHMAL:
+
+1. Hast du "maklergebuehr" gesetzt?
+   - Falls NEIN → Gehe zurück und suche NOCHMAL nach:
+     * "Provision"
+     * "Käuferprovision"
+     * "Maklergebühr"
+     * "Courtage"
+   - Durchsuche die KOMPLETTE Seite nochmal!
+   - Falls du IMMER NOCH nichts findest → maklergebuehr = null
+
+2. Falls maklergebuehr = 0:
+   - Hast du wirklich "provisionsfrei" auf der Seite gesehen?
+   - Falls NEIN → Gehe zurück und suche NOCHMAL!
+   - Falls JA → OK, 0 ist korrekt
+
+3. Falls maklergebuehr = null:
+   - Bist du dir ABSOLUT SICHER, dass kein Prozentsatz auf der Seite steht?
+   - Suche NOCHMAL nach "%"
+   - Suche NOCHMAL nach "Provision"
+
+NUR wenn du diese 3 Punkte geprüft hast, darfst du das Ergebnis zurückgeben!
+
 REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
-  model: 'gpt-4o-mini',  // Optimized for cost/performance with clear instructions
+  model: 'gpt-4o',  // Upgraded to gpt-4o for better accuracy with commission detection
   tools: [webSearchForScraping],
   outputType: ImmobilienDataSchema,
   modelSettings: {
