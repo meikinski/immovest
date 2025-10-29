@@ -143,6 +143,11 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
     setFlaecheText(flaeche.toString().replace('.', ','));
   }, [flaeche]);
 
+  // Update maklerText when maklerPct changes (e.g., from URL scraper)
+  useEffect(() => {
+    setMaklerText(maklerPct.toString().replace('.', ','));
+  }, [maklerPct]);
+
   // === Derived Values (einheitlich, keine Duplikate) ===
   const warmmiete = miete + hausgeld_umlegbar;
 
@@ -733,6 +738,19 @@ const exportPdf = React.useCallback(async () => {
      <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">€</span>
    </div>
  </div>
+
+          {/* Warnung bei hoher Maklergebühr */}
+          {maklerPct > 5 && (
+            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
+              <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Hohe Maklergebühr</p>
+                <p className="text-xs mt-1">
+                  Die Maklergebühr von {maklerPct.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 2})}% liegt über dem üblichen Rahmen von 2-4%. Bitte prüfe, ob dieser Wert korrekt ist.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Objekttyp */}
@@ -937,6 +955,21 @@ const exportPdf = React.useCallback(async () => {
               />
             </div>
           </div>
+
+          {/* Hinweis bei automatischer Hausgeld-Verteilung */}
+          {hausgeld > 0 && hausgeld_umlegbar > 0 &&
+           Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
+           Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5 && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-start gap-2">
+              <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Automatische Hausgeld-Verteilung</p>
+                <p className="text-xs mt-1">
+                  Das Hausgeld wurde automatisch im Verhältnis 60% umlagefähig / 40% nicht umlagefähig aufgeteilt, da keine genaue Aufteilung in der Anzeige angegeben war. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung an.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Kalkulatorische Kosten */}

@@ -58,10 +58,11 @@ export async function POST(req: NextRequest) {
       }
     };
 
-    // CRITICAL: Only include maklergebuehr if it was found in listing
-    // If null, don't send it - let frontend use store default
+    // CRITICAL: Map maklergebuehr (percentage from scraper) to makler_pct (store field)
+    // Only override default if it was found in listing
+    // If null, don't send it - let frontend use store default (3.57%)
     if (result.maklergebuehr !== null && result.maklergebuehr !== undefined) {
-      data.maklergebuehr = result.maklergebuehr;
+      data.makler_pct = result.maklergebuehr;  // Store expects makler_pct, not maklergebuehr
     }
 
     console.log(`[API] Scraping complete - Confidence: ${result.confidence}`);
