@@ -421,17 +421,27 @@ const dscr =
       }
 
       const data = await res.json() as {
-        facts: unknown;
-        lage?: { html?: string };
-        miete?: { html?: string };
-        kauf?: { html?: string };
-        invest?: { html?: string };
+        analyse: {
+          lage: { html: string };
+          miete: { html: string; delta_psqm: number | null };
+          kauf: { html: string; delta_psqm: number | null };
+          facts: unknown;
+        };
+        invest: { html: string };
       };
 
-      setLageComment(data.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
-      setMietpreisComment(data.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
-      setQmPreisComment(data.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
+      setLageComment(data.analyse?.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
+      setMietpreisComment(data.analyse?.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
+      setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
       setInvestComment(data.invest?.html?.trim() || '<p>Investitionsanalyse derzeit nicht verfügbar.</p>');
+
+      // Store delta values if available
+      if (data.analyse?.miete?.delta_psqm != null) {
+        setMieteDeltaPct(data.analyse.miete.delta_psqm);
+      }
+      if (data.analyse?.kauf?.delta_psqm != null) {
+        setKaufDeltaPct(data.analyse.kauf.delta_psqm);
+      }
 
       setLageTrendComment('');
     } catch (e) {

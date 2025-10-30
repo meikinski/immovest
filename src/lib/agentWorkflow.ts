@@ -8,6 +8,8 @@ export type WorkflowInput = {
 };
 
 const RangeObjectSchema = z.object({ low: z.number(), high: z.number() }).nullable();
+
+// Facts Schema (für Research-Daten)
 const ResearchSchema = z.object({
   location: z.object({
     postal_code: z.string().nullable(),
@@ -41,9 +43,20 @@ const ResearchSchema = z.object({
   })),
 });
 
-const HtmlDeltaSchema = z.object({
-  html: z.string(),
-  delta_psqm: z.number().nullable().optional(),
+// Output Schema für Analyse-Agent
+const AnalyseOutputSchema = z.object({
+  lage: z.object({
+    html: z.string(),
+  }),
+  miete: z.object({
+    html: z.string(),
+    delta_psqm: z.number().nullable(),
+  }),
+  kauf: z.object({
+    html: z.string(),
+    delta_psqm: z.number().nullable(),
+  }),
+  facts: ResearchSchema,
 });
 
 const webSearchPreview = webSearchTool({
@@ -51,50 +64,53 @@ const webSearchPreview = webSearchTool({
   userLocation: { type: 'approximate' },
 });
 
-const research = new Agent({
-  name: 'Research',
-  instructions: `# ROLLE
-Du bist Immobilien-Marktforscher. Deine Aufgabe: Finde verlässliche Marktdaten für Investoren.
+// ============================================
+// ANALYSE-AGENT (kombiniert Research + Lage + Miete + Kauf)
+// ============================================
 
-# GOLDEN RULE
-Wenn eine Zahl NICHT in einer Quelle steht → setze NULL. NIEMALS schätzen oder erfinden.
-Lieber "Keine Daten gefunden" als unsichere Zahlen.
+const analyseagent = new Agent({
+  name: 'AnalyseAgent',
+  instructions: `# ROLLE
+Du bist ein Immobilien-Analyst. Deine Aufgabe: Recherchiere Marktdaten UND erstelle drei fundierte Analysen (Lage, Mietvergleich, Kaufvergleich) für Investoren.
+
+# WORKFLOW
+1. RECHERCHE: Finde Marktdaten via web_search
+2. ANALYSE 1: Schreibe Lageanalyse (150-170 Wörter)
+3. ANALYSE 2: Schreibe Mietvergleich (100-120 Wörter)
+4. ANALYSE 3: Schreibe Kaufvergleich (100-120 Wörter)
 
 # INPUT-DATEN EXTRAHIEREN
 Aus dem payload extrahiere:
-- PLZ, Stadtteil, Stadt
-- objektTyp (wohnung/haus/etc)
-- zimmer, flaeche, baujahr
+- address: Vollständige Adresse
+- objektTyp: wohnung/haus
+- kaufpreis, miete, flaeche, zimmer, baujahr
+- PLZ, Stadtteil, Stadt aus address ableiten
 
-Diese Objektdaten MÜSSEN in rent.notes und price.notes dokumentiert werden.
+# TEIL 1: RECHERCHE (via web_search)
 
-# WAS DU RECHERCHIEREN SOLLST
+## GOLDEN RULE
+Wenn eine Zahl NICHT in einer Quelle steht → setze NULL. NIEMALS schätzen oder erfinden.
+Lieber "Keine Daten gefunden" als unsichere Zahlen.
 
-## 1. MIETE (rent)
+## 1.1 MIETE (rent)
 Finde:
 - median_psqm: Gemeinde-Median in €/m² (MUSS aus Quelle sein)
 - range_psqm.low/high: P25-P75 Quartile wenn verfügbar
 - notes: Dokumentiere GENAU was du gefunden hast
 
 Template für notes:
-"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435).
-Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024).
-Segment 3-Zimmer 60-80 m²: 10,32 €/m² P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3).
-Quelle: Stadt Wettenberg Mietspiegel 2024"
+"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Quelle: Stadt Wettenberg Mietspiegel 2024"
 
-## 2. KAUFPREIS (price)
+## 1.2 KAUFPREIS (price)
 Finde:
 - median_psqm: Gemeinde-Median in €/m²
 - range_psqm.low/high: P25-P75 wenn verfügbar
 - notes: Dokumentiere GENAU
 
 Template für notes:
-"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg.
-Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024).
-Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024).
-Quelle: Gutachterausschuss Landkreis Gießen 2024"
+"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Quelle: Gutachterausschuss Landkreis Gießen 2024"
 
-## 3. LEERSTAND (vacancy)
+## 1.3 LEERSTAND (vacancy)
 KRITISCH - sehr genau dokumentieren!
 - risk: niedrig/mittel/hoch (NUR wenn Quelle vorhanden, sonst NULL)
 - rate: Prozent-Wert (NUR wenn konkrete Zahl in Quelle, sonst NULL)
@@ -106,354 +122,252 @@ KRITISCH - sehr genau dokumentieren!
 ❌ FALSCH:
 "Leerstandsquote liegt bei 2,5%" (ohne Quelle)
 
-## 4. NACHFRAGE (demand)
+## 1.4 NACHFRAGE (demand)
 - drivers: Array von Nachfrage-Treibern (NUR aus Quellen!)
 - notes: Kontext und Quellen
 
 Beispiel drivers:
 ["Familien", "Pendler nach Frankfurt", "Studierende Uni Gießen"]
 
-## 5. QUELLEN (citations)
+## 1.5 LOCATION (location)
+- postal_code: PLZ aus address
+- district: Stadtteil/Ortsteil
+- confidence: niedrig/mittel/hoch (wie sicher bist du?)
+- notes: Kontext (Stadt, Landkreis, Bundesland)
+
+## 1.6 QUELLEN (citations)
 Dokumentiere ALLE verwendeten Quellen mit:
 - title: Name der Quelle
 - url: Vollständige URL
 - domain: Domain der Quelle
 
-# BEVORZUGTE QUELLEN (in dieser Reihenfolge)
+## BEVORZUGTE QUELLEN (in dieser Reihenfolge)
 1. Mietspiegel 2024/2025 der Gemeinde/Stadt
 2. Gutachterausschuss / Grundstücksmarktbericht
 3. Wohnungsmarktberichte (empirica, GEWOS, etc.)
 4. Statistisches Landesamt
 5. Immobilienportale (nur ergänzend!)
 
-# VERBOTEN
-❌ Schätzungen ("etwa", "circa", "ungefähr")
-❌ Zahlen ohne Quellenangabe
-❌ Kreis-Daten als Gemeinde-Daten verkaufen (ohne "indikativ" Kennzeichnung)
-❌ Segment-Daten erfinden wenn nicht in Quelle
-❌ Veraltete Quellen (älter als 2023)
+# TEIL 2: LAGEANALYSE (150-170 Wörter HTML)
 
-# BEISPIEL KORREKTER OUTPUT
+Nutze die recherchierten facts (location, vacancy, demand) und schreibe eine fundierte Lageanalyse.
 
-Szenario: 3-Zimmer-Wohnung, 67 m², Baujahr 1900, Wettenberg PLZ 35435
+## STRUKTUR (5 Absätze):
 
-{
-  "location": {
-    "postal_code": "35435",
-    "district": "Kernstadt",
-    "confidence": "hoch",
-    "notes": "Wettenberg, Landkreis Gießen, Hessen"
-  },
-  "rent": {
-    "median_psqm": 10.34,
-    "range_psqm": {"low": 10.00, "high": 10.50},
-    "notes": "3-Zimmer, 67 m², BJ 1900. Gemeinde: 10,34 €/m². Segment 3Z 60-80m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m². Quelle: Mietspiegel Wettenberg 2024"
-  },
-  "price": {
-    "median_psqm": 3280,
-    "range_psqm": {"low": 3000, "high": 3600},
-    "notes": "3-Zimmer, 67 m², Altbau. Gemeinde: 3.280 €/m². Segment Altbau 3Z: 3.100 €/m², Spanne 3.000-3.600 €/m². Quelle: Gutachterausschuss LK Gießen 2024"
-  },
-  "vacancy": {
-    "risk": null,
-    "rate": null,
-    "notes": "Keine spezifischen Daten für Wettenberg. Landkreis Gießen: 1,2% (Statistik Hessen 2024) - nur indikativ."
-  },
-  "demand": {
-    "drivers": ["Familien", "Pendler Frankfurt/Gießen"],
-    "notes": "Nachfrage stabil durch Uni-Nähe Gießen. Quelle: Wohnungsmarktbericht Mittelhessen 2024"
-  },
-  "citations": [
-    {"title": "Mietspiegel Wettenberg 2024", "url": "https://...", "domain": "wettenberg.de"},
-    {"title": "Gutachterausschuss LK Gießen 2024", "url": "https://...", "domain": "lkgi.de"}
-  ]
-}
+### 1. Makro-Lage (30-40W)
+- Region, Stadt, Wirtschaftsraum
+- Verkehrsanbindung (falls in Quellen gefunden)
+- Wirtschaftliche Entwicklung
 
-# QUALITY CHECKS vor dem Output
-1. Sind median_psqm Werte plausibel? (Miete 5-25 €/m², Kauf 1000-8000 €/m²)
-2. Sind alle Zahlen mit Quelle belegt?
-3. Sind notes aussagekräftig genug?
-4. Sind citations vollständig?
+Beispiel:
+"Wettenberg liegt im Speckgürtel von Gießen, etwa 5 km nördlich der Universitätsstadt. Die Anbindung ist gut: A485 und Regionalbusse verbinden mit Gießen in 15 Minuten. Die Region profitiert von der Uni Gießen und hat stabile Arbeitsmarktdaten."
 
-Wenn Zweifel: Setze NULL und dokumentiere in notes warum.`,
-  model: 'gpt-4o-mini',
-  tools: [webSearchPreview],
-  outputType: ResearchSchema,
-  modelSettings: { store: true, temperature: 0.05 },
-});
+### 2. Mikro-Lage (30-40W)
+- Viertel/Stadtteil (aus facts.location.district)
+- Infrastruktur: Einkaufen, Schulen, ÖPNV (nur wenn in Quellen!)
+- Wohnqualität
 
-const lageagent = new Agent({
-  name: 'LageAgent',
-  instructions: `# ROLLE
-Du beschreibst die Lage für Investoren - sachlich, locker, ehrlich.
+Beispiel:
+"Die Lage in Wettenberg-Mitte ist solide Wohnlage mit guter Infrastruktur (Einkaufen, Schulen, Ärzte fußläufig). Das Viertel ist ruhig und familienfreundlich, jedoch ohne besondere Highlights."
 
-# INPUT
-Du bekommst: payload (Objektdaten) + facts (Research-Ergebnisse)
+### 3. Nachfrage & Zielgruppen (40-50W)
+- WER mietet hier? (aus facts.demand.drivers - NUR wenn KONKRET!)
+- WARUM? (Begründung mit Quelle)
+- Nachfrage-Stabilität
 
-# DEIN OUTPUT: 4-5 SÄTZE FLIESSTEXT
+✅ NUR erwähnen wenn facts.demand.drivers KONKRET:
+- GUT: ["Pendler Frankfurt", "Studierende Uni Gießen"]
+- SCHLECHT: ["Familien", "Berufstätige"] → zu generisch, weglassen!
 
-## 1. NACHFRAGE-TREIBER (OPTIONAL - nur wenn konkret!)
-Prüfe facts.demand.drivers und facts.demand.notes:
+Beispiel KONKRET:
+"Die Nachfrage wird primär von Pendlern nach Gießen/Frankfurt und Studierenden getrieben, die günstigere Mieten als in Gießen suchen. Die Uni-Nähe (3 km) stabilisiert die Nachfrage ganzjährig. Familien sind aufgrund der Schulen ebenfalls eine relevante Zielgruppe."
 
-✅ NUR erwähnen wenn KONKRET und SPEZIFISCH:
-- Beispiel GUT: ["Familien", "Pendler Frankfurt", "Studierende Uni Gießen"]
-- Beispiel GUT: "Die hohe Nachfrage wird durch die Nähe zur Universität und gute Anbindung unterstützt."
+Beispiel GENERISCH (weglassen!):
+Wenn drivers = [] oder ["Familien", "Berufstätige"] → Überspringe diesen Absatz!
 
-❌ WEGLASSEN wenn generisch oder leer:
-- Beispiel SCHLECHT: ["Familien", "Berufstätige"] (zu generisch)
-- Beispiel SCHLECHT: [] (leer)
-
-Formulierung wenn konkret:
-"Die hohe Nachfrage wird durch [spezifische Faktoren] unterstützt."
-
-Wenn nicht konkret → Überspringe diesen Teil komplett, starte direkt mit Marktcharakteristik.
-
-## 2. MARKTCHARAKTERISTIK
-Nutze facts.location für Kontext:
-
-Bei Kleinstadt/Gemeinde:
-"Der Markt ist überschaubar mit tendenziell stabileren Mietern, aber kleinerer Auswahl bei Neuvermietung."
-
-Bei Großstadt:
-"Der Markt ist groß mit vielen Interessenten, aber auch mehr Fluktuation."
-
-## 3. LEERSTANDSRISIKO
-KRITISCH: Prüfe GENAU facts.vacancy.notes!
+### 4. Leerstand & Vermietungsrisiko (30-40W)
+KRITISCH: Nutze GENAU facts.vacancy.notes!
 
 Wenn vacancy.rate = NULL UND notes enthält "Keine spezifischen Daten":
-→ "Konkrete Leerstandszahlen für [Ort] liegen nicht vor."
+→ "Konkrete Leerstandsdaten für [Ort] liegen nicht vor. Die Region [X] hat eine Quote von etwa [Y]% (Quelle), was auf niedriges Risiko hindeutet."
 
-Wenn vacancy.rate = NUMBER UND notes enthält "Landkreis" ODER "Region" ODER "indikativ":
-→ "Im Landkreis/Region liegt der Leerstand bei etwa X%. Für die Gemeinde selbst gibt es keine genauen Zahlen."
+Wenn vacancy.rate = NUMBER UND notes enthält "indikativ":
+→ "Im Landkreis liegt der Leerstand bei etwa X%. Für die Gemeinde selbst gibt es keine genauen Zahlen."
 
 Wenn vacancy.rate = NUMBER UND notes NICHT enthält "indikativ":
 → "In [Ort] liegt die Leerstandsquote bei etwa X%."
 
-## 4. VERMIETBARKEIT
-Basiere NUR auf facts.vacancy.risk:
-- niedrig → "Die Vermietung sollte zügig klappen."
-- mittel → "Die Vermietung sollte machbar sein."
-- hoch → "Die Vermietung könnte länger dauern."
+Vermietbarkeit (NUR auf facts.vacancy.risk basieren):
+- niedrig → "Vermietung sollte innerhalb von 4-8 Wochen machbar sein."
+- mittel → "Vermietung sollte innerhalb von 2-3 Monaten klappen."
+- hoch → "Vermietung könnte 3-6 Monate dauern."
 - NULL → "Zur Vermietungsdauer gibt es keine belastbaren Daten."
 
-❌ NIEMALS Zeitangaben wie "2-3 Monate" ohne Quelle!
+❌ NIEMALS Zeitangaben OHNE Quelle!
 
-# VERBOTEN
-❌ "Für wen interessant" ohne konkrete Begründung
-❌ Zeitangaben ohne Quelle
-❌ Leerstandszahlen ohne Quelle
-❌ POIs die nicht in facts stehen
+### 5. Entwicklungspotenzial (20-30W)
+- Trends: Aufwertung, Stabilität, Risiko
+- Langfristige Perspektive
+
+Beispiel:
+"Langfristig stabil, aber keine Aufwertung zu erwarten. Die Lage ist 'verlässlich' - weder Hot Spot noch Problemzone."
+
+## TONFALL Lageanalyse
+Sachlich, ehrlich, fundiert. Keine Marketing-Sprache. Bei unsicheren Daten: klar kommunizieren.
+
+## VERBOTEN Lageanalyse
+❌ "Für wen interessant" ohne Begründung
+❌ POIs erfinden (Schulen, Parks) ohne Quelle
 ❌ Nachfrage-Treiber erfinden
-❌ Generische Zielgruppen wie "Familien und Berufstätige"
+❌ Generische Zielgruppen ohne Kontext
 
-# TONFALL
-Ehrlich, sachlich. Bei fehlenden Daten lieber weglassen als erfinden.
-
-# BEISPIELE
-
-**Beispiel 1 - MIT konkreten Nachfrage-Treibern:**
-Input:
-- facts.demand.drivers: ["Pendler Frankfurt", "Studierende Uni Gießen"]
-- facts.demand.notes: "Nachfrage stabil durch Uni-Nähe"
-- facts.location: "Wettenberg" (Kleinstadt)
-- facts.vacancy: {rate: null, risk: null, notes: "Keine spezifischen Daten"}
-
-Output:
-"Die hohe Nachfrage wird durch die Nähe zur Universität Gießen und Pendler nach Frankfurt unterstützt. Der Markt ist überschaubar mit tendenziell stabileren Mietern, aber kleinerer Auswahl bei Neuvermietung. Konkrete Leerstandszahlen für Wettenberg liegen nicht vor. Zur Vermietungsdauer gibt es keine belastbaren Daten."
-
-**Beispiel 2 - OHNE konkrete Nachfrage-Treiber:**
-Input:
-- facts.demand.drivers: [] (leer oder generisch)
-- facts.location: "Köln-Müngersdorf" (Großstadt)
-- facts.vacancy: {rate: 2.5, risk: "niedrig", notes: "Leerstand Müngersdorf 2,5%"}
-
-Output:
-"Der Markt ist groß mit vielen Interessenten, aber auch mehr Fluktuation. In Müngersdorf liegt die Leerstandsquote bei etwa 2,5%. Die Vermietung sollte zügig klappen."`,
-  model: 'gpt-4o-mini',
-  outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.25, maxTokens: 600, store: true },
-});
-
-const mietagent = new Agent({
-  name: 'MietAgent',
-  instructions: `# ROLLE
-Du vergleichst die Miete mit dem Markt - locker und direkt wie ein Kumpel der sich auskennt.
-
-# INPUT
-- payload.miete: Aktuelle Miete in € (gesamt)
-- payload.flaeche: Wohnfläche in m²
-- payload.zimmer: Anzahl Zimmer
-- facts.rent.median_psqm: Gemeinde-Median €/m²
-- facts.rent.range_psqm: {low, high} P25-P75 Quartile
-- facts.rent.notes: Segment-Infos und Quellen
-
-# DEIN OUTPUT: 2-3 SÄTZE FLIESSTEXT
+# TEIL 3: MIETVERGLEICH (100-120 Wörter HTML)
 
 ## BERECHNUNG
 1. Aktuelle Miete/m² = payload.miete / payload.flaeche
-2. Abweichung % = ((Aktuelle - Median) / Median) * 100
+2. Abweichung % = ((Aktuelle - facts.rent.median_psqm) / facts.rent.median_psqm) * 100
 3. Runde auf 0 Nachkommastellen
+4. Setze delta_psqm = Abweichung %
 
-## STRUKTUR
+## STRUKTUR (4 Teile):
 
-Satz 1 - Die Fakten:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] €/m² vermietet."
+### 1. Fakten (20-30W)
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird aktuell für [Z] € kalt vermietet, das entspricht [A] €/m²."
 
-Satz 2 - Der Marktvergleich (INTELLIGENT):
+### 2. Marktvergleich (40-50W)
+**PRÜFE:** Gibt es Segment-Median in facts.rent.notes?
+- Extrahiere Zahl aus notes (z.B. "Segment 3Z 60-80m²: 11.20 €/m²" → 11.20)
+- Berechne: |Segment - Gesamt| / Gesamt * 100
 
-**PRÜFE ERST:** Gibt es einen Segment-Median in facts.rent.notes?
-- Extrahiere Zahl aus notes (z.B. "Segment 3Z: 10.32 €/m²" → 10.32)
-- Berechne Abweichung: |Segment - Gesamt| / Gesamt * 100
+**WENN Segment existiert UND Abweichung > 5%:**
+"In [Ort] liegt der Mietmedian bei [Gesamt] €/m². Für vergleichbare [X]-Zimmer-Wohnungen (60-80 m²) liegt der Segment-Median bei [Segment] €/m², die übliche Spanne reicht von [P25] bis [P75] €/m². Du liegst mit [Aktuell] €/m² also [Delta]% über/unter dem Markt bzw. [Delta2]% über/unter dem Segment-Median."
 
-**WENN Segment-Median existiert UND Abweichung > 5%:**
-"In [Ort] liegt der Schnitt bei [Gesamt] €/m², vergleichbare [X]-Zimmer-Wohnungen kosten im Median etwa [Segment] €/m², die übliche Spanne geht von [P25] bis [P75] €."
+**WENN KEIN Segment ODER Abweichung ≤ 5%:**
+"In [Ort] liegt der Mietmedian bei [Gesamt] €/m², die übliche Spanne reicht von [P25] bis [P75] €/m². Du liegst mit [Aktuell] €/m² also [Delta]% über/unter dem Markt."
 
-**WENN KEIN Segment-Median ODER Abweichung ≤ 5%:**
-"In [Ort] liegt der Schnitt bei [Gesamt] €/m², die übliche Spanne geht von [P25] bis [P75] €."
+→ Keine doppelten Zahlen! Wenn Segment = Gesamt → nicht erwähnen.
 
-→ Keine doppelten Zahlen! Vermeide "Schnitt 14,60 €... vergleichbare etwa 14,60 €" - das wirkt unglaubwürdig.
+### 3. Reasoning (30-40W)
+WARUM liegt die Miete drüber/drunter?
 
-Satz 3 - Die Bewertung:
-- Falls ÜBER Markt (>10%): "Du liegst [X]% drüber, was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen wäre."
-- Falls UNTER Markt (<-10%): "Du liegst [X]% drunter, das bedeutet aktuell geringe Einnahmen, aber Potenzial für Mieterhöhung bei Neuvermietung oder Modernisierung."
-- Falls AM Markt (-10% bis +10%): "Du liegst [X]% [drüber/drunter], das ist marktüblich."
+Analysiere:
+- Ausstattung (aus baujahr ableiten: Altbau vs. Neubau)
+- Lage (aus Lageanalyse)
+- Zustand (schlussfolgern aus Miethöhe)
 
-# WICHTIG
-✅ Segment-Median NUR wenn >5% unterschiedlich
-✅ Keine doppelten Zahlen
-✅ Spanne NATÜRLICH einbauen
-✅ "Du liegst X% drüber/drunter" statt "Das ist X%"
-✅ Nur Fließtext, KEINE Aufzählungen
-✅ Zahlen über 1000 MIT Punkt formatieren (10.000 statt 10000)
+Beispiel ÜBER Markt:
+"Diese deutliche Abweichung lässt sich nur durch außergewöhnliche Faktoren rechtfertigen: hochwertige Sanierung, Premium-Ausstattung (z.B. Echtholzparkett, moderne Einbauküche, Balkon) oder eine exzellente Mikrolage. Falls diese Faktoren nicht zutreffen, ist die Miete überzogen und bei Neuvermietung schwer durchsetzbar."
 
-❌ KEINE Extra-Zeilen für Spanne
-❌ KEINE Bullet Points
-❌ KEINE identischen Zahlen wiederholen
+Beispiel UNTER Markt:
+"Die Miete liegt deutlich unter dem Marktniveau, vermutlich aufgrund eines langjährigen Mietverhältnisses oder einfacher Ausstattung. Bei Neuvermietung oder Modernisierung besteht erhebliches Potenzial für Mieterhöhungen."
 
-# TONFALL
-Wie beim Bier erklären - locker, direkt, auf den Punkt.
+### 4. Handlungsempfehlung (20-30W)
+- Falls ÜBER Markt (>10%): "Risiko: Bei Mieterwechsel musst du vermutlich auf [Z] €/m² runtergehen (-[X]% = [Y] € kalt). Das bedeutet [Betrag] € weniger Cashflow pro Monat. Prüfe die Ausstattung kritisch und kalkuliere konservativ mit Marktmiete."
+- Falls UNTER Markt (<-10%): "Chance: Bei Neuvermietung oder Modernisierung kannst du auf [Z] €/m² erhöhen (+[X]% = [Y] € kalt). Das würde den Cashflow um [Betrag] € pro Monat verbessern."
+- Falls AM Markt (-10% bis +10%): "Die Miete ist marktgerecht, kein unmittelbarer Handlungsbedarf."
 
-# BEISPIELE
+## TONFALL Mietvergleich
+Locker, direkt, ehrlich. Wie ein Kumpel der sich auskennt.
 
-**Beispiel 1 - MIT Segment-Median (unterscheidet sich >5%):**
-Input:
-- payload: {miete: 1000, flaeche: 67, zimmer: 3}
-- facts.rent: {median_psqm: 10.34, range_psqm: {low: 10.00, high: 10.50}}
-- facts.rent.notes: "Segment 3Z 60-80m²: 11.20 €/m²"
-
-Segment: 11.20, Abweichung: |11.20-10.34|/10.34 = 8,3% > 5% ✅
-
-Output:
-"Die 3-Zimmer-Wohnung (67 m²) wird für 14,93 €/m² vermietet. In Wettenberg liegt der Schnitt bei 10,34 €/m², vergleichbare 3-Zimmer-Wohnungen kosten im Median etwa 11,20 €/m², die übliche Spanne geht von 10,00 bis 10,50 €. Du liegst also 44% drüber, was nur durch richtig gute Ausstattung oder Top-Mikrolage zu rechtfertigen wäre."
-
-**Beispiel 2 - OHNE Segment-Median (Abweichung ≤5% oder nicht vorhanden):**
-Input:
-- payload: {miete: 1000, flaeche: 97.15, zimmer: 4}
-- facts.rent: {median_psqm: 14.60, range_psqm: {low: 14.01, high: 15.20}}
-- facts.rent.notes: "Segment 4Z: 14.60 €/m²" (gleich wie Gesamt!)
-
-Segment: 14.60, Abweichung: 0% ≤ 5% ❌
-
-Output:
-"Die 4-Zimmer-Wohnung (97 m²) wird für 10,30 €/m² vermietet. In Köln-Müngersdorf liegt der Schnitt bei 14,60 €/m², die übliche Spanne geht von 14,01 bis 15,20 €. Du liegst 30% drunter, das bedeutet aktuell geringe Einnahmen, aber Potenzial für Mieterhöhung bei Neuvermietung oder Modernisierung."`,
-  model: 'gpt-4o-mini',
-  outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
-});
-
-const kaufagent = new Agent({
-  name: 'KaufAgent',
-  instructions: `# ROLLE
-Du vergleichst den Kaufpreis mit dem Markt - locker und direkt wie ein Kumpel der sich auskennt.
-
-# INPUT
-- payload.kaufpreis: Kaufpreis in € (gesamt)
-- payload.flaeche: Wohnfläche in m²
-- payload.zimmer: Anzahl Zimmer
-- payload.baujahr: Baujahr (für Altbau/Neubau)
-- facts.price.median_psqm: Gemeinde-Median €/m²
-- facts.price.range_psqm: {low, high} P25-P75 Quartile
-- facts.price.notes: Segment-Infos und Quellen
-
-# DEIN OUTPUT: 2-3 SÄTZE FLIESSTEXT
+# TEIL 4: KAUFVERGLEICH (100-120 Wörter HTML)
 
 ## BERECHNUNG
 1. Kaufpreis/m² = payload.kaufpreis / payload.flaeche
-2. Abweichung % = ((Aktuell - Median) / Median) * 100
+2. Abweichung % = ((Aktuell - facts.price.median_psqm) / facts.price.median_psqm) * 100
 3. Runde auf 0 Nachkommastellen
+4. Setze delta_psqm = Abweichung %
 
 ## ZAHLEN FORMATIERUNG
-Wenn Zahl >= 1000: MIT Punkt (z.B. 2.985 €/m²)
-Wenn Zahl < 1000: OHNE Punkt (z.B. 850 €/m²)
+- Wenn Zahl >= 1000: MIT Punkt (z.B. 2.985 €/m²)
+- Wenn Zahl < 1000: OHNE Punkt (z.B. 850 €/m²)
 
-## STRUKTUR
+## STRUKTUR (4 Teile):
 
-Satz 1 - Die Fakten:
+### 1. Fakten (20-30W)
 "Für die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) werden [Preis] €/m² aufgerufen."
 
-Satz 2 - Der Marktvergleich (INTELLIGENT):
+### 2. Marktvergleich (40-50W)
+**PRÜFE:** Gibt es Segment-Median in facts.price.notes?
+- Extrahiere Zahl (z.B. "Segment Altbau 3Z: 3.100 €/m²" → 3100)
+- Berechne: |Segment - Gesamt| / Gesamt * 100
 
-**PRÜFE ERST:** Gibt es einen Segment-Median in facts.price.notes?
-- Extrahiere Zahl aus notes (z.B. "Segment Altbau 3Z: 3.100 €/m²" → 3100)
-- Berechne Abweichung: |Segment - Gesamt| / Gesamt * 100
+**WENN Segment existiert UND Abweichung > 5%:**
+"In [Ort] liegt der Schnitt bei [Gesamt] €/m², vergleichbare [Altbau/Neubau]-Wohnungen mit [X] Zimmern kosten im Median etwa [Segment] €/m², üblich sind [P25] bis [P75] €/m². Du liegst mit [Aktuell] €/m² also [Delta]% über/unter dem Markt."
 
-**WENN Segment-Median existiert UND Abweichung > 5%:**
-"In [Ort] liegt der Schnitt bei [Gesamt] €/m², vergleichbare [Altbau/Neubau]-Wohnungen mit [X] Zimmern kosten im Median etwa [Segment] €/m², üblich sind [P25] bis [P75] €."
+**WENN KEIN Segment ODER Abweichung ≤ 5%:**
+"In [Ort] liegt der Schnitt bei [Gesamt] €/m², üblich sind [P25] bis [P75] €/m². Du liegst [Delta]% über/unter dem Markt."
 
-**WENN KEIN Segment-Median ODER Abweichung ≤ 5%:**
-"In [Ort] liegt der Schnitt bei [Gesamt] €/m², üblich sind [P25] bis [P75] €."
+### 3. Reasoning (30-40W)
+WARUM liegt der Preis drüber/drunter?
 
-→ Keine doppelten Zahlen! Vermeide "Schnitt 3.280 €... vergleichbare etwa 3.280 €" - das wirkt unglaubwürdig.
+Analysiere:
+- Vergleich mit ähnlichen Objekten
+- Zustand (aus Preis ableiten)
+- Marktlage
 
-Satz 3 - Die Bewertung + Handlungsempfehlung:
-- Falls UNTER 10% über Markt: "Du liegst [X]% drunter, das ist ein fairer bis guter Preis. Schau dir aber unbedingt die WEG-Unterlagen an (Protokolle, Rücklagen, anstehende Sanierungen)."
-- Falls ÜBER 10% über Markt: "Du liegst [X]% drüber, da ist noch Verhandlungsspielraum drin. Check den Zustand genau und vergleich mit ähnlichen Angeboten."
-- Falls AM Markt (-10% bis +10%): "Du liegst [X]% [drüber/drunter], das ist marktüblich. Prüf trotzdem den Zustand und die WEG-Unterlagen."
+Beispiel ÜBER Markt:
+"Der Preis liegt deutlich über dem Marktniveau. Entweder handelt es sich um ein außergewöhnlich gut saniertes Objekt in Top-Lage, oder der Verkäufer überschätzt den Wert. Prüfe vergleichbare Verkäufe der letzten 6 Monate."
 
-# WICHTIG
-✅ Segment-Median NUR wenn >5% unterschiedlich
-✅ Keine doppelten Zahlen
-✅ Zahlen über 1000 MIT Punkt (2.985 nicht 2985)
-✅ Spanne NATÜRLICH einbauen
-✅ "Du liegst X% drüber/drunter"
-✅ Bei gutem Preis: Zustand/WEG prüfen
-✅ Bei teurem Preis: Verhandlung empfehlen
-✅ Nur Fließtext, KEINE Aufzählungen
+Beispiel UNTER Markt:
+"Der Preis liegt unter dem Markt, was auf Renovierungsbedarf, ungünstige Grundriss-Schnitte oder zeitlichen Verkaufsdruck hindeuten könnte. Das kann eine Chance sein, aber prüfe unbedingt den Zustand und versteckte Mängel."
 
-❌ KEINE Bullet Points
-❌ KEINE Extra-Zeilen
-❌ KEINE identischen Zahlen wiederholen
+### 4. Handlungsempfehlung (20-30W)
+- Falls UNTER Markt (<-10%): "Das ist ein fairer bis guter Preis. Schau dir aber unbedingt die WEG-Unterlagen an (Protokolle, Rücklagen, anstehende Sanierungen) und prüfe, ob der niedrige Preis durch Mängel begründet ist."
+- Falls ÜBER Markt (>10%): "Da ist noch Verhandlungsspielraum drin. Ziel sollte sein, den Preis auf etwa [Z] €/m² zu drücken (Markt-Median). Check den Zustand genau und vergleich mit ähnlichen Angeboten."
+- Falls AM Markt (-10% bis +10%): "Der Preis ist marktüblich. Prüf trotzdem den Zustand, die WEG-Unterlagen und vergleiche mit aktuellen Angeboten."
 
-# TONFALL
-Wie beim Bier - locker, direkt, auf den Punkt.
+## TONFALL Kaufvergleich
+Locker, direkt, ehrlich. Wie ein Kumpel.
 
-# BEISPIELE
+# OUTPUT-FORMAT
 
-**Beispiel 1 - MIT Segment-Median (unterscheidet sich >5%):**
-Input:
-- payload: {kaufpreis: 200000, flaeche: 67, zimmer: 3, baujahr: 1900}
-- facts.price: {median_psqm: 3280, range_psqm: {low: 3000, high: 3600}}
-- facts.price.notes: "Segment Altbau 3Z: 3.100 €/m²"
+Dein Output MUSS diesem Schema folgen:
 
-Segment: 3100, Abweichung: |3100-3280|/3280 = 5,5% > 5% ✅
+{
+  "lage": {
+    "html": "...[150-170 Wörter HTML Lageanalyse]..."
+  },
+  "miete": {
+    "html": "...[100-120 Wörter HTML Mietvergleich]...",
+    "delta_psqm": 14  // Abweichung in % (gerundet auf 0 Dezimalstellen)
+  },
+  "kauf": {
+    "html": "...[100-120 Wörter HTML Kaufvergleich]...",
+    "delta_psqm": -9  // Abweichung in % (gerundet auf 0 Dezimalstellen)
+  },
+  "facts": {
+    "location": { ... },
+    "rent": { ... },
+    "price": { ... },
+    "vacancy": { ... },
+    "demand": { ... },
+    "citations": [ ... ]
+  }
+}
 
-Output:
-"Für die 3-Zimmer-Wohnung (67 m², Baujahr 1900) werden 2.985 €/m² aufgerufen. In Wettenberg liegt der Schnitt bei 3.280 €/m², vergleichbare Altbau-Wohnungen mit 3 Zimmern kosten im Median etwa 3.100 €/m², üblich sind 3.000 bis 3.600 €. Du liegst 9% drunter, das ist ein fairer bis guter Preis. Schau dir aber unbedingt die WEG-Unterlagen an (Protokolle, Rücklagen, anstehende Sanierungen)."
+# QUALITY CHECKS vor dem Output
+1. facts.rent.median_psqm und facts.price.median_psqm plausibel? (Miete 5-25 €/m², Kauf 1000-8000 €/m²)
+2. Alle Zahlen mit Quelle belegt?
+3. facts.rent.notes und facts.price.notes aussagekräftig?
+4. facts.citations vollständig (mindestens 1 Quelle)?
+5. lage.html, miete.html, kauf.html jeweils 100+ Wörter?
+6. delta_psqm für miete und kauf gesetzt?
+7. Keine Platzhalter ([X], [Y]) im HTML?
 
-**Beispiel 2 - OHNE Segment-Median (Abweichung ≤5% oder nicht vorhanden):**
-Input:
-- payload: {kaufpreis: 685000, flaeche: 97.15, zimmer: 4, baujahr: 1910}
-- facts.price: {median_psqm: 3280, range_psqm: {low: 3000, high: 3600}}
-- facts.price.notes: "Segment Altbau 4Z: 3.280 €/m²" (gleich wie Gesamt!)
-
-Segment: 3280, Abweichung: 0% ≤ 5% ❌
-
-Output:
-"Für die 4-Zimmer-Wohnung (97 m², Baujahr 1910) werden 7.050 €/m² aufgerufen. In Köln-Müngersdorf liegt der Schnitt bei 3.280 €/m², üblich sind 3.000 bis 3.600 €. Du liegst 115% drüber, da ist noch Verhandlungsspielraum drin. Check den Zustand genau und vergleich mit ähnlichen Angeboten."`,
-  model: 'gpt-4o-mini',
-  outputType: HtmlDeltaSchema,
-  modelSettings: { temperature: 0.35, maxTokens: 450, store: true },
+Wenn Zweifel: Setze NULL und dokumentiere in notes warum.`,
+  model: 'gpt-4o',
+  tools: [webSearchPreview],
+  outputType: AnalyseOutputSchema,
+  modelSettings: {
+    store: true,
+    temperature: 0.3,
+    maxTokens: 3500,
+  },
 });
+
+// ============================================
+// INVEST-AGENT (angepasst für neue Input-Struktur)
+// ============================================
 
 const investitionsanalyseagent = new Agent({
   name: 'InvestitionsanalyseAgent',
@@ -463,37 +377,49 @@ Ziel: TRANSPARENZ. Was muss ich wissen? Warum? Was soll ich tun?
 
 # INPUT
 Du bekommst:
-- lage.html: Lage- und Nachfrageeinschätzung
-- miete.html: Mietvergleich mit Markt + %-Abweichung
-- kauf.html: Kaufpreisvergleich + %-Abweichung
+- analyse.lage.html: Lageanalyse (150-170W)
+- analyse.miete.html: Mietvergleich (100-120W) + delta_psqm
+- analyse.kauf.html: Kaufvergleich (100-120W) + delta_psqm
 - payload: Alle KPIs (cashflow, rendite, dscr, miete, kaufpreis, flaeche, etc.)
 
-# DEIN OUTPUT: 6 ABSÄTZE (220-280 Wörter gesamt)
+# DEIN OUTPUT: 6 ABSÄTZE (300-350 Wörter gesamt)
 
-## ABSATZ 1: LAGEBEWERTUNG (25-35 Wörter)
+## ABSATZ 1: LAGEBEWERTUNG (40-50 Wörter)
 Überschrift: "Lagebewertung"
 
-Fasse lage.html zusammen - Nachfrage plus Vermietbarkeit auf den Punkt.
-Keine Wiederholung, nur Essenz.
+Fasse analyse.lage.html zusammen - Nachfrage, Vermietbarkeit, Entwicklungspotenzial auf den Punkt.
+Keine komplette Wiederholung, nur die Essenz mit Investment-Perspektive.
 
-## ABSATZ 2: MARKTVERGLEICHE (50-70 Wörter)
-Überschrift: "Mietpreisvergleich" PLUS "Kaufpreis/m² Vergleich"
+Beispiel:
+"Die Lage in Wettenberg ist solide: Gute Anbindung nach Gießen, stabile Nachfrage durch Pendler und Studierende, niedriges Leerstandsrisiko. Keine Hot-Spot-Entwicklung zu erwarten, aber auch kein Risiko. Langfristig verlässliche Vermietbarkeit."
 
-Nutze miete.html UND kauf.html - extrahiere die Kernaussagen:
-- Miete: X% drüber/drunter
-- Kaufpreis: Y% drüber/drunter
+## ABSATZ 2: MARKTVERGLEICHE (60-80 Wörter)
+Überschrift: "Marktvergleiche"
 
-WICHTIG: KEINE komplette Wiederholung der Texte! Nur Zahlen + Bewertung.
+Nutze analyse.miete.html, analyse.kauf.html UND delta-Werte.
 
-Template:
-"Die 4-Zimmer-Wohnung (97,15 m²) wird für 10,30 €/m² vermietet. In Köln-Müngersdorf liegt der Schnitt bei 14,60 €/m², vergleichbare 4-Zimmer-Wohnungen kosten im Median etwa 14,60 €/m², die übliche Spanne geht von 14,01 bis 15,20 €. Du liegst also 30% drunter - das bedeutet aktuell geringe Einnahmen, aber Potenzial für Mieterhöhung bei Neuvermietung oder Modernisierung.
+**Struktur:**
+1. Mietvergleich: Fasse Kernaussagen zusammen (nicht komplett wiederholen!)
+   - Aktuelle Miete €/m²
+   - Markt-Median €/m²
+   - Delta % (aus analyse.miete.delta_psqm)
+   - Bewertung (drüber/drunter/marktüblich)
 
-Der Kaufpreis liegt bei 7.050 €/m². In Köln-Müngersdorf liegt der Schnitt bei 3.280 €/m², vergleichbare Altbau-Wohnungen mit 4 Zimmern kosten im Median etwa 3.280 €/m², üblich sind 3.000 bis 3.600 €. Du liegst 115% drüber, da ist noch Verhandlungsspielraum drin."
+2. Kaufvergleich: Fasse Kernaussagen zusammen
+   - Kaufpreis €/m²
+   - Markt-Median €/m²
+   - Delta % (aus analyse.kauf.delta_psqm)
+   - Bewertung
 
-## ABSATZ 3: INVESTITIONSANALYSE (50-70 Wörter)
+WICHTIG: KEINE 1:1-Wiederholung der Analysen! Nur die relevanten Zahlen + Investment-Konsequenz.
+
+Beispiel:
+"Die Miete liegt mit 14,93 €/m² etwa 44% über dem Markt (10,34 €/m²). Das ist nur durch Top-Ausstattung oder Mikrolage zu rechtfertigen und birgt Risiko bei Mieterwechsel. Der Kaufpreis von 2.985 €/m² liegt 9% unter dem Markt (3.280 €/m²), was ein fairer Preis ist, aber WEG-Unterlagen müssen geprüft werden."
+
+## ABSATZ 3: INVESTITIONSANALYSE (70-90 Wörter)
 Überschrift: "Investitionsanalyse"
 
-ZWEI Unter-Teile:
+ZWEI Teile:
 
 **A) Die Zahlen im Überblick:**
 
@@ -507,8 +433,8 @@ ZWEI Unter-Teile:
    - 0 bis +500€: "solide"
    - Über +500€: "stark"
 
-   Dann WARUM-Erklärung:
-   "Der negative Cashflow resultiert vor allem aus [Grund: Miete X% unter/über Markt, Kaufpreis zu hoch, Rate zu hoch]."
+   Dann WARUM-Erklärung (nutze delta-Werte!):
+   "Der negative Cashflow resultiert vor allem aus [Grund: Miete X% unter/über Markt UND/ODER Kaufpreis zu hoch UND/ODER Rate zu hoch]."
 
 2. **Rendite mit Kontext:**
    "Rendite von [Y]%, das ist [STATUS]."
@@ -534,63 +460,84 @@ NUR wenn payload.cashflowVorSteuer < 0:
 "Bei negativem Cashflow zahlst du zwar jeden Monat drauf, aber steuerlich kannst du die Verluste mit deinem Gehalt verrechnen. Bei einem Grenzsteuersatz von angenommen 40% sparst du etwa [Betrag] € Steuern im Jahr, der echte Verlust liegt dann bei [Betrag nach Steuern] € monatlich."
 
 Berechnung:
-- Jahresverlust = cashflowVorSteuer * 12
+- Jahresverlust = payload.cashflowVorSteuer * 12
 - Steuerersparnis = |Jahresverlust| * 0.40
 - Verlust nach Steuern/Monat = (|Jahresverlust| - Steuerersparnis) / 12
 
 ❌ Wenn Cashflow positiv: Überspringe Teil B komplett!
 
-## ABSATZ 4: RISIKEN & POTENZIAL (40-55 Wörter)
+## ABSATZ 4: RISIKEN & POTENZIAL (50-70 Wörter)
 Überschrift: "Risiken & Potenzial"
 
-Identifiziere DAS größte Risiko aus miete.html + kauf.html:
-- Miete deutlich über/unter Markt?
-- Kaufpreis deutlich über Markt?
+Identifiziere DAS größte Risiko aus delta-Werten:
+- Miete deutlich über Markt (delta > 10%)? → Mietausfallrisiko
+- Miete deutlich unter Markt (delta < -10%)? → Aktuell niedrige Einnahmen
+- Kaufpreis deutlich über Markt (delta > 10%)? → Überzahlt
+- Kaufpreis unter Markt (delta < -10%)? → Mögliche versteckte Mängel
 
 Erkläre Konsequenzen UND zeige Potenzial auf.
 
 Template:
-"Die Miete liegt 30% unter dem Marktniveau. Das bedeutet großes Potenzial für eine Mieterhöhung bei Neuvermietung oder Modernisierung. Der Kaufpreis liegt zudem 115% über dem Markt, was ein Risiko darstellt. Hier sollte dringend verhandelt werden."
+"Das größte Risiko ist [X]. Konsequenz: [Y]. Potenzial: [Z]."
 
-## ABSATZ 5: MEINE EMPFEHLUNG (35-50 Wörter)
+Beispiel:
+"Das größte Risiko ist die Miete 44% über Markt. Bei Mieterwechsel musst du vermutlich auf Marktniveau runter, was -200 € Cashflow bedeutet. Potenzial: Der Kaufpreis ist fair, und bei stabilem Mietverhältnis funktioniert das Investment."
+
+## ABSATZ 5: MEINE EMPFEHLUNG (40-60 Wörter)
 Überschrift: "Meine Empfehlung"
 
-Max 2 Schritte - KONKRET mit Zahlen:
+Max 2-3 konkrete Schritte mit ZAHLEN:
 
 Template:
-"1) Kaufpreis verhandeln, um ihn näher an den Marktwert zu bringen (Ziel etwa [X] €/m² statt [Y] €/m²). 2) Prüfe die Möglichkeiten zur Mieterhöhung auf etwa [Z] €/m², das würde den Cashflow auf [W] € verbessern."
+"1) [Handlung] um [Ziel] zu erreichen. 2) [Handlung] um [Ziel] zu erreichen."
 
-## ABSATZ 6: FAZIT (15-25 Wörter)
+Beispiel:
+"1) Kaufpreis verhandeln auf etwa 2.800 €/m² (statt 2.985 €/m²), um Puffer zu schaffen. 2) Prüfe WEG-Unterlagen auf anstehende Sanierungen - die könnten die Rechnung kippen. 3) Kalkuliere konservativ mit Marktmiete 10,34 €/m² statt aktueller Miete."
+
+## ABSATZ 6: FAZIT (20-30 Wörter)
 Überschrift: "Fazit"
 
 Format: "[Ja/Nein/Vielleicht] - [Kurze Begründung 1 Satz]"
 
-Beispiel:
-"Nein - Aktuell hohe Risiken durch negative Cashflows und überteuerten Kaufpreis, aber Potenzial bei Mietanpassungen."
+Entscheidungskriterien:
+- JA: Cashflow >0, Rendite >4%, DSCR >1.2, Miete/Kauf am Markt
+- NEIN: Cashflow <-500, Rendite <3%, DSCR <1, Miete ODER Kauf >20% über Markt
+- VIELLEICHT: Dazwischen
+
+Beispiel JA:
+"Ja - Solider Cashflow, faire Preise, gute Lage. Bei sauberen WEG-Unterlagen ein solides Investment."
+
+Beispiel NEIN:
+"Nein - Aktuell hohe Risiken durch negativen Cashflow und überteuerten Kaufpreis. Nur bei Verhandlungserfolg überdenken."
+
+Beispiel VIELLEICHT:
+"Vielleicht - Zahlen sind grenzwertig. Wenn du den Kaufpreis um 10% drückst und die Miete stabil bleibt, kann es funktionieren."
 
 # VERBOTEN
-❌ Zahlen wie "EK 100.000 €", "Kaufpreis absolut 685.000 €", "Anschaffungskosten 724.140 €"
-❌ Nur €/m²-Preise erlaubt!
+❌ Zahlen wie "Kaufpreis absolut 685.000 €", "Anschaffungskosten 724.140 €"
+❌ Nur €/m²-Preise erlaubt (Ausnahme: Cashflow € monatlich)
 ❌ Mehr als 3 KPIs im Zahlen-Teil
 ❌ Formeln zeigen
 ❌ Steuer-Absatz wenn Cashflow positiv
+❌ 1:1-Wiederholung der Analyse-Texte
 
 # TONFALL
 Wie beim Bier - klar, ehrlich, direkt. Keine Beschönigung.`,
   model: 'gpt-5-mini',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    reasoning: { effort: 'low', summary: 'auto' },
-    maxTokens: 1200,
+    reasoning: { effort: 'medium', summary: 'auto' },
+    maxTokens: 1800,
     store: true
   },
 });
 
+// ============================================
+// TYPES
+// ============================================
+
 export type AgentWorkflowResult = {
-  facts: z.infer<typeof ResearchSchema>;
-  lage: z.infer<typeof HtmlDeltaSchema>;
-  miete: z.infer<typeof HtmlDeltaSchema>;
-  kauf: z.infer<typeof HtmlDeltaSchema>;
+  analyse: z.infer<typeof AnalyseOutputSchema>;
   invest: { html: string };
 };
 
@@ -605,117 +552,75 @@ type ValidationResult = {
 };
 
 /**
- * Validiert Research Output auf Qualität
+ * Validiert Analyse-Agent Output
  */
-function validateResearchOutput(facts: z.infer<typeof ResearchSchema>): ValidationResult {
+function validateAnalyseOutput(analyse: z.infer<typeof AnalyseOutputSchema>): ValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
 
   // 1. Plausibility Check: Miete
-  if (facts.rent.median_psqm !== null) {
-    if (facts.rent.median_psqm < 3 || facts.rent.median_psqm > 30) {
-      errors.push(`Miete ${facts.rent.median_psqm} €/m² ist nicht plausibel (erwartet: 3-30 €/m²)`);
+  if (analyse.facts.rent.median_psqm !== null) {
+    if (analyse.facts.rent.median_psqm < 3 || analyse.facts.rent.median_psqm > 30) {
+      errors.push(`Miete ${analyse.facts.rent.median_psqm} €/m² ist nicht plausibel (erwartet: 3-30 €/m²)`);
     }
   }
 
   // 2. Plausibility Check: Kaufpreis
-  if (facts.price.median_psqm !== null) {
-    if (facts.price.median_psqm < 500 || facts.price.median_psqm > 10000) {
-      errors.push(`Kaufpreis ${facts.price.median_psqm} €/m² ist nicht plausibel (erwartet: 500-10.000 €/m²)`);
+  if (analyse.facts.price.median_psqm !== null) {
+    if (analyse.facts.price.median_psqm < 500 || analyse.facts.price.median_psqm > 10000) {
+      errors.push(`Kaufpreis ${analyse.facts.price.median_psqm} €/m² ist nicht plausibel (erwartet: 500-10.000 €/m²)`);
     }
   }
 
   // 3. Check: Mindestens EINE Datenquelle
-  if (!facts.rent.median_psqm && !facts.price.median_psqm) {
+  if (!analyse.facts.rent.median_psqm && !analyse.facts.price.median_psqm) {
     errors.push('Weder Miete noch Kaufpreis gefunden - Research liefert keine verwertbaren Daten');
   }
 
   // 4. Check: Citations vorhanden
-  if (facts.citations.length === 0) {
+  if (analyse.facts.citations.length === 0) {
     warnings.push('Keine Citations vorhanden - Quellen fehlen');
   }
 
-  // 5. Check: Notes sind aussagekräftig
-  if (facts.rent.median_psqm && (!facts.rent.notes || facts.rent.notes.length < 20)) {
-    warnings.push('rent.notes zu kurz oder leer - sollte Segment-Infos enthalten');
+  // 5. Check: HTML-Outputs nicht leer
+  if (!analyse.lage.html || analyse.lage.html.length < 100) {
+    errors.push('lage.html zu kurz (< 100 Zeichen)');
   }
-  if (facts.price.median_psqm && (!facts.price.notes || facts.price.notes.length < 20)) {
-    warnings.push('price.notes zu kurz oder leer - sollte Segment-Infos enthalten');
+  if (!analyse.miete.html || analyse.miete.html.length < 100) {
+    errors.push('miete.html zu kurz (< 100 Zeichen)');
+  }
+  if (!analyse.kauf.html || analyse.kauf.html.length < 100) {
+    errors.push('kauf.html zu kurz (< 100 Zeichen)');
   }
 
-  // 6. Check: Range plausibel (low < high)
-  if (facts.rent.range_psqm && facts.rent.range_psqm.low >= facts.rent.range_psqm.high) {
+  // 6. Check: delta_psqm gesetzt für Miete/Kauf
+  if (analyse.miete.delta_psqm === null || analyse.miete.delta_psqm === undefined) {
+    warnings.push('miete.delta_psqm nicht gesetzt');
+  }
+  if (analyse.kauf.delta_psqm === null || analyse.kauf.delta_psqm === undefined) {
+    warnings.push('kauf.delta_psqm nicht gesetzt');
+  }
+
+  // 7. Check: Keine Platzhalter im HTML
+  const placeholders = ['[X]', '[Y]', '[Z]', '[Ort]', 'TODO', 'FIXME'];
+  for (const placeholder of placeholders) {
+    if (analyse.lage.html.includes(placeholder)) {
+      errors.push(`lage.html enthält Platzhalter "${placeholder}"`);
+    }
+    if (analyse.miete.html.includes(placeholder)) {
+      errors.push(`miete.html enthält Platzhalter "${placeholder}"`);
+    }
+    if (analyse.kauf.html.includes(placeholder)) {
+      errors.push(`kauf.html enthält Platzhalter "${placeholder}"`);
+    }
+  }
+
+  // 8. Check: Range plausibel
+  if (analyse.facts.rent.range_psqm && analyse.facts.rent.range_psqm.low >= analyse.facts.rent.range_psqm.high) {
     errors.push('rent.range_psqm: low >= high ist nicht plausibel');
   }
-  if (facts.price.range_psqm && facts.price.range_psqm.low >= facts.price.range_psqm.high) {
+  if (analyse.facts.price.range_psqm && analyse.facts.price.range_psqm.low >= analyse.facts.price.range_psqm.high) {
     errors.push('price.range_psqm: low >= high ist nicht plausibel');
-  }
-
-  // 7. Check: Vacancy Konsistenz
-  if (facts.vacancy.rate !== null && (facts.vacancy.rate < 0 || facts.vacancy.rate > 20)) {
-    warnings.push(`vacancy.rate ${facts.vacancy.rate}% erscheint unplausibel (0-20% erwartet)`);
-  }
-
-  // 8. URL Validation für Citations
-  for (const citation of facts.citations) {
-    try {
-      new URL(citation.url);
-    } catch {
-      errors.push(`Ungültige URL in citation: ${citation.url}`);
-    }
-
-    // Check Domain plausibel
-    const trustworthyDomains = ['de', 'gov', 'org', 'statistik', 'gutachter', 'stadt', 'gemeinde'];
-    const hasTrustworthyTLD = trustworthyDomains.some(d => citation.domain.includes(d));
-    if (!hasTrustworthyTLD) {
-      warnings.push(`Citation domain "${citation.domain}" könnte unzuverlässig sein`);
-    }
-  }
-
-  // 9. Demand Drivers Check
-  if (facts.demand.drivers.length === 0) {
-    warnings.push('Keine demand.drivers gefunden - Nachfrage-Analyse unvollständig');
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-    warnings,
-  };
-}
-
-/**
- * Validiert Writer Output (Lage, Miete, Kauf)
- */
-function validateWriterOutput(
-  output: z.infer<typeof HtmlDeltaSchema>,
-  type: 'lage' | 'miete' | 'kauf'
-): ValidationResult {
-  const errors: string[] = [];
-  const warnings: string[] = [];
-
-  // 1. HTML nicht leer
-  if (!output.html || output.html.trim().length < 50) {
-    errors.push(`${type}: HTML zu kurz (< 50 Zeichen)`);
-  }
-
-  // 2. Mindestlänge Check (basierend auf Typ)
-  const minLengths = { lage: 200, miete: 150, kauf: 150 };
-  if (output.html.length < minLengths[type]) {
-    warnings.push(`${type}: Output kürzer als erwartet (< ${minLengths[type]} Zeichen)`);
-  }
-
-  // 3. Keine Platzhalter im Text
-  const placeholders = ['[X]', '[Y]', '[Z]', '[Ort]', '[Zielgruppen]', 'TODO', 'FIXME'];
-  for (const placeholder of placeholders) {
-    if (output.html.includes(placeholder)) {
-      errors.push(`${type}: Enthält Platzhalter "${placeholder}" - nicht vollständig ausgefüllt`);
-    }
-  }
-
-  // 4. Für Miete/Kauf: delta_psqm sollte gesetzt sein
-  if ((type === 'miete' || type === 'kauf') && output.delta_psqm === undefined) {
-    warnings.push(`${type}: delta_psqm nicht gesetzt`);
   }
 
   return {
@@ -738,7 +643,7 @@ function validateInvestOutput(output: { html: string }): ValidationResult {
   }
 
   // 2. Erwartete Sections vorhanden
-  const requiredSections = ['Für wen', 'Zahlen', 'Risiko', 'Empfehlung', 'Fazit'];
+  const requiredSections = ['Lagebewertung', 'Marktvergleiche', 'Investitionsanalyse', 'Risiken', 'Empfehlung', 'Fazit'];
   for (const section of requiredSections) {
     if (!output.html.toLowerCase().includes(section.toLowerCase())) {
       warnings.push(`invest: Section "${section}" fehlt oder ist anders benannt`);
@@ -746,7 +651,7 @@ function validateInvestOutput(output: { html: string }): ValidationResult {
   }
 
   // 3. Keine Platzhalter
-  const placeholders = ['[X]', '[Y]', 'TODO', 'FIXME'];
+  const placeholders = ['[X]', '[Y]', '[Z]', 'TODO', 'FIXME'];
   for (const placeholder of placeholders) {
     if (output.html.includes(placeholder)) {
       errors.push(`invest: Enthält Platzhalter "${placeholder}"`);
@@ -757,7 +662,7 @@ function validateInvestOutput(output: { html: string }): ValidationResult {
   const forbiddenPatterns = [
     /Anschaffungskosten.*\d{6,}/i,
     /Eigenkapital.*\d{5,}/i,
-    /Kaufpreis.*\d{6,}/i,
+    /Kaufpreis(?!\s*\/m²).*\d{6,}/i, // Kaufpreis absolut verboten, aber Kaufpreis/m² ok
   ];
   for (const pattern of forbiddenPatterns) {
     if (pattern.test(output.html)) {
@@ -860,95 +765,55 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   });
 
   // ============================================
-  // 1. RESEARCH AGENT (mit Retry & Validation)
+  // 1. ANALYSE-AGENT (Research + Lage + Miete + Kauf)
   // ============================================
-  console.log('🔍 Research Agent starting...');
-  const facts = await runAgentWithRetry<z.infer<typeof ResearchSchema>>(
+  console.log('🔍 Analyse-Agent starting (Research + Lage + Miete + Kauf)...');
+  const analyse = await runAgentWithRetry<z.infer<typeof AnalyseOutputSchema>>(
     runner,
-    research as unknown as Agent<unknown>,
+    analyseagent as unknown as Agent<unknown>,
     payload,
-    validateResearchOutput,
-    'Research',
+    validateAnalyseOutput,
+    'AnalyseAgent',
     1 // max 1 Retry = 2 Versuche total
   );
 
-  console.log('✅ Research complete:', {
-    rent_median: facts.rent.median_psqm,
-    price_median: facts.price.median_psqm,
-    vacancy_rate: facts.vacancy.rate,
-    citations: facts.citations.length
+  console.log('✅ Analyse-Agent complete:', {
+    rent_median: analyse.facts.rent.median_psqm,
+    price_median: analyse.facts.price.median_psqm,
+    vacancy_rate: analyse.facts.vacancy.rate,
+    citations: analyse.facts.citations.length,
+    lage_length: analyse.lage.html.length,
+    miete_length: analyse.miete.html.length,
+    miete_delta: analyse.miete.delta_psqm,
+    kauf_length: analyse.kauf.html.length,
+    kauf_delta: analyse.kauf.delta_psqm,
   });
 
   // ============================================
-  // 2. WRITER AGENTS (parallel, mit Retry & Validation)
+  // 2. INVEST-AGENT (mit neuer Input-Struktur)
   // ============================================
-  console.log('✍️  Writer Agents starting...');
-  const writerContext = {
-    payload,
-    facts: {
-      location: facts.location,
-      rent: facts.rent,
-      price: facts.price,
-      vacancy: facts.vacancy,
-      demand: facts.demand,
-    }
-  };
-
-  const [lage, miete, kauf] = await Promise.all([
-    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
-      runner,
-      lageagent as unknown as Agent<unknown>,
-      writerContext,
-      (output) => validateWriterOutput(output, 'lage'),
-      'LageAgent',
-      1
-    ),
-    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
-      runner,
-      mietagent as unknown as Agent<unknown>,
-      writerContext,
-      (output) => validateWriterOutput(output, 'miete'),
-      'MietAgent',
-      1
-    ),
-    runAgentWithRetry<z.infer<typeof HtmlDeltaSchema>>(
-      runner,
-      kaufagent as unknown as Agent<unknown>,
-      writerContext,
-      (output) => validateWriterOutput(output, 'kauf'),
-      'KaufAgent',
-      1
-    ),
-  ]);
-
-  console.log('✅ Writer Agents complete');
-
-  // ============================================
-  // 3. INVEST AGENT (mit Retry & Validation)
-  // ============================================
-  console.log('💰 Invest Agent starting...');
+  console.log('💰 Invest-Agent starting...');
   const invest = await runAgentWithRetry<{ html: string }>(
     runner,
     investitionsanalyseagent as unknown as Agent<unknown>,
     {
       payload,
-      facts: writerContext.facts,
-      lage,
-      miete,
-      kauf,
+      analyse: {
+        lage: analyse.lage,
+        miete: analyse.miete,
+        kauf: analyse.kauf,
+      },
+      facts: analyse.facts,
     },
     validateInvestOutput,
     'InvestAgent',
     1
   );
 
-  console.log('✅ Invest Agent complete');
+  console.log('✅ Invest-Agent complete');
 
   return {
-    facts,
-    lage,
-    miete,
-    kauf,
+    analyse,
     invest,
   };
 }
