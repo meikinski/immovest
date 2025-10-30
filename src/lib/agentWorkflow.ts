@@ -93,22 +93,50 @@ Wenn eine Zahl NICHT in einer Quelle steht → setze NULL. NIEMALS schätzen ode
 Lieber "Keine Daten gefunden" als unsichere Zahlen.
 
 ## 1.1 MIETE (rent)
+WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
+
 Finde:
 - median_psqm: Gemeinde-Median in €/m² (MUSS aus Quelle sein)
 - range_psqm.low/high: P25-P75 Quartile wenn verfügbar
 - notes: Dokumentiere GENAU was du gefunden hast
 
+**SEGMENT-RECHERCHE (KRITISCH!):**
+Suche SPEZIFISCH nach Daten für:
+- Zimmeranzahl (z.B. "3-Zimmer-Wohnung")
+- Größenklasse (z.B. "60-80 m²")
+- Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "1950-1990", "ab 2000")
+
+Nutze mehrere Suchbegriffe:
+- "[Stadt] Mietspiegel [Zimmeranzahl] Zimmer"
+- "[Stadt] Mietpreise [Größe] m² Wohnung"
+- "[Stadt] Altbau Miete [Zimmeranzahl]Z"
+- "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer"
+
 Template für notes:
-"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Quelle: Stadt Wettenberg Mietspiegel 2024"
+"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Segment Altbau (bis 1949): 9,80 €/m² (Mietspiegel S. 12). Quellen: Stadt Wettenberg Mietspiegel 2024, Immobilienscout24 Marktanalyse"
 
 ## 1.2 KAUFPREIS (price)
+WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
+
 Finde:
 - median_psqm: Gemeinde-Median in €/m²
 - range_psqm.low/high: P25-P75 wenn verfügbar
 - notes: Dokumentiere GENAU
 
+**SEGMENT-RECHERCHE (KRITISCH!):**
+Suche SPEZIFISCH nach Daten für:
+- Zimmeranzahl (z.B. "3-Zimmer-Wohnung")
+- Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "ab 2000")
+- Objekttyp (z.B. "Eigentumswohnung", "Reihenhaus")
+
+Nutze mehrere Suchbegriffe:
+- "[Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer"
+- "[Stadt] Immobilienpreise Altbau [Zimmeranzahl]Z"
+- "Gutachterausschuss [Landkreis] Kaufpreise [Jahr]"
+- "[PLZ] Kaufpreis m² Wohnung"
+
 Template für notes:
-"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Quelle: Gutachterausschuss Landkreis Gießen 2024"
+"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Segment Baujahr bis 1949: 2.950 €/m² (Gutachterausschuss Tabelle 5). Quellen: Gutachterausschuss LK Gießen 2024, Immobilienscout24, Empirica Preisdatenbank"
 
 ## 1.3 LEERSTAND (vacancy)
 KRITISCH - sehr genau dokumentieren!
@@ -136,17 +164,33 @@ Beispiel drivers:
 - notes: Kontext (Stadt, Landkreis, Bundesland)
 
 ## 1.6 QUELLEN (citations)
+**MINDESTENS 4-6 QUELLEN dokumentieren!**
+
 Dokumentiere ALLE verwendeten Quellen mit:
 - title: Name der Quelle
 - url: Vollständige URL
 - domain: Domain der Quelle
 
+**RESEARCH-STRATEGIE:**
+1. Starte mit offiziellen Quellen (Mietspiegel, Gutachterausschuss)
+2. Ergänze mit Marktberichten (empirica, GEWOS, etc.)
+3. Validiere mit Immobilienportalen (Immobilienscout24, Immowelt)
+4. Prüfe Statistisches Landesamt für Leerstand/Nachfrage
+5. Suche lokale Zeitungsartikel / Studien zur Marktentwicklung
+
 ## BEVORZUGTE QUELLEN (in dieser Reihenfolge)
-1. Mietspiegel 2024/2025 der Gemeinde/Stadt
-2. Gutachterausschuss / Grundstücksmarktbericht
-3. Wohnungsmarktberichte (empirica, GEWOS, etc.)
-4. Statistisches Landesamt
-5. Immobilienportale (nur ergänzend!)
+1. Mietspiegel 2024/2025 der Gemeinde/Stadt (MUSS geprüft werden!)
+2. Gutachterausschuss / Grundstücksmarktbericht (MUSS geprüft werden!)
+3. Wohnungsmarktberichte (empirica, GEWOS, CBRE, etc.)
+4. Statistisches Landesamt (für Leerstand, Demografie)
+5. Immobilienportale (Immobilienscout24, Immowelt - für Marktvergleich)
+6. Lokale Studien / Presseartikel zur Marktentwicklung
+
+**QUALITÄTSKRITERIEN:**
+- Mindestens 1 offizielle Quelle (Mietspiegel ODER Gutachterausschuss)
+- Mindestens 1 Marktbericht / Portal
+- Mindestens 1 Quelle für Leerstand/Nachfrage
+- Mindestens 4 Citations gesamt (besser 5-6)
 
 # TEIL 2: LAGEANALYSE (150-170 Wörter HTML)
 
@@ -577,9 +621,11 @@ function validateAnalyseOutput(analyse: z.infer<typeof AnalyseOutputSchema>): Va
     errors.push('Weder Miete noch Kaufpreis gefunden - Research liefert keine verwertbaren Daten');
   }
 
-  // 4. Check: Citations vorhanden
+  // 4. Check: Citations vorhanden (mindestens 4)
   if (analyse.facts.citations.length === 0) {
-    warnings.push('Keine Citations vorhanden - Quellen fehlen');
+    errors.push('Keine Citations vorhanden - Quellen fehlen');
+  } else if (analyse.facts.citations.length < 4) {
+    warnings.push(`Nur ${analyse.facts.citations.length} Citations vorhanden - mindestens 4 empfohlen`);
   }
 
   // 5. Check: HTML-Outputs nicht leer
