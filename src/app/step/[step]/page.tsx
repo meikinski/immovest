@@ -184,6 +184,10 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   const [mieteDeltaPct, setMieteDeltaPct]   = useState<number>(0);
   const [preisDeltaPct, setPreisDeltaPct]   = useState<number>(0);
   const [zinsDeltaPp,   setZinsDeltaPp]     = useState<number>(0);
+
+  // Markt-Deltas von Agent (für Badges)
+  const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
+  const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
   
 
   // 1) Texte -> Zahlen
@@ -372,8 +376,9 @@ const dscr =
     cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
   });
 
-  // Skip if already fetched with same inputs
-  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+  // TEMPORARILY DISABLED: Skip if already fetched with same inputs
+  // This was causing cache issues during development - re-enable later
+  // if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
 
   // Increment usage counter (only once per session/analysis)
   if (!isPremium && !hasIncrementedUsage.current) {
@@ -382,7 +387,7 @@ const dscr =
   }
 
   lastMarktInputs.current = inputFingerprint;
-  marktFetched.current = true;
+  // NOTE: marktFetched moved to AFTER successful API call to prevent blocking retries
   setLoadingDetails(true);
 
   (async () => {
@@ -429,17 +434,6 @@ const dscr =
         };
         invest: { html: string };
       };
-
-      // DEBUG: Log received data structure
-      console.log('🔍 Agent API Response:', {
-        hasAnalyse: !!data.analyse,
-        hasInvest: !!data.invest,
-        lageLength: data.analyse?.lage?.html?.length || 0,
-        mieteLength: data.analyse?.miete?.html?.length || 0,
-        kaufLength: data.analyse?.kauf?.html?.length || 0,
-        investLength: data.invest?.html?.length || 0,
-      });
-
       setLageComment(data.analyse?.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
       setMietpreisComment(data.analyse?.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
       setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
@@ -447,19 +441,23 @@ const dscr =
 
       // Store delta values if available
       if (data.analyse?.miete?.delta_psqm != null) {
-        setMieteDeltaPct(data.analyse.miete.delta_psqm);
+        setMietMarktDelta(data.analyse.miete.delta_psqm);
       }
       if (data.analyse?.kauf?.delta_psqm != null) {
-        setKaufDeltaPct(data.analyse.kauf.delta_psqm);
+        setKaufMarktDelta(data.analyse.kauf.delta_psqm);
       }
 
       setLageTrendComment('');
+
+      // Mark as successfully fetched only AFTER successful API call
+      marktFetched.current = true;
     } catch (e) {
       console.error('Markt/Agent laden fehlgeschlagen', e);
       setLageComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setMietpreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setQmPreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setInvestComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+      // Don't set marktFetched on error - allow retry
     } finally {
       setLoadingDetails(false);
     }
@@ -1422,105 +1420,91 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Content (blurred when locked) */}
             <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
+
+            {/* Block 1: Objekt- & Marktanalyse */}
             <div className="card-gradient">
-              <div className="flex items-center space-x-2">
-                <span className="text-medium font-bold">Lagebewertung</span>
+              <div className="flex items-center space-x-2 mb-4">
+                <span className="text-medium font-bold">Objekt- & Marktanalyse</span>
                 <Bot />
               </div>
-              {/* DEBUG INFO */}
-              <div className="text-xs text-red-600 mb-2">
-                DEBUG: loadingDetails={loadingDetails ? 'true' : 'false'}, lageComment length={lageComment?.length || 0}
-              </div>
+
               {loadingDetails ? (
-  <LoadingSpinner
-    messages={[
-      'Analysiere Lage und Umgebung...',
-      'Prüfe Infrastruktur und Anbindung...',
-      'Bewerte Nachfrage und Zielgruppen...',
-      'Schätze Vermietbarkeit ein...',
-      'Gleich fertig...'
-    ]}
-  />
-) : (
-                <HtmlContent className="text-gray-600" html={lageComment || '<p>–</p>'} />
-              )}
-            </div>
+                <LoadingSpinner
+                  messages={[
+                    'Analysiere Lage und Umgebung...',
+                    'Recherchiere Marktdaten...',
+                    'Vergleiche Miet- und Kaufpreise...',
+                    'Bewerte Marktposition...',
+                    'Gleich fertig...'
+                  ]}
+                />
+              ) : (
+                <div className="space-y-6">
+                  {/* Lage */}
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800 mb-2">Lage & Umgebung</h3>
+                    <HtmlContent className="text-gray-600" html={lageComment || '<p>–</p>'} />
+                  </div>
 
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2">
-                <span className="text-medium font-bold">Mietpreisvergleich</span>
-                <Bot />
-              </div>
-              {loadingDetails ? (
-  <LoadingSpinner 
-    messages={[
-      'Suche aktuelle Mietangebote...',
-      'Vergleiche Preise in der Umgebung...',
-      'Analysiere Preis pro Quadratmeter...',
-      'Bewerte Marktposition...',
-      'Hab noch kurz Geduld...'
-    ]}
-  />
-) : (
-                <HtmlContent className="text-gray-600" html={mietpreisComment || '<p>–</p>'} />
-              )}
-            </div>
+                  {/* Mietpreis */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-sm font-semibold text-gray-800">Mietpreis-Vergleich</h3>
+                      {mietMarktDelta != null && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          mietMarktDelta > 10 ? 'bg-red-100 text-red-700' :
+                          mietMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
+                          mietMarktDelta > -10 ? 'bg-green-100 text-green-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          {mietMarktDelta > 0 ? '+' : ''}{mietMarktDelta.toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+                    <HtmlContent className="text-gray-600" html={mietpreisComment || '<p>–</p>'} />
+                  </div>
 
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2">
-                <span className="text-medium font-bold">Kaufpreis/m² Vergleich</span>
-                <Bot />
-              </div>
-              {loadingDetails ? (
-  <LoadingSpinner 
-    messages={[
-      'Suche vergleichbare Verkaufsangebote...',
-      'Analysiere Kaufpreise je m²...',
-      'Prüfe Preisentwicklung...',
-      'Bewerte Kaufpreis-Niveau...',
-      'Noch einen kleinen Moment..'
-    ]}
-  />
-) : (
-                <HtmlContent className="text-gray-600" html={qmPreisComment || '<p>–</p>'} />
-              )}
-            </div>
-
-
-            {Boolean(lageTrendComment) && (
-              <div className="card-gradient">
-                <div className="flex items-center space-x-2">
-                  <span className="text-medium font-bold">Lageentwicklungstrend</span>
-                  <Bot />
+                  {/* Kaufpreis */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-sm font-semibold text-gray-800">Kaufpreis-Vergleich</h3>
+                      {kaufMarktDelta != null && (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
+                          kaufMarktDelta > 10 ? 'bg-red-100 text-red-700' :
+                          kaufMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
+                          kaufMarktDelta > -10 ? 'bg-green-100 text-green-700' :
+                          'bg-blue-100 text-blue-700'
+                        }`}>
+                          {kaufMarktDelta > 0 ? '+' : ''}{kaufMarktDelta.toFixed(1)}%
+                        </span>
+                      )}
+                    </div>
+                    <HtmlContent className="text-gray-600" html={qmPreisComment || '<p>–</p>'} />
+                  </div>
                 </div>
-                <HtmlContent className="text-gray-600" html={lageTrendComment} />
+              )}
+            </div>
+
+            {/* Block 2: Investment-Empfehlung */}
+            <div className="card-gradient">
+              <div className="flex items-center space-x-2">
+                <span className="text-medium font-bold">Investment-Empfehlung</span>
+                <Bot />
               </div>
-            )}
-
-            
-
-
-            {/* Investitionsanalyse */}
-<div className="card-gradient">
-  <div className="flex items-center space-x-2">
-    <span className="text-medium font-bold">Investitionsanalyse</span>
-    <Bot />
-  </div>
-  {loadingDetails ? (
-  <LoadingSpinner 
-    messages={[
-      'Konsolidiere alle Daten...',
-      'Erstelle Investment-Bewertung...',
-      'Prüfe Optimierungspotenzial...',
-      'Formuliere Empfehlung...',
-      'Fast geschafft...'
-    ]}
-  />
-) : (
-    <HtmlContent className="text-gray-600" html={investComment || '<p>–</p>'} />
-  )}
-  
-</div>
+              {loadingDetails ? (
+                <LoadingSpinner
+                  messages={[
+                    'Konsolidiere alle Daten...',
+                    'Erstelle Investment-Bewertung...',
+                    'Prüfe Optimierungspotenzial...',
+                    'Formuliere Empfehlung...',
+                    'Fast geschafft...'
+                  ]}
+                />
+              ) : (
+                <HtmlContent className="text-gray-600" html={investComment || '<p>–</p>'} />
+              )}
+            </div>
 <div className="mt-3">
     <button
       onClick={() => setActiveTab('szenarien')}
