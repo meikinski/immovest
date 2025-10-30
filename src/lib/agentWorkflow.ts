@@ -98,7 +98,7 @@ WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
 Finde:
 - median_psqm: Gemeinde-Median in €/m² (MUSS aus Quelle sein)
 - range_psqm.low/high: P25-P75 Quartile wenn verfügbar
-- notes: Dokumentiere GENAU was du gefunden hast
+- notes: Dokumentiere GENAU was du gefunden hast (inkl. Anzahl der Vergleichsobjekte falls verfügbar!)
 
 **SEGMENT-RECHERCHE (KRITISCH!):**
 Suche SPEZIFISCH nach Daten für:
@@ -106,14 +106,16 @@ Suche SPEZIFISCH nach Daten für:
 - Größenklasse (z.B. "60-80 m²")
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "1950-1990", "ab 2000")
 
-Nutze mehrere Suchbegriffe:
-- "[Stadt] Mietspiegel [Zimmeranzahl] Zimmer"
-- "[Stadt] Mietpreise [Größe] m² Wohnung"
-- "[Stadt] Altbau Miete [Zimmeranzahl]Z"
-- "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer"
+**PRIORITÄT: Stadtteil/PLZ-spezifische Suche ZUERST!**
 
-Template für notes:
-"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Segment Altbau (bis 1949): 9,80 €/m² (Mietspiegel S. 12). Quellen: Stadt Wettenberg Mietspiegel 2024, Immobilienscout24 Marktanalyse"
+Nutze mehrere Suchbegriffe in dieser Reihenfolge:
+1. "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
+2. "[Stadtteil] [Stadt] Mietpreise [Zimmeranzahl] Zimmer"
+3. "[Stadt] [Stadtteil] Mietspiegel [Größe] m²"
+4. "[Stadt] Mietspiegel [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+
+Template für notes (MIT Anzahl Objekte wenn verfügbar):
+"3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² basierend auf 145 Angeboten (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Segment Altbau (bis 1949): 9,80 €/m² (Mietspiegel S. 12). Quellen: Stadt Wettenberg Mietspiegel 2024, Immobilienscout24 Marktanalyse"
 
 ## 1.2 KAUFPREIS (price)
 WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
@@ -121,7 +123,7 @@ WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
 Finde:
 - median_psqm: Gemeinde-Median in €/m²
 - range_psqm.low/high: P25-P75 wenn verfügbar
-- notes: Dokumentiere GENAU
+- notes: Dokumentiere GENAU (inkl. Anzahl der Vergleichsobjekte falls verfügbar!)
 
 **SEGMENT-RECHERCHE (KRITISCH!):**
 Suche SPEZIFISCH nach Daten für:
@@ -129,14 +131,16 @@ Suche SPEZIFISCH nach Daten für:
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "ab 2000")
 - Objekttyp (z.B. "Eigentumswohnung", "Reihenhaus")
 
-Nutze mehrere Suchbegriffe:
-- "[Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer"
-- "[Stadt] Immobilienpreise Altbau [Zimmeranzahl]Z"
-- "Gutachterausschuss [Landkreis] Kaufpreise [Jahr]"
-- "[PLZ] Kaufpreis m² Wohnung"
+**PRIORITÄT: Stadtteil/PLZ-spezifische Suche ZUERST!**
 
-Template für notes:
-"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Segment Baujahr bis 1949: 2.950 €/m² (Gutachterausschuss Tabelle 5). Quellen: Gutachterausschuss LK Gießen 2024, Immobilienscout24, Empirica Preisdatenbank"
+Nutze mehrere Suchbegriffe in dieser Reihenfolge:
+1. "[PLZ] Kaufpreis m² Wohnung [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
+2. "[Stadtteil] [Stadt] Kaufpreise Eigentumswohnung"
+3. "Gutachterausschuss [Landkreis] [Stadtteil] Kaufpreise"
+4. "[Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+
+Template für notes (MIT Anzahl Objekte wenn verfügbar):
+"3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² basierend auf 87 Verkäufen (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Segment Baujahr bis 1949: 2.950 €/m² (Gutachterausschuss Tabelle 5). Quellen: Gutachterausschuss LK Gießen 2024, Immobilienscout24, Empirica Preisdatenbank"
 
 ## 1.3 LEERSTAND (vacancy)
 KRITISCH - sehr genau dokumentieren!
@@ -294,11 +298,16 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 **Einfache, klare Sätze. Keine Verschachtelungen.**
 
-Template WENN Segment existiert:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind [A] €/m². Vergleichbare [X]-Zimmer-Wohnungen in [Ort] kosten im Schnitt [Segment] €/m². Du liegst also [Delta]% drüber/drunter."
+**WICHTIG: Bevorzuge stadtteil-/PLZ-spezifische Vergleiche!**
 
-Template WENN KEIN Segment:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind [A] €/m². Der Markt liegt bei [Gesamt] €/m². Du liegst [Delta]% drüber/drunter."
+Template WENN Stadtteil/PLZ-Daten existieren:
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Stadtteil/PLZ] kosten im Schnitt etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Angeboten] laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
+
+Template WENN NUR Stadt-Daten:
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Stadt] ([Größe]) kosten im Schnitt etwa [Segment] €/m² laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
+
+**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
+Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert! Nur wenn Spanne SEHR relevant ist.**
 
@@ -347,11 +356,16 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 
 **Einfache, klare Sätze. Keine Verschachtelungen.**
 
-Template WENN Segment existiert:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet [Preis] €/m². Vergleichbare [Altbau/Neubau]-Wohnungen mit [X] Zimmern in [Ort] liegen bei [Segment] €/m². Du liegst [Delta]% drüber/drunter."
+**WICHTIG: Bevorzuge stadtteil-/PLZ-spezifische Vergleiche!**
 
-Template WENN KEIN Segment:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet [Preis] €/m². Der Markt liegt bei [Gesamt] €/m². Du liegst [Delta]% drüber/drunter."
+Template WENN Stadtteil/PLZ-Daten existieren:
+"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Stadtteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+
+Template WENN NUR Stadt-Daten:
+"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+
+**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
+Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert!**
 
@@ -473,12 +487,21 @@ Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis
 payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 (NICHT auf Eigenkapital bezogen!)
 
-**Schreibe EXAKT so (Template):**
+**Schreibe in 3 ABSÄTZEN (bessere Lesbarkeit!):**
 
-"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.] Das kommt daher, dass [BEGRÜNDUNG mit delta-Werten]. Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist."
+**ABSATZ 1: Cashflow + Begründung (40-50W)**
+"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.]
 
-**Falls ekRendite SEHR relevant (>2% Unterschied zu nettoMietrendite):**
-"Die EK-Rendite liegt übrigens bei [X]%, also deutlich [höher/niedriger] - das zeigt die Hebelwirkung durch Kredit."
+Warum? [BEGRÜNDUNG mit delta-Werten]: Die Miete liegt [Y]% [über/unter] Markt, der Kaufpreis [Z]% [über/unter] Markt - das erklärt den [positiven/negativen] Cashflow."
+
+**ABSATZ 2: Nettomietrendite (30-40W)**
+"Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). Das zeigt dir, ob die Immobilie wirtschaftlich läuft - unabhängig von deiner Finanzierung."
+
+**ABSATZ 3: DSCR (20-30W)**
+"DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist. [Bei DSCR >1.5: Gutes Polster bei Mietausfall / Bei DSCR 1-1.2: Wenig Puffer / Bei DSCR <1: Bank sieht das kritisch]"
+
+**Falls Cashflow negativ UND EK-Anteil <30%:**
+"Dein EK-Anteil liegt bei nur [X]% ([Betrag] € von [Kaufpreis] €). Mit 30% EK würdest du [Differenz] € weniger Rate zahlen. Plus etwa [Steuer] € Steuerersparnis im Jahr (40% Grenzsteuersatz) = nur noch [Netto] € monatliche Belastung statt [Aktuell] €."
 
 **Status-Bewertungen:**
 - Cashflow: >500€=stark, 0-500€=solide, -100 bis 0=eng, -500 bis -100=schlecht, <-500=extrem schlecht
@@ -508,7 +531,9 @@ Identifiziere DAS größte Risiko basierend auf delta-Werten (NEUE Schwellenwert
 **Wenn Werte im Bereich ±10%:**
 → "Keine nennenswerten Risiken"
 
-Zeige auch Potenzial auf: "Aber: [Kaufpreis fair / Miete stabil / etc.]"
+**Potenzial separat zeigen (nach logischem Übergang):**
+- Bei Risiken: "Aber: [positiver Aspekt]" (Kontrast)
+- Bei keinen Risiken: "Positiv: [gute Aspekte]" (kein Kontrast nötig!)
 
 ## ABSATZ 3: EMPFEHLUNG (40-60W)
 <h3>Meine Empfehlung</h3>
