@@ -455,25 +455,23 @@ Du bekommst:
 ## ABSATZ 1: DIE ZAHLEN (100-120W)
 <h3>Die Zahlen</h3>
 
-**WICHTIG: Betrachte ALLE verfügbaren KPIs wie ein echter Immobilieninvestor!**
+**WICHTIG: Betrachte die relevantesten KPIs wie ein echter Immobilieninvestor!**
 
-Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite, dscr, anschaffungskosten
-
-Wähle die 3-4 relevantesten KPIs und erkläre sie in EINEM zusammenhängenden Fließtext-Absatz.
+Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis
 
 **PFLICHT-KPIs (immer nennen):**
-1. Cashflow (cashflowVorSteuer)
-2. Nettomietrendite (nettoMietrendite)
-3. DSCR (dscr)
+1. Cashflow (payload.cashflowVorSteuer)
+2. Nettomietrendite (payload.nettoMietrendite)
+3. DSCR (payload.dscr)
 
-**Optional (wenn relevant):**
-- EK-Rendite (ekRendite) - NUR wenn deutlich anders als Nettomietrendite
-- Bruttomietrendite (bruttoMietrendite) - NUR wenn interessanter Unterschied
+**OPTIONAL (wenn relevant für Empfehlungen):**
+- EK-Anteil: Berechne (payload.ek / payload.kaufpreis) * 100
+  - Zeige NUR wenn Cashflow negativ UND EK-Anteil <30%
+  - Dann wichtig für Empfehlung: "Mehr EK könnte Rate senken"
 
-**KRITISCHER FIX: VERWECHSLE NICHT nettoMietrendite mit ekRendite!**
-
-payload.nettoMietrendite = Mietüberschuss / Kaufpreis
-payload.ekRendite = Ertrag / Eigenkapital
+**Nettomietrendite richtig verstehen:**
+payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
+(NICHT auf Eigenkapital bezogen!)
 
 **Schreibe EXAKT so (Template):**
 
