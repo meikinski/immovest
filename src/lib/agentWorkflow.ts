@@ -523,10 +523,10 @@ Beispiel VIELLEICHT:
 
 # TONFALL
 Wie beim Bier - klar, ehrlich, direkt. Keine Beschönigung.`,
-  model: 'gpt-5-mini',
+  model: 'gpt-4o',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    reasoning: { effort: 'medium', summary: 'auto' },
+    temperature: 0.4,
     maxTokens: 1800,
     store: true
   },
