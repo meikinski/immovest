@@ -430,6 +430,16 @@ const dscr =
         invest: { html: string };
       };
 
+      // DEBUG: Log received data structure
+      console.log('🔍 Agent API Response:', {
+        hasAnalyse: !!data.analyse,
+        hasInvest: !!data.invest,
+        lageLength: data.analyse?.lage?.html?.length || 0,
+        mieteLength: data.analyse?.miete?.html?.length || 0,
+        kaufLength: data.analyse?.kauf?.html?.length || 0,
+        investLength: data.invest?.html?.length || 0,
+      });
+
       setLageComment(data.analyse?.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
       setMietpreisComment(data.analyse?.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
       setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
