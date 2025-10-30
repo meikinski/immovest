@@ -452,29 +452,44 @@ Du bekommst:
 
 # DEIN OUTPUT: 4 ABSÄTZE (250-300 Wörter gesamt, HTML)
 
-## ABSATZ 1: DIE ZAHLEN (80-100W)
+## ABSATZ 1: DIE ZAHLEN (100-120W)
 <h3>Die Zahlen</h3>
 
-**WICHTIG: FLIEßTEXT schreiben, nicht Aufzählung!**
+**WICHTIG: Betrachte ALLE verfügbaren KPIs wie ein echter Immobilieninvestor!**
 
-Schreibe einen zusammenhängenden Absatz, der Cashflow, Rendite und DSCR erklärt - MIT Begründung WORAUS sie resultieren!
+Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite, dscr, anschaffungskosten
 
-Template / Struktur:
+Wähle die 3-4 relevantesten KPIs und erkläre sie in EINEM zusammenhängenden Fließtext-Absatz.
 
-"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.] Das kommt vor allem daher, dass [BEGRÜNDUNG: Miete X% über/unter Markt + Kaufpreis X% über/unter Markt + Rate hoch/niedrig]. Nettomietrendite liegt bei [Y]%, das ist [schwach/ok/gut/stark] - also der jährliche Mietüberschuss nach allen laufenden Kosten im Verhältnis zum Kaufpreis. DSCR von [Z] bedeutet: Die Miete deckt die Kreditrate [Z]-fach, was [gut/knapp/kritisch] ist."
+**PFLICHT-KPIs (immer nennen):**
+1. Cashflow (cashflowVorSteuer)
+2. Nettomietrendite (nettoMietrendite)
+3. DSCR (dscr)
+
+**Optional (wenn relevant):**
+- EK-Rendite (ekRendite) - NUR wenn deutlich anders als Nettomietrendite
+- Bruttomietrendite (bruttoMietrendite) - NUR wenn interessanter Unterschied
+
+**KRITISCHER FIX: VERWECHSLE NICHT nettoMietrendite mit ekRendite!**
+
+payload.nettoMietrendite = Mietüberschuss / Kaufpreis
+payload.ekRendite = Ertrag / Eigenkapital
+
+**Schreibe EXAKT so (Template):**
+
+"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.] Das kommt daher, dass [BEGRÜNDUNG mit delta-Werten]. Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist."
+
+**Falls ekRendite SEHR relevant (>2% Unterschied zu nettoMietrendite):**
+"Die EK-Rendite liegt übrigens bei [X]%, also deutlich [höher/niedriger] - das zeigt die Hebelwirkung durch Kredit."
 
 **Status-Bewertungen:**
 - Cashflow: >500€=stark, 0-500€=solide, -100 bis 0=eng, -500 bis -100=schlecht, <-500=extrem schlecht
 - Rendite: >5%=stark, 4-5%=gut, 3-4%=ok, <3%=schwach
 - DSCR: >1.2=gut, 1-1.2=knapp, <1=kritisch
 
-**KRITISCH: Nettorendite richtig erklären!**
-❌ FALSCH: "Ertrag pro Jahr auf Eigenkapital" (das wäre EK-Rendite!)
-✅ RICHTIG: "Jährlicher Mietüberschuss nach Kosten im Verhältnis zum Kaufpreis" (Nettomietrendite)
-
 **Begründung MUSS delta-Werte nutzen:**
-- "Miete liegt 7% über Markt + Kaufpreis 9% unter Markt → guter Cashflow"
-- "Miete 15% unter Markt + hohe Rate → Cashflow eng"
+- "Miete liegt 7% über Markt + Kaufpreis 9% unter Markt → solider Cashflow"
+- "Miete 15% unter Markt → Cashflow leidet"
 
 **Steuer (nur bei Cashflow <0):**
 Am Ende hinzufügen: "Steuerlich kannst du etwa [Betrag] € im Jahr sparen (40% Grenzsteuersatz), was den echten monatlichen Verlust auf [X] € reduziert."
