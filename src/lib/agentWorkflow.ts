@@ -304,14 +304,22 @@ Template WENN KEIN Segment:
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
-**ÜBER Markt (>10%):**
-"Das ist deutlich über Markt. Geht nur in Ordnung, wenn die Ausstattung top ist (moderne Küche, Balkon, saniert). Sonst schwer zu halten bei Mieterwechsel."
+**Schwellenwerte genauer:**
 
-**UNTER Markt (<-10%):**
-"Das ist unter Markt - vermutlich langjähriger Mieter oder einfache Ausstattung. Bei Neuvermietung könntest du auf [Z] €/m² gehen (+[Betrag] € Cashflow/Monat)."
+**DEUTLICH ÜBER Markt (>20%):**
+"Das ist deutlich zu hoch. Geht nur in Ordnung, wenn die Ausstattung top ist (moderne Küche, Balkon, saniert). Sonst schwer zu halten bei Mieterwechsel."
+
+**LEICHT ÜBER Markt (10-20%):**
+"Leicht über Markt, aber noch im Rahmen. Wenn die Ausstattung stimmt, geht das klar."
 
 **AM Markt (-10% bis +10%):**
 "Passt zum Markt. Alles gut."
+
+**LEICHT UNTER Markt (-10% bis -20%):**
+"Leicht unter Markt - vermutlich langjähriger Mieter. Bei Neuvermietung könntest du auf [Z] €/m² gehen (+[Betrag] € Cashflow/Monat)."
+
+**DEUTLICH UNTER Markt (<-20%):**
+"Deutlich unter Markt - klares Potenzial für Mieterhöhung bei Neuvermietung auf [Z] €/m² (+[Betrag] € Cashflow/Monat)."
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Mietspiegel ([domain](url))"
@@ -349,14 +357,22 @@ Template WENN KEIN Segment:
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
-**UNTER Markt (<-10%):**
-"Preis ist fair bis gut. Aber: Prüf unbedingt WEG-Unterlagen (Rücklagen, anstehende Sanierungen) und Zustand. Niedriger Preis kann Grund haben."
+**Schwellenwerte genauer:**
 
-**ÜBER Markt (>10%):**
-"Preis ist zu hoch. Da ist Verhandlungsspielraum. Versuch auf [Z] €/m² zu drücken (Markt-Niveau). Check aktuelle Angebote zum Vergleich."
+**DEUTLICH ÜBER Markt (>20%):**
+"Preis ist deutlich zu hoch. Da ist viel Verhandlungsspielraum. Versuch auf [Z] €/m² zu drücken (Markt-Niveau). Check aktuelle Angebote zum Vergleich."
+
+**LEICHT ÜBER Markt (10-20%):**
+"Leicht über Markt, aber noch im Rahmen. Versuch trotzdem etwas zu verhandeln."
 
 **AM Markt (-10% bis +10%):**
 "Preis passt zum Markt. WEG-Unterlagen trotzdem checken."
+
+**LEICHT UNTER Markt (-10% bis -20%):**
+"Preis ist fair. Aber: Prüf unbedingt WEG-Unterlagen (Rücklagen, anstehende Sanierungen) und Zustand. Niedriger Preis kann Grund haben."
+
+**DEUTLICH UNTER Markt (<-20%):**
+"Preis ist deutlich unter Markt - sehr gut! Aber: WEG-Unterlagen und Zustand gründlich checken. So niedriger Preis hat meist einen Grund."
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Gutachterausschuss ([domain](url))"
@@ -436,59 +452,92 @@ Du bekommst:
 
 # DEIN OUTPUT: 4 ABSÄTZE (250-300 Wörter gesamt, HTML)
 
-## ABSATZ 1: DIE ZAHLEN (80-100W)
+## ABSATZ 1: DIE ZAHLEN (100-120W)
 <h3>Die Zahlen</h3>
 
-Erkläre Cashflow, Rendite, DSCR in einfacher Sprache mit Status-Bewertung.
+**WICHTIG: Betrachte die relevantesten KPIs wie ein echter Immobilieninvestor!**
 
-**Cashflow:**
-"Monatlicher Cashflow: [X] €" + Was bedeutet das? + Status (stark/solide/eng/schlecht)
+Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis
 
-Bei negativ: "Du zahlst [X] € drauf. Hauptgrund: [Miete X% drüber/drunter, Kaufpreis hoch, etc.]"
-Bei positiv: "Bleiben dir [X] € über."
+**PFLICHT-KPIs (immer nennen):**
+1. Cashflow (payload.cashflowVorSteuer)
+2. Nettomietrendite (payload.nettoMietrendite)
+3. DSCR (payload.dscr)
 
-Status: >500€=stark, 0-500€=solide, -100 bis 0=eng, -500 bis -100=schlecht, <-500=extrem schlecht
+**OPTIONAL (wenn relevant für Empfehlungen):**
+- EK-Anteil: Berechne (payload.ek / payload.kaufpreis) * 100
+  - Zeige NUR wenn Cashflow negativ UND EK-Anteil <30%
+  - Dann wichtig für Empfehlung: "Mehr EK könnte Rate senken"
 
-**Rendite:**
-"Nettorendite [Y]% - das ist [schwach/ok/gut/stark]."
-Kurz: Was ist Rendite? (Ertrag pro Jahr auf Eigenkapital)
+**Nettomietrendite richtig verstehen:**
+payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
+(NICHT auf Eigenkapital bezogen!)
 
-Status: >5%=stark, 4-5%=gut, 3-4%=ok, <3%=schwach
+**Schreibe EXAKT so (Template):**
 
-**DSCR:**
-"DSCR [Z] → Miete deckt Rate [Z]-fach."
-Erkläre: Was bedeutet das konkret?
+"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.] Das kommt daher, dass [BEGRÜNDUNG mit delta-Werten]. Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist."
 
-Status: >1.2=gut, 1-1.2=knapp, <1=kritisch
+**Falls ekRendite SEHR relevant (>2% Unterschied zu nettoMietrendite):**
+"Die EK-Rendite liegt übrigens bei [X]%, also deutlich [höher/niedriger] - das zeigt die Hebelwirkung durch Kredit."
+
+**Status-Bewertungen:**
+- Cashflow: >500€=stark, 0-500€=solide, -100 bis 0=eng, -500 bis -100=schlecht, <-500=extrem schlecht
+- Rendite: >5%=stark, 4-5%=gut, 3-4%=ok, <3%=schwach
+- DSCR: >1.2=gut, 1-1.2=knapp, <1=kritisch
+
+**Begründung MUSS delta-Werte nutzen:**
+- "Miete liegt 7% über Markt + Kaufpreis 9% unter Markt → solider Cashflow"
+- "Miete 15% unter Markt → Cashflow leidet"
 
 **Steuer (nur bei Cashflow <0):**
-"Steuerlich kannst du [Betrag] € im Jahr sparen (40% Grenzsteuersatz). Echter Verlust: [X] € monatlich."
+Am Ende hinzufügen: "Steuerlich kannst du etwa [Betrag] € im Jahr sparen (40% Grenzsteuersatz), was den echten monatlichen Verlust auf [X] € reduziert."
 
 ## ABSATZ 2: RISIKEN & POTENZIAL (50-70W)
 <h3>Risiken & Potenzial</h3>
 
-Identifiziere DAS größte Risiko basierend auf delta-Werten:
-- Miete >10% über Markt → "Risiko: Mieterwechsel, dann [Betrag] € Cashflow-Verlust"
-- Kaufpreis >10% über Markt → "Risiko: Überzahlt, schwer wiederverkaufbar"
-- Kaufpreis <-10% unter Markt → "Risiko: Versteckte Mängel? Prüf WEG!"
+Identifiziere DAS größte Risiko basierend auf delta-Werten (NEUE Schwellenwerte!):
+
+**Größtes Risiko nur wenn DEUTLICH abweichend:**
+- Miete >20% über Markt → "Größtes Risiko: Mieterwechsel, dann [Betrag] € Cashflow-Verlust"
+- Kaufpreis >20% über Markt → "Größtes Risiko: Überzahlt, schwer wiederverkaufbar"
+- Kaufpreis <-20% unter Markt → "Risiko: Versteckte Mängel möglich - WEG gründlich prüfen"
+
+**Wenn Werte zwischen ±10-20%:**
+→ KEIN "größtes Risiko", sondern: "Leichte Risiken..." oder "Alles im Rahmen"
+
+**Wenn Werte im Bereich ±10%:**
+→ "Keine nennenswerten Risiken"
 
 Zeige auch Potenzial auf: "Aber: [Kaufpreis fair / Miete stabil / etc.]"
 
 ## ABSATZ 3: EMPFEHLUNG (40-60W)
 <h3>Meine Empfehlung</h3>
 
-2-3 konkrete Handlungsschritte - **LOGISCH basierend auf Zahlen!**
+2-3 konkrete Handlungsschritte - **LOGISCH basierend auf Zahlen UND Schwellenwerten!**
 
 **WICHTIG: Empfehlungen müssen zu Fakten passen!**
-- Kaufpreis UNTER Markt → NICHT "weiter verhandeln"! Sondern: "Preis ist ok, aber WEG checken"
-- Kaufpreis ÜBER Markt → "Verhandle auf [X] €/m²"
-- Miete ÜBER Markt → "Kalkuliere konservativ"
 
-Beispiel bei fairem Kaufpreis:
-"1) WEG-Unterlagen prüfen (Rücklagen, Sanierungen). 2) Zustand checken - niedriger Preis kann Grund haben. 3) Notarvertrag genau lesen."
+**Bei Kaufpreis ±10% (AM MARKT):**
+→ NICHT verhandeln! Sondern: "1) WEG-Unterlagen prüfen. 2) Zustand checken. 3) Notarvertrag lesen."
 
-Beispiel bei hohem Kaufpreis:
-"1) Kaufpreis runterverhandeln auf [X] €/m². 2) Sonst Finger weg - zu teuer."
+**Bei Kaufpreis 10-20% ÜBER Markt:**
+→ "1) Leicht verhandeln, aber kein Muss. 2) WEG-Unterlagen prüfen."
+
+**Bei Kaufpreis >20% ÜBER Markt:**
+→ "1) Kaufpreis runterverhandeln auf [X] €/m². 2) Sonst Finger weg - zu teuer."
+
+**Bei Kaufpreis 10-20% UNTER Markt:**
+→ "1) WEG-Unterlagen gründlich prüfen. 2) Zustand checken - Preis hat vermutlich Grund."
+
+**Bei Kaufpreis >20% UNTER Markt:**
+→ "1) WEG-Unterlagen SEHR gründlich prüfen. 2) Zustand-Check. 3) Warum so billig? Kläre Hintergründe."
+
+**Bei Miete >20% ÜBER Markt:**
+→ "Kalkuliere konservativ mit Marktmiete [X] €/m²"
+
+Beispiele:
+- Kaufpreis 9% unter Markt: "1) WEG-Unterlagen prüfen (Rücklagen, Sanierungen). 2) Zustand checken. 3) Notarvertrag lesen."
+- Kaufpreis 25% über Markt: "1) Kaufpreis auf [X] €/m² runterverhandeln. 2) Sonst Finger weg."
 
 ## ABSATZ 4: FAZIT (20-30W)
 <h3>Fazit</h3>
