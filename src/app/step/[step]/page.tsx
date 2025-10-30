@@ -372,8 +372,14 @@ const dscr =
     cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
   });
 
-  // Skip if already fetched with same inputs
-  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+  // TEMPORARILY DISABLED: Skip if already fetched with same inputs
+  // This was causing cache issues during development - re-enable later
+  // if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+
+  // For now: Always refetch to get the latest agent improvements
+  if (lastMarktInputs.current === inputFingerprint && marktFetched.current) {
+    console.log('⚠️ Would normally skip API call (same inputs), but forcing refresh for new agent code');
+  }
 
   // Increment usage counter (only once per session/analysis)
   if (!isPremium && !hasIncrementedUsage.current) {
@@ -382,7 +388,7 @@ const dscr =
   }
 
   lastMarktInputs.current = inputFingerprint;
-  marktFetched.current = true;
+  // NOTE: marktFetched moved to AFTER successful API call to prevent blocking retries
   setLoadingDetails(true);
 
   (async () => {
@@ -454,12 +460,16 @@ const dscr =
       }
 
       setLageTrendComment('');
+
+      // Mark as successfully fetched only AFTER successful API call
+      marktFetched.current = true;
     } catch (e) {
       console.error('Markt/Agent laden fehlgeschlagen', e);
       setLageComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setMietpreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setQmPreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
       setInvestComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+      // Don't set marktFetched on error - allow retry
     } finally {
       setLoadingDetails(false);
     }
