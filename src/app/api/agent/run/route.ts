@@ -170,6 +170,16 @@ export async function POST(req: NextRequest) {
     const input: WorkflowInput = { input_as_text: JSON.stringify(validatedPayload) };
     const result = await runWorkflow(input);
 
+    // DEBUG: Log what we're about to return
+    console.log('📤 API Response Structure:', {
+      hasAnalyse: !!result.analyse,
+      hasInvest: !!result.invest,
+      lageLength: result.analyse?.lage?.html?.length || 0,
+      mieteLength: result.analyse?.miete?.html?.length || 0,
+      kaufLength: result.analyse?.kauf?.html?.length || 0,
+      investLength: result.invest?.html?.length || 0,
+    });
+
     return NextResponse.json(result, { status: 200 });
 
   } catch (err: unknown) {
