@@ -1427,8 +1427,12 @@ const exportPdf = React.useCallback(async () => {
                 <span className="text-medium font-bold">Lagebewertung</span>
                 <Bot />
               </div>
+              {/* DEBUG INFO */}
+              <div className="text-xs text-red-600 mb-2">
+                DEBUG: loadingDetails={loadingDetails ? 'true' : 'false'}, lageComment length={lageComment?.length || 0}
+              </div>
               {loadingDetails ? (
-  <LoadingSpinner 
+  <LoadingSpinner
     messages={[
       'Analysiere Lage und Umgebung...',
       'Prüfe Infrastruktur und Anbindung...',
