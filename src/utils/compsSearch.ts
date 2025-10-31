@@ -15,7 +15,7 @@ type SerperResponse = { organic?: SerperOrganic[] };
 function qForRent(city?: string, districtOrHood?: string, propertyType?: 'wohnung'|'haus') {
   const scope = [districtOrHood, city].filter(Boolean).join(' ');
   const typ = propertyType === 'haus' ? 'haus' : 'wohnung';
-  const domains = 'site:immobilienscout24.de OR site:immowelt.de OR site:ebay-kleinanzeigen.de';
+  const domains = 'site:immobilienscout24.de OR site:immowelt.de OR site:kleinanzeigen.de';
   return `${scope} miete ${typ} ${domains}`.trim();
 }
 function qForSale(city?: string, districtOrHood?: string, propertyType?: 'wohnung'|'haus') {
