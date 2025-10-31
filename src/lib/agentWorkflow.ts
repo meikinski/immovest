@@ -84,7 +84,15 @@ Aus dem payload extrahiere:
 - address: Vollständige Adresse
 - objektTyp: wohnung/haus
 - kaufpreis, miete, flaeche, zimmer, baujahr
-- PLZ, Stadtteil, Stadt aus address ableiten
+- PLZ, Ortsteil/Stadtteil, Gemeinde/Stadt aus address ableiten
+
+**WICHTIG - Locations-Typ erkennen:**
+Erkenne automatisch ob es sich handelt um:
+- **Stadt**: Großstadt/Mittelstadt (z.B. "Köln", "München", "Aachen")
+- **Gemeinde**: Kleinstadt/Gemeinde (z.B. "Wettenberg", "Eschweiler")
+- **Dorf**: Dorf/ländliche Gegend (z.B. "Hürtgenwald", "Simmerath")
+
+Nutze diese Info für passendes Wording in allen Analysen!
 
 # TEIL 1: RECHERCHE (via web_search)
 
@@ -106,13 +114,17 @@ Suche SPEZIFISCH nach Daten für:
 - Größenklasse (z.B. "60-80 m²")
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "1950-1990", "ab 2000")
 
-**PRIORITÄT: Stadtteil/PLZ-spezifische Suche ZUERST!**
+**PRIORITÄT: Ortsteil/PLZ-spezifische Suche ZUERST!**
 
-Nutze mehrere Suchbegriffe in dieser Reihenfolge:
+Nutze mehrere Suchbegriffe in dieser Reihenfolge (passe Wording an Locations-Typ an):
 1. "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
-2. "[Stadtteil] [Stadt] Mietpreise [Zimmeranzahl] Zimmer"
-3. "[Stadt] [Stadtteil] Mietspiegel [Größe] m²"
-4. "[Stadt] Mietspiegel [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+2. "[Ortsteil] [Gemeinde/Stadt] Mietpreise [Zimmeranzahl] Zimmer"
+3. "[Gemeinde/Stadt] [Ortsteil] Mietspiegel [Größe] m²"
+4. "[Gemeinde/Stadt] Mietspiegel [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+
+**Für ländliche Gegenden zusätzlich:**
+- "Mietspiegel [Landkreis]" (oft einzige verfügbare Quelle)
+- "[Gemeinde] Wohnungsmarkt" oder "[Gemeinde] Immobilienpreise"
 
 Template für notes (MIT Anzahl Objekte wenn verfügbar):
 "3-Zimmer-Wohnung, 67 m², Baujahr 1900 in Wettenberg (PLZ 35435). Gemeinde-Median: 10,34 €/m² basierend auf 145 Angeboten (Mietspiegel Wettenberg 2024). Segment 3-Zimmer 60-80 m²: 10,32 €/m², P25-P75: 10,00-10,50 €/m² (Mietspiegel 2024 Tabelle 3). Segment Altbau (bis 1949): 9,80 €/m² (Mietspiegel S. 12). Quellen: Stadt Wettenberg Mietspiegel 2024, Immobilienscout24 Marktanalyse"
@@ -131,13 +143,17 @@ Suche SPEZIFISCH nach Daten für:
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "ab 2000")
 - Objekttyp (z.B. "Eigentumswohnung", "Reihenhaus")
 
-**PRIORITÄT: Stadtteil/PLZ-spezifische Suche ZUERST!**
+**PRIORITÄT: Ortsteil/PLZ-spezifische Suche ZUERST!**
 
-Nutze mehrere Suchbegriffe in dieser Reihenfolge:
+Nutze mehrere Suchbegriffe in dieser Reihenfolge (passe Wording an Locations-Typ an):
 1. "[PLZ] Kaufpreis m² Wohnung [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
-2. "[Stadtteil] [Stadt] Kaufpreise Eigentumswohnung"
-3. "Gutachterausschuss [Landkreis] [Stadtteil] Kaufpreise"
-4. "[Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+2. "[Ortsteil] [Gemeinde/Stadt] Kaufpreise Eigentumswohnung"
+3. "Gutachterausschuss [Landkreis] [Ortsteil] Kaufpreise"
+4. "[Gemeinde/Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+
+**Für ländliche Gegenden zusätzlich:**
+- "Gutachterausschuss [Landkreis] Kaufpreise" (oft einzige verfügbare Quelle)
+- "Grundstücksmarktbericht [Landkreis]"
 
 Template für notes (MIT Anzahl Objekte wenn verfügbar):
 "3-Zimmer-Wohnung, 67 m², Altbau (1900) in Wettenberg. Gemeinde-Median: 3.280 €/m² basierend auf 87 Verkäufen (Gutachterausschuss Landkreis Gießen 2024). Segment Altbau 3-Zimmer: 3.100 €/m², Spanne 3.000-3.600 €/m² (Grundstücksmarktbericht 2024). Segment Baujahr bis 1949: 2.950 €/m² (Gutachterausschuss Tabelle 5). Quellen: Gutachterausschuss LK Gießen 2024, Immobilienscout24, Empirica Preisdatenbank"
@@ -163,28 +179,32 @@ Beispiel drivers:
 
 ## 1.5 LOCATION (location)
 - postal_code: PLZ aus address
-- district: Stadtteil/Ortsteil
+- district: Ortsteil/Stadtteil (flexibel je nach Locations-Typ)
 - confidence: niedrig/mittel/hoch (wie sicher bist du?)
-- notes: Kontext (Stadt, Landkreis, Bundesland)
+- notes: Kontext (Gemeinde/Stadt, Landkreis, Bundesland)
 
 **NEU: MIKRO-LAGE QUALITÄT (KRITISCH für ehrliche Bewertung!)**
 
-Recherchiere aktiv:
-- "[Stadtteil] Sozialstruktur"
-- "[Stadtteil] Wohnlage Qualität"
-- "[Stadtteil] begehrtes Viertel"
-- "[PLZ] [Stadt] Image"
+Recherchiere aktiv (passe Suchbegriffe an Locations-Typ an):
+- **Für Städte**: "[Stadtteil] Sozialstruktur", "[Stadtteil] begehrtes Viertel", "[PLZ] [Stadt] Image"
+- **Für Gemeinden/Dörfer**: "[Gemeinde] Wohnlage", "[Ortsteil] Image", "[Gemeinde] ländliche Lage"
 
 Dokumentiere in notes:
 - Soziale Struktur (gehoben, durchschnittlich, sozial schwach)
-- Ruf des Viertels (begehrt, durchschnittlich, problematisch)
-- Besondere Merkmale (z.B. "Belgisches Viertel - Szeneviertel")
+- Ruf der Lage (begehrt, durchschnittlich, problematisch)
+- Besondere Merkmale (je nach Typ: "Szeneviertel" oder "ruhige ländliche Lage")
 
-Beispiel notes GUT:
+Beispiel notes STADT (Top):
 "PLZ 50672 Köln Innenstadt-Nord, Belgisches Viertel. Sehr begehrte Wohnlage, Szene-Viertel mit Cafés und Restaurants, stark nachgefragt (Quelle: Immobilienscout24 Analyse 2024)."
 
-Beispiel notes MITTEL:
+Beispiel notes STADT (Schwach):
 "PLZ 50769 Köln-Chorweiler. Sozial gemischtes Viertel mit höherem Anteil sozial schwächerer Haushalte, weniger begehrte Lage (Quelle: Stadt Köln Sozialatlas 2023)."
+
+Beispiel notes GEMEINDE:
+"PLZ 35435 Wettenberg, Ortsteil Launsbach. Ruhige Wohnlage am Stadtrand von Gießen, solide Nachfrage durch Familien und Pendler (Quelle: Mietspiegel Wettenberg 2024)."
+
+Beispiel notes DORF:
+"PLZ 52393 Hürtgenwald, Ortsteil Bergstein. Ländliche Lage im Kreis Düren, ruhig aber abgelegen. Nachfrage eher durch lokale Käufer, überregional weniger begehrt (Quelle: Grundstücksmarktbericht LK Düren 2024)."
 
 **GOLDEN RULE: Ehrlichkeit vor Schönfärberei!**
 Wir erstellen kein Verkaufsexposé, sondern eine Investment-Analyse. User wollen die Wahrheit.
@@ -224,23 +244,41 @@ Nutze die recherchierten facts (location.notes, vacancy, demand) und schreibe ei
 
 **TONALITÄT:** Wie ein Kumpel, der ehrlich sagt was Sache ist. Kein Verkaufsexposé!
 
-**WICHTIG:** User kennen bereits die grundlegende Lage. Keine allgemeinen Erklärungen über Stadt/Region. Fokus auf Investment-relevante Faktoren.
+**WICHTIG:** User kennen bereits die grundlegende Lage. Keine allgemeinen Erklärungen über Stadt/Gemeinde/Region. Fokus auf Investment-relevante Faktoren.
+
+**WORDING AN LOCATIONS-TYP ANPASSEN:**
+- **Stadt**: "Viertel", "Stadtteil", "Gegend"
+- **Gemeinde**: "Lage", "Ortsteil", "Gemeinde"
+- **Dorf**: "Dorf", "ländliche Lage", "Ortsteil"
 
 ## STRUKTUR (3 Absätze):
 
 ### 1. Mikro-Lage & Qualität (25-30W)
 **KRITISCH: Nutze facts.location.notes für ehrliche Bewertung!**
 
-Ehrlich bewerten:
-- Top-Lage (z.B. Belgisches Viertel): "Sehr begehrte Wohnlage, Szeneviertel - Top-Adresse für Köln."
-- Durchschnitt: "Solide Wohnlage, nichts Besonderes aber auch kein Problem."
-- Schwach (z.B. Chorweiler): "Chorweiler ist nicht die beste Gegend in Köln - sozial gemischtes Viertel, weniger begehrt. Aber: Nachfrage ist da."
+Ehrlich bewerten (passe Wording an Locations-Typ an):
 
-Beispiel Top-Lage:
+**Für STÄDTE:**
+- Top-Lage: "Sehr begehrte Wohnlage, Szeneviertel - Top-Adresse für [Stadt]."
+- Durchschnitt: "Solide Wohnlage, nichts Besonderes aber auch kein Problem."
+- Schwach: "[Stadtteil] ist nicht die beste Gegend - sozial gemischtes Viertel, weniger begehrt. Aber: Nachfrage ist da."
+
+**Für GEMEINDEN/DÖRFER:**
+- Gut: "Ruhige Lage in [Gemeinde], gute Anbindung an [Stadt] - solide Nachfrage."
+- Durchschnitt: "Solide ländliche Lage, etwas abgelegen aber OK."
+- Schwach: "Ländliche Lage, recht abgelegen - Nachfrage eher lokal begrenzt."
+
+Beispiel STADT Top-Lage:
 "Belgisches Viertel - eine der begehrtesten Lagen in Köln. Szeneviertel mit Cafés, Restaurants, hohe Nachfrage durch junge Berufstätige."
 
-Beispiel Schwach:
+Beispiel STADT Schwach:
 "Chorweiler ist ehrlich gesagt nicht Top-Lage: Sozial gemischtes Viertel, eher Problemgebiet. Aber die S-Bahn-Anbindung ist gut und Nachfrage existiert."
+
+Beispiel GEMEINDE Gut:
+"Ruhige Lage am Stadtrand von Gießen - gute Anbindung per S-Bahn (15 Min.), solide Nachfrage durch Familien und Pendler."
+
+Beispiel DORF:
+"Ländliche Lage im Kreis Düren, ruhig aber etwas abgelegen. Nachfrage eher durch lokale Käufer - überregional weniger gefragt."
 
 ### 2. Nachfrage & Treiber (25-30W)
 - Nachfrage-Niveau (hoch/mittel/niedrig)
@@ -251,8 +289,14 @@ Beispiel Schwach:
 - GUT: ["Pendler Frankfurt", "Studierende Uni Gießen", "Wachsende Tech-Branche"]
 - SCHLECHT: ["Familien", "Berufstätige"] → zu generisch, weglassen!
 
-Beispiel KONKRET:
-"Nachfrage durch Pendler (S-Bahn 15 Min. zur Innenstadt) und Familien mit kleinerem Budget. Stabil, aber keine Explosion."
+Beispiel STADT KONKRET:
+"Nachfrage durch Pendler (S-Bahn 15 Min. zur Innenstadt) und junge Berufstätige. Stabil, aber keine Explosion."
+
+Beispiel GEMEINDE KONKRET:
+"Nachfrage durch Pendler nach Gießen (15 Min. S-Bahn) und Familien mit kleinerem Budget. Stabil, aber kein Hotspot."
+
+Beispiel DORF:
+"Nachfrage eher lokal begrenzt - ländliche Lage zieht primär Käufer aus der Region an. Stabil, aber kein Wachstum."
 
 Beispiel wenn KEINE konkreten Treiber:
 "Nachfrage ist solide - Lage ist ok, Anbindung passt."
@@ -266,22 +310,30 @@ Leerstand + Vermietbarkeit:
 - hoch → "Leerstand höher, Vermietung könnte länger dauern."
 - NULL → "Keine Leerstandsdaten, aber Markt wirkt [stabil/angespannt]."
 
-Entwicklungspotenzial:
-- Top-Lage: "Langfristig stabil bis leicht steigend - begehrte Lage."
+Entwicklungspotenzial (passe an Locations-Typ an):
+- Top-Lage (Stadt): "Langfristig stabil bis leicht steigend - begehrte Lage."
 - Durchschnitt: "Wertstabil, aber keine großen Sprünge zu erwarten."
-- Schwach: "Wertstabilität ok, aber kein Hotspot - eher seitwärts."
+- Schwach (Stadt): "Wertstabilität ok, aber kein Hotspot - eher seitwärts."
+- Ländlich: "Wertstabil auf lokalem Niveau - kein Hotspot, aber auch kein Absturz."
 
-Beispiel:
+Beispiel STADT:
 "Leerstand niedrig, Vermietung läuft. Langfristig wertstabil, aber keine Rakete - solide Anlage."
+
+Beispiel GEMEINDE:
+"Leerstand ok, Vermietung kann 2-3 Monate dauern. Wertstabil auf lokalem Niveau - solide, aber kein Wachstumsmarkt."
+
+Beispiel DORF:
+"Leerstand-Daten fehlen, aber ländlicher Markt ist eher ruhig. Vermietung kann länger dauern. Wertstabil, aber kein Hotspot."
 
 ## TONFALL Lageanalyse
 Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 ## VERBOTEN Lageanalyse
-❌ Allgemeine Beschreibung der Stadt ("Köln ist eine Metropole...")
-❌ Schönfärberei ("attraktive Wohnlage" wenn's Chorweiler ist)
+❌ Allgemeine Beschreibung der Stadt/Gemeinde ("Köln ist eine Metropole...", "Wettenberg ist eine Gemeinde...")
+❌ Schönfärberei ("attraktive Wohnlage" wenn's nicht stimmt)
 ❌ POIs erfinden (Schulen, Parks) ohne Quelle
 ❌ Generische Zielgruppen ("Familien, Berufstätige") ohne konkrete Begründung
+❌ Städtisches Wording bei ländlichen Lagen ("Viertel", "Szeneviertel" bei Dörfern)
 
 # TEIL 3: MIETVERGLEICH (80-100 Wörter HTML)
 
@@ -294,20 +346,23 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 ## STRUKTUR - Fließtext in 2-3 Absätzen, EINFACHE SPRACHE:
 
 ### Absatz 1: Ist-Situation & Marktvergleich (40-50W)
-**KRITISCH: Vergleiche mit SEGMENT-MEDIAN, nicht Stadt-Durchschnitt!**
+**KRITISCH: Vergleiche mit SEGMENT-MEDIAN, nicht Gemeinde/Stadt-Durchschnitt!**
 
 **Einfache, klare Sätze. Keine Verschachtelungen.**
 
-**WICHTIG: Bevorzuge stadtteil-/PLZ-spezifische Vergleiche!**
+**WICHTIG: Bevorzuge Ortsteil/PLZ-spezifische Vergleiche! Passe Wording an Locations-Typ an.**
 
-Template WENN Stadtteil/PLZ-Daten existieren:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Stadtteil/PLZ] kosten im Schnitt etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Angeboten] laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
+Template WENN Ortsteil/PLZ-Daten existieren:
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Ortsteil/PLZ] kosten im Schnitt etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Angeboten] laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
 
-Template WENN NUR Stadt-Daten:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Stadt] ([Größe]) kosten im Schnitt etwa [Segment] €/m² laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
+Template WENN NUR Gemeinde/Stadt-Daten:
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Gemeinde/Stadt] ([Größe]) kosten im Schnitt etwa [Segment] €/m² laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
 
-**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
+Template WENN NUR Landkreis-Daten (bei ländlichen Lagen):
+"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Im Landkreis [X] kosten vergleichbare Wohnungen etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % Abweichung. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
+
+**WICHTIG: Wenn nur Gemeinde/Stadt/Landkreis-Daten verfügbar (keine PLZ/Ortsteil-Daten):**
+Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Gemeinde/Stadt/Landkreis]-Durchschnitt - lokale Preise in [Ortsteil] können abweichen."
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert! Nur wenn Spanne SEHR relevant ist.**
 
@@ -352,20 +407,23 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 ## STRUKTUR - Fließtext in 2-3 Absätzen, EINFACHE SPRACHE:
 
 ### Absatz 1: Ist-Situation & Marktvergleich (40-50W)
-**KRITISCH: Vergleiche mit SEGMENT-MEDIAN, nicht Stadt-Durchschnitt!**
+**KRITISCH: Vergleiche mit SEGMENT-MEDIAN, nicht Gemeinde/Stadt-Durchschnitt!**
 
 **Einfache, klare Sätze. Keine Verschachtelungen.**
 
-**WICHTIG: Bevorzuge stadtteil-/PLZ-spezifische Vergleiche!**
+**WICHTIG: Bevorzuge Ortsteil/PLZ-spezifische Vergleiche! Passe Wording an Locations-Typ an.**
 
-Template WENN Stadtteil/PLZ-Daten existieren:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Stadtteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+Template WENN Ortsteil/PLZ-Daten existieren:
+"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Ortsteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
 
-Template WENN NUR Stadt-Daten:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+Template WENN NUR Gemeinde/Stadt-Daten:
+"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Gemeinde/Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
 
-**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
+Template WENN NUR Landkreis-Daten (bei ländlichen Lagen):
+"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Im Landkreis [X] liegen vergleichbare Eigentumswohnungen bei etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % unter/über dem Markt. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
+
+**WICHTIG: Wenn nur Gemeinde/Stadt/Landkreis-Daten verfügbar (keine PLZ/Ortsteil-Daten):**
+Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Gemeinde/Stadt/Landkreis]-Durchschnitt - lokale Preise in [Ortsteil] können abweichen."
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert!**
 
