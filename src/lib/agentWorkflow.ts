@@ -231,16 +231,23 @@ Nutze die recherchierten facts (location.notes, vacancy, demand) und schreibe ei
 ### 1. Mikro-Lage & Qualität (25-30W)
 **KRITISCH: Nutze facts.location.notes für ehrliche Bewertung!**
 
-Ehrlich bewerten:
-- Top-Lage (z.B. Belgisches Viertel): "Sehr begehrte Wohnlage, Szeneviertel - Top-Adresse für Köln."
+**WORDING flexibel je nach Kontext:**
+
+**STADT/STADTTEIL (z.B. Köln, München, Berlin):**
+- Top-Lage: "Sehr begehrte Wohnlage, Szeneviertel - Top-Adresse für [Stadt]."
 - Durchschnitt: "Solide Wohnlage, nichts Besonderes aber auch kein Problem."
-- Schwach (z.B. Chorweiler): "Chorweiler ist nicht die beste Gegend in Köln - sozial gemischtes Viertel, weniger begehrt. Aber: Nachfrage ist da."
+- Schwach: "[Stadtteil] ist nicht die beste Gegend - sozial gemischtes Viertel, weniger begehrt. Aber: Nachfrage ist da."
 
-Beispiel Top-Lage:
-"Belgisches Viertel - eine der begehrtesten Lagen in Köln. Szeneviertel mit Cafés, Restaurants, hohe Nachfrage durch junge Berufstätige."
+**GEMEINDE/DORF (z.B. Wettenberg, Kirchheim):**
+- Top-Lage: "Attraktive Wohnlage mit guter Infrastruktur und Anbindung."
+- Durchschnitt: "Ruhige Wohnlage, ländlich geprägt, solide."
+- Schwach: "Eher ländlich, periphere Lage - für Stadtanbindung nicht optimal."
 
-Beispiel Schwach:
-"Chorweiler ist ehrlich gesagt nicht Top-Lage: Sozial gemischtes Viertel, eher Problemgebiet. Aber die S-Bahn-Anbindung ist gut und Nachfrage existiert."
+Beispiel Stadt-Schwach:
+"Chorweiler ist nicht Top-Lage: Sozial gemischtes Viertel, eher Problemgebiet. Aber S-Bahn-Anbindung ist gut."
+
+Beispiel Gemeinde-Durchschnitt:
+"Wettenberg ist eine ruhige Wohnlage nahe Gießen. Ländlich geprägt, gute Anbindung für Pendler nach Frankfurt."
 
 ### 2. Nachfrage & Treiber (25-30W)
 - Nachfrage-Niveau (hoch/mittel/niedrig)
@@ -260,19 +267,23 @@ Beispiel wenn KEINE konkreten Treiber:
 ### 3. Leerstand & Entwicklung (25-30W)
 KRITISCH: Nutze GENAU facts.vacancy.notes!
 
+**FOKUS: Vermietbarkeit + Zukunfts-Potential (NICHT nochmal Lage-Qualität wiederholen!)**
+
 Leerstand + Vermietbarkeit:
 - niedrig → "Leerstand niedrig, Vermietung läuft zügig."
 - mittel → "Leerstand ok, Vermietung kann 2-3 Monate dauern."
 - hoch → "Leerstand höher, Vermietung könnte länger dauern."
 - NULL → "Keine Leerstandsdaten, aber Markt wirkt [stabil/angespannt]."
 
-Entwicklungspotenzial:
-- Top-Lage: "Langfristig stabil bis leicht steigend - begehrte Lage."
-- Durchschnitt: "Wertstabil, aber keine großen Sprünge zu erwarten."
-- Schwach: "Wertstabilität ok, aber kein Hotspot - eher seitwärts."
+Entwicklungspotenzial (KONKRET, nicht generisch!):
+- Top-Lage: "Wertsteigerung wahrscheinlich durch [Grund: neue Bahnlinie, Gentrifizierung, etc.]"
+- Durchschnitt: "Inflation + Bevölkerungswachstum = langfristig stabil"
+- Schwach: "Wertstabil, aber Aufwertung unwahrscheinlich - Cashflow-Fokus"
 
-Beispiel:
-"Leerstand niedrig, Vermietung läuft. Langfristig wertstabil, aber keine Rakete - solide Anlage."
+**VERBOT: NICHT wiederholen "kein Hotspot", "solide Anlage" - das stand schon in Absatz 1!**
+
+Beispiel KONKRET:
+"Leerstand niedrig, Vermietung läuft. Langfristig wertstabil durch Bevölkerungswachstum Region Köln."
 
 ## TONFALL Lageanalyse
 Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
@@ -306,8 +317,10 @@ Template WENN Stadtteil/PLZ-Daten existieren:
 Template WENN NUR Stadt-Daten:
 "Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Stadt] ([Größe]) kosten im Schnitt etwa [Segment] €/m² laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
 
-**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
+**KRITISCH: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
+MUSS am Ende von Absatz 1 erscheinen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil/PLZ] können stark abweichen."
+
+**WENN PLZ/Stadtteil-Daten vorhanden: DIESE nutzen, NICHT Stadt-Durchschnitt!**
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert! Nur wenn Spanne SEHR relevant ist.**
 
@@ -364,8 +377,10 @@ Template WENN Stadtteil/PLZ-Daten existieren:
 Template WENN NUR Stadt-Daten:
 "Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
 
-**WICHTIG: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil] können abweichen."
+**KRITISCH: Wenn nur Stadt-Daten verfügbar (keine PLZ/Stadtteil-Daten):**
+MUSS am Ende von Absatz 1 erscheinen: "Achtung: Das ist der [Stadt]-Durchschnitt - lokale Preise in [Stadtteil/PLZ] können stark abweichen."
+
+**WENN PLZ/Stadtteil-Daten vorhanden: DIESE nutzen, NICHT Stadt-Durchschnitt!**
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert!**
 
@@ -538,31 +553,29 @@ Identifiziere DAS größte Risiko basierend auf delta-Werten (NEUE Schwellenwert
 ## ABSATZ 3: EMPFEHLUNG (40-60W)
 <h3>Meine Empfehlung</h3>
 
-2-3 konkrete Handlungsschritte - **LOGISCH basierend auf Zahlen UND Schwellenwerten!**
+**QUALITÄT vor QUANTITÄT! 1-2 Empfehlungen mit BEGRÜNDUNG, nicht 3 oberflächliche Punkte.**
 
-**WICHTIG: Empfehlungen müssen zu Fakten passen!**
+**WICHTIG: Empfehlungen müssen zu Fakten passen + WARUM erklären!**
 
 **Bei Kaufpreis ±10% (AM MARKT):**
-→ NICHT verhandeln! Sondern: "1) WEG-Unterlagen prüfen. 2) Zustand checken. 3) Notarvertrag lesen."
+→ "1) WEG-Unterlagen prüfen (Rücklagen, Sanierungsplan, Protokolle). 2) Notarvertrag gründlich lesen."
 
 **Bei Kaufpreis 10-20% ÜBER Markt:**
-→ "1) Leicht verhandeln, aber kein Muss. 2) WEG-Unterlagen prüfen."
+→ "1) Versuche 5-10% Nachlass - Argument: Markt liegt bei [X] €/m². Wenn Verkäufer nicht verhandelt, prüfe ob die Lage den Aufpreis rechtfertigt."
 
 **Bei Kaufpreis >20% ÜBER Markt:**
-→ "1) Kaufpreis runterverhandeln auf [X] €/m². 2) Sonst Finger weg - zu teuer."
+→ "1) Kaufpreis MUSS runter auf maximal [X] €/m² (10% über Markt). Sonst Finger weg - du überzahlst massiv und riskierst Verlust beim Wiederverkauf."
 
 **Bei Kaufpreis 10-20% UNTER Markt:**
-→ "1) WEG-Unterlagen gründlich prüfen. 2) Zustand checken - Preis hat vermutlich Grund."
+→ "1) WEG-Unterlagen gründlich prüfen (Rücklagen, anstehende Sanierungen) - niedriger Preis kann versteckte Kosten bedeuten. 2) Zustand checken, idealerweise mit Gutachter."
 
 **Bei Kaufpreis >20% UNTER Markt:**
-→ "1) WEG-Unterlagen SEHR gründlich prüfen. 2) Zustand-Check. 3) Warum so billig? Kläre Hintergründe."
+→ "1) WEG-Unterlagen SEHR gründlich prüfen (Rücklagen, Sanierungsplan, Wirtschaftsplan, Protokolle der letzten 5 Jahre). Bei [X]% unter Markt können versteckte Instandhaltungsrückstände oder große Sanierungen anstehen - das erklärt den Preis. 2) Gutachter beauftragen - kläre auch beim Verkäufer, warum er so günstig verkauft."
 
 **Bei Miete >20% ÜBER Markt:**
-→ "Kalkuliere konservativ mit Marktmiete [X] €/m²"
+→ "Kalkuliere konservativ mit Marktmiete [X] €/m² - bei Mieterwechsel riskierst du [Betrag] € Cashflow-Verlust pro Monat."
 
-Beispiele:
-- Kaufpreis 9% unter Markt: "1) WEG-Unterlagen prüfen (Rücklagen, Sanierungen). 2) Zustand checken. 3) Notarvertrag lesen."
-- Kaufpreis 25% über Markt: "1) Kaufpreis auf [X] €/m² runterverhandeln. 2) Sonst Finger weg."
+**VERBOT: Keine redundanten Punkte ("Zustand checken" + "Warum so billig?" = fast identisch!).**
 
 ## ABSATZ 4: FAZIT (20-30W)
 <h3>Fazit</h3>
