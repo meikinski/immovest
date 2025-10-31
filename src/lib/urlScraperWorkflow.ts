@@ -143,15 +143,46 @@ DATEN EXTRAHIEREN:
    - → Speichere in Feld "miete"
    - Falls nicht gefunden → miete = null
 
-7) HAUSGELD:
+7) HAUSGELD (WICHTIG: GESAMTE Seite durchsuchen!):
+
+   🚨 KRITISCH - Hausgeld hat oft ZWEI Erwähnungen auf der Seite:
+
+   A) OBEN im Inserat: Gesamt-Hausgeld (z.B. "Hausgeld: 245 €")
+   B) UNTEN in Beschreibung: Aufteilung in umlegbar/nicht-umlegbar
+
+   ⚠️ STOPPT NICHT nach dem ersten Fund! Durchsuche die KOMPLETTE Seite!
+
+   SCHRITT 1 - Gesamt-Hausgeld finden:
    - Suche im Text nach: "Hausgeld", "monatliches Hausgeld", "Wohngeld"
-   - Nimm NUR den Wert bei diesem Label
+   - Nimm den Gesamtwert (z.B. 245€)
    - → Speichere in Feld "hausgeld"
-   - Falls nicht gefunden → hausgeld = null
-   - Falls Hausgeld gefunden OHNE Aufteilung:
+
+   SCHRITT 2 - Nach Aufteilung suchen (KOMPLETTE Seite!):
+   - Suche nach diesen Texten ÜBERALL auf der Seite:
+     * "umlegbar" oder "Umlegbar" oder "umlagefähig" oder "Umlagefähig"
+     * "nicht umlegbar" oder "nicht umlagefähig"
+     * "davon umlegbar" oder "davon nicht umlegbar"
+   - Schaue in die Beschreibung, in Details, überall!
+   - BEISPIEL was du finden könntest:
+     * "Hausgeld: 245€, davon umlegbar 147€, nicht umlegbar 98€"
+     * "Umlegbares Hausgeld: 147€"
+     * "Nicht umlegbare Kosten: 98€"
+
+   SCHRITT 3 - Werte zuweisen:
+   - Falls Split gefunden:
+     * hausgeld_umlegbar = [gefundener Wert]
+     * hausgeld_nicht_umlegbar = [gefundener Wert]
+     * KEIN Warning nötig
+
+   - Falls NUR Gesamt-Hausgeld gefunden (KEIN Split):
      * hausgeld_umlegbar = 60% vom Hausgeld
      * hausgeld_nicht_umlegbar = 40% vom Hausgeld
-     * Warning: "Hausgeld-Verteilung ist Schätzung"
+     * Warning: "Hausgeld-Verteilung ist Schätzung (60/40)"
+
+   - Falls GAR KEIN Hausgeld gefunden:
+     * hausgeld = null
+     * hausgeld_umlegbar = null
+     * hausgeld_nicht_umlegbar = null
 
 8) MAKLERGEBÜHR / PROVISION (Käuferprovision):
    🔴 Siehe SCHRITT 1 oben - Provision ZUERST suchen!
@@ -210,7 +241,15 @@ BEVOR du die Daten zurückgibst, PRÜFE NOCHMAL:
    - Suche NOCHMAL nach "%"
    - Suche NOCHMAL nach "Provision"
 
-NUR wenn du diese 3 Punkte geprüft hast, darfst du das Ergebnis zurückgeben!
+4. Falls du Hausgeld gefunden hast:
+   - Hast du nach "umlegbar" gesucht? Die GESAMTE Seite?
+   - Hast du nach "nicht umlegbar" gesucht? In der Beschreibung unten?
+   - Falls du den 60/40 Split anwendest:
+     * Bist du dir SICHER, dass KEIN Split auf der Seite steht?
+     * Hast du die KOMPLETTE Seite durchsucht, nicht nur oben?
+     * Falls du NICHT sicher bist → Suche NOCHMAL!
+
+NUR wenn du diese 4 Punkte geprüft hast, darfst du das Ergebnis zurückgeben!
 
 REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
   model: 'gpt-4o',  // Fast and accurate with improved prompts - fallback to gpt-5-mini if needed
