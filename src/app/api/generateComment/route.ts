@@ -122,6 +122,19 @@ export async function POST(req: Request) {
 
     const rawRec: Record<string, unknown> = (await req.json()) as Record<string, unknown>;
 
+    // Debug: Log alle relevanten Felder aus dem Request
+    console.log('[generateComment] Raw request fields:', {
+      cashflowVorSteuer: rawRec.cashflowVorSteuer,
+      cashflowNachSteuern: rawRec.cashflowNachSteuern,
+      nettoMietrendite: rawRec.nettoMietrendite,
+      nettorendite: rawRec.nettorendite,
+      bruttoMietrendite: rawRec.bruttoMietrendite,
+      dscr: rawRec.dscr,
+      ek: rawRec.ek,
+      anschaffungskosten: rawRec.anschaffungskosten,
+      ekQuotePct: rawRec.ekQuotePct,
+    });
+
     const toNum = (x: unknown): number | undefined => {
       if (typeof x === 'number' && Number.isFinite(x)) return x;
       if (typeof x === 'string') {
@@ -147,6 +160,16 @@ export async function POST(req: Request) {
     const ry = bodyNorm.nettorendite;
     const hasCF = isFiniteNumber(cf);
     const hasRY = isFiniteNumber(ry);
+
+    // Debug logging
+    console.log('[generateComment] Received data:', {
+      cashflowVorSteuer: cf,
+      nettorendite: ry,
+      dscr: bodyNorm.dscr,
+      ekQuotePct: bodyNorm.ekQuotePct,
+      ek: bodyNorm.ek,
+      anschaffungskosten: bodyNorm.anschaffungskosten,
+    });
 
     if (!hasCF || !hasRY) {
       return NextResponse.json({ comment: 'Zu wenige Daten für eine Kurzbewertung.' });
@@ -184,6 +207,8 @@ export async function POST(req: Request) {
       ekQuotePct: isFiniteNumber(ekQuotePct) ? ekQuotePct : undefined,
       renditeLabel: classifyRenditeLabel(ry), // hilft dem Modell bei der Einordnung
     };
+
+    console.log('[generateComment] Payload to OpenAI:', JSON.stringify(userPayload, null, 2));
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
