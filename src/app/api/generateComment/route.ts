@@ -13,21 +13,26 @@ type CommentInput = {
 };
 
 const SYSTEM_PROMPT = `
-Du bist ein erfahrener Immobilieninvestor. Schreibe 4-6 Sätze (~80-120 Wörter), die klar beantworten: Rentiert sich das?
+Du bist ein erfahrener Immobilieninvestor. Schreibe 4-6 Sätze (~90-130 Wörter), die klar beantworten: Rentiert sich das?
 
 Struktur:
-1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow vor Steuern (in Euro!) und Nettomietrendite.
+1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow und Nettomietrendite.
    - Cashflow < -100€: Sag klar, dass es sich nicht rechnet
    - Cashflow -100€ bis -10€: "Praktisch ausgeglichen, leicht negativ"
    - Cashflow -10€ bis +10€: "Praktisch ausgeglichen"
    - Cashflow > +100€: Positiv bewerten
    Bewerte Rendite: <2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv
 
-2) Risikofaktor (1-2 Sätze): DSCR (wenn vorhanden) - erkläre Risiko (< 1 = kritisch, < 1.2 = knapp, ≥ 1.4 = gut). ODER EK-Quote - WICHTIG: Hohe EK-Quote = WENIGER Risiko/Belastung! (≥35% = sehr gut, 15-35% = solide, <15% = höhere Belastung)
+2) Risikofaktor (1 Satz): DSCR (wenn < 1.2 erwähnen). EK-Quote NUR erwähnen wenn extrem (<15% oder >50%).
 
-3) Nächster Schritt (1-2 Sätze): Bei schlechten Zahlen (Cashflow < -100€ oder DSCR < 1): Sei ehrlich, dass es sich nicht rechnet, erwähne aber dass Lage das Bild vervollständigen könnte. Bei guten Zahlen: Motiviere zu "Markt & Lage" - dort sieht er ob Miete/Kaufpreis vs Median stimmen.
+3) Actionable Insight (1-2 Sätze): Bei grenzwertigen Zahlen (Cashflow < 50€ oder DSCR < 1.1): Zeige was der User TUN kann:
+   - "Mit mehr Eigenkapital könntest du den Cashflow auf X€ verbessern und DSCR über 1,1 bringen"
+   - Verweis auf "Szenarien" Tab zum Durchspielen
+   Bei guten Zahlen: Überspringe diesen Teil.
 
-Sei ehrlich. Bei schlechten Zahlen: nicht zu pushy. Nutze NUR die gelieferten Zahlen.
+4) Nächster Schritt (1 Satz): Bei schlechten Zahlen: ehrlich bleiben. Bei grenzwertigen/guten Zahlen: Verweis auf "Markt & Lage" (Miete vs Median prüfen).
+
+Sei ehrlich und konkret. Zahlen sind bereits gerundet auf 2 Stellen. Nutze NUR die gelieferten Zahlen.
 `.trim();
 
 function isFiniteNumber(v: unknown): v is number {
@@ -82,34 +87,38 @@ function ruleBasedComment(p: CommentInput): string {
     parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – moderate Zahlen.`);
   }
 
-  // Teil 2: Risikofaktor (1-2 Sätze)
-  if (isFiniteNumber(dscr)) {
+  // Teil 2: Risikofaktor (nur DSCR < 1.2 oder extreme EK-Quote)
+  if (isFiniteNumber(dscr) && dscr < 1.2) {
     if (dscr < 1) {
-      parts.push(`Kritischer Punkt: Die Mieteinnahmen decken die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
-    } else if (dscr < 1.2) {
-      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}) – bei Leerstand wird's eng.`);
-    } else if (dscr < 1.4) {
-      parts.push(`Die Rate ist solide gedeckt (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Kritisch: Die Miete deckt die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
     } else {
-      parts.push(`Die Rate ist komfortabel gedeckt (DSCR ${dscr.toFixed(2)}), guter Puffer.`);
+      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}).`);
     }
   } else if (isFiniteNumber(ekQuote)) {
-    if (ekQuote >= 35) {
-      parts.push(`Mit ${ekQuote.toFixed(0)} % Eigenkapital ist deine Belastung niedrig – das reduziert das Risiko deutlich.`);
-    } else if (ekQuote >= 15) {
-      parts.push(`Die EK-Quote von ${ekQuote.toFixed(0)} % ist solide.`);
+    if (ekQuote > 50) {
+      parts.push(`Sehr hohe EK-Quote (${ekQuote.toFixed(0)} %) – minimales Risiko.`);
+    } else if (ekQuote < 15) {
+      parts.push(`Niedrige EK-Quote (${ekQuote.toFixed(0)} %) – höheres Risiko.`);
+    }
+    // 15-50%: Nicht erwähnen, ist normal
+  }
+
+  // Teil 3: Actionable Insight (bei grenzwertigen Zahlen)
+  if ((cashflowVorSteuer < 50 && cashflowVorSteuer > -100) || (isFiniteNumber(dscr) && dscr < 1.1 && dscr > 0.9)) {
+    if (isFiniteNumber(ekQuote) && ekQuote < 40) {
+      parts.push(`Mit mehr Eigenkapital könntest du den Cashflow verbessern und den DSCR über 1,1 bringen – check „Szenarien" um verschiedene EK-Höhen durchzuspielen.`);
     } else {
-      parts.push(`Mit nur ${ekQuote.toFixed(0)} % Eigenkapital ist die Belastung höher – das erhöht dein Risiko.`);
+      parts.push(`Die Zahlen sind knapp – in „Szenarien" kannst du prüfen, wie sich Anpassungen bei Zins, Tilgung oder EK auswirken.`);
     }
   }
 
-  // Teil 3: Nächster Schritt (ehrlich, nicht zu pushy bei schlechten Zahlen)
+  // Teil 4: Nächster Schritt
   if (cashflowVorSteuer < -100 || (isFiniteNumber(dscr) && dscr < 1)) {
-    parts.push(`Die Zahlen zeigen: So rechnet sich das nicht. Die Lage könnte das Bild vervollständigen – check „Markt & Lage" für den vollständigen Kontext.`);
+    parts.push(`So rechnet sich das nicht. Die Lage könnte mehr Kontext geben – check „Markt & Lage".`);
   } else if (cashflowVorSteuer < 100) {
-    parts.push(`Die Zahlen sind grenzwertig. In „Markt & Lage" siehst du, ob die Location das rechtfertigt – Miete vs. Median, Entwicklungstrend etc.`);
+    parts.push(`Check „Markt & Lage" – dort siehst du, ob Miete und Kaufpreis vs. Median passen.`);
   } else {
-    parts.push(`Die KPIs sehen gut aus. Entscheidend ist jetzt: Rechtfertigt die Lage diese Zahlen? Check „Markt & Lage" – dort siehst du Miete vs. Median und ob du am richtigen Ort kaufst.`);
+    parts.push(`Check „Markt & Lage" – ist die Miete über dem Median? Kaufst du am richtigen Ort?`);
   }
 
   return `<p>${parts.join(' ')}</p>`;
@@ -208,16 +217,16 @@ export async function POST(req: Request) {
       });
     }
 
-    // Minimales Payload an das Modell
+    // Minimales Payload an das Modell (gerundet für bessere Lesbarkeit)
     const userPayload = {
-      cashflowVorSteuer: cf,
-      nettorendite: ry,
-      dscr: isFiniteNumber(bodyNorm.dscr) ? bodyNorm.dscr : undefined,
-      ekQuotePct: isFiniteNumber(ekQuotePct) ? ekQuotePct : undefined,
+      cashflowVorSteuer: Math.round(cf * 100) / 100, // auf 2 Stellen runden
+      nettorendite: Math.round(ry * 100) / 100, // auf 2 Stellen runden
+      dscr: isFiniteNumber(bodyNorm.dscr) ? Math.round(bodyNorm.dscr * 100) / 100 : undefined,
+      ekQuotePct: isFiniteNumber(ekQuotePct) ? Math.round(ekQuotePct * 10) / 10 : undefined, // auf 1 Stelle
       renditeLabel: classifyRenditeLabel(ry), // hilft dem Modell bei der Einordnung
     };
 
-    console.log('[generateComment] Payload to OpenAI:', JSON.stringify(userPayload, null, 2));
+    console.log('[generateComment] Payload to OpenAI (rounded):', JSON.stringify(userPayload, null, 2));
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -226,8 +235,8 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-        temperature: 0.2,
+        model: process.env.OPENAI_MODEL || 'gpt-4o', // Upgrade auf gpt-4o für bessere Ausgabe
+        temperature: 0.3, // Etwas mehr Variation
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: JSON.stringify(userPayload) },
