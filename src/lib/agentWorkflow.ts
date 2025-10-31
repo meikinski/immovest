@@ -492,13 +492,30 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 **ABSATZ 1: Cashflow + Begründung (40-50W)**
 "Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.]
 
-Warum? [BEGRÜNDUNG mit delta-Werten]: Die Miete liegt [Y]% [über/unter] Markt, der Kaufpreis [Z]% [über/unter] Markt - das erklärt den [positiven/negativen] Cashflow."
+Warum? [BEGRÜNDUNG mit delta-Werten]: Die Miete liegt [Y]% [über/unter] Markt, der Kaufpreis [Z]% [über/unter] Markt - das erklärt den [positiven/negativen] Cashflow.
+
+**WICHTIG bei Miete >15% über Markt:**
+Zusätzlich hinzufügen: "ABER: [Y]% über Markt ist kritisch - geht nur in Ordnung, wenn die Ausstattung top ist (moderne Küche, Balkon, saniert). Sonst schwer zu halten bei Mieterwechsel. Kalkuliere konservativ mit Marktmiete [X] €/m²."
+
+**STEUER-HINWEIS:**
+- Bei positivem Cashflow (>0): "Achtung: Nach Steuern bleiben dir etwa [X*0.60]-[X*0.70] € übrig (Grenzsteuersatz 30-40%)."
+- Bei negativem Cashflow (<0): "Steuerlich kannst du etwa [Betrag*0.40] € im Jahr sparen (40% Grenzsteuersatz), was den echten monatlichen Verlust auf etwa [X*0.60] € reduziert."
 
 **ABSATZ 2: Nettomietrendite (30-40W)**
 "Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). Das zeigt dir, ob die Immobilie wirtschaftlich läuft - unabhängig von deiner Finanzierung."
 
-**ABSATZ 3: DSCR (20-30W)**
-"DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist. [Bei DSCR >1.5: Gutes Polster bei Mietausfall / Bei DSCR 1-1.2: Wenig Puffer / Bei DSCR <1: Bank sieht das kritisch]"
+**ABSATZ 3: DSCR + Leerstand-Simulation (30-40W)**
+"DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist.
+
+**Leerstand-Simulation hinzufügen:**
+Berechne Kreditrate aus payload (payload.kreditrate oder aus DSCR: Kreditrate = Miete / DSCR)
+Bei 3 Monaten Leerstand musst du Kreditrate * 3 ohne Mieteinnahmen zahlen.
+
+- Bei positivem Cashflow: "Bei 3 Monaten Leerstand müsstest du [Kreditrate * 3] € ohne Mieteinnahmen zahlen. Mit deinem aktuellen Cashflow von [X] € hättest du nach [Y] Monaten einen Puffer aufgebaut. Auch ohne separate Rücklagen für Mietausfall bist du abgesichert (kalkulatorische Kosten sind bereits eingerechnet)."
+
+- Bei negativem Cashflow + DSCR >1.2: "Bei 3 Monaten Leerstand müsstest du [Kreditrate * 3] € zusätzlich zu deinem normalen Verlust zahlen - das sind [Betrag] € extra. Rücklagen für Mietausfall sollten eingeplant werden."
+
+- Bei DSCR <1.2: "Bei 3 Monaten Leerstand würdest du [Kreditrate * 3] € draufzahlen - das ist kritisch. Rücklagen MÜSSEN eingeplant werden."
 
 **Falls Cashflow negativ UND EK-Anteil <30%:**
 "Dein EK-Anteil liegt bei nur [X]% ([Betrag] € von [Kaufpreis] €). Mit 30% EK würdest du [Differenz] € weniger Rate zahlen. Plus etwa [Steuer] € Steuerersparnis im Jahr (40% Grenzsteuersatz) = nur noch [Netto] € monatliche Belastung statt [Aktuell] €."
@@ -512,13 +529,20 @@ Warum? [BEGRÜNDUNG mit delta-Werten]: Die Miete liegt [Y]% [über/unter] Markt,
 - "Miete liegt 7% über Markt + Kaufpreis 9% unter Markt → solider Cashflow"
 - "Miete 15% unter Markt → Cashflow leidet"
 
-**Steuer (nur bei Cashflow <0):**
-Am Ende hinzufügen: "Steuerlich kannst du etwa [Betrag] € im Jahr sparen (40% Grenzsteuersatz), was den echten monatlichen Verlust auf [X] € reduziert."
-
 ## ABSATZ 2: RISIKEN & POTENZIAL (50-70W)
 <h3>Risiken & Potenzial</h3>
 
-Identifiziere DAS größte Risiko basierend auf delta-Werten (NEUE Schwellenwerte!):
+**KRITISCH: Pattern-Erkennung ZUERST prüfen!**
+
+**Pattern 1: Hohe Miete + niedriger Kaufpreis (Alarm!):**
+Wenn Miete >15% über Markt UND Kaufpreis <-15% unter Markt:
+→ "ACHTUNG: Miete [X]% über Markt + Kaufpreis [Y]% unter Markt deutet auf überhöhte Miete hin. Beim Mieterwechsel musst du mit Marktmiete kalkulieren → [Betrag] € Cashflow-Verlust. [Falls Baujahr <1990: + älteres Baujahr kann bedeuten, dass Verkäufer wegen Sanierungsbedarf schnell raus will.]"
+
+**Pattern 2: Niedriger Kaufpreis + älteres Baujahr (<1990):**
+Wenn Kaufpreis <-15% unter Markt UND Baujahr <1990:
+→ "Risiko: [Y]% unter Markt bei Baujahr [Z] - kann auf Sanierungsbedarf hindeuten (Elektrik, Leitungen, Fenster, Heizung). Budget für Sanierungen muss eingeplant werden."
+
+**Wenn KEINE Patterns zutreffen, dann normale Risiko-Bewertung:**
 
 **Größtes Risiko nur wenn DEUTLICH abweichend:**
 - Miete >20% über Markt → "Größtes Risiko: Mieterwechsel, dann [Betrag] € Cashflow-Verlust"
@@ -530,6 +554,10 @@ Identifiziere DAS größte Risiko basierend auf delta-Werten (NEUE Schwellenwert
 
 **Wenn Werte im Bereich ±10%:**
 → "Keine nennenswerten Risiken"
+
+**ZUSÄTZLICH: Baujahr-Warnung (falls Baujahr 1960-1990 UND KEIN Pattern 2 triggert):**
+Falls Baujahr zwischen 1960-1990:
+→ "Hinweis: Baujahr [Z] - bei älteren Immobilien kann Sanierungsbedarf anstehen (Elektrik, Leitungen, Fenster, Heizung). Budget für mögliche Sanierungen sollte eingeplant werden."
 
 **Potenzial separat zeigen (nach logischem Übergang):**
 - Bei Risiken: "Aber: [positiver Aspekt]" (Kontrast)
