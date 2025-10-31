@@ -13,26 +13,29 @@ type CommentInput = {
 };
 
 const SYSTEM_PROMPT = `
-Du bist ein erfahrener Immobilieninvestor. Schreibe 4-6 Sätze (~90-130 Wörter), die klar beantworten: Rentiert sich das?
+Du bist ein erfahrener Freund, der Immobilieninvestor ist. Schreibe 4-6 Sätze (~90-130 Wörter) wie du einem Kumpel ehrlich erklärst: Rentiert sich das?
+
+Ton & Stil:
+- Duze den User ("du zahlst", "check mal")
+- Sei direkt und ehrlich, kein Business-Sprech
+- Schreib wie ein Freund der sich auskennt, nicht wie ein Berater
+- Beispiele: "Das rechnet sich nicht", "Check mal Markt & Lage", "Du könntest mit mehr EK den Cashflow verbessern"
 
 Struktur:
-1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow und Nettomietrendite.
-   - Cashflow < -100€: Sag klar, dass es sich nicht rechnet
-   - Cashflow -100€ bis -10€: "Praktisch ausgeglichen, leicht negativ"
-   - Cashflow -10€ bis +10€: "Praktisch ausgeglichen"
-   - Cashflow > +100€: Positiv bewerten
-   Bewerte Rendite: <2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv
+1) Klare Aussage (1-2 Sätze): Rentiert sich das? Nenne Cashflow und Rendite.
+   - Cashflow < -100€: "Das rechnet sich nicht - du zahlst X€ jeden Monat drauf"
+   - Cashflow -100€ bis -10€: "Fast ausgeglichen, leicht im Minus"
+   - Cashflow -10€ bis +10€: "Läuft auf Null raus"
+   - Cashflow > +100€: "Sieht gut aus"
+   Rendite: <2% niedrig, 2-3% moderat, 3-4% solide, ≥4% stark
 
-2) Risikofaktor (1 Satz): DSCR (wenn < 1.2 erwähnen). EK-Quote NUR erwähnen wenn extrem (<15% oder >50%).
+2) Risiko (1 Satz): DSCR < 1.2? Sag's klar. EK nur wenn extrem (<15% oder >50%).
 
-3) Actionable Insight (1-2 Sätze): Bei grenzwertigen Zahlen (Cashflow < 50€ oder DSCR < 1.1): Zeige was der User TUN kann:
-   - "Mit mehr Eigenkapital könntest du den Cashflow auf X€ verbessern und DSCR über 1,1 bringen"
-   - Verweis auf "Szenarien" Tab zum Durchspielen
-   Bei guten Zahlen: Überspringe diesen Teil.
+3) Was kann ich tun? (1-2 Sätze): Bei Cashflow < 50€ oder DSCR < 1.1: Zeig konkret was geht - "Mit mehr EK würdest du auf X€ kommen", verweis auf "Szenarien". Bei guten Zahlen: weglassen.
 
-4) Nächster Schritt (1 Satz): Bei schlechten Zahlen: ehrlich bleiben. Bei grenzwertigen/guten Zahlen: Verweis auf "Markt & Lage" (Miete vs Median prüfen).
+4) Nächster Schritt (1 Satz): Check "Markt & Lage" - Miete vs Median, lohnt sich die Gegend?
 
-Sei ehrlich und konkret. Zahlen sind bereits gerundet auf 2 Stellen. Nutze NUR die gelieferten Zahlen.
+Zahlen sind gerundet. Nutze NUR die gelieferten Zahlen. Sei ehrlich, direkt, freundschaftlich.
 `.trim();
 
 function isFiniteNumber(v: unknown): v is number {
@@ -70,35 +73,35 @@ function ruleBasedComment(p: CommentInput): string {
   const renditeLabel = classifyRenditeLabel(nettorendite);
   const parts: string[] = [];
 
-  // Teil 1: Rentiert sich das? (1-2 Sätze)
+  // Teil 1: Rentiert sich das? (1-2 Sätze, freundschaftlicher Ton)
   if (cashflowVorSteuer < -100) {
-    parts.push(`Das Investment kostet dich ${fmtEuro(Math.abs(cashflowVorSteuer))} im Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). So rechnet sich das nicht – du zahlst jeden Monat drauf.`);
+    parts.push(`Das rechnet sich nicht – du zahlst ${fmtEuro(Math.abs(cashflowVorSteuer))} jeden Monat drauf bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das trägt sich einfach nicht.`);
   } else if (cashflowVorSteuer < -10) {
-    parts.push(`Praktisch ausgeglichen, leicht negativ mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment trägt sich fast selbst.`);
+    parts.push(`Fast ausgeglichen, leicht im Minus mit ${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Trägt sich fast selbst.`);
   } else if (cashflowVorSteuer <= 10) {
-    parts.push(`Praktisch ausgeglichen mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment läuft auf Null raus.`);
+    parts.push(`Läuft auf Null raus: ${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Praktisch ausgeglichen.`);
   } else if (cashflowVorSteuer < 100) {
-    parts.push(`Leicht positiv mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Ein kleiner Überschuss.`);
+    parts.push(`Leicht im Plus mit ${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Kleiner Überschuss.`);
   } else if (nettorendite >= 4) {
-    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sieht das attraktiv aus. Die Zahlen stimmen.`);
+    parts.push(`Sieht gut aus: ${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Die Zahlen passen.`);
   } else if (nettorendite >= 3) {
-    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – solide Ausgangslage.`);
+    parts.push(`${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – solide Basis.`);
   } else {
-    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – moderate Zahlen.`);
+    parts.push(`${fmtEuro(cashflowVorSteuer)}/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – moderate Zahlen.`);
   }
 
   // Teil 2: Risikofaktor (nur DSCR < 1.2 oder extreme EK-Quote)
   if (isFiniteNumber(dscr) && dscr < 1.2) {
     if (dscr < 1) {
-      parts.push(`Kritisch: Die Miete deckt die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Problem: Die Miete deckt die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
     } else {
-      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}) – wenig Puffer.`);
     }
   } else if (isFiniteNumber(ekQuote)) {
     if (ekQuote > 50) {
-      parts.push(`Sehr hohe EK-Quote (${ekQuote.toFixed(0)} %) – minimales Risiko.`);
+      parts.push(`Krass hohe EK-Quote (${ekQuote.toFixed(0)} %) – du hast quasi kein Risiko.`);
     } else if (ekQuote < 15) {
-      parts.push(`Niedrige EK-Quote (${ekQuote.toFixed(0)} %) – höheres Risiko.`);
+      parts.push(`Nur ${ekQuote.toFixed(0)} % Eigenkapital – das ist recht wenig, höheres Risiko.`);
     }
     // 15-50%: Nicht erwähnen, ist normal
   }
@@ -106,19 +109,19 @@ function ruleBasedComment(p: CommentInput): string {
   // Teil 3: Actionable Insight (bei grenzwertigen Zahlen)
   if ((cashflowVorSteuer < 50 && cashflowVorSteuer > -100) || (isFiniteNumber(dscr) && dscr < 1.1 && dscr > 0.9)) {
     if (isFiniteNumber(ekQuote) && ekQuote < 40) {
-      parts.push(`Mit mehr Eigenkapital könntest du den Cashflow verbessern und den DSCR über 1,1 bringen – check „Szenarien" um verschiedene EK-Höhen durchzuspielen.`);
+      parts.push(`Mit mehr EK würdest du den Cashflow verbessern und den DSCR über 1,1 kriegen – check mal „Szenarien" und spiel verschiedene EK-Höhen durch.`);
     } else {
-      parts.push(`Die Zahlen sind knapp – in „Szenarien" kannst du prüfen, wie sich Anpassungen bei Zins, Tilgung oder EK auswirken.`);
+      parts.push(`Ist knapp – in „Szenarien" kannst du checken, wie sich Zins, Tilgung oder EK auswirken.`);
     }
   }
 
   // Teil 4: Nächster Schritt
   if (cashflowVorSteuer < -100 || (isFiniteNumber(dscr) && dscr < 1)) {
-    parts.push(`So rechnet sich das nicht. Die Lage könnte mehr Kontext geben – check „Markt & Lage".`);
+    parts.push(`Rechnet sich so nicht. Check trotzdem „Markt & Lage" für den vollständigen Kontext.`);
   } else if (cashflowVorSteuer < 100) {
-    parts.push(`Check „Markt & Lage" – dort siehst du, ob Miete und Kaufpreis vs. Median passen.`);
+    parts.push(`Check „Markt & Lage" – passt die Miete zum Median? Lohnt sich die Gegend?`);
   } else {
-    parts.push(`Check „Markt & Lage" – ist die Miete über dem Median? Kaufst du am richtigen Ort?`);
+    parts.push(`Jetzt „Markt & Lage" checken – liegt die Miete über dem Median? Kaufst du am richtigen Ort?`);
   }
 
   return `<p>${parts.join(' ')}</p>`;
