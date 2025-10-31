@@ -376,9 +376,8 @@ const dscr =
     cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
   });
 
-  // TEMPORARILY DISABLED: Skip if already fetched with same inputs
-  // This was causing cache issues during development - re-enable later
-  // if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+  // Skip if already fetched with same inputs
+  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
 
   // Increment usage counter (only once per session/analysis)
   if (!isPremium && !hasIncrementedUsage.current) {
@@ -1247,8 +1246,8 @@ const exportPdf = React.useCallback(async () => {
         <div className="flex items-center mb-4">
   <button onClick={() => router.back()} className="btn-back">←</button>
   <div className="ml-4 flex items-center gap-3">
-    <BarChart3 size={32} className="text-[var(--color-primary)]" />
     <h1 className="text-3xl font-bold">Analyse</h1>
+    <BarChart3 size={32} className="text-[var(--color-primary)]" />
   </div>
 </div>
 
