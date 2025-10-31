@@ -33,7 +33,7 @@ const webSearchForScraping = webSearchTool({
 // Scraper Agent - back to gpt-4o-mini with clearer instructions
 const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
-  instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, etc.).
+  instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, Kleinanzeigen, eBay Kleinanzeigen, etc.).
 
 🚨🚨🚨 SCHRITT 1 - PROVISION ZUERST SUCHEN! 🚨🚨🚨
 
