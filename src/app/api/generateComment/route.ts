@@ -16,13 +16,18 @@ const SYSTEM_PROMPT = `
 Du bist ein erfahrener Immobilieninvestor. Schreibe 4-6 Sätze (~80-120 Wörter), die klar beantworten: Rentiert sich das?
 
 Struktur:
-1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow vor Steuern und Nettomietrendite. Bei negativem Cashflow: Sag klar, dass das Investment aktuell Geld kostet und warum das kritisch ist. Bei positivem: Bewerte die Rendite (<2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv) und ordne ein, ob das realistisch tragfähig ist.
+1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow vor Steuern (in Euro!) und Nettomietrendite.
+   - Cashflow < -100€: Sag klar, dass es sich nicht rechnet
+   - Cashflow -100€ bis -10€: "Praktisch ausgeglichen, leicht negativ"
+   - Cashflow -10€ bis +10€: "Praktisch ausgeglichen"
+   - Cashflow > +100€: Positiv bewerten
+   Bewerte Rendite: <2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv
 
-2) Risikofaktor (1-2 Sätze): DSCR (wenn vorhanden) - erkläre, was das für das Risiko bedeutet (keine Deckung = hohes Risiko, knappe Deckung = wenig Puffer). ODER EK-Quote - zeige den Effekt auf (viel EK = niedriges Risiko, wenig EK = höhere Belastung).
+2) Risikofaktor (1-2 Sätze): DSCR (wenn vorhanden) - erkläre Risiko (< 1 = kritisch, < 1.2 = knapp, ≥ 1.4 = gut). ODER EK-Quote - WICHTIG: Hohe EK-Quote = WENIGER Risiko/Belastung! (≥35% = sehr gut, 15-35% = solide, <15% = höhere Belastung)
 
-3) Der entscheidende nächste Schritt (2 Sätze): Mach klar, dass diese Zahlen nur die halbe Wahrheit sind. Die Lage entscheidet alles: Ist die Miete über/unter Median? Entwickelt sich die Gegend gut? Wird der Kaufpreis durch die Lage gerechtfertigt? Motiviere den User stark, "Markt & Lage" zu checken - dort sieht er, ob das Investment wirklich Sinn macht oder nicht.
+3) Nächster Schritt (1-2 Sätze): Bei schlechten Zahlen (Cashflow < -100€ oder DSCR < 1): Sei ehrlich, dass es sich nicht rechnet, erwähne aber dass Lage das Bild vervollständigen könnte. Bei guten Zahlen: Motiviere zu "Markt & Lage" - dort sieht er ob Miete/Kaufpreis vs Median stimmen.
 
-Sei ehrlich und direkt. Erzeuge Neugier für den nächsten Tab. Nutze NUR die gelieferten Zahlen.
+Sei ehrlich. Bei schlechten Zahlen: nicht zu pushy. Nutze NUR die gelieferten Zahlen.
 `.trim();
 
 function isFiniteNumber(v: unknown): v is number {
@@ -61,46 +66,50 @@ function ruleBasedComment(p: CommentInput): string {
   const parts: string[] = [];
 
   // Teil 1: Rentiert sich das? (1-2 Sätze)
-  if (cashflowVorSteuer < -1000) {
-    parts.push(`Das Investment kostet dich aktuell ${fmtEuro(Math.abs(cashflowVorSteuer))} im Monat – bei einer Nettomietrendite von ${fmtPct(nettorendite, 2)} (${renditeLabel}). Das bedeutet: Du zahlst jeden Monat drauf, ohne dass die Immobilie sich selbst trägt.`);
-  } else if (cashflowVorSteuer < 0) {
-    parts.push(`Der Cashflow ist mit ${fmtEuro(cashflowVorSteuer)}/Monat negativ bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment trägt sich aktuell nicht selbst – du musst jeden Monat zuschießen.`);
+  if (cashflowVorSteuer < -100) {
+    parts.push(`Das Investment kostet dich ${fmtEuro(Math.abs(cashflowVorSteuer))} im Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). So rechnet sich das nicht – du zahlst jeden Monat drauf.`);
+  } else if (cashflowVorSteuer < -10) {
+    parts.push(`Praktisch ausgeglichen, leicht negativ mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment trägt sich fast selbst.`);
+  } else if (cashflowVorSteuer <= 10) {
+    parts.push(`Praktisch ausgeglichen mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment läuft auf Null raus.`);
+  } else if (cashflowVorSteuer < 100) {
+    parts.push(`Leicht positiv mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Ein kleiner Überschuss.`);
   } else if (nettorendite >= 4) {
-    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sieht das auf den ersten Blick attraktiv aus. Die Zahlen stimmen rechnerisch.`);
+    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sieht das attraktiv aus. Die Zahlen stimmen.`);
   } else if (nettorendite >= 3) {
-    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – eine solide Ausgangslage. Die KPIs zeigen ein grundsätzlich funktionierendes Investment.`);
-  } else if (nettorendite >= 2) {
-    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sind die Zahlen moderat. Ob sich das wirklich rechnet, hängt stark vom Gesamtbild ab.`);
+    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – solide Ausgangslage.`);
   } else {
-    parts.push(`Bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) und ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat sind die KPIs kritisch. Hier würde ich sehr genau hinschauen.`);
+    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – moderate Zahlen.`);
   }
 
   // Teil 2: Risikofaktor (1-2 Sätze)
   if (isFiniteNumber(dscr)) {
     if (dscr < 1) {
-      parts.push(`Kritischer Punkt: Die Mieteinnahmen decken die Rate nicht (DSCR ${dscr.toFixed(2)}) – ein klares Warnsignal.`);
+      parts.push(`Kritischer Punkt: Die Mieteinnahmen decken die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
     } else if (dscr < 1.2) {
-      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}) – bei Leerstand oder Reparaturen wird's eng.`);
+      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}) – bei Leerstand wird's eng.`);
     } else if (dscr < 1.4) {
-      parts.push(`Die Rate ist solide gedeckt (DSCR ${dscr.toFixed(2)}), aber viel Puffer bleibt nicht.`);
+      parts.push(`Die Rate ist solide gedeckt (DSCR ${dscr.toFixed(2)}).`);
     } else {
-      parts.push(`Gute Nachricht: Die Rate ist komfortabel gedeckt (DSCR ${dscr.toFixed(2)}), das gibt Spielraum für Unvorhergesehenes.`);
+      parts.push(`Die Rate ist komfortabel gedeckt (DSCR ${dscr.toFixed(2)}), guter Puffer.`);
     }
   } else if (isFiniteNumber(ekQuote)) {
     if (ekQuote >= 35) {
-      parts.push(`Mit ${ekQuote.toFixed(0)} % Eigenkapital hast du das Risiko deutlich reduziert – die Finanzierung steht auf solidem Fundament.`);
+      parts.push(`Mit ${ekQuote.toFixed(0)} % Eigenkapital ist deine Belastung niedrig – das reduziert das Risiko deutlich.`);
     } else if (ekQuote >= 15) {
-      parts.push(`Die EK-Quote von ${ekQuote.toFixed(0)} % ist solide, mehr würde die Belastung aber weiter senken.`);
+      parts.push(`Die EK-Quote von ${ekQuote.toFixed(0)} % ist solide.`);
     } else {
-      parts.push(`Achtung: Mit nur ${ekQuote.toFixed(0)} % Eigenkapital ist die Belastung hoch – das erhöht dein Risiko.`);
+      parts.push(`Mit nur ${ekQuote.toFixed(0)} % Eigenkapital ist die Belastung höher – das erhöht dein Risiko.`);
     }
   }
 
-  // Teil 3: Der entscheidende nächste Schritt (2 Sätze mit starkem Hook)
-  if (cashflowVorSteuer < 0 || nettorendite < 3) {
-    parts.push(`Aber: Diese Zahlen sind nur die halbe Wahrheit. Ob sich das wirklich rechnet, entscheidet die Lage – ist die Miete unter Median (Potenzial nach oben)? Zahlt der Kaufpreis zu hoch? Check jetzt „Markt & Lage" und sieh, ob die Location das Investment rettet oder endgültig kippt.`);
+  // Teil 3: Nächster Schritt (ehrlich, nicht zu pushy bei schlechten Zahlen)
+  if (cashflowVorSteuer < -100 || (isFiniteNumber(dscr) && dscr < 1)) {
+    parts.push(`Die Zahlen zeigen: So rechnet sich das nicht. Die Lage könnte das Bild vervollständigen – check „Markt & Lage" für den vollständigen Kontext.`);
+  } else if (cashflowVorSteuer < 100) {
+    parts.push(`Die Zahlen sind grenzwertig. In „Markt & Lage" siehst du, ob die Location das rechtfertigt – Miete vs. Median, Entwicklungstrend etc.`);
   } else {
-    parts.push(`Aber: Die KPIs sind nur ein Teil des Puzzles. Die entscheidende Frage ist: Rechtfertigt die Lage diese Zahlen? Liegt die Miete über dem lokalen Median? Entwickelt sich die Gegend positiv? In „Markt & Lage" siehst du, ob dieses Investment wirklich Sinn macht oder du an der falschen Stelle kaufst.`);
+    parts.push(`Die KPIs sehen gut aus. Entscheidend ist jetzt: Rechtfertigt die Lage diese Zahlen? Check „Markt & Lage" – dort siehst du Miete vs. Median und ob du am richtigen Ort kaufst.`);
   }
 
   return `<p>${parts.join(' ')}</p>`;
