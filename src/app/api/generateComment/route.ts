@@ -14,13 +14,13 @@ type CommentInput = {
 
 const SYSTEM_PROMPT = `
 Du schreibst wie ein erfahrener Immobilieninvestor – kurz, menschlich, ohne Floskeln.
-Ziel: 3 kurze Absätze (<p>…</p>), zusammen ~80–140 Wörter.
+Ziel: 3 kurze Absätze (<p>…</p>), zusammen ~100–160 Wörter.
 Nutze NUR die gelieferten Zahlen. Keine Orte/Quellen.
 
 Stil & Inhalt:
-1) Einstiegssatz mit natürlicher Variation (kein immer gleicher Wortlaut). Nenne Cashflow vor Steuern (€/Monat) und Nettomietrendite (%) in EINEM Satz und ordne die Rendite grob ein: <2% niedrig, 2–3% moderat, 3–4% solide, ≥4% überdurchschnittlich.
-2) Tragfähigkeit: Wenn DSCR vorhanden, erkläre ihn in Alltagssprache („DSCR X.XX bedeutet: Rate ist [nicht/knapp/solide/komfortabel] gedeckt“, optional Puffer ≈ (DSCR–1)*100%). Wenn EK-Quote vorhanden: erläutere konkret den Effekt (mehr EK → geringere Rate → stabilerer Cashflow; wenig EK → höhere Rate/Risiko).
-3) Konkreter nächster Schritt mit Tabs: Verweise knapp auf „Markt & Lage“ (Miete/Kaufpreis je m² gegen Median spiegeln) und „Szenarien“ (Zins/Tilgung/EK durchspielen, Effekt auf Rate & Cashflow sehen).
+1) Erste Einschätzung zur Rentabilität: Beginne mit einer klaren Bewertung basierend auf Cashflow vor Steuern (€/Monat) und Nettomietrendite (%). Ordne ein: <2% niedrig (kritisch prüfen), 2–3% moderat (kann funktionieren), 3–4% solide (interessant), ≥4% überdurchschnittlich (attraktiv). Gib eine ehrliche Einschätzung: Könnte sich das rechnen? Formuliere es natürlich variierend.
+2) Tragfähigkeit & Risiko: Wenn DSCR vorhanden, erkläre ihn verständlich („DSCR X.XX bedeutet: Mieteinnahmen decken die Rate [nicht/knapp/solide/komfortabel]", optional Puffer ≈ (DSCR–1)*100%). Wenn EK-Quote vorhanden: zeige den konkreten Effekt auf (mehr EK → niedrigere Rate/Risiko; wenig EK → höhere Belastung).
+3) Der entscheidende Faktor: Mach klar, dass die Zahlen nur ein Teil des Bildes sind. Die Lage und der lokale Markt entscheiden letztlich, ob sich das Investment langfristig trägt. Weise subtil darauf hin, dass ein Blick auf „Markt & Lage" (Miete/Kaufpreis vs. lokaler Median, Entwicklungstrend) wichtige Antworten liefert. Optional kurzer Hinweis auf „Szenarien" für Sensitivitätsanalyse.
 
 Kein Marketing-Sprech, keine Aufzählungen, keine Platzhalter. Schreibe auf Deutsch.
 `.trim();
@@ -59,37 +59,56 @@ function ruleBasedComment(p: CommentInput): string {
 
   const renditeLabel = classifyRenditeLabel(nettorendite);
 
-  // Einstieg – geringfügig variieren je nach Vorzeichen des CF
-  const start =
-    cashflowVorSteuer >= 0
-      ? `Kurz zur Einordnung: Der Cashflow vor Steuern liegt bei etwa ${fmtEuro(cashflowVorSteuer)} im Monat; die Nettomietrendite beträgt ${fmtPct(nettorendite, 2)} (${renditeLabel}).`
-      : `Zur Einordnung: Aktuell liegt der Cashflow vor Steuern bei rund ${fmtEuro(cashflowVorSteuer)} pro Monat; die Nettomietrendite liegt bei ${fmtPct(nettorendite, 2)} (${renditeLabel}).`;
+  // Absatz 1: Erste Einschätzung zur Rentabilität
+  let einschaetzung = '';
+  if (nettorendite >= 4) {
+    einschaetzung = cashflowVorSteuer >= 0
+      ? `Die Zahlen sehen attraktiv aus: ${fmtEuro(cashflowVorSteuer)} Cashflow vor Steuern im Monat bei einer Nettomietrendite von ${fmtPct(nettorendite, 2)} (${renditeLabel}). Rein rechnerisch könnte sich das lohnen.`
+      : `Mit ${fmtPct(nettorendite, 2)} Nettomietrendite (${renditeLabel}) ist die Rendite überdurchschnittlich, der Cashflow liegt aktuell bei ${fmtEuro(cashflowVorSteuer)}/Monat. Unter Umständen trotzdem interessant.`;
+  } else if (nettorendite >= 3) {
+    einschaetzung = cashflowVorSteuer >= 0
+      ? `Solide Ausgangslage: ${fmtEuro(cashflowVorSteuer)} Cashflow vor Steuern monatlich, Nettomietrendite ${fmtPct(nettorendite, 2)} (${renditeLabel}). Das könnte funktionieren.`
+      : `Die Nettomietrendite von ${fmtPct(nettorendite, 2)} (${renditeLabel}) ist solide, aktueller Cashflow: ${fmtEuro(cashflowVorSteuer)}/Monat. Hier lohnt sich ein genauerer Blick.`;
+  } else if (nettorendite >= 2) {
+    einschaetzung = cashflowVorSteuer >= 0
+      ? `Moderate Rendite: ${fmtPct(nettorendite, 2)} (${renditeLabel}) bei ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat. Ob sich das rechnet, hängt stark vom Einzelfall ab.`
+      : `Bei ${fmtPct(nettorendite, 2)} Nettomietrendite (${renditeLabel}) und ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat solltest du genau prüfen, ob das wirtschaftlich tragfähig ist.`;
+  } else {
+    einschaetzung = `Mit ${fmtPct(nettorendite, 2)} Nettomietrendite (${renditeLabel}) und ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat sind die Zahlen kritisch. Hier würde ich besonders gründlich rechnen.`;
+  }
+
+  // Absatz 2: Tragfähigkeit & Risiko
+  let tragfaehigkeit = '';
 
   // DSCR-Teil
-  let dscrText = '';
   if (isFiniteNumber(dscr)) {
     const pufferPct = Math.round(Math.max(0, (dscr - 1) * 100));
-    if (dscr < 1) dscrText = `Der DSCR von ${dscr.toFixed(2)} zeigt: Die Rate ist derzeit nicht gedeckt.`;
-    else if (dscr < 1.2) dscrText = `DSCR ${dscr.toFixed(2)} – die Rate ist knapp gedeckt (≈ ${pufferPct}% Puffer).`;
-    else if (dscr < 1.4) dscrText = `DSCR ${dscr.toFixed(2)} – solide gedeckt (≈ ${pufferPct}% Puffer).`;
-    else dscrText = `DSCR ${dscr.toFixed(2)} – komfortabel gedeckt (≈ ${pufferPct}% Puffer).`;
+    if (dscr < 1) tragfaehigkeit = `Der DSCR von ${dscr.toFixed(2)} zeigt: Die Mieteinnahmen decken die Rate aktuell nicht – ein Warnsignal.`;
+    else if (dscr < 1.2) tragfaehigkeit = `DSCR ${dscr.toFixed(2)}: Die Rate ist knapp gedeckt (≈ ${pufferPct}% Puffer), wenig Spielraum bei Leerstand oder Reparaturen.`;
+    else if (dscr < 1.4) tragfaehigkeit = `DSCR ${dscr.toFixed(2)}: Solide gedeckt mit ≈ ${pufferPct}% Puffer – das gibt etwas Sicherheit.`;
+    else tragfaehigkeit = `DSCR ${dscr.toFixed(2)}: Komfortabel gedeckt (≈ ${pufferPct}% Puffer), gute Ausgangslage.`;
   }
 
   // EK-Teil (konkreter Effekt)
-  let ekText = '';
   if (isFiniteNumber(ekQuote)) {
-    if (ekQuote >= 35) {
-      ekText = `Die EK-Quote von ${ekQuote.toFixed(1)} % drückt die Darlehenssumme – dadurch fällt die Monatsrate geringer aus und der Cashflow reagiert weniger sensibel auf Schwankungen.`;
-    } else if (ekQuote >= 15) {
-      ekText = `Mit ${ekQuote.toFixed(1)} % EK bist du solide unterwegs; etwas mehr EK könnte die Rate weiter senken und den Puffer erhöhen.`;
-    } else {
-      ekText = `Bei ${ekQuote.toFixed(1)} % EK ist die Rate relativ hoch; mehr EK würde die Belastung senken und den Cashflow entspannen.`;
-    }
+    const ekTxt =
+      ekQuote >= 35
+        ? ` Mit ${ekQuote.toFixed(1)} % Eigenkapital drückst du die Darlehenssumme deutlich – das senkt die Rate und macht den Cashflow robuster.`
+        : ekQuote >= 15
+        ? ` Bei ${ekQuote.toFixed(1)} % EK bist du solide dabei; mehr Eigenkapital würde die Belastung weiter reduzieren.`
+        : ` Die EK-Quote von ${ekQuote.toFixed(1)} % bedeutet eine höhere Rate – hier wäre mehr Eigenkapital hilfreich, um das Risiko zu senken.`;
+    tragfaehigkeit += ekTxt;
   }
 
-  const p1 = `<p>${start}</p>`;
-  const p2 = `<p>${[dscrText, ekText].filter(Boolean).join(' ')}</p>`;
-  const p3 = `<p>Nächster Schritt: In „Markt & Lage“ Miete und Kaufpreis je m² mit dem Median vor Ort spiegeln; in „Szenarien“ Zins/Tilgung/EK anpassen und die Auswirkungen auf Rate und Cashflow sehen.</p>`;
+  // Absatz 3: Der entscheidende Faktor (subtiler Hinweis auf Markt & Lage)
+  const naechsteSchritte =
+    nettorendite >= 3
+      ? `Die Zahlen allein sagen aber nur die halbe Wahrheit: Ob sich das wirklich trägt, hängt stark von Lage und lokalem Markt ab. Ein Blick auf „Markt & Lage" zeigt dir, wie Miete und Kaufpreis im Vergleich zum Median stehen – und ob die Gegend Potenzial hat oder eher stagniert.`
+      : `Wichtig: Diese Kennzahlen sind nur ein Teil des Puzzles. Die Lage und Marktentwicklung vor Ort entscheiden letztlich, ob das Investment Sinn macht. In „Markt & Lage" kannst du checken, wie die Immobilie im Vergleich zum lokalen Median dasteht – das kann den Unterschied machen.`;
+
+  const p1 = `<p>${einschaetzung}</p>`;
+  const p2 = `<p>${tragfaehigkeit}</p>`;
+  const p3 = `<p>${naechsteSchritte}</p>`;
 
   return [p1, p2, p3].join('');
 }
