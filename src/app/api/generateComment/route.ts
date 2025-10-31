@@ -13,14 +13,16 @@ type CommentInput = {
 };
 
 const SYSTEM_PROMPT = `
-Du bist ein erfahrener Immobilieninvestor. Schreibe 3-4 kurze Sätze (~60-100 Wörter), die klar beantworten: Rentiert sich das?
+Du bist ein erfahrener Immobilieninvestor. Schreibe 4-6 Sätze (~80-120 Wörter), die klar beantworten: Rentiert sich das?
 
 Struktur:
-1) Klare Aussage: Rentiert sich das? Begründe mit Cashflow vor Steuern und Nettomietrendite. Bei negativem Cashflow: Sag klar, dass das Investment aktuell Geld kostet. Bei positivem: Bewerte die Rendite (<2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv).
-2) Hauptfaktor (1 Satz): DSCR (wenn vorhanden) - deckt die Miete die Rate? ODER EK-Quote - wie wirkt sich das aus?
-3) Wichtiger Hinweis (1 Satz): Die Lage und Marktentwicklung sind entscheidend. Verweis auf "Markt & Lage" Tab.
+1) Klare Aussage (1-2 Sätze): Rentiert sich das? Begründe mit Cashflow vor Steuern und Nettomietrendite. Bei negativem Cashflow: Sag klar, dass das Investment aktuell Geld kostet und warum das kritisch ist. Bei positivem: Bewerte die Rendite (<2% niedrig, 2-3% moderat, 3-4% solide, ≥4% attraktiv) und ordne ein, ob das realistisch tragfähig ist.
 
-Sei ehrlich und direkt. Keine Floskeln. Nutze NUR die gelieferten Zahlen.
+2) Risikofaktor (1-2 Sätze): DSCR (wenn vorhanden) - erkläre, was das für das Risiko bedeutet (keine Deckung = hohes Risiko, knappe Deckung = wenig Puffer). ODER EK-Quote - zeige den Effekt auf (viel EK = niedriges Risiko, wenig EK = höhere Belastung).
+
+3) Der entscheidende nächste Schritt (2 Sätze): Mach klar, dass diese Zahlen nur die halbe Wahrheit sind. Die Lage entscheidet alles: Ist die Miete über/unter Median? Entwickelt sich die Gegend gut? Wird der Kaufpreis durch die Lage gerechtfertigt? Motiviere den User stark, "Markt & Lage" zu checken - dort sieht er, ob das Investment wirklich Sinn macht oder nicht.
+
+Sei ehrlich und direkt. Erzeuge Neugier für den nächsten Tab. Nutze NUR die gelieferten Zahlen.
 `.trim();
 
 function isFiniteNumber(v: unknown): v is number {
@@ -58,42 +60,48 @@ function ruleBasedComment(p: CommentInput): string {
   const renditeLabel = classifyRenditeLabel(nettorendite);
   const parts: string[] = [];
 
-  // Satz 1: Rentiert sich das?
+  // Teil 1: Rentiert sich das? (1-2 Sätze)
   if (cashflowVorSteuer < -1000) {
-    parts.push(`Das Investment kostet dich aktuell ${fmtEuro(Math.abs(cashflowVorSteuer))} im Monat – bei ${fmtPct(nettorendite, 2)} Nettomietrendite (${renditeLabel}). So rechnet sich das nicht.`);
+    parts.push(`Das Investment kostet dich aktuell ${fmtEuro(Math.abs(cashflowVorSteuer))} im Monat – bei einer Nettomietrendite von ${fmtPct(nettorendite, 2)} (${renditeLabel}). Das bedeutet: Du zahlst jeden Monat drauf, ohne dass die Immobilie sich selbst trägt.`);
   } else if (cashflowVorSteuer < 0) {
-    parts.push(`Aktuell leicht negativ mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat, Rendite ${fmtPct(nettorendite, 2)} (${renditeLabel}). Ob sich das trägt, ist fraglich.`);
+    parts.push(`Der Cashflow ist mit ${fmtEuro(cashflowVorSteuer)}/Monat negativ bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}). Das Investment trägt sich aktuell nicht selbst – du musst jeden Monat zuschießen.`);
   } else if (nettorendite >= 4) {
-    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sieht das attraktiv aus.`);
+    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sieht das auf den ersten Blick attraktiv aus. Die Zahlen stimmen rechnerisch.`);
   } else if (nettorendite >= 3) {
-    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – solide Ausgangslage.`);
+    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – eine solide Ausgangslage. Die KPIs zeigen ein grundsätzlich funktionierendes Investment.`);
   } else if (nettorendite >= 2) {
-    parts.push(`${fmtEuro(cashflowVorSteuer)} Cashflow/Monat, ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) – moderat, stark einzelfallabhängig.`);
+    parts.push(`Mit ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat und ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) sind die Zahlen moderat. Ob sich das wirklich rechnet, hängt stark vom Gesamtbild ab.`);
   } else {
-    parts.push(`Bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) und ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat würde ich kritisch prüfen.`);
+    parts.push(`Bei ${fmtPct(nettorendite, 2)} Rendite (${renditeLabel}) und ${fmtEuro(cashflowVorSteuer)} Cashflow/Monat sind die KPIs kritisch. Hier würde ich sehr genau hinschauen.`);
   }
 
-  // Satz 2: Hauptfaktor (DSCR oder EK)
+  // Teil 2: Risikofaktor (1-2 Sätze)
   if (isFiniteNumber(dscr)) {
     if (dscr < 1) {
-      parts.push(`Die Miete deckt die Rate nicht (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Kritischer Punkt: Die Mieteinnahmen decken die Rate nicht (DSCR ${dscr.toFixed(2)}) – ein klares Warnsignal.`);
     } else if (dscr < 1.2) {
-      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Die Rate ist knapp gedeckt (DSCR ${dscr.toFixed(2)}) – bei Leerstand oder Reparaturen wird's eng.`);
+    } else if (dscr < 1.4) {
+      parts.push(`Die Rate ist solide gedeckt (DSCR ${dscr.toFixed(2)}), aber viel Puffer bleibt nicht.`);
     } else {
-      parts.push(`Die Rate ist ${dscr >= 1.4 ? 'komfortabel' : 'solide'} gedeckt (DSCR ${dscr.toFixed(2)}).`);
+      parts.push(`Gute Nachricht: Die Rate ist komfortabel gedeckt (DSCR ${dscr.toFixed(2)}), das gibt Spielraum für Unvorhergesehenes.`);
     }
   } else if (isFiniteNumber(ekQuote)) {
     if (ekQuote >= 35) {
-      parts.push(`Hohe EK-Quote (${ekQuote.toFixed(0)} %) senkt das Risiko deutlich.`);
+      parts.push(`Mit ${ekQuote.toFixed(0)} % Eigenkapital hast du das Risiko deutlich reduziert – die Finanzierung steht auf solidem Fundament.`);
     } else if (ekQuote >= 15) {
-      parts.push(`EK-Quote von ${ekQuote.toFixed(0)} % ist solide.`);
+      parts.push(`Die EK-Quote von ${ekQuote.toFixed(0)} % ist solide, mehr würde die Belastung aber weiter senken.`);
     } else {
-      parts.push(`Niedrige EK-Quote (${ekQuote.toFixed(0)} %) bedeutet höhere Belastung.`);
+      parts.push(`Achtung: Mit nur ${ekQuote.toFixed(0)} % Eigenkapital ist die Belastung hoch – das erhöht dein Risiko.`);
     }
   }
 
-  // Satz 3: Hinweis auf Markt & Lage
-  parts.push(`Ob sich das langfristig trägt, hängt stark von Lage und Markt ab – check das in „Markt & Lage".`);
+  // Teil 3: Der entscheidende nächste Schritt (2 Sätze mit starkem Hook)
+  if (cashflowVorSteuer < 0 || nettorendite < 3) {
+    parts.push(`Aber: Diese Zahlen sind nur die halbe Wahrheit. Ob sich das wirklich rechnet, entscheidet die Lage – ist die Miete unter Median (Potenzial nach oben)? Zahlt der Kaufpreis zu hoch? Check jetzt „Markt & Lage" und sieh, ob die Location das Investment rettet oder endgültig kippt.`);
+  } else {
+    parts.push(`Aber: Die KPIs sind nur ein Teil des Puzzles. Die entscheidende Frage ist: Rechtfertigt die Lage diese Zahlen? Liegt die Miete über dem lokalen Median? Entwickelt sich die Gegend positiv? In „Markt & Lage" siehst du, ob dieses Investment wirklich Sinn macht oder du an der falschen Stelle kaufst.`);
+  }
 
   return `<p>${parts.join(' ')}</p>`;
 }
