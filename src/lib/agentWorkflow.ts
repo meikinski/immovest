@@ -132,6 +132,11 @@ Template für notes (MIT Anzahl Objekte wenn verfügbar):
 ## 1.2 KAUFPREIS (price)
 WICHTIG: Suche MEHRERE Quellen und vergleiche die Daten!
 
+**KRITISCH: NIEMALS die gleiche Immobilie als Vergleich nutzen!**
+- Wenn du ein Angebot findest mit EXAKT gleicher Adresse/PLZ/Straße → IGNORIEREN!
+- Suche nach ANDEREN vergleichbaren Objekten in der Umgebung
+- Bei nur 1-2 Angeboten: Nutze Gutachterausschuss / Grundstücksmarktbericht stattdessen
+
 Finde:
 - median_psqm: Gemeinde-Median in €/m²
 - range_psqm.low/high: P25-P75 wenn verfügbar
@@ -414,13 +419,13 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 **WICHTIG: Bevorzuge Ortsteil/PLZ-spezifische Vergleiche! Passe Wording an Locations-Typ an.**
 
 Template WENN Ortsteil/PLZ-Daten existieren:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Ortsteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Ortsteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
 
 Template WENN NUR Gemeinde/Stadt-Daten:
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Gemeinde/Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Gemeinde/Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
 
 Template WENN NUR Landkreis-Daten (bei ländlichen Lagen):
-"Die [X]-Zimmer-Wohnung ([Y] m², Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Im Landkreis [X] liegen vergleichbare Eigentumswohnungen bei etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % unter/über dem Markt. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
+"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Im Landkreis [X] liegen vergleichbare Eigentumswohnungen bei etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % unter/über dem Markt. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
 
 **WICHTIG: Wenn nur Gemeinde/Stadt/Landkreis-Daten verfügbar (keine PLZ/Ortsteil-Daten):**
 Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Gemeinde/Stadt/Landkreis]-Durchschnitt - lokale Preise in [Ortsteil] können abweichen."
@@ -565,15 +570,22 @@ Zusätzlich hinzufügen: "ABER: [Y]% über Markt ist kritisch - geht nur in Ordn
 **ABSATZ 3: DSCR + Leerstand-Simulation (30-40W)**
 "DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist.
 
-**Leerstand-Simulation hinzufügen:**
+**Leerstand-Simulation hinzufügen (EINFACH!):**
 Berechne Kreditrate aus payload (payload.kreditrate oder aus DSCR: Kreditrate = Miete / DSCR)
 Bei 3 Monaten Leerstand musst du Kreditrate * 3 ohne Mieteinnahmen zahlen.
+Berechne: Wie viele Monate Cashflow sind das? (Kreditrate * 3) / Cashflow = X Monate
 
-- Bei positivem Cashflow: "Bei 3 Monaten Leerstand müsstest du [Kreditrate * 3] € ohne Mieteinnahmen zahlen. Mit deinem aktuellen Cashflow von [X] € hättest du nach [Y] Monaten einen Puffer aufgebaut. Auch ohne separate Rücklagen für Mietausfall bist du abgesichert (kalkulatorische Kosten sind bereits eingerechnet)."
+**Bei DSCR >1.3 (gut) + positivem Cashflow:**
+"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen. Das sind [X] Monate deines Cashflows - mit etwas Rücklage gut machbar."
 
-- Bei negativem Cashflow + DSCR >1.2: "Bei 3 Monaten Leerstand müsstest du [Kreditrate * 3] € zusätzlich zu deinem normalen Verlust zahlen - das sind [Betrag] € extra. Rücklagen für Mietausfall sollten eingeplant werden."
+**Bei DSCR 1.1-1.3 (knapp) + positivem Cashflow:**
+"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen. Das sind [X] Monate deines Cashflows - leg dir eine Rücklage von [Kreditrate * 3] € an."
 
-- Bei DSCR <1.2: "Bei 3 Monaten Leerstand würdest du [Kreditrate * 3] € draufzahlen - das ist kritisch. Rücklagen MÜSSEN eingeplant werden."
+**Bei DSCR <1.1 (kritisch):**
+"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen - das ist kritisch bei DSCR [Z]. Rücklage von mindestens [Betrag] € ist Pflicht."
+
+**Bei negativem Cashflow (egal welcher DSCR):**
+"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zusätzlich zahlen - das wird teuer. Rücklage von [Betrag] € einplanen."
 
 **Falls Cashflow negativ UND EK-Anteil <30%:**
 "Dein EK-Anteil liegt bei nur [X]% ([Betrag] € von [Kaufpreis] €). Mit 30% EK würdest du [Differenz] € weniger Rate zahlen. Plus etwa [Steuer] € Steuerersparnis im Jahr (40% Grenzsteuersatz) = nur noch [Netto] € monatliche Belastung statt [Aktuell] €."
@@ -594,10 +606,10 @@ Bei 3 Monaten Leerstand musst du Kreditrate * 3 ohne Mieteinnahmen zahlen.
 
 **Pattern 1: Hohe Miete + niedriger Kaufpreis (Alarm!):**
 Wenn Miete >15% über Markt UND Kaufpreis <-15% unter Markt:
-→ "ACHTUNG: Miete [X]% über Markt + Kaufpreis [Y]% unter Markt deutet auf überhöhte Miete hin. Beim Mieterwechsel musst du mit Marktmiete kalkulieren → [Betrag] € Cashflow-Verlust. [Falls Baujahr <1990: + älteres Baujahr kann bedeuten, dass Verkäufer wegen Sanierungsbedarf schnell raus will.]"
+→ "ACHTUNG: Miete [X]% über Markt + Kaufpreis [Y]% unter Markt deutet auf überhöhte Miete hin. Beim Mieterwechsel musst du mit Marktmiete kalkulieren → [Betrag] € Cashflow-Verlust. [Falls Baujahr <1980: + älteres Baujahr kann bedeuten, dass Verkäufer wegen Sanierungsbedarf schnell raus will.]"
 
-**Pattern 2: Niedriger Kaufpreis + älteres Baujahr (<1990):**
-Wenn Kaufpreis <-15% unter Markt UND Baujahr <1990:
+**Pattern 2: Niedriger Kaufpreis + älteres Baujahr (<1980):**
+Wenn Kaufpreis <-15% unter Markt UND Baujahr <1980:
 → "Risiko: [Y]% unter Markt bei Baujahr [Z] - kann auf Sanierungsbedarf hindeuten (Elektrik, Leitungen, Fenster, Heizung). Budget für Sanierungen muss eingeplant werden."
 
 **Wenn KEINE Patterns zutreffen, dann normale Risiko-Bewertung:**
@@ -613,9 +625,12 @@ Wenn Kaufpreis <-15% unter Markt UND Baujahr <1990:
 **Wenn Werte im Bereich ±10%:**
 → "Keine nennenswerten Risiken"
 
-**ZUSÄTZLICH: Baujahr-Warnung (falls Baujahr 1960-1990 UND KEIN Pattern 2 triggert):**
-Falls Baujahr zwischen 1960-1990:
+**ZUSÄTZLICH: Baujahr-Warnung (nur bei wirklich alten Baujahren <1980 UND KEIN Pattern 2 triggert):**
+Falls Baujahr <1980 UND Kaufpreis NICHT deutlich unter Markt (<-15%):
 → "Hinweis: Baujahr [Z] - bei älteren Immobilien kann Sanierungsbedarf anstehen (Elektrik, Leitungen, Fenster, Heizung). Budget für mögliche Sanierungen sollte eingeplant werden."
+
+**Baujahr 1980-2000: KEINE Warnung** (relativ modern, kein kritisches Alter)
+**Baujahr 2000+: KEINE Warnung** (modern)
 
 **Potenzial separat zeigen (nach logischem Übergang):**
 - Bei Risiken: "Aber: [positiver Aspekt]" (Kontrast)
@@ -624,31 +639,40 @@ Falls Baujahr zwischen 1960-1990:
 ## ABSATZ 3: EMPFEHLUNG (40-60W)
 <h3>Meine Empfehlung</h3>
 
-2-3 konkrete Handlungsschritte - **LOGISCH basierend auf Zahlen UND Schwellenwerten!**
+**NEU: Fokussierte Empfehlung basierend auf DEM größten Risiko!**
 
-**WICHTIG: Empfehlungen müssen zu Fakten passen!**
+Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische Empfehlungen dazu.
 
-**Bei Kaufpreis ±10% (AM MARKT):**
-→ NICHT verhandeln! Sondern: "1) WEG-Unterlagen prüfen. 2) Zustand checken. 3) Notarvertrag lesen."
+**WICHTIG: Empfehlungen müssen zu Fakten passen und konkret sein!**
 
-**Bei Kaufpreis 10-20% ÜBER Markt:**
-→ "1) Leicht verhandeln, aber kein Muss. 2) WEG-Unterlagen prüfen."
+**Struktur:**
+1. **Eine Hauptempfehlung** zum größten Risiko (gut erklärt, konkret)
+2. **Optional: Eine Zusatzempfehlung** falls sinnvoll
+
+**Bei Miete >20% ÜBER Markt (HÖCHSTE PRIORITÄT!):**
+→ "Kalkuliere konservativ mit Marktmiete [X] €/m² ([Betrag] € statt [aktuelle Miete] €). Das gibt dir Sicherheit, falls der Mieter wechselt. Bei Marktmiete wäre dein Cashflow [neuer Betrag] € - prüf ob das für dich noch passt. WEG-Unterlagen checken (Rücklagen, anstehende Sanierungen), damit keine bösen Überraschungen kommen."
 
 **Bei Kaufpreis >20% ÜBER Markt:**
-→ "1) Kaufpreis runterverhandeln auf [X] €/m². 2) Sonst Finger weg - zu teuer."
-
-**Bei Kaufpreis 10-20% UNTER Markt:**
-→ "1) WEG-Unterlagen gründlich prüfen. 2) Zustand checken - Preis hat vermutlich Grund."
+→ "Verhandle den Kaufpreis auf maximal [X] €/m² runter (Markt-Niveau). Bei [aktueller Preis] €/m² zahlst du [Differenz] € zu viel. Check aktuelle Angebote in [Gemeinde/Stadt] zum Vergleich. Falls Verkäufer nicht verhandelt: Finger weg - zu teuer."
 
 **Bei Kaufpreis >20% UNTER Markt:**
-→ "1) WEG-Unterlagen SEHR gründlich prüfen. 2) Zustand-Check. 3) Warum so billig? Kläre Hintergründe."
+→ "Der niedrige Preis ([Y]% unter Markt) hat meist einen Grund. WEG-Unterlagen SEHR gründlich prüfen: Wie hoch sind die Rücklagen? Stehen Sanierungen an (Dach, Fassade, Heizung)? Lass einen Gutachter den Zustand checken ([X] € Investition, die sich lohnt). Kläre beim Verkäufer: Warum so günstig?"
 
-**Bei Miete >20% ÜBER Markt:**
-→ "Kalkuliere konservativ mit Marktmiete [X] €/m²"
+**Bei Kaufpreis 10-20% UNTER Markt:**
+→ "WEG-Unterlagen gründlich prüfen (Rücklagen, Sanierungen). Zustand checken - niedriger Preis kann auf versteckte Kosten hindeuten. Falls WEG sauber ist: Gutes Deal!"
+
+**Bei Kaufpreis 10-20% ÜBER Markt:**
+→ "Leicht verhandeln, aber kein Muss. WEG-Unterlagen prüfen (Rücklagen, anstehende Sanierungen). Falls alles passt: Im Rahmen."
+
+**Bei Kaufpreis ±10% (AM MARKT) + Miete OK:**
+→ "WEG-Unterlagen prüfen (Rücklagen, Sanierungen). Zustand checken. Falls alles sauber: Passt!"
+
+**Bei Baujahr <1980 + niedriger Preis:**
+→ "Lass einen Gutachter den Zustand checken (Elektrik, Leitungen, Fenster, Heizung). Bei Baujahr [Z] können größere Sanierungen anstehen. WEG-Protokolle lesen: Stehen Sanierungen an? Falls ja, welche Kosten?"
 
 Beispiele:
-- Kaufpreis 9% unter Markt: "1) WEG-Unterlagen prüfen (Rücklagen, Sanierungen). 2) Zustand checken. 3) Notarvertrag lesen."
-- Kaufpreis 25% über Markt: "1) Kaufpreis auf [X] €/m² runterverhandeln. 2) Sonst Finger weg."
+- Miete 25% über Markt: "Kalkuliere mit Marktmiete 11 €/m² (890 € statt 1.200 €). Das gibt dir Sicherheit bei Mieterwechsel. Dann wäre dein Cashflow -290 € - überlege ob das für dich passt. WEG-Unterlagen checken."
+- Kaufpreis 25% über Markt: "Verhandle auf maximal 2.500 €/m² runter. Bei 3.200 €/m² zahlst du 180.000 € zu viel. Falls Verkäufer nicht verhandelt: Finger weg."
 
 ## ABSATZ 4: FAZIT (20-30W)
 <h3>Fazit</h3>
