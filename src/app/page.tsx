@@ -69,6 +69,29 @@ export default function LandingPage() {
     "sameAs": [],
   };
 
+  const faqs = [
+    {
+      question: 'Wie genau sind die Ergebnisse?',
+      answer:
+        'Wir rechnen mit aktuellen Markt- und Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
+    },
+    {
+      question: 'Brauche ich einen Account?',
+      answer:
+        'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
+    },
+    {
+      question: 'Was kostet ImVestr?',
+      answer:
+        'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
+    },
+    {
+      question: 'Unterstützt ihr bei der Bank?',
+      answer:
+        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal fürs Gespräch mit Finanzierungspartnern.',
+    },
+  ];
+
   const faqData = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -136,29 +159,6 @@ export default function LandingPage() {
     {
       title: '3 · Szenario sichern',
       description: 'PDF exportieren, mit Bank teilen oder als Favorit speichern.',
-    },
-  ];
-
-  const faqs = [
-    {
-      question: 'Wie genau sind die Ergebnisse?',
-      answer:
-        'Wir rechnen mit aktuellen Markt- und Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
-    },
-    {
-      question: 'Brauche ich einen Account?',
-      answer:
-        'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
-    },
-    {
-      question: 'Was kostet ImVestr?',
-      answer:
-        'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
-    },
-    {
-      question: 'Unterstützt ihr bei der Bank?',
-      answer:
-        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal fürs Gespräch mit Finanzierungspartnern.',
     },
   ];
 
