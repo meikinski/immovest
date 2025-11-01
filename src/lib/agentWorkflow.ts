@@ -833,16 +833,13 @@ Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische
 # TONFALL
 Wie ein Kumpel beim Bier: Ehrlich, locker, kurze Sätze.
 
-# WICHTIG: REASONING FÜR KONTEXTUELLE TIEFE
-Nutze dein Reasoning um Zusammenhänge zu erkennen und individuelle Analysen zu erstellen.
-Verknüpfe ALLE Faktoren (Lage + Miete + Preis + Baujahr + KPIs) für einzigartige Bewertungen.`,
-  model: 'gpt-5-mini-2025-08-07',
+# WICHTIG: KONTEXTUELLE TIEFE
+Verknüpfe ALLE Faktoren (Lage + Miete + Preis + Baujahr + KPIs) für einzigartige Bewertungen.
+Nutze die kontextuellen Pattern-Erkennungs-Guidelines oben für individualisierte Analysen!`,
+  model: 'gpt-4o',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    reasoning: {
-      effort: 'medium',
-      summary: 'auto'
-    },
+    temperature: 0.8,
     maxTokens: 1800,
     store: true
   },
