@@ -350,8 +350,8 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 ## WICHTIG FÜR KONTEXTUELLE BEWERTUNG:
 Du hast Zugriff auf:
-- `payload.baujahr` - Nutze für Einordnung
-- `facts.location.notes` - Enthält Info über Lage-Qualität ("begehrt"/"sozial gemischt"/"durchschnittlich")
+- payload.baujahr - Nutze für Einordnung
+- facts.location.notes - Enthält Info über Lage-Qualität ("begehrt"/"sozial gemischt"/"durchschnittlich")
 - Nutze diese für kontextuelle Bewertung der Miete!
 
 ## BERECHNUNG
@@ -428,8 +428,8 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 
 ## WICHTIG FÜR KONTEXTUELLE BEWERTUNG:
 Du hast Zugriff auf:
-- `payload.baujahr` - KRITISCH für kontextuelle Preisbewertung!
-- `facts.location.notes` - Enthält Info über Lage-Qualität
+- payload.baujahr - KRITISCH für kontextuelle Preisbewertung!
+- facts.location.notes - Enthält Info über Lage-Qualität
 - Nutze BEIDE für kontextuelle Bewertung des Kaufpreises!
 
 ## BERECHNUNG
