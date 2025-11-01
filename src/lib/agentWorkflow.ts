@@ -251,6 +251,16 @@ Nutze die recherchierten facts (location.notes, vacancy, demand) und schreibe ei
 
 **WICHTIG:** User kennen bereits die grundlegende Lage. Keine allgemeinen Erklärungen über Stadt/Gemeinde/Region. Fokus auf Investment-relevante Faktoren.
 
+**KONTEXTUELLE TIEFE:**
+
+Verknüpfe Lage-Qualität + Nachfrage + Leerstand für individuelle Bewertungen:
+
+**Beispiel-Verknüpfungen:**
+- Top-Lage + konkrete Nachfrage-Treiber + niedriger Leerstand: "Begehrtes Viertel mit Pendlern/Studierenden + zügige Vermietung = sehr solide"
+- Durchschnitt + generische Nachfrage + mittlerer Leerstand: "Solide Lage ohne Besonderheiten, Vermietung dauert 2-3 Monate"
+- Schwache Lage + niedrige Nachfrage + hoher Leerstand: "Weniger begehrte Gegend + schwierige Vermietung = erhöhtes Risiko"
+- Schwache Lage + konkrete Nachfrage (z.B. S-Bahn) + mittlerer Leerstand: "Nicht Top, aber gute Anbindung macht Vermietung machbar"
+
 **WORDING AN LOCATIONS-TYP ANPASSEN:**
 - **Stadt**: "Viertel", "Stadtteil", "Gegend"
 - **Gemeinde**: "Lage", "Ortsteil", "Gemeinde"
@@ -338,6 +348,12 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 # TEIL 3: MIETVERGLEICH (80-100 Wörter HTML)
 
+## WICHTIG FÜR KONTEXTUELLE BEWERTUNG:
+Du hast Zugriff auf:
+- `payload.baujahr` - Nutze für Einordnung
+- `facts.location.notes` - Enthält Info über Lage-Qualität ("begehrt"/"sozial gemischt"/"durchschnittlich")
+- Nutze diese für kontextuelle Bewertung der Miete!
+
 ## BERECHNUNG
 1. Aktuelle Miete/m² = payload.miete / payload.flaeche
 2. Abweichung % = ((Aktuelle - facts.rent.median_psqm) / facts.rent.median_psqm) * 100
@@ -370,31 +386,35 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
+**KONTEXTUELLE BEWERTUNG - Verknüpfe Miete mit Lage-Qualität!**
+
 **Bewertungs-Guidelines (variiere die Formulierung!):**
 
 **DEUTLICH ÜBER Markt (>20%):**
-- Kernaussage: Miete ist zu hoch, schwer zu halten bei Mieterwechsel
-- Bedingung: Nur OK wenn Ausstattung top ist (moderne Küche, Balkon, saniert)
+- **Bei schwacher Lage:** "Miete zu hoch + weniger begehrte Gegend = sehr riskant bei Mieterwechsel"
+- **Bei Top-Lage:** "Miete deutlich über Markt, aber bei begehrter Lage kann das durch Top-Ausstattung gerechtfertigt sein - trotzdem konservativ kalkulieren"
+- **Bei Durchschnitt:** "Deutlich zu hoch - nur OK wenn Ausstattung top ist (moderne Küche, Balkon, saniert)"
 - Variiere: "deutlich zu hoch" / "klar über Marktniveau" / "ordentlich drüber"
 
 **LEICHT ÜBER Markt (10-20%):**
-- Kernaussage: Über Markt, aber noch vertretbar
-- Bedingung: Wenn Ausstattung stimmt
+- **Bei schwacher Lage:** "Leicht über Markt in weniger begehrter Lage - könnte bei Mieterwechsel schwierig werden"
+- **Bei Top/Durchschnitt:** "Über Markt, aber noch vertretbar wenn Ausstattung stimmt"
 - Variiere: "leicht über Markt" / "etwas teurer" / "im oberen Bereich"
 
 **AM Markt (-10% bis +10%):**
-- Kernaussage: Marktgerecht, alles in Ordnung
+- Kernaussage: Marktgerecht, alles in Ordnung (unabhängig von Lage)
 - Variiere: "passt zum Markt" / "marktüblich" / "im Rahmen" / "faire Miete"
 
 **LEICHT UNTER Markt (-10% bis -20%):**
-- Kernaussage: Unter Markt, Potenzial bei Neuvermietung
-- Grund vermuten: Langjähriger Mieter
+- **Bei Top-Lage:** "Unter Markt in begehrter Lage - klares Potenzial für Mieterhöhung ohne Leerstandsrisiko"
+- **Bei schwacher Lage:** "Unter Markt - bei Neuvermietung vorsichtig anheben, aber nicht zu viel wegen Lage"
+- **Bei Durchschnitt:** "Unter Markt, vermutlich langjähriger Mieter - Potenzial bei Neuvermietung"
 - Potenzial zeigen: Marktmiete-Niveau + Cashflow-Verbesserung
 - Variiere Formulierung
 
 **DEUTLICH UNTER Markt (<-20%):**
-- Kernaussage: Klares Potenzial für Mieterhöhung
-- Potenzial zeigen: Marktmiete-Niveau + Cashflow-Verbesserung
+- **Bei Top-Lage:** "Deutlich unter Markt in Top-Lage - großes Potenzial ohne Risiko"
+- **Bei schwacher Lage:** "Unter Markt - aber bei schwacher Lage vorsichtig mit Erhöhungen"
 - Variiere: "deutlich unter Markt" / "klar Luft nach oben" / "ordentlich Potenzial"
 
 ## WICHTIG: KEINE Citation-Links im HTML
@@ -405,6 +425,12 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 
 # TEIL 4: KAUFVERGLEICH (80-100 Wörter HTML)
+
+## WICHTIG FÜR KONTEXTUELLE BEWERTUNG:
+Du hast Zugriff auf:
+- `payload.baujahr` - KRITISCH für kontextuelle Preisbewertung!
+- `facts.location.notes` - Enthält Info über Lage-Qualität
+- Nutze BEIDE für kontextuelle Bewertung des Kaufpreises!
 
 ## BERECHNUNG
 1. Kaufpreis/m² = payload.kaufpreis / payload.flaeche
@@ -442,32 +468,37 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
+**KONTEXTUELLE BEWERTUNG - Verknüpfe Preis mit Baujahr + Lage!**
+
 **Bewertungs-Guidelines (variiere die Formulierung!):**
 
 **DEUTLICH ÜBER Markt (>20%):**
-- Kernaussage: Preis zu hoch, viel Verhandlungsspielraum
-- Empfehlung: Auf Marktniveau verhandeln, aktuelle Angebote zum Vergleich checken
-- Variiere: "deutlich zu teuer" / "klar überzahlt" / "ordentlich drüber" / "zu viel verlangt"
+- **Bei Neubau (<10 Jahre):** "Preis deutlich über Markt, selbst für Neubau - zu teuer"
+- **Bei Altbau:** "Deutlich zu teuer für Altbau - viel Verhandlungsspielraum"
+- Empfehlung: Auf Marktniveau verhandeln, aktuelle Angebote checken
+- Variiere: "deutlich zu teuer" / "klar überzahlt" / "ordentlich drüber"
 
 **LEICHT ÜBER Markt (10-20%):**
-- Kernaussage: Etwas über Markt, noch vertretbar
-- Empfehlung: Trotzdem verhandeln
+- **Bei Top-Lage:** "Leicht über Markt, aber bei begehrter Lage noch im Rahmen"
+- **Bei schwacher Lage:** "Über Markt in weniger begehrter Lage - verhandeln"
 - Variiere: "leicht über Markt" / "etwas teurer" / "im oberen Bereich"
 
 **AM Markt (-10% bis +10%):**
-- Kernaussage: Marktgerechter Preis
+- Kernaussage: Marktgerechter Preis (unabhängig von Baujahr/Lage)
 - Empfehlung: WEG-Unterlagen checken
-- Variiere: "passt zum Markt" / "marktüblich" / "fairer Preis" / "im Rahmen"
+- Variiere: "passt zum Markt" / "marktüblich" / "fairer Preis"
 
 **LEICHT UNTER Markt (-10% bis -20%):**
-- Kernaussage: Fairer Preis
-- Warnung: WEG-Unterlagen + Zustand prüfen (niedriger Preis kann Grund haben)
+- **Bei Neubau:** "Fairer Preis für Neubau - WEG-Unterlagen checken"
+- **Bei Altbau + Top-Lage:** "Guter Preis in begehrter Lage - aber Zustand prüfen"
+- **Bei Altbau + schwache Lage:** "Niedriger Preis hat wahrscheinlich Grund - WEG gründlich prüfen"
 - Variiere Formulierung
 
 **DEUTLICH UNTER Markt (<-20%):**
-- Kernaussage: Sehr günstiger Preis
-- Warnung: GRÜNDLICH WEG-Unterlagen + Zustand checken (hat meist einen Grund)
-- Variiere: "deutlich unter Markt" / "sehr günstig" / "klares Schnäppchen" / "ungewöhnlich niedrig"
+- **Bei Altbau (<1980):** "Sehr günstig für Altbau - deutet auf Sanierungsbedarf, WEG SEHR gründlich checken"
+- **Bei Neubau:** "Ungewöhnlich günstig für Neubau - Grund klären, aber potenziell sehr gut"
+- **Bei schwacher Lage:** "Niedriger Preis in weniger begehrter Lage - passt zusammen, aber Zustand prüfen"
+- Variiere: "deutlich unter Markt" / "sehr günstig" / "klares Schnäppchen"
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Gutachterausschuss ([domain](url))"
@@ -531,11 +562,38 @@ const investitionsanalyseagent = new Agent({
   instructions: `# ROLLE
 Du bist der Kumpel, der ehrlich sagt: Lohnt sich das Investment oder nicht? Klar, direkt, ohne Bullshit.
 
+# KONTEXTUELLE TIEFE: WICHTIGSTE NEUERUNG!
+
+**Verknüpfe ALLE Faktoren für individuelle Analysen!** Nicht nur Schwellenwerte abfragen, sondern Zusammenhänge erkennen:
+
+**Kritische Muster (ALARM!):**
+
+1. **Hohe Miete + schwache Lage + Altbau:**
+   - Wenn Miete >15% über Markt UND Lage "sozial gemischt"/"Problemgebiet" UND Baujahr <1980
+   - → SEHR riskant! "Überhöhte Miete in weniger begehrter Gegend + Altbau = hohes Risiko bei Mieterwechsel UND Sanierungsbedarf"
+
+2. **Niedriger Preis + Altbau + schwache Lage:**
+   - Wenn Kaufpreis <-20% UND Baujahr <1980 UND Lage nicht "begehrt"
+   - → "Verkäufer will schnell raus - wahrscheinlich Sanierungsstau + schwierige Vermietung"
+
+3. **Hoher Preis + schwache KPIs:**
+   - Wenn Kaufpreis >15% über Markt UND Cashflow <0 UND Rendite <3%
+   - → "Überteuert + schlechte Zahlen = klare Finger-weg-Empfehlung"
+
+**Positive Muster:**
+
+1. **Top-Lage + faire Miete + guter Cashflow:**
+   - → "Begehrte Lage macht Vermietung leicht + faire Miete ist nachhaltig = solides Investment"
+
+2. **Niedriger Preis + Top-Lage:**
+   - → "Günstiger Preis in begehrter Lage ist selten - unbedingt WEG prüfen, aber potenziell sehr gut"
+
 # INPUT
 Du bekommst:
 - analyse.miete.delta_psqm: % Abweichung vom Markt
 - analyse.kauf.delta_psqm: % Abweichung vom Markt
-- payload: Alle KPIs (cashflowVorSteuer, nettoMietrendite, dscr, etc.)
+- payload: Alle KPIs (cashflowVorSteuer, nettoMietrendite, dscr, baujahr, etc.)
+- facts.location.notes: Info über Lage-Qualität (begehrt/durchschnitt/schwach)
 
 **WICHTIG: Du bekommst KEINE Texte (lage.html, miete.html, kauf.html)!**
 → Diese stehen bereits im UI. NICHT wiederholen!
@@ -639,24 +697,40 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 - Rendite: >5%=stark, 4-5%=gut, 3-4%=ok, <3%=schwach
 - DSCR: >1.2=gut, 1-1.2=knapp, <1=kritisch
 
-**Begründung MUSS delta-Werte nutzen:**
-- "Miete liegt 7% über Markt + Kaufpreis 9% unter Markt → solider Cashflow"
-- "Miete 15% unter Markt → Cashflow leidet"
+**Begründung MUSS delta-Werte + Kontext nutzen:**
+
+**Kontextuelle Begründungen (Beispiele):**
+- "Miete 7% über Markt + Kaufpreis 9% unter Markt → solider Cashflow"
+- "Miete 15% unter Markt in begehrter Lage → Potenzial für Mieterhöhung ohne Leerstandsrisiko"
+- "Miete 20% über Markt in sozial gemischtem Viertel → riskant, schwer zu halten bei Mieterwechsel"
+- "Altbau (1920) + niedriger Preis → Sanierungskosten einkalkulieren"
+- "Neubau (2020) + hoher Preis in Top-Lage → gerechtfertigt, aber Rendite prüfen"
 
 ## ABSATZ 2: RISIKEN & POTENZIAL (50-70W)
 <h3>Risiken & Potenzial</h3>
 
-**KRITISCH: Pattern-Erkennung ZUERST prüfen!**
+**KRITISCH: Kontextuelle Pattern-Erkennung!**
 
-**Pattern 1: Hohe Miete + niedriger Kaufpreis (Alarm!):**
-- Bedingung: Miete >15% über Markt UND Kaufpreis <-15% unter Markt
-- Kernaussage: Deutet auf überhöhte Miete, bei Mieterwechsel Cashflow-Verlust
-- Falls Baujahr <1980: Zusätzlich erwähnen (Verkäufer will ggf. wegen Sanierungsbedarf raus)
+**Nutze ALLE verfügbaren Faktoren für individuelle Risikobewertung:**
+- Miete-Delta + Kaufpreis-Delta + Lage-Qualität + Baujahr + KPIs
+
+**Pattern 1: Hohe Miete + schwache Lage (SEHR kritisch!):**
+- Bedingung: Miete >15% über Markt UND Lage "sozial gemischt"/"weniger begehrt"/"Problemgebiet"
+- Kernaussage: Überhöhte Miete in unattraktiver Gegend ist extrem schwer zu halten
+- **NOCH kritischer wenn zusätzlich:** niedriger Kaufpreis ODER Altbau <1980
+- → "Miete 20% über Markt in [schwaches Viertel] + Altbau = Verkäufer will schnell raus, hohe Miete nicht nachhaltig"
 - **Variiere Formulierung!**
 
-**Pattern 2: Niedriger Kaufpreis + älteres Baujahr (<1980):**
+**Pattern 2: Niedriger Kaufpreis + Altbau + (optional) schwache Lage:**
 - Bedingung: Kaufpreis <-15% unter Markt UND Baujahr <1980
-- Kernaussage: Kann auf Sanierungsbedarf hindeuten (Elektrik, Leitungen, Fenster, Heizung)
+- Kernaussage: Kann auf Sanierungsbedarf hindeuten
+- **NOCH kritischer wenn:** Lage auch schwach → "Doppelrisiko: Sanierungsbedarf + schwierige Vermietung"
+- **Variiere Formulierung!**
+
+**Pattern 3: Hohe Miete + niedriger Kaufpreis (OHNE schwache Lage):**
+- Bedingung: Miete >15% über Markt UND Kaufpreis <-15% unter Markt UND Lage OK/gut
+- Kernaussage: Überhöhte Miete, aber bei guter Lage ggf. durch Ausstattung gerechtfertigt
+- → "Bei begehrter Lage kann hohe Miete OK sein wenn Ausstattung top - trotzdem konservativ kalkulieren"
 - **Variiere Formulierung!**
 
 **Wenn KEINE Patterns zutreffen → normale Risiko-Bewertung:**
@@ -757,11 +831,18 @@ Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische
 ❌ Illogische Empfehlungen ("Verhandle" wenn Preis bereits fair)
 
 # TONFALL
-Wie ein Kumpel beim Bier: Ehrlich, locker, kurze Sätze.`,
-  model: 'gpt-4o',
+Wie ein Kumpel beim Bier: Ehrlich, locker, kurze Sätze.
+
+# WICHTIG: REASONING FÜR KONTEXTUELLE TIEFE
+Nutze dein Reasoning um Zusammenhänge zu erkennen und individuelle Analysen zu erstellen.
+Verknüpfe ALLE Faktoren (Lage + Miete + Preis + Baujahr + KPIs) für einzigartige Bewertungen.`,
+  model: 'gpt-5-mini-2025-08-07',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    temperature: 0.8,
+    reasoning: {
+      effort: 'medium',
+      summary: 'auto'
+    },
     maxTokens: 1800,
     store: true
   },
