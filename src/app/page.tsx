@@ -27,6 +27,61 @@ export default function LandingPage() {
     router.push('/input-method');
   };
 
+  // Structured Data for SEO (JSON-LD)
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ImVestr",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR",
+    },
+    "description": "Immobilien-Renditerechner mit URL-Import, Foto-Analyse und automatischer Berechnung von Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR. Mikrolage-Bewertung und bankfähiger PDF-Report.",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "ratingCount": "127",
+    },
+    "featureList": [
+      "URL-Import von ImmoScout24 und Immowelt",
+      "Foto-Analyse mit KI",
+      "Cashflow-Berechnung",
+      "Nettomietrendite-Berechnung",
+      "Eigenkapitalrendite (ROI)",
+      "DSCR-Berechnung",
+      "Mikrolage-Bewertung",
+      "Mietpreis-Vergleich",
+      "Quadratmeterpreis-Analyse",
+      "Bankfähiger PDF-Report",
+    ],
+  };
+
+  const organizationData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "ImVestr",
+    "url": "https://immovestr.de",
+    "logo": "https://immovestr.de/logo.png",
+    "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen",
+    "sameAs": [],
+  };
+
+  const faqData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer,
+      },
+    })),
+  };
+
   const importFeatures = [
     {
       icon: <LinkIcon className="w-6 h-6 text-[#E6AE63]" />,
@@ -108,8 +163,23 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-      <header className="fixed top-0 left-0 right-0 z-50">
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
+      />
+
+      <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
+        <header className="fixed top-0 left-0 right-0 z-50">
         <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/5 via-[#E6AE63]/5 to-transparent backdrop-blur-lg"></div>
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#E6AE63]/30 to-transparent"></div>
 
@@ -148,8 +218,8 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <main>
-        <section className="relative overflow-hidden pt-36 pb-24">
+      <main role="main">
+        <section aria-label="Hero" className="relative overflow-hidden pt-36 pb-24">
           <div className="absolute inset-0 -z-10">
             <div className="absolute inset-0 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/10" />
             <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#264171]/10 blur-3xl" />
@@ -197,7 +267,7 @@ export default function LandingPage() {
         </section>
 
         {/* Import Features - USP */}
-        <section className="px-6 py-20 bg-white border-y border-[#264171]/5">
+        <section aria-label="Import-Optionen" className="px-6 py-20 bg-white border-y border-[#264171]/5">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
@@ -212,7 +282,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-3 mb-12">
               {importFeatures.map((feature, index) => (
                 <div
                   key={feature.title}
@@ -226,10 +296,57 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+
+            {/* Visual Mockup - Import Flow */}
+            <div className="relative rounded-3xl border border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-8 overflow-hidden shadow-xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#E6AE63]/10 to-transparent rounded-full blur-3xl"></div>
+
+              <div className="relative space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-sm font-semibold">1</div>
+                  <span className="text-sm font-medium text-[#6C7F99] uppercase tracking-wide">Beispiel: URL-Import</span>
+                </div>
+
+                {/* URL Input Mockup */}
+                <div className="rounded-2xl border border-[#264171]/10 bg-white p-6 shadow-md">
+                  <div className="flex items-center gap-3 mb-4">
+                    <LinkIcon className="h-5 w-5 text-[#E6AE63]" />
+                    <span className="text-sm font-medium text-[#6C7F99]">Exposé-Link einfügen</span>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-xl border-2 border-[#E6AE63] bg-[#E6AE63]/5 px-4 py-3">
+                    <span className="flex-1 text-sm text-[#6C7F99]">https://www.immobilienscout24.de/expose/...</span>
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#264171] to-[#E6AE63]">
+                      <ArrowRight className="h-4 w-4 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Auto-filled Data Mockup */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Kaufpreis', value: '385.000 €', icon: '💶' },
+                    { label: 'Wohnfläche', value: '78 m²', icon: '📏' },
+                    { label: 'Kaltmiete', value: '1.420 €', icon: '🏠' },
+                    { label: 'Zimmer', value: '3', icon: '🚪' },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 p-4">
+                      <div className="text-2xl mb-2">{item.icon}</div>
+                      <div className="text-xs text-[#6C7F99] mb-1">{item.label}</div>
+                      <div className="text-base font-semibold text-[#0F172A]">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#22c55e]/10 to-[#22c55e]/5 border border-[#22c55e]/20 px-4 py-3">
+                  <CheckCircle2 className="h-5 w-5 text-[#22c55e]" />
+                  <span className="text-sm font-medium text-[#22c55e]">Alle Daten automatisch erkannt</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="features" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
+        <section id="features" aria-label="Analyse-Features" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-4">
@@ -273,7 +390,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#F7F9FF] px-6 py-24" id="steps">
+        <section className="bg-[#F7F9FF] px-6 py-24" id="steps" aria-label="Wie es funktioniert">
           <div className="mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
@@ -301,36 +418,68 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              <div className="flex-1 rounded-3xl border border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/10 p-8 shadow-xl">
-                <div className="mb-6">
-                  <p className="text-sm font-medium text-[#6C7F99] uppercase tracking-wide">Beispiel-Output</p>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#264171]/5">
-                      <LineChart className="h-6 w-6 text-[#264171]" />
+              {/* Visual Dashboard Mockup */}
+              <div className="flex-1 relative">
+                <div className="sticky top-24 rounded-3xl border border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/10 p-6 shadow-xl overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/10 rounded-full blur-3xl"></div>
+
+                  <div className="relative">
+                    <div className="flex items-center gap-2 mb-6">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-xs font-semibold">2</div>
+                      <span className="text-xs font-medium text-[#6C7F99] uppercase tracking-wide">Live Analyse-Dashboard</span>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-base font-semibold text-[#0F172A]">Cashflow +327 €</p>
-                      <p className="text-sm text-[#6C7F99]">nach Kaufnebenkosten</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E6AE63]/10">
-                      <Building2 className="h-6 w-6 text-[#E6AE63]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-base font-semibold text-[#0F172A]">Mikrolage · Top 15 %</p>
-                      <p className="text-sm text-[#6C7F99]">im Stadtteil-Vergleich</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#6C7F99]/10">
-                      <FileBarChart className="h-6 w-6 text-[#6C7F99]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-base font-semibold text-[#0F172A]">PDF in 12 Sekunden</p>
-                      <p className="text-sm text-[#6C7F99]">Alle Szenarien & Annahmen</p>
+
+                    <div className="space-y-4">
+                      {/* KPI Cards */}
+                      <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="text-xs text-[#6C7F99] mb-1">Monatlicher Cashflow</div>
+                            <div className="text-2xl font-bold bg-gradient-to-r from-[#22c55e] to-[#16a34a] bg-clip-text text-transparent">+327 €</div>
+                          </div>
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#22c55e]/10 to-[#22c55e]/5">
+                            <LineChart className="h-5 w-5 text-[#22c55e]" />
+                          </div>
+                        </div>
+                        <div className="h-2 rounded-full bg-[#F7F9FF] overflow-hidden">
+                          <div className="h-full w-3/4 bg-gradient-to-r from-[#22c55e] to-[#16a34a] rounded-full"></div>
+                        </div>
+                      </div>
+
+                      {/* Location Score */}
+                      <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <div className="text-xs text-[#6C7F99] mb-1">Mikrolage-Score</div>
+                            <div className="text-2xl font-bold text-[#0F172A]">8.4<span className="text-base text-[#6C7F99]">/10</span></div>
+                            <div className="text-xs text-[#E6AE63] font-medium">Top 15% im Stadtteil</div>
+                          </div>
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6AE63]/10 to-[#E6AE63]/5">
+                            <MapPin className="h-5 w-5 text-[#E6AE63]" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Rendite Grid */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="rounded-xl bg-gradient-to-br from-[#264171]/5 to-[#264171]/10 p-4 border border-[#264171]/10">
+                          <div className="text-xs text-[#6C7F99] mb-1">Nettomietrendite</div>
+                          <div className="text-lg font-bold text-[#264171]">4.2%</div>
+                        </div>
+                        <div className="rounded-xl bg-gradient-to-br from-[#E6AE63]/5 to-[#E6AE63]/10 p-4 border border-[#E6AE63]/10">
+                          <div className="text-xs text-[#6C7F99] mb-1">DSCR</div>
+                          <div className="text-lg font-bold text-[#E6AE63]">1.35</div>
+                        </div>
+                      </div>
+
+                      {/* PDF Export Button */}
+                      <button className="w-full flex items-center justify-between rounded-xl bg-gradient-to-r from-[#264171] to-[#E6AE63] p-4 text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
+                        <div className="flex items-center gap-3">
+                          <FileBarChart className="h-5 w-5" />
+                          <span className="text-sm font-semibold">PDF-Report erstellen</span>
+                        </div>
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -339,7 +488,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-24 bg-white">
+        <section aria-label="Zielgruppen" className="px-6 py-24 bg-white">
           <div className="mx-auto max-w-6xl">
             <div className="text-center mb-16">
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
@@ -400,7 +549,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="faq" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
+        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">Häufige Fragen</h2>
@@ -417,7 +566,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="px-6 py-24 bg-white">
+        <section aria-label="Call-to-Action" className="px-6 py-24 bg-white">
           <div className="mx-auto max-w-5xl">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#264171] via-[#6C7F99] to-[#E6AE63] p-12 md:p-16 text-center text-white shadow-2xl">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40"></div>
@@ -504,6 +653,7 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
