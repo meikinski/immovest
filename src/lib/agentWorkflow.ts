@@ -261,74 +261,70 @@ Nutze die recherchierten facts (location.notes, vacancy, demand) und schreibe ei
 ### 1. Mikro-Lage & Qualität (25-30W)
 **KRITISCH: Nutze facts.location.notes für ehrliche Bewertung!**
 
-Ehrlich bewerten (passe Wording an Locations-Typ an):
+**GUIDELINES - Ehrlich bewerten (variiere die Formulierung!):**
 
 **Für STÄDTE:**
-- Top-Lage: "Sehr begehrte Wohnlage, Szeneviertel - Top-Adresse für [Stadt]."
-- Durchschnitt: "Solide Wohnlage, nichts Besonderes aber auch kein Problem."
-- Schwach: "[Stadtteil] ist nicht die beste Gegend - sozial gemischtes Viertel, weniger begehrt. Aber: Nachfrage ist da."
+- Top-Lage: Kernaussage = sehr begehrte Wohnlage, hohe Nachfrage
+  - Variiere: "Top-Adresse" / "begehrtes Viertel" / "sehr gefragt" / "Szeneviertel"
+- Durchschnitt: Kernaussage = solide Wohnlage, unproblematisch
+  - Variiere: "nichts Besonderes" / "solides Viertel" / "okay" / "durchschnittlich"
+- Schwach: Kernaussage = ehrlich sagen dass nicht Top, ABER Nachfrage existiert
+  - Variiere: "nicht die beste Gegend" / "sozial gemischt" / "weniger begehrt" / "Problemgebiet"
 
 **Für GEMEINDEN/DÖRFER:**
-- Gut: "Ruhige Lage in [Gemeinde], gute Anbindung an [Stadt] - solide Nachfrage."
-- Durchschnitt: "Solide ländliche Lage, etwas abgelegen aber OK."
-- Schwach: "Ländliche Lage, recht abgelegen - Nachfrage eher lokal begrenzt."
+- Gut: Kernaussage = ruhige Lage, gute Anbindung, solide Nachfrage
+  - Variiere Formulierung
+- Durchschnitt: Kernaussage = solide, etwas abgelegen
+  - Variiere Formulierung
+- Schwach: Kernaussage = abgelegen, Nachfrage lokal begrenzt
+  - Variiere: "recht abgelegen" / "ländlich ruhig" / "eher für Locals"
 
-Beispiel STADT Top-Lage:
-"Belgisches Viertel - eine der begehrtesten Lagen in Köln. Szeneviertel mit Cafés, Restaurants, hohe Nachfrage durch junge Berufstätige."
-
-Beispiel STADT Schwach:
-"Chorweiler ist ehrlich gesagt nicht Top-Lage: Sozial gemischtes Viertel, eher Problemgebiet. Aber die S-Bahn-Anbindung ist gut und Nachfrage existiert."
-
-Beispiel GEMEINDE Gut:
-"Ruhige Lage am Stadtrand von Gießen - gute Anbindung per S-Bahn (15 Min.), solide Nachfrage durch Familien und Pendler."
-
-Beispiel DORF:
-"Ländliche Lage im Kreis Düren, ruhig aber etwas abgelegen. Nachfrage eher durch lokale Käufer - überregional weniger gefragt."
+**WICHTIG: Keine festen Sätze, sondern Kernaussagen variiert ausdrücken!**
 
 ### 2. Nachfrage & Treiber (25-30W)
-- Nachfrage-Niveau (hoch/mittel/niedrig)
-- WARUM? Konkrete Treiber aus facts.demand.drivers (NUR wenn SPEZIFISCH!)
-- Stabilität der Nachfrage
 
-✅ NUR erwähnen wenn facts.demand.drivers KONKRET:
-- GUT: ["Pendler Frankfurt", "Studierende Uni Gießen", "Wachsende Tech-Branche"]
-- SCHLECHT: ["Familien", "Berufstätige"] → zu generisch, weglassen!
+**GUIDELINES (variiere die Formulierung!):**
 
-Beispiel STADT KONKRET:
-"Nachfrage durch Pendler (S-Bahn 15 Min. zur Innenstadt) und junge Berufstätige. Stabil, aber keine Explosion."
+**Nachfrage-Niveau:**
+- Kernaussage: hoch/mittel/niedrig + Stabilität
+- Variiere: "hoch" / "stark" / "gut" / "solide" / "begrenzt" / "schwach"
 
-Beispiel GEMEINDE KONKRET:
-"Nachfrage durch Pendler nach Gießen (15 Min. S-Bahn) und Familien mit kleinerem Budget. Stabil, aber kein Hotspot."
+**Treiber (NUR wenn KONKRET!):**
+- ✅ ERWÄHNEN: Konkrete Treiber wie "Pendler Frankfurt", "Studierende Uni X", "Tech-Branche"
+- ❌ WEGLASSEN: Generische Treiber wie "Familien", "Berufstätige"
+- Variiere Formulierung: "Nachfrage durch..." / "Gefragt bei..." / "Treiber sind..."
 
-Beispiel DORF:
-"Nachfrage eher lokal begrenzt - ländliche Lage zieht primär Käufer aus der Region an. Stabil, aber kein Wachstum."
+**Stabilität:**
+- Kernaussage: stabil / wachsend / seitwärts
+- Variiere: "stabil" / "solide" / "aber kein Hotspot" / "aber keine Explosion" / "kein Wachstum"
 
-Beispiel wenn KEINE konkreten Treiber:
-"Nachfrage ist solide - Lage ist ok, Anbindung passt."
+**Bei KEINEN konkreten Treibern:**
+- Kurze, allgemeine Aussage: Nachfrage ist solide/ok
+- Variiere Formulierung
 
 ### 3. Leerstand & Entwicklung (25-30W)
-KRITISCH: Nutze GENAU facts.vacancy.notes!
 
-Leerstand + Vermietbarkeit:
-- niedrig → "Leerstand niedrig, Vermietung läuft zügig."
-- mittel → "Leerstand ok, Vermietung kann 2-3 Monate dauern."
-- hoch → "Leerstand höher, Vermietung könnte länger dauern."
-- NULL → "Keine Leerstandsdaten, aber Markt wirkt [stabil/angespannt]."
+**GUIDELINES (variiere die Formulierung!):**
 
-Entwicklungspotenzial (passe an Locations-Typ an):
-- Top-Lage (Stadt): "Langfristig stabil bis leicht steigend - begehrte Lage."
-- Durchschnitt: "Wertstabil, aber keine großen Sprünge zu erwarten."
-- Schwach (Stadt): "Wertstabilität ok, aber kein Hotspot - eher seitwärts."
-- Ländlich: "Wertstabil auf lokalem Niveau - kein Hotspot, aber auch kein Absturz."
+**Leerstand + Vermietbarkeit (nutze facts.vacancy.notes!):**
+- niedrig: Kernaussage = Vermietung läuft zügig
+  - Variiere: "Leerstand niedrig" / "Vermietung läuft" / "zügig vermietet"
+- mittel: Kernaussage = Vermietung dauert 2-3 Monate
+  - Variiere: "Leerstand ok" / "kann 2-3 Monate dauern" / "normale Vermietungsdauer"
+- hoch: Kernaussage = Vermietung könnte länger dauern
+  - Variiere: "Leerstand höher" / "kann länger dauern" / "etwas schwieriger"
+- NULL: Kernaussage = keine Daten, aber Einschätzung vom Markt
+  - Variiere: "keine Daten" / "Daten fehlen" / "nicht verfügbar"
 
-Beispiel STADT:
-"Leerstand niedrig, Vermietung läuft. Langfristig wertstabil, aber keine Rakete - solide Anlage."
+**Entwicklungspotenzial (passe an Locations-Typ an):**
+- Top-Lage (Stadt): Kernaussage = langfristig stabil bis leicht steigend
+  - Variiere: "stabil bis steigend" / "wertstabil" / "solide Anlage" / "keine Rakete"
+- Durchschnitt: Kernaussage = wertstabil, keine großen Sprünge
+  - Variiere Formulierung
+- Schwach/Ländlich: Kernaussage = wertstabil auf lokalem Niveau, kein Hotspot
+  - Variiere: "auf lokalem Niveau" / "kein Hotspot" / "eher seitwärts" / "kein Absturz"
 
-Beispiel GEMEINDE:
-"Leerstand ok, Vermietung kann 2-3 Monate dauern. Wertstabil auf lokalem Niveau - solide, aber kein Wachstumsmarkt."
-
-Beispiel DORF:
-"Leerstand-Daten fehlen, aber ländlicher Markt ist eher ruhig. Vermietung kann länger dauern. Wertstabil, aber kein Hotspot."
+**WICHTIG: Kernaussagen beibehalten, aber Formulierung variieren!**
 
 ## TONFALL Lageanalyse
 Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
@@ -357,38 +353,49 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, auf den Punkt.
 
 **WICHTIG: Bevorzuge Ortsteil/PLZ-spezifische Vergleiche! Passe Wording an Locations-Typ an.**
 
-Template WENN Ortsteil/PLZ-Daten existieren:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Ortsteil/PLZ] kosten im Schnitt etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Angeboten] laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
+**GUIDELINES (variiere die Formulierung!):**
+- Nenne zuerst die Fakten: Zimmer, Größe, Kaltmiete → daraus €/m²
+- Vergleiche mit dem Markt (bevorzugt: Ortsteil/PLZ, sonst Gemeinde/Stadt, notfalls Landkreis)
+- Zeige die prozentuale Abweichung
+- Nenne die Quelle (z.B. "laut Mietspiegel 2024")
+- Falls Anzahl der Vergleichsobjekte bekannt: Erwähne es für Glaubwürdigkeit
+- Falls nur Landkreis/Stadt-Daten: Weise darauf hin, dass lokale Preise abweichen können
 
-Template WENN NUR Gemeinde/Stadt-Daten:
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Vergleichbare Wohnungen in [Gemeinde/Stadt] ([Größe]) kosten im Schnitt etwa [Segment] €/m² laut [Quelle]. Du liegst also bei etwa [Delta] % Abweichung."
-
-Template WENN NUR Landkreis-Daten (bei ländlichen Lagen):
-"Die [X]-Zimmer-Wohnung ([Y] m²) wird für [Z] € kalt vermietet → das sind ca. [A] €/m². Im Landkreis [X] kosten vergleichbare Wohnungen etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % Abweichung. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
-
-**WICHTIG: Wenn nur Gemeinde/Stadt/Landkreis-Daten verfügbar (keine PLZ/Ortsteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Gemeinde/Stadt/Landkreis]-Durchschnitt - lokale Preise in [Ortsteil] können abweichen."
+**Variiere die Struktur:**
+- Mal mit "→", mal mit "das macht", mal mit "ergibt"
+- Mal "im Schnitt", mal "durchschnittlich", mal "üblicherweise"
+- Mal "Du liegst X% drüber", mal "Das sind X% mehr als", mal "X% über Marktniveau"
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert! Nur wenn Spanne SEHR relevant ist.**
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
-**Schwellenwerte genauer:**
+**Bewertungs-Guidelines (variiere die Formulierung!):**
 
 **DEUTLICH ÜBER Markt (>20%):**
-"Das ist deutlich zu hoch. Geht nur in Ordnung, wenn die Ausstattung top ist (moderne Küche, Balkon, saniert). Sonst schwer zu halten bei Mieterwechsel."
+- Kernaussage: Miete ist zu hoch, schwer zu halten bei Mieterwechsel
+- Bedingung: Nur OK wenn Ausstattung top ist (moderne Küche, Balkon, saniert)
+- Variiere: "deutlich zu hoch" / "klar über Marktniveau" / "ordentlich drüber"
 
 **LEICHT ÜBER Markt (10-20%):**
-"Leicht über Markt, aber noch im Rahmen. Wenn die Ausstattung stimmt, geht das klar."
+- Kernaussage: Über Markt, aber noch vertretbar
+- Bedingung: Wenn Ausstattung stimmt
+- Variiere: "leicht über Markt" / "etwas teurer" / "im oberen Bereich"
 
 **AM Markt (-10% bis +10%):**
-"Passt zum Markt. Alles gut."
+- Kernaussage: Marktgerecht, alles in Ordnung
+- Variiere: "passt zum Markt" / "marktüblich" / "im Rahmen" / "faire Miete"
 
 **LEICHT UNTER Markt (-10% bis -20%):**
-"Leicht unter Markt - vermutlich langjähriger Mieter. Bei Neuvermietung könntest du auf [Z] €/m² gehen (+[Betrag] € Cashflow/Monat)."
+- Kernaussage: Unter Markt, Potenzial bei Neuvermietung
+- Grund vermuten: Langjähriger Mieter
+- Potenzial zeigen: Marktmiete-Niveau + Cashflow-Verbesserung
+- Variiere Formulierung
 
 **DEUTLICH UNTER Markt (<-20%):**
-"Deutlich unter Markt - klares Potenzial für Mieterhöhung bei Neuvermietung auf [Z] €/m² (+[Betrag] € Cashflow/Monat)."
+- Kernaussage: Klares Potenzial für Mieterhöhung
+- Potenzial zeigen: Marktmiete-Niveau + Cashflow-Verbesserung
+- Variiere: "deutlich unter Markt" / "klar Luft nach oben" / "ordentlich Potenzial"
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Mietspiegel ([domain](url))"
@@ -418,38 +425,49 @@ Wie ein Kumpel beim Bier: Kurze Sätze, keine Verschachtelungen, auf den Punkt.
 
 **WICHTIG: Bevorzuge Ortsteil/PLZ-spezifische Vergleiche! Passe Wording an Locations-Typ an.**
 
-Template WENN Ortsteil/PLZ-Daten existieren:
-"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Ortsteil/PLZ] liegen bei etwa [Segment] €/m² [Falls Anzahl bekannt: basierend auf N Verkäufen] laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
+**GUIDELINES (variiere die Formulierung!):**
+- Nenne Baujahr und Kaufpreis/m² (berechnet aus Gesamtpreis / Fläche)
+- Vergleiche mit dem Markt (bevorzugt: Ortsteil/PLZ, sonst Gemeinde/Stadt, notfalls Landkreis)
+- Zeige die prozentuale Abweichung
+- Nenne die Quelle (z.B. "laut Gutachterausschuss 2024")
+- Falls Anzahl der Vergleichsverkäufe bekannt: Erwähne es für Glaubwürdigkeit
+- Falls nur Landkreis/Stadt-Daten: Weise darauf hin, dass lokale Preise abweichen können
 
-Template WENN NUR Gemeinde/Stadt-Daten:
-"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Vergleichbare Eigentumswohnungen in [Gemeinde/Stadt] liegen bei etwa [Segment] €/m² laut [Quelle]. Du liegst damit rund [Delta] % unter/über dem Markt."
-
-Template WENN NUR Landkreis-Daten (bei ländlichen Lagen):
-"Die Wohnung (Baujahr [Z]) kostet ca. [Preis] €/m² ([Kaufpreis] € / [Y] m²). Im Landkreis [X] liegen vergleichbare Eigentumswohnungen bei etwa [Segment] €/m² laut [Quelle]. Du liegst bei etwa [Delta] % unter/über dem Markt. Achtung: Landkreis-Durchschnitt - lokale Preise können abweichen."
-
-**WICHTIG: Wenn nur Gemeinde/Stadt/Landkreis-Daten verfügbar (keine PLZ/Ortsteil-Daten):**
-Am Ende von Absatz 1 hinzufügen: "Achtung: Das ist der [Gemeinde/Stadt/Landkreis]-Durchschnitt - lokale Preise in [Ortsteil] können abweichen."
+**Variiere die Struktur:**
+- Mal "kostet ca.", mal "liegt bei", mal "Preis:"
+- Mal "Vergleichbare Wohnungen", mal "Ähnliche Objekte", mal "Der Markt"
+- Mal "Du liegst X% unter", mal "Das sind X% weniger", mal "X% günstiger als"
 
 **KEIN "üblich sind P25 bis P75" - zu kompliziert!**
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
-**Schwellenwerte genauer:**
+**Bewertungs-Guidelines (variiere die Formulierung!):**
 
 **DEUTLICH ÜBER Markt (>20%):**
-"Preis ist deutlich zu hoch. Da ist viel Verhandlungsspielraum. Versuch auf [Z] €/m² zu drücken (Markt-Niveau). Check aktuelle Angebote zum Vergleich."
+- Kernaussage: Preis zu hoch, viel Verhandlungsspielraum
+- Empfehlung: Auf Marktniveau verhandeln, aktuelle Angebote zum Vergleich checken
+- Variiere: "deutlich zu teuer" / "klar überzahlt" / "ordentlich drüber" / "zu viel verlangt"
 
 **LEICHT ÜBER Markt (10-20%):**
-"Leicht über Markt, aber noch im Rahmen. Versuch trotzdem etwas zu verhandeln."
+- Kernaussage: Etwas über Markt, noch vertretbar
+- Empfehlung: Trotzdem verhandeln
+- Variiere: "leicht über Markt" / "etwas teurer" / "im oberen Bereich"
 
 **AM Markt (-10% bis +10%):**
-"Preis passt zum Markt. WEG-Unterlagen trotzdem checken."
+- Kernaussage: Marktgerechter Preis
+- Empfehlung: WEG-Unterlagen checken
+- Variiere: "passt zum Markt" / "marktüblich" / "fairer Preis" / "im Rahmen"
 
 **LEICHT UNTER Markt (-10% bis -20%):**
-"Preis ist fair. Aber: Prüf unbedingt WEG-Unterlagen (Rücklagen, anstehende Sanierungen) und Zustand. Niedriger Preis kann Grund haben."
+- Kernaussage: Fairer Preis
+- Warnung: WEG-Unterlagen + Zustand prüfen (niedriger Preis kann Grund haben)
+- Variiere Formulierung
 
 **DEUTLICH UNTER Markt (<-20%):**
-"Preis ist deutlich unter Markt - sehr gut! Aber: WEG-Unterlagen und Zustand gründlich checken. So niedriger Preis hat meist einen Grund."
+- Kernaussage: Sehr günstiger Preis
+- Warnung: GRÜNDLICH WEG-Unterlagen + Zustand checken (hat meist einen Grund)
+- Variiere: "deutlich unter Markt" / "sehr günstig" / "klares Schnäppchen" / "ungewöhnlich niedrig"
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Gutachterausschuss ([domain](url))"
@@ -499,7 +517,7 @@ Wenn Zweifel: Setze NULL und dokumentiere in notes warum.`,
   outputType: AnalyseOutputSchema,
   modelSettings: {
     store: true,
-    temperature: 0.3,
+    temperature: 0.8,
     maxTokens: 3500,
   },
 });
@@ -553,42 +571,68 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 **Schreibe in 3 ABSÄTZEN (bessere Lesbarkeit!):**
 
 **ABSATZ 1: Cashflow + Begründung (40-50W)**
-"Monatlicher Cashflow: [X] €, das ist [stark/solide/eng/schlecht]. [Bei negativ: Du zahlst X € drauf / Bei positiv: Bleiben dir X € über.]
 
-Warum? [BEGRÜNDUNG mit delta-Werten]: Die Miete liegt [Y]% [über/unter] Markt, der Kaufpreis [Z]% [über/unter] Markt - das erklärt den [positiven/negativen] Cashflow.
+**GUIDELINES (variiere die Formulierung!):**
 
-**WICHTIG bei Miete >15% über Markt:**
-Zusätzlich hinzufügen: "ABER: [Y]% über Markt ist kritisch - geht nur in Ordnung, wenn die Ausstattung top ist (moderne Küche, Balkon, saniert). Sonst schwer zu halten bei Mieterwechsel. Kalkuliere konservativ mit Marktmiete [X] €/m²."
+- Cashflow-Status: Nenne den Betrag und bewerte ihn
+  - Variiere: "stark" / "solide" / "eng" / "schlecht" / "negativ" / "im Plus" / "im Minus"
+  - Variiere: "Du zahlst X drauf" / "Belastung X" / "Bleiben dir X über" / "Plus von X"
 
-**STEUER-HINWEIS:**
-- Bei positivem Cashflow (>0): "Achtung: Nach Steuern bleiben dir etwa [X*0.60]-[X*0.70] € übrig (Grenzsteuersatz 30-40%)."
-- Bei negativem Cashflow (<0): "Steuerlich kannst du etwa [Betrag*0.40] € im Jahr sparen (40% Grenzsteuersatz), was den echten monatlichen Verlust auf etwa [X*0.60] € reduziert."
+- Begründung mit delta-Werten: Erkläre WARUM der Cashflow so ist
+  - Variiere: "Die Miete liegt X% über/unter" / "Miete ist X% höher/niedriger" / "Miete X% über Marktniveau"
+  - Variiere: "Kaufpreis liegt X% über/unter" / "Preis ist X% teurer/günstiger"
+  - Verknüpfung: "das erklärt" / "daher" / "deshalb" / "dadurch"
+
+- **Bei Miete >15% über Markt:** Warnung hinzufügen
+  - Kernaussage: Kritisch, schwer zu halten bei Mieterwechsel, konservativ mit Marktmiete kalkulieren
+  - Variiere Formulierung
+
+- **Steuer-Hinweis:**
+  - Bei positivem Cashflow: Nach Steuern bleiben 60-70% übrig
+  - Bei negativem Cashflow: Steuerersparnis ~40%, reduziert echten Verlust auf ~60%
+  - Variiere Formulierung
 
 **ABSATZ 2: Nettomietrendite (30-40W)**
-"Nettomietrendite: [Y]% - das ist [schwach/ok/gut/stark]. Das ist der jährliche Mietüberschuss nach Kosten, bezogen auf den Kaufpreis (nicht auf dein Eigenkapital!). Das zeigt dir, ob die Immobilie wirtschaftlich läuft - unabhängig von deiner Finanzierung."
+
+**GUIDELINES:**
+- Nenne den Prozentwert und bewerte ihn
+  - Variiere: "schwach" / "ok" / "gut" / "stark" / "solide" / "überdurchschnittlich"
+- Erkläre was es bedeutet (jährlicher Mietüberschuss / Kaufpreis, NICHT auf EK bezogen)
+- Variiere Formulierung
 
 **ABSATZ 3: DSCR + Leerstand-Simulation (30-40W)**
-"DSCR: [Z] - die Miete deckt die Rate [Z]-fach, was [gut/knapp/kritisch] ist.
 
-**Leerstand-Simulation hinzufügen (EINFACH!):**
-Berechne Kreditrate aus payload (payload.kreditrate oder aus DSCR: Kreditrate = Miete / DSCR)
-Bei 3 Monaten Leerstand musst du Kreditrate * 3 ohne Mieteinnahmen zahlen.
-Berechne: Wie viele Monate Cashflow sind das? (Kreditrate * 3) / Cashflow = X Monate
+**GUIDELINES:**
+- DSCR: Nenne Wert und bewerte
+  - Variiere: "gut" / "knapp" / "kritisch" / "stark" / "schwach"
+  - Variiere: "deckt die Rate X-fach" / "X-fache Deckung" / "Miete ist X-mal so hoch wie Rate"
 
-**Bei DSCR >1.3 (gut) + positivem Cashflow:**
-"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen. Das sind [X] Monate deines Cashflows - mit etwas Rücklage gut machbar."
+**Leerstand-Simulation:**
+- Berechne Kreditrate aus payload (payload.kreditrate oder DSCR: Kreditrate = Miete / DSCR)
+- Bei 3 Monaten Leerstand: Kreditrate * 3
+- Berechne: Wie viele Monate Cashflow? (Kreditrate * 3) / Cashflow = X Monate
 
-**Bei DSCR 1.1-1.3 (knapp) + positivem Cashflow:**
-"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen. Das sind [X] Monate deines Cashflows - leg dir eine Rücklage von [Kreditrate * 3] € an."
+**GUIDELINES (variiere die Formulierung!):**
 
-**Bei DSCR <1.1 (kritisch):**
-"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zahlen - das ist kritisch bei DSCR [Z]. Rücklage von mindestens [Betrag] € ist Pflicht."
+- **Bei DSCR >1.3 (gut) + positivem Cashflow:**
+  - Kernaussage: 3 Monate Leerstand = X Monate Cashflow, mit Rücklage gut machbar
+  - Variiere Formulierung
 
-**Bei negativem Cashflow (egal welcher DSCR):**
-"Bei 3 Monaten Leerstand musst du [Kreditrate * 3] € zusätzlich zahlen - das wird teuer. Rücklage von [Betrag] € einplanen."
+- **Bei DSCR 1.1-1.3 (knapp) + positivem Cashflow:**
+  - Kernaussage: 3 Monate Leerstand = X Monate Cashflow, Rücklage anlegen
+  - Variiere Formulierung
+
+- **Bei DSCR <1.1 (kritisch):**
+  - Kernaussage: 3 Monate Leerstand kritisch, Rücklage Pflicht
+  - Variiere Formulierung
+
+- **Bei negativem Cashflow:**
+  - Kernaussage: 3 Monate Leerstand wird teuer, Rücklage einplanen
+  - Variiere Formulierung
 
 **Falls Cashflow negativ UND EK-Anteil <30%:**
-"Dein EK-Anteil liegt bei nur [X]% ([Betrag] € von [Kaufpreis] €). Mit 30% EK würdest du [Differenz] € weniger Rate zahlen. Plus etwa [Steuer] € Steuerersparnis im Jahr (40% Grenzsteuersatz) = nur noch [Netto] € monatliche Belastung statt [Aktuell] €."
+- Kernaussage: Niedriger EK-Anteil, mit mehr EK würde Rate sinken + Steuerersparnis
+- Variiere Formulierung
 
 **Status-Bewertungen:**
 - Cashflow: >500€=stark, 0-500€=solide, -100 bis 0=eng, -500 bis -100=schlecht, <-500=extrem schlecht
@@ -605,84 +649,106 @@ Berechne: Wie viele Monate Cashflow sind das? (Kreditrate * 3) / Cashflow = X Mo
 **KRITISCH: Pattern-Erkennung ZUERST prüfen!**
 
 **Pattern 1: Hohe Miete + niedriger Kaufpreis (Alarm!):**
-Wenn Miete >15% über Markt UND Kaufpreis <-15% unter Markt:
-→ "ACHTUNG: Miete [X]% über Markt + Kaufpreis [Y]% unter Markt deutet auf überhöhte Miete hin. Beim Mieterwechsel musst du mit Marktmiete kalkulieren → [Betrag] € Cashflow-Verlust. [Falls Baujahr <1980: + älteres Baujahr kann bedeuten, dass Verkäufer wegen Sanierungsbedarf schnell raus will.]"
+- Bedingung: Miete >15% über Markt UND Kaufpreis <-15% unter Markt
+- Kernaussage: Deutet auf überhöhte Miete, bei Mieterwechsel Cashflow-Verlust
+- Falls Baujahr <1980: Zusätzlich erwähnen (Verkäufer will ggf. wegen Sanierungsbedarf raus)
+- **Variiere Formulierung!**
 
 **Pattern 2: Niedriger Kaufpreis + älteres Baujahr (<1980):**
-Wenn Kaufpreis <-15% unter Markt UND Baujahr <1980:
-→ "Risiko: [Y]% unter Markt bei Baujahr [Z] - kann auf Sanierungsbedarf hindeuten (Elektrik, Leitungen, Fenster, Heizung). Budget für Sanierungen muss eingeplant werden."
+- Bedingung: Kaufpreis <-15% unter Markt UND Baujahr <1980
+- Kernaussage: Kann auf Sanierungsbedarf hindeuten (Elektrik, Leitungen, Fenster, Heizung)
+- **Variiere Formulierung!**
 
-**Wenn KEINE Patterns zutreffen, dann normale Risiko-Bewertung:**
+**Wenn KEINE Patterns zutreffen → normale Risiko-Bewertung:**
 
-**Größtes Risiko nur wenn DEUTLICH abweichend:**
-- Miete >20% über Markt → "Größtes Risiko: Mieterwechsel, dann [Betrag] € Cashflow-Verlust"
-- Kaufpreis >20% über Markt → "Größtes Risiko: Überzahlt, schwer wiederverkaufbar"
-- Kaufpreis <-20% unter Markt → "Risiko: Versteckte Mängel möglich - WEG gründlich prüfen"
+**GUIDELINES (variiere die Formulierung!):**
 
-**Wenn Werte zwischen ±10-20%:**
-→ KEIN "größtes Risiko", sondern: "Leichte Risiken..." oder "Alles im Rahmen"
+- **Größtes Risiko nur bei DEUTLICH abweichend (>20%):**
+  - Miete >20% über: Kernaussage = Mieterwechsel-Risiko, Cashflow-Verlust
+  - Kaufpreis >20% über: Kernaussage = Überzahlt, schwer wiederverkaufbar
+  - Kaufpreis <-20% unter: Kernaussage = Versteckte Mängel möglich, WEG prüfen
+  - **Variiere Formulierung!**
 
-**Wenn Werte im Bereich ±10%:**
-→ "Keine nennenswerten Risiken"
+- **Bei Werten ±10-20%:** Leichte Risiken / Alles im Rahmen (variiere!)
 
-**ZUSÄTZLICH: Baujahr-Warnung (nur bei wirklich alten Baujahren <1980 UND KEIN Pattern 2 triggert):**
-Falls Baujahr <1980 UND Kaufpreis NICHT deutlich unter Markt (<-15%):
-→ "Hinweis: Baujahr [Z] - bei älteren Immobilien kann Sanierungsbedarf anstehen (Elektrik, Leitungen, Fenster, Heizung). Budget für mögliche Sanierungen sollte eingeplant werden."
+- **Bei Werten ±10%:** Keine nennenswerten Risiken (variiere!)
 
-**Baujahr 1980-2000: KEINE Warnung** (relativ modern, kein kritisches Alter)
-**Baujahr 2000+: KEINE Warnung** (modern)
+**Baujahr-Warnung (nur <1980 UND KEIN Pattern 2):**
+- Bedingung: Baujahr <1980 UND Kaufpreis NICHT <-15% unter Markt
+- Kernaussage: Sanierungsbedarf kann anstehen, Budget einplanen
+- Baujahr 1980-2000: KEINE Warnung
+- Baujahr 2000+: KEINE Warnung
 
-**Potenzial separat zeigen (nach logischem Übergang):**
-- Bei Risiken: "Aber: [positiver Aspekt]" (Kontrast)
-- Bei keinen Risiken: "Positiv: [gute Aspekte]" (kein Kontrast nötig!)
+**Potenzial (variiere Formulierung!):**
+- Bei Risiken: Kontrastiere mit positivem Aspekt ("Aber: ...")
+- Bei keinen Risiken: Zeige positive Aspekte ("Positiv: ...")
 
 ## ABSATZ 3: EMPFEHLUNG (40-60W)
 <h3>Meine Empfehlung</h3>
 
-**NEU: Fokussierte Empfehlung basierend auf DEM größten Risiko!**
+**Fokussierte Empfehlung basierend auf DEM größten Risiko!**
 
-Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische Empfehlungen dazu.
+Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische Empfehlungen.
 
-**WICHTIG: Empfehlungen müssen zu Fakten passen und konkret sein!**
+**WICHTIG: Empfehlungen müssen zu Fakten passen und konkret sein! VARIIERE DIE FORMULIERUNG!**
 
 **Struktur:**
-1. **Eine Hauptempfehlung** zum größten Risiko (gut erklärt, konkret)
-2. **Optional: Eine Zusatzempfehlung** falls sinnvoll
+1. Eine Hauptempfehlung zum größten Risiko (gut erklärt, konkret)
+2. Optional: Eine Zusatzempfehlung
+
+**GUIDELINES (Kernaussagen beibehalten, Formulierung variieren!):**
 
 **Bei Miete >20% ÜBER Markt (HÖCHSTE PRIORITÄT!):**
-→ "Kalkuliere konservativ mit Marktmiete [X] €/m² ([Betrag] € statt [aktuelle Miete] €). Das gibt dir Sicherheit, falls der Mieter wechselt. Bei Marktmiete wäre dein Cashflow [neuer Betrag] € - prüf ob das für dich noch passt. WEG-Unterlagen checken (Rücklagen, anstehende Sanierungen), damit keine bösen Überraschungen kommen."
+- Kernaussage: Konservativ mit Marktmiete kalkulieren für Sicherheit bei Mieterwechsel
+- Zeige neuen Cashflow bei Marktmiete
+- Empfehle WEG-Unterlagen zu checken
+- **Variiere Formulierung!**
 
 **Bei Kaufpreis >20% ÜBER Markt:**
-→ "Verhandle den Kaufpreis auf maximal [X] €/m² runter (Markt-Niveau). Bei [aktueller Preis] €/m² zahlst du [Differenz] € zu viel. Check aktuelle Angebote in [Gemeinde/Stadt] zum Vergleich. Falls Verkäufer nicht verhandelt: Finger weg - zu teuer."
+- Kernaussage: Auf Marktniveau verhandeln, sonst zu teuer
+- Zeige Differenz
+- Empfehle Vergleichsangebote zu checken
+- **Variiere Formulierung!**
 
 **Bei Kaufpreis >20% UNTER Markt:**
-→ "Der niedrige Preis ([Y]% unter Markt) hat meist einen Grund. WEG-Unterlagen SEHR gründlich prüfen: Wie hoch sind die Rücklagen? Stehen Sanierungen an (Dach, Fassade, Heizung)? Lass einen Gutachter den Zustand checken ([X] € Investition, die sich lohnt). Kläre beim Verkäufer: Warum so günstig?"
+- Kernaussage: Hat meist einen Grund, WEG SEHR gründlich prüfen
+- Empfehle Gutachter
+- Fragen: Rücklagen? Sanierungen? Warum so günstig?
+- **Variiere Formulierung!**
 
 **Bei Kaufpreis 10-20% UNTER Markt:**
-→ "WEG-Unterlagen gründlich prüfen (Rücklagen, Sanierungen). Zustand checken - niedriger Preis kann auf versteckte Kosten hindeuten. Falls WEG sauber ist: Gutes Deal!"
+- Kernaussage: WEG gründlich prüfen, bei sauberem WEG gutes Deal
+- **Variiere Formulierung!**
 
 **Bei Kaufpreis 10-20% ÜBER Markt:**
-→ "Leicht verhandeln, aber kein Muss. WEG-Unterlagen prüfen (Rücklagen, anstehende Sanierungen). Falls alles passt: Im Rahmen."
+- Kernaussage: Leicht verhandeln, WEG prüfen, im Rahmen
+- **Variiere Formulierung!**
 
-**Bei Kaufpreis ±10% (AM MARKT) + Miete OK:**
-→ "WEG-Unterlagen prüfen (Rücklagen, Sanierungen). Zustand checken. Falls alles sauber: Passt!"
+**Bei Kaufpreis ±10% + Miete OK:**
+- Kernaussage: WEG prüfen, Zustand checken, passt
+- **Variiere Formulierung!**
 
 **Bei Baujahr <1980 + niedriger Preis:**
-→ "Lass einen Gutachter den Zustand checken (Elektrik, Leitungen, Fenster, Heizung). Bei Baujahr [Z] können größere Sanierungen anstehen. WEG-Protokolle lesen: Stehen Sanierungen an? Falls ja, welche Kosten?"
-
-Beispiele:
-- Miete 25% über Markt: "Kalkuliere mit Marktmiete 11 €/m² (890 € statt 1.200 €). Das gibt dir Sicherheit bei Mieterwechsel. Dann wäre dein Cashflow -290 € - überlege ob das für dich passt. WEG-Unterlagen checken."
-- Kaufpreis 25% über Markt: "Verhandle auf maximal 2.500 €/m² runter. Bei 3.200 €/m² zahlst du 180.000 € zu viel. Falls Verkäufer nicht verhandelt: Finger weg."
+- Kernaussage: Gutachter checken lassen, Sanierungsbedarf möglich
+- WEG-Protokolle lesen
+- **Variiere Formulierung!**
 
 ## ABSATZ 4: FAZIT (20-30W)
 <h3>Fazit</h3>
 
+**GUIDELINES (variiere die Formulierung!):**
+
 **NICHT mit "Ja/Nein" starten!** Neutrale Bewertung.
 
-Beispiele:
-- "Solides Investment mit gutem Cashflow. Bei sauberen WEG-Unterlagen empfehlenswert."
-- "Zu riskant durch Negativcashflow und überteuerten Preis. Erst nach Verhandlung überdenken."
-- "Grenzwertig. Wenn du Kaufpreis um 10% drückst, kann's funktionieren. Sonst eher nein."
+**Kernaussagen je nach Gesamt-Bewertung:**
+- Positiv: Kernaussage = Solides Investment, bei XYZ empfehlenswert
+- Negativ: Kernaussage = Zu riskant wegen XYZ, erst nach Änderung überdenken
+- Grenzwertig: Kernaussage = Wenn XYZ, dann OK, sonst eher nicht
+
+**Variiere die Formulierung zwischen:**
+- "Solides Investment" / "Gutes Deal" / "Lohnt sich" / "Passt"
+- "Zu riskant" / "Finger weg" / "Nicht empfehlenswert" / "Kritisch"
+- "Grenzwertig" / "Kann funktionieren" / "Kommt drauf an"
 
 # VERBOTEN
 ❌ Lage/Miete/Kauf WIEDERHOLEN (steht schon oben im UI!)
@@ -695,7 +761,7 @@ Wie ein Kumpel beim Bier: Ehrlich, locker, kurze Sätze.`,
   model: 'gpt-4o',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    temperature: 0.4,
+    temperature: 0.8,
     maxTokens: 1800,
     store: true
   },
