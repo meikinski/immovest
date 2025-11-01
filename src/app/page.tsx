@@ -6,9 +6,12 @@ import {
   ArrowRight,
   BarChart3,
   Building2,
+  Camera,
   CheckCircle2,
   FileBarChart,
+  Keyboard,
   LineChart,
+  Link as LinkIcon,
   MapPin,
   ShieldCheck,
   Sparkles,
@@ -24,26 +27,44 @@ export default function LandingPage() {
     router.push('/input-method');
   };
 
-  const featureHighlights = [
+  const importFeatures = [
     {
-      icon: <LineChart className="w-6 h-6 text-[#E6AE63]" />,
-      title: 'Kennzahlen auf einen Blick',
-      description: 'Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR sofort parat.',
+      icon: <LinkIcon className="w-6 h-6 text-[#E6AE63]" />,
+      title: 'URL-Import',
+      description: 'ImmoScout24-, Immowelt- oder andere Links einfach einfügen – wir extrahieren alle Daten automatisch.',
     },
+    {
+      icon: <Camera className="w-6 h-6 text-[#264171]" />,
+      title: 'Foto-Analyse',
+      description: 'Screenshot vom Exposé machen, hochladen – fertig. KI erkennt Kaufpreis, Fläche, Miete und mehr.',
+    },
+    {
+      icon: <Keyboard className="w-6 h-6 text-[#6C7F99]" />,
+      title: 'Manuelle Eingabe',
+      description: 'Adresse und Eckdaten selbst eintragen – vollständige Kontrolle über jeden Wert.',
+    },
+  ];
+
+  const analysisFeatures = [
     {
       icon: <MapPin className="w-6 h-6 text-[#264171]" />,
-      title: 'Lage smart vergleichen',
-      description: 'Miete €/m², Mikrolage-Daten und Marktvergleich per Klick verstehen.',
+      title: 'Lage-Bewertung',
+      description: 'Mikrolage-Score, Infrastruktur, Verkehrsanbindung und Entwicklungspotenzial auf einen Blick.',
     },
     {
-      icon: <Sparkles className="w-6 h-6 text-[#6C7F99]" />,
-      title: 'Szenarien in Sekunden',
-      description: 'Miete, Zins oder Haltedauer verschieben und direkt neue Zahlen sehen.',
+      icon: <LineChart className="w-6 h-6 text-[#E6AE63]" />,
+      title: 'Miete & Kaufpreis',
+      description: 'Vergleich mit lokalem Markt: €/m² Kauf- und Mietpreis, Abweichung vom Durchschnitt, Fairness-Check.',
+    },
+    {
+      icon: <BarChart3 className="w-6 h-6 text-[#6C7F99]" />,
+      title: 'Investment-Analyse',
+      description: 'Cashflow, Nettomietrendite, Eigenkapitalrendite, DSCR und Amortisation – alle KPIs automatisch.',
     },
     {
       icon: <FileBarChart className="w-6 h-6 text-white" />,
       title: 'Bankfähiger Report',
-      description: 'PDF mit Annahmen, Cashflow-Tabelle und Szenarien zum Teilen.',
+      description: 'PDF mit allen Annahmen, Szenarien und Berechnungen zum Download und Teilen.',
       accent: true,
     },
   ];
@@ -175,19 +196,56 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section id="features" className="px-6 py-24 bg-white">
+        {/* Import Features - USP */}
+        <section className="px-6 py-20 bg-white border-y border-[#264171]/5">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <Sparkles className="h-4 w-4 text-[#E6AE63]" />
+                Smart Import
+              </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
-                Alles, was du brauchst.
+                Drei Wege zum Ergebnis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Von Kennzahlen über Lage-Analyse bis zum bankfähigen PDF – in einer Plattform.
+                Egal ob Link, Foto oder selbst eintippen – du entscheidest, wie du startest.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {importFeatures.map((feature, index) => (
+                <div
+                  key={feature.title}
+                  className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-8 transition-all duration-200 hover:border-[#E6AE63]/40 hover:shadow-lg hover:-translate-y-1"
+                >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/10 transition-transform group-hover:scale-110">
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#0F172A]">{feature.title}</h3>
+                  <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <BarChart3 className="h-4 w-4 text-[#264171]" />
+                Analyse & Bewertung
+              </div>
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+                Komplette Investitions-Analyse
+              </h2>
+              <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
+                Von Lage über Marktpreise bis zur Rendite – wir bewerten jede Kennzahl automatisch.
               </p>
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2">
-              {featureHighlights.map((feature, index) => (
+              {analysisFeatures.map((feature, index) => (
                 <div
                   key={feature.title}
                   className={`group flex flex-col gap-4 rounded-3xl border p-10 transition-all duration-200 ${
