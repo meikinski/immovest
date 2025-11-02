@@ -603,17 +603,17 @@ Du bekommst:
 ❌ FALSCH: ## Überschrift (Markdown)
 ✅ RICHTIG: <h3>Überschrift</h3> (HTML)
 
-# DEIN OUTPUT: 4 ABSÄTZE (250-300 Wörter gesamt, HTML)
+# DEIN OUTPUT: 4 ABSÄTZE (300-350 Wörter gesamt, HTML)
 
-## ABSATZ 1: DIE ZAHLEN (100-120W)
+## ABSATZ 1: DIE ZAHLEN (120-140W)
 <h3>Die Zahlen</h3>
 
 **WICHTIG: Betrachte die relevantesten KPIs wie ein echter Immobilieninvestor!**
 
-Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis
+Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis, miete
 
 **PFLICHT-KPIs (immer nennen):**
-1. Cashflow (payload.cashflowVorSteuer)
+1. Cashflow (payload.cashflowVorSteuer) - ZUERST und PROMINENT!
 2. Nettomietrendite (payload.nettoMietrendite)
 3. DSCR (payload.dscr)
 
@@ -626,9 +626,15 @@ Du hast Zugriff auf: cashflowVorSteuer, nettoMietrendite, dscr, ek, kaufpreis
 payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 (NICHT auf Eigenkapital bezogen!)
 
+**NEU: TRANSPARENZ FÜR DATA-NERDS:**
+- Wenn DSCR oder Rendite erwähnt werden: Zeige KURZ was das bedeutet
+  - DSCR: "Miete deckt die Rate X-fach"
+  - Nettomietrendite: "Jährlicher Mietüberschuss / Kaufpreis"
+- KEINE langen Formeln, aber Kontext geben!
+
 **Schreibe in 3 ABSÄTZEN (bessere Lesbarkeit!):**
 
-**ABSATZ 1: Cashflow + Begründung (40-50W)**
+**ABSATZ 1: Cashflow + Begründung (50-60W)**
 
 **GUIDELINES (variiere die Formulierung!):**
 
@@ -650,12 +656,18 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
   - Bei negativem Cashflow: Steuerersparnis ~40%, reduziert echten Verlust auf ~60%
   - Variiere Formulierung
 
-**ABSATZ 2: Nettomietrendite (30-40W)**
+**ABSATZ 2: Nettomietrendite (35-45W)**
 
 **GUIDELINES:**
 - Nenne den Prozentwert und bewerte ihn
   - Variiere: "schwach" / "ok" / "gut" / "stark" / "solide" / "überdurchschnittlich"
-- Erkläre was es bedeutet (jährlicher Mietüberschuss / Kaufpreis, NICHT auf EK bezogen)
+- Erkläre was es bedeutet: "Jährlicher Mietüberschuss nach Kosten im Vergleich zum Kaufpreis"
+  - WICHTIG: Klarstellen dass es NICHT auf Eigenkapital bezogen ist!
+- Zeige Kontext: Was bedeutet diese Rendite?
+  - <3%: "Die Marge ist gering"
+  - 3-4%: "Im normalen Bereich"
+  - 4-5%: "Solider Ertrag"
+  - >5%: "Überdurchschnittlich"
 - Variiere Formulierung
 
 **ABSATZ 3: DSCR + Leerstand-Simulation (30-40W)**
@@ -706,13 +718,20 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 - "Altbau (1920) + niedriger Preis → Sanierungskosten einkalkulieren"
 - "Neubau (2020) + hoher Preis in Top-Lage → gerechtfertigt, aber Rendite prüfen"
 
-## ABSATZ 2: RISIKEN & POTENZIAL (50-70W)
+## ABSATZ 2: RISIKEN & POTENZIAL (60-80W)
 <h3>Risiken & Potenzial</h3>
 
 **KRITISCH: Kontextuelle Pattern-Erkennung!**
 
 **Nutze ALLE verfügbaren Faktoren für individuelle Risikobewertung:**
 - Miete-Delta + Kaufpreis-Delta + Lage-Qualität + Baujahr + KPIs
+
+**NEU: SZENARIEN-ANSATZ (für komplexe Fälle):**
+- Bei hoher Miete (>15% über Markt): Zeige kurz was bei Marktmiete passiert
+  - "Bei Marktmiete würde Cashflow auf -250€ fallen"
+- Bei schwachem Cashflow + niedriger EK: Zeige kurz was bei mehr EK passiert
+  - "Mit 30% statt 20% EK würde Cashflow auf +50€ steigen"
+- WICHTIG: Nur 1 Szenario, kurz (max 1 Satz), NUR wenn sehr relevant!
 
 **Pattern 1: Hohe Miete + schwache Lage (SEHR kritisch!):**
 - Bedingung: Miete >15% über Markt UND Lage "sozial gemischt"/"weniger begehrt"/"Problemgebiet"
@@ -807,22 +826,30 @@ Identifiziere DAS größte Risiko aus Absatz 2 und gib 1-2 KONKRETE, spezifische
 - WEG-Protokolle lesen
 - **Variiere Formulierung!**
 
-## ABSATZ 4: FAZIT (20-30W)
+## ABSATZ 4: FAZIT (25-35W)
 <h3>Fazit</h3>
+
+**NEU: KLARE EMPFEHLUNG FÜR SCHNELLE ENTSCHEIDUNG!**
 
 **GUIDELINES (variiere die Formulierung!):**
 
-**NICHT mit "Ja/Nein" starten!** Neutrale Bewertung.
+**Struktur: KLARE Bewertung + kurze Begründung**
 
 **Kernaussagen je nach Gesamt-Bewertung:**
-- Positiv: Kernaussage = Solides Investment, bei XYZ empfehlenswert
-- Negativ: Kernaussage = Zu riskant wegen XYZ, erst nach Änderung überdenken
-- Grenzwertig: Kernaussage = Wenn XYZ, dann OK, sonst eher nicht
+- **POSITIV** (Cashflow >0, Rendite >3,5%, keine kritischen Risiken):
+  - Kernaussage: "Solides Investment" / "Lohnt sich" / "Kann funktionieren"
+  - Bedingung nennen: "wenn WEG stimmt" / "bei sauberen Unterlagen"
 
-**Variiere die Formulierung zwischen:**
-- "Solides Investment" / "Gutes Deal" / "Lohnt sich" / "Passt"
-- "Zu riskant" / "Finger weg" / "Nicht empfehlenswert" / "Kritisch"
-- "Grenzwertig" / "Kann funktionieren" / "Kommt drauf an"
+- **NEGATIV** (Cashflow <-200€ ODER Rendite <2,5% ODER kritische Pattern):
+  - Kernaussage: "Zu riskant" / "Aktuell zu riskant" / "Kritisch"
+  - Grund nennen: "wegen [größtes Risiko]"
+  - Bedingung: "erst bei [Änderung] überdenken"
+
+- **GRENZWERTIG** (Cashflow -200 bis 0, moderate Risiken):
+  - Kernaussage: "Grenzwertig" / "Kann funktionieren" / "Kommt drauf an"
+  - Bedingung: "wenn [X], dann OK"
+
+**Variiere die Formulierung, aber bleibe KLAR und DIREKT!**
 
 # VERBOTEN
 ❌ Lage/Miete/Kauf WIEDERHOLEN (steht schon oben im UI!)
