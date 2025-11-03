@@ -17,7 +17,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
 
   if (!isOpen) return null;
 
-  const handleSelectPlan = (paymentLink: string) => {
+  const handleSelectPlan = async (priceId: string) => {
     if (!userId) {
       setError('Bitte melde dich zuerst an');
       return;
@@ -27,11 +27,26 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
     setError(null);
 
     try {
-      // Add userId as query parameter to the payment link
-      const url = new URL(paymentLink);
-      url.searchParams.set('client_reference_id', userId);
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceId }),
+      });
 
-      window.location.href = url.toString();
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler beim Erstellen der Checkout-Session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Keine Checkout-URL erhalten');
+      }
     } catch (err) {
       console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
@@ -122,7 +137,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               </div>
 
               <button
-                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PAYMENT_LINK!)}
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!)}
                 disabled={isLoading}
                 className="w-full bg-[hsl(var(--brand))] text-white py-3 rounded-lg font-semibold hover:bg-[hsl(var(--brand-2))] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -159,7 +174,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               </div>
 
               <button
-                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PAYMENT_LINK!)}
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!)}
                 disabled={isLoading}
                 className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >

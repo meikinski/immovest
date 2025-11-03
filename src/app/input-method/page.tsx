@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3 } from 'lucide-react';
+import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -201,7 +201,15 @@ export default function InputMethodPage() {
                 </button>
               </SignInButton>
             ) : (
-              <UserButton afterSignOutUrl="/" />
+              <UserButton afterSignOutUrl="/">
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Profil & Einstellungen"
+                    labelIcon={<Save size={16} />}
+                    href="/profile"
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
             )}
           </div>
         </div>

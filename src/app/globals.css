@@ -355,3 +355,19 @@ tab-btn:hover,
 .animate-bounce {
   animation: bounce 1s infinite;
 }
+
+/* Slide up Animation für Banner */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}

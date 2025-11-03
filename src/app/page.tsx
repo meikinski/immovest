@@ -196,19 +196,19 @@ export default function LandingPage() {
             </span>
           </button>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {!isSignedIn ? (
               <>
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button className="hidden sm:block text-sm font-medium text-gray-700 hover:text-[#264171] transition">
-                    Anmelden
+                  <button className="rounded-full border-2 border-[#264171] px-5 py-2 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white">
+                    Einloggen
                   </button>
                 </SignInButton>
                 <button
                   onClick={handleGetStarted}
-                  className="rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#264171]/20 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
+                  className="rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#264171]/20 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
                 >
-                  Analyse starten
+                  Kostenlos testen
                 </button>
               </>
             ) : (
@@ -246,7 +246,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-10 py-4 text-base font-semibold text-white shadow-xl shadow-[#264171]/20 transition-all duration-200 hover:shadow-2xl hover:-translate-y-0.5 sm:w-auto"
               >
-                Jetzt Analyse starten
+                Kostenlos testen
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
             </div>
@@ -590,7 +590,7 @@ export default function LandingPage() {
                     onClick={handleGetStarted}
                     className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
                   >
-                    Jetzt Analyse starten
+                    Kostenlos testen
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
