@@ -20,8 +20,11 @@ Deine intelligente Plattform für Immobilien-Investment-Analysen mit KI-Unterst�
 ### Premium & Paywall
 - **Premium Features**: Erweiterte Marktanalysen (Markt & Lage Tab)
 - **2 Kostenlose Premium-Zugriffe**: Teste Premium-Features kostenlos
-- **Stripe Integration**: Sichere Zahlungsabwicklung für Premium-Abos
-- **Flexibles Abo**: 19,90 €/Monat, jederzeit kündbar
+- **Stripe Payment Links**: Sichere Zahlungsabwicklung für Premium-Abos
+- **Flexible Abos**:
+  - Monatsabo: 13,99 €/Monat (jederzeit kündbar)
+  - Jahresabo: 69 €/Jahr (spare 59%)
+- **Customer Portal**: Verwalte dein Abo, Zahlungsmethoden und Rechnungen
 
 ### Design & UX
 - **Responsive Design**: Funktioniert perfekt auf Desktop und Mobile
@@ -43,23 +46,31 @@ npm run dev
 
 1. **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database Setup für Analysen-Speicherung
 2. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Payment Setup für Premium-Abos
+3. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Komplette Anleitung für Vercel Deployment
 
 ### Minimale Konfiguration (.env.local)
+
+Kopiere `.env.local.example` zu `.env.local` und fülle die Werte aus:
 
 ```bash
 # Clerk Authentication (erforderlich)
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
 
-# Stripe (optional für Premium)
+# Stripe Payment (optional für Premium)
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_MONTHLY_PAYMENT_LINK=https://buy.stripe.com/...
+NEXT_PUBLIC_STRIPE_YEARLY_PAYMENT_LINK=https://buy.stripe.com/...
 
-# Supabase (optional für Persistenz)
+# Supabase Database (optional für Persistenz)
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=xxx
 SUPABASE_SERVICE_ROLE_KEY=xxx
+
+# OpenAI (für KI-Features)
+OPENAI_API_KEY=sk-...
 ```
 
 ## Architektur

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Crown, X, Check, Sparkles, Loader2 } from 'lucide-react';
+import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
+import { useAuth } from '@clerk/nextjs';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -12,34 +13,25 @@ type UpgradeModalProps = {
 export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { userId } = useAuth();
 
   if (!isOpen) return null;
 
-  const handleUpgrade = async () => {
+  const handleSelectPlan = (paymentLink: string) => {
+    if (!userId) {
+      setError('Bitte melde dich zuerst an');
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({}),
-      });
+      // Add userId as query parameter to the payment link
+      const url = new URL(paymentLink);
+      url.searchParams.set('client_reference_id', userId);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Fehler beim Erstellen der Checkout-Session');
-      }
-
-      // Redirect to Stripe Checkout
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error('Keine Checkout-URL erhalten');
-      }
+      window.location.href = url.toString();
     } catch (err) {
       console.error('Checkout error:', err);
       setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
@@ -78,9 +70,9 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
         {/* Content */}
         <div className="p-8">
           {/* Features */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h3 className="font-semibold text-lg mb-4">Premium Features:</h3>
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               {[
                 'Unbegrenzte Markt- & Lageanalysen',
                 'KI-gestützte Investitionsempfehlungen',
@@ -88,51 +80,97 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
                 'Erweiterte Szenario-Analysen',
                 'Prioritäts-Support',
                 'PDF-Export mit Premium-Branding',
-                'Gespeicherte Analysen ohne Limit',
               ].map((feature, idx) => (
-                <div key={idx} className="flex items-start gap-3">
+                <div key={idx} className="flex items-start gap-2">
                   <div className="w-5 h-5 bg-[hsl(var(--success))]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check size={14} className="text-[hsl(var(--success))]" />
+                    <Check size={12} className="text-[hsl(var(--success))]" />
                   </div>
-                  <span className="text-gray-700">{feature}</span>
+                  <span className="text-sm text-gray-700">{feature}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Pricing */}
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 mb-6">
-            <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-4xl font-bold text-[hsl(var(--brand))]">19,90 €</span>
-              <span className="text-gray-600">/ Monat</span>
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
             </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Jederzeit kündbar • Keine versteckten Kosten
-            </p>
+          )}
 
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                {error}
+          {/* Pricing Options */}
+          <div className="space-y-4 mb-6">
+            {/* Yearly Plan */}
+            <div className="relative border-2 border-[hsl(var(--brand))] rounded-xl p-5 bg-gradient-to-br from-[hsl(var(--brand))]/5 to-white">
+              <div className="absolute -top-3 left-4 px-3 py-1 bg-[hsl(var(--brand))] text-white text-xs font-semibold rounded-full">
+                Spare 59%
               </div>
-            )}
 
-            <button
-              onClick={handleUpgrade}
-              disabled={isLoading}
-              className="w-full btn-primary py-4 text-lg flex items-center justify-center gap-3 hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" />
-                  Weiterleitung zu Stripe...
-                </>
-              ) : (
-                <>
-                  <Sparkles size={20} />
-                  Jetzt Premium werden
-                </>
-              )}
-            </button>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center">
+                    <Crown className="w-5 h-5 text-[hsl(var(--brand))]" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg">Jahresabo</h4>
+                    <p className="text-xs text-gray-600">Nur 5,75 € pro Monat</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-[hsl(var(--brand))]">69 €</div>
+                  <div className="text-xs text-gray-500 line-through">167,88 €</div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PAYMENT_LINK!)}
+                disabled={isLoading}
+                className="w-full bg-[hsl(var(--brand))] text-white py-3 rounded-lg font-semibold hover:bg-[hsl(var(--brand-2))] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Wird geladen...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={18} />
+                    Jahresabo wählen
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Monthly Plan */}
+            <div className="border-2 border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-lg">Monatsabo</h4>
+                    <p className="text-xs text-gray-600">Jederzeit kündbar</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold">13,99 €</div>
+                  <div className="text-xs text-gray-500">pro Monat</div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PAYMENT_LINK!)}
+                disabled={isLoading}
+                className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Monatsabo wählen
+              </button>
+            </div>
+          </div>
+
+          {/* Trust indicators */}
+          <div className="text-center text-xs text-gray-500 mb-4">
+            🔒 Sichere Zahlung via Stripe • 14 Tage Geld-zurück-Garantie
           </div>
 
           {/* Alternative */}
