@@ -352,7 +352,6 @@ const dscr =
   const [lageComment, setLageComment]           = useState<string>('');
   const [mietpreisComment, setMietpreisComment] = useState<string>('');
   const [qmPreisComment, setQmPreisComment]     = useState<string>('');
-  const [_lageTrendComment, setLageTrendComment] = useState<string>('');
   const [investComment, setInvestComment]       = useState<string>('');
   const [loadingDetails, setLoadingDetails]     = useState<boolean>(false);
   const marktFetched = useRef(false);
