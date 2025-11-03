@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const result = await runUrlScraper(input);
 
     // Konvertiere zu Frontend-Format
-    const data: any = {
+    const data: Record<string, unknown> = {
       kaufpreis: result.kaufpreis || 0,
       flaeche: result.flaeche || 0,
       zimmer: result.zimmer || 0,

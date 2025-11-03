@@ -4,7 +4,7 @@ import { auth } from '@clerk/nextjs/server';
 // Save analysis
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    await auth();
     const data = await req.json();
 
     // Generate ID if not provided

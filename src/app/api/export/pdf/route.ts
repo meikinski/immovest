@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -285,24 +285,6 @@ export async function POST(req: Request) {
         }
         y -= lineH;
       }
-    };
-
-    const chip = (
-      label: string, x: number, yy: number,
-      color: ReturnType<typeof rgb>,
-      fill = rgb(1, 1, 1)
-    ) => {
-      const padX = 6, padY = 3, size = 10;
-      const w = font.widthOfTextAtSize(sanitizeAnsi(label), size) + padX * 2;
-      const h = size + padY * 2 - 2;
-      page.drawRectangle({
-        x, y: yy - h + 2, width: w, height: h,
-        color: fill,
-        borderColor: color,
-        borderWidth: 1
-      });
-      drawText(label, x + padX, yy - size + 2, size, true, color);
-      return w;
     };
 
     const footer = () => {

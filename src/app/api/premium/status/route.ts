@@ -43,7 +43,7 @@ export async function GET() {
 
     if (!data) {
       // User has no premium record yet - create one
-      const { data: newData, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('user_premium_usage')
         .insert({
           user_id: userId,
