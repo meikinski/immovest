@@ -18,6 +18,7 @@ import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 
@@ -1806,6 +1807,17 @@ const exportPdf = React.useCallback(async () => {
         onClose={() => setShowUpgradeModal(false)}
         remainingFreeUses={freeUsagesRemaining}
       />
+
+      {/* Upsell Banner: Show after 2nd premium usage (when 0 free uses remain) */}
+      {step === 'tabs' && !isPremium && premiumUsageCount >= 2 && (
+        <UpsellBanner
+          remainingFreeUses={freeUsagesRemaining}
+          onDismiss={() => {
+            // Store dismissal in sessionStorage to not show again this session
+            sessionStorage.setItem('upsell_banner_dismissed', 'true');
+          }}
+        />
+      )}
 
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 pt-24">
         {showProgress && <ProgressIndicator currentStep={step as Step} />}

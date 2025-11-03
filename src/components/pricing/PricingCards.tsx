@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 
@@ -10,6 +10,8 @@ interface PricingCardsProps {
 
 export default function PricingCards({ onClose }: PricingCardsProps) {
   const { userId } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const plans = [
     {
@@ -17,13 +19,13 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
       price: '13,99',
       period: 'pro Monat',
       description: 'Perfekt um ImmoVest auszuprobieren',
-      paymentLink: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PAYMENT_LINK!,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
       icon: <Zap className="w-6 h-6" />,
       popular: false,
       features: [
         'Unbegrenzte Markt- & Lageanalysen',
         'KI-gestützte Investitionsempfehlungen',
-        'Erweiterte Szenario-Analysen',
+        'Detaillierte Szenario-Analysen',
         'PDF-Export deiner Analysen',
         'Premium-Support',
         'Monatlich kündbar',
@@ -36,32 +38,56 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
       originalPrice: '167,88',
       savings: '59%',
       description: 'Spare 59% mit dem Jahresabo',
-      paymentLink: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PAYMENT_LINK!,
+      priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
       icon: <Crown className="w-6 h-6" />,
       popular: true,
       features: [
         'Alle Funktionen des Monatsabos',
         'Spare 98,88 € im Jahr',
         'Nur 5,75 € pro Monat',
-        'Priority Support',
-        'Früher Zugang zu neuen Features',
+        'Prioritäts-Support (schnellere Antworten)',
+        'Früher Zugang zu Beta-Features',
+        'Exklusive Markt-Insights monatlich per E-Mail',
         'Jährliche Abrechnung',
       ],
     },
   ];
 
-  const handleSelectPlan = (paymentLink: string) => {
+  const handleSelectPlan = async (priceId: string) => {
     if (!userId) {
       alert('Bitte melde dich zuerst an');
       return;
     }
 
-    // Add userId as query parameter to the payment link
-    const url = new URL(paymentLink);
-    url.searchParams.set('client_reference_id', userId);
-    url.searchParams.set('prefilled_email', ''); // Will be auto-filled by Clerk if available
+    setIsLoading(true);
+    setError(null);
 
-    window.location.href = url.toString();
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ priceId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Fehler beim Erstellen der Checkout-Session');
+      }
+
+      // Redirect to Stripe Checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('Keine Checkout-URL erhalten');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -79,6 +105,13 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
           Erhalte unbegrenzten Zugang zu allen Premium-Features und KI-gestützten Analysen
         </p>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="max-w-5xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          {error}
+        </div>
+      )}
 
       {/* Pricing Cards */}
       <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -145,14 +178,15 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
 
             {/* CTA Button */}
             <button
-              onClick={() => handleSelectPlan(plan.paymentLink)}
-              className={`w-full py-4 px-6 rounded-xl font-semibold transition-all ${
+              onClick={() => handleSelectPlan(plan.priceId)}
+              disabled={isLoading}
+              className={`w-full py-4 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 plan.popular
                   ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-lg hover:scale-105'
                   : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}
             >
-              Jetzt starten
+              {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
             </button>
 
             {/* Money-back guarantee */}
