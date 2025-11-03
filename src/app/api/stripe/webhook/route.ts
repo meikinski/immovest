@@ -112,14 +112,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const userId = subscription.metadata?.userId;
+  const sub = subscription as unknown as { metadata?: { userId?: string }; current_period_end: number; status: string; id: string };
+  const userId = sub.metadata?.userId;
   if (!userId) return;
 
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
   // Type assertion for accessing properties
-  const sub = subscription as unknown as { current_period_end: number; status: string };
   const premiumUntil = new Date(sub.current_period_end * 1000);
   const isActive = sub.status === 'active';
 
@@ -130,13 +130,14 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       premium_until: premiumUntil.toISOString(),
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', subscription.id);
+    .eq('stripe_subscription_id', sub.id);
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
+  const sub = subscription as unknown as { id: string };
   await supabase
     .from('user_premium_usage')
     .update({
@@ -144,12 +145,13 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       premium_until: null,
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', subscription.id);
+    .eq('stripe_subscription_id', sub.id);
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   // Extend premium period
-  const subscriptionId = invoice.subscription as string;
+  const inv = invoice as unknown as { subscription?: string };
+  const subscriptionId = inv.subscription;
   if (!subscriptionId) return;
 
   const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
