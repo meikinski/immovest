@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
-import { BarChart3, LayoutDashboard, Save } from 'lucide-react';
+import { BarChart3, Save } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'fixed' | 'sticky' | 'static';
