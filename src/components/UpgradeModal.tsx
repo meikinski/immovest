@@ -84,17 +84,17 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
 
         {/* Content */}
         <div className="p-8">
-          {/* Features */}
+          {/* Features - Beide Abos haben die gleichen Features */}
           <div className="mb-6">
             <h3 className="font-semibold text-lg mb-4">Premium Features:</h3>
             <div className="grid grid-cols-2 gap-3">
               {[
                 'Unbegrenzte Markt- & Lageanalysen',
                 'KI-gestützte Investitionsempfehlungen',
-                'Detaillierte Miet- und Kaufpreisvergleiche',
-                'Erweiterte Szenario-Analysen',
-                'Prioritäts-Support',
-                'PDF-Export mit Premium-Branding',
+                'Detaillierte Szenario-Analysen',
+                'PDF-Export deiner Analysen',
+                'Premium-Support',
+                'Gespeicherte Analysen ohne Limit',
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-start gap-2">
                   <div className="w-5 h-5 bg-[hsl(var(--success))]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
