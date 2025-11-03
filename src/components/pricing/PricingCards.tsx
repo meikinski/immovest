@@ -13,21 +13,27 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Beide Abos haben die gleichen Features, nur unterschiedlicher Preis
+  const baseFeatures = [
+    'Unbegrenzte Markt- & Lageanalysen',
+    'KI-gestützte Investitionsempfehlungen',
+    'Detaillierte Szenario-Analysen',
+    'PDF-Export deiner Analysen',
+    'Premium-Support',
+    'Gespeicherte Analysen ohne Limit',
+  ];
+
   const plans = [
     {
       name: 'Monatsabo',
       price: '13,99',
       period: 'pro Monat',
-      description: 'Perfekt um ImmoVest auszuprobieren',
+      description: 'Flexibel und monatlich kündbar',
       priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
       icon: <Zap className="w-6 h-6" />,
       popular: false,
       features: [
-        'Unbegrenzte Markt- & Lageanalysen',
-        'KI-gestützte Investitionsempfehlungen',
-        'Detaillierte Szenario-Analysen',
-        'PDF-Export deiner Analysen',
-        'Premium-Support',
+        ...baseFeatures,
         'Monatlich kündbar',
       ],
     },
@@ -37,18 +43,13 @@ export default function PricingCards({ onClose }: PricingCardsProps) {
       period: 'pro Jahr',
       originalPrice: '167,88',
       savings: '59%',
-      description: 'Spare 59% mit dem Jahresabo',
+      description: 'Spare 59% - Nur 5,75 € pro Monat',
       priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
       icon: <Crown className="w-6 h-6" />,
       popular: true,
       features: [
-        'Alle Funktionen des Monatsabos',
+        ...baseFeatures,
         'Spare 98,88 € im Jahr',
-        'Nur 5,75 € pro Monat',
-        'Prioritäts-Support (schnellere Antworten)',
-        'Früher Zugang zu Beta-Features',
-        'Exklusive Markt-Insights monatlich per E-Mail',
-        'Jährliche Abrechnung',
       ],
     },
   ];

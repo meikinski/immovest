@@ -15,6 +15,7 @@ import {
   MapPin,
   ShieldCheck,
   Sparkles,
+  Save,
 } from 'lucide-react';
 import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 
@@ -212,7 +213,23 @@ export default function LandingPage() {
                 </button>
               </>
             ) : (
-              <UserButton afterSignOutUrl="/" />
+              <>
+                <button
+                  onClick={handleGetStarted}
+                  className="rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#264171]/20 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
+                >
+                  Jetzt Immobilie bewerten
+                </button>
+                <UserButton afterSignOutUrl="/">
+                  <UserButton.MenuItems>
+                    <UserButton.Link
+                      label="Profil & Einstellungen"
+                      labelIcon={<Save size={16} />}
+                      href="/profile"
+                    />
+                  </UserButton.MenuItems>
+                </UserButton>
+              </>
             )}
           </div>
         </div>
