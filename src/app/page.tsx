@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   BarChart3,
-  Building2,
   Camera,
   CheckCircle2,
   FileBarChart,
@@ -300,7 +299,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-3 mb-12">
-              {importFeatures.map((feature, index) => (
+              {importFeatures.map((feature) => (
                 <div
                   key={feature.title}
                   className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-8 transition-all duration-200 hover:border-[#E6AE63]/40 hover:shadow-lg hover:-translate-y-1"
@@ -379,7 +378,7 @@ export default function LandingPage() {
             </div>
 
             <div className="grid gap-8 sm:grid-cols-2">
-              {analysisFeatures.map((feature, index) => (
+              {analysisFeatures.map((feature) => (
                 <div
                   key={feature.title}
                   className={`group flex flex-col gap-4 rounded-3xl border p-10 transition-all duration-200 ${
@@ -559,7 +558,7 @@ export default function LandingPage() {
                       <p className="text-sm text-[#6C7F99]">{persona.role}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-[#4b5563] leading-relaxed italic">"{persona.quote}"</p>
+                  <p className="text-sm text-[#4b5563] leading-relaxed italic">&ldquo;{persona.quote}&rdquo;</p>
                 </div>
               ))}
             </div>

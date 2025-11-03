@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { Keyboard, Camera, Upload, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3, Save } from 'lucide-react';
+import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
@@ -51,18 +51,6 @@ export default function InputMethodPage() {
     if (file) {
       handleImageSelect(file);
     }
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files[0];
-    if (file) {
-      handleImageSelect(file);
-    }
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
   };
 
   const handleImageSubmit = async () => {

@@ -8,7 +8,7 @@ interface PricingCardsProps {
   onClose?: () => void;
 }
 
-export default function PricingCards({ onClose: _onClose }: PricingCardsProps) {
+export default function PricingCards({}: PricingCardsProps) {
   const { userId } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
