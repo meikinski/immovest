@@ -87,7 +87,9 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   const customerId = session.customer as string;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
+  const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
+  // Access the subscription data from the response
+  const subscription = subscriptionResponse as unknown as { current_period_end: number };
   const premiumUntil = new Date(subscription.current_period_end * 1000);
 
   // Update or insert user premium status
@@ -116,8 +118,10 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
-  const premiumUntil = new Date(subscription.current_period_end * 1000);
-  const isActive = subscription.status === 'active';
+  // Type assertion for accessing properties
+  const sub = subscription as unknown as { current_period_end: number; status: string };
+  const premiumUntil = new Date(sub.current_period_end * 1000);
+  const isActive = sub.status === 'active';
 
   await supabase
     .from('user_premium_usage')
@@ -148,7 +152,8 @@ async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   const subscriptionId = invoice.subscription as string;
   if (!subscriptionId) return;
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as Stripe.Subscription;
+  const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = subscriptionResponse as unknown as Stripe.Subscription;
   await handleSubscriptionUpdated(subscription);
 }
 
