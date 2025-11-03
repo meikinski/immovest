@@ -7,12 +7,10 @@ import { usePaywall } from '@/contexts/PaywallContext';
 import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
 import { useImmoStore } from '@/store/useImmoStore';
 import {
-  User,
   Crown,
   CreditCard,
   Settings,
   LogOut,
-  ChevronRight,
   Sparkles,
   CheckCircle2,
   XCircle,
@@ -23,17 +21,14 @@ import {
   FileText,
   Plus,
   ArrowRight,
-  LayoutDashboard,
   Save,
 } from 'lucide-react';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isLoaded, isSignedIn, userId } = useAuth();
-  const { isPremium, premiumUsageCount, canAccessPremium, refreshPremiumStatus } =
-    usePaywall();
+  const { isPremium, premiumUsageCount } = usePaywall();
   const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
 
@@ -60,8 +55,6 @@ export default function ProfilePage() {
       }
     } catch (error) {
       console.error('Error loading premium details:', error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
