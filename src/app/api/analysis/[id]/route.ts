@@ -7,8 +7,8 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { userId } = await auth();
-    const { id } = await context.params;
+    await auth();
+    await context.params;
 
     // TODO: Fetch from Supabase
     // For now, return 404 (client will use localStorage)
@@ -33,7 +33,7 @@ export async function DELETE(
 ) {
   try {
     const { userId } = await auth();
-    const { id } = await context.params;
+    await context.params;
 
     if (!userId) {
       return NextResponse.json(
