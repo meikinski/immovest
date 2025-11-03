@@ -446,8 +446,6 @@ const dscr =
         setKaufMarktDelta(data.analyse.kauf.delta_psqm);
       }
 
-      setLageTrendComment('');
-
       // Mark as successfully fetched only AFTER successful API call
       marktFetched.current = true;
     } catch (e) {
