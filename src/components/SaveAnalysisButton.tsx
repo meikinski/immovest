@@ -19,7 +19,7 @@ export function SaveAnalysisButton() {
       const stateData = exportState();
 
       // Save to localStorage (for now)
-      const analysisId = saveAnalysis(userId, stateData);
+      const analysisId = saveAnalysis(userId || null, stateData);
 
       console.log('Analyse gespeichert:', analysisId);
 
