@@ -75,24 +75,37 @@ export async function GET() {
 // Test webhook simulation - manually trigger premium activation
 export async function POST(req: Request) {
   try {
+    console.log('🔍 [DEBUG] POST /api/debug/webhook-test called');
+
     const { userId } = await auth();
+    console.log('[DEBUG] User ID:', userId);
 
     if (!userId) {
+      console.error('[DEBUG] No userId - not authenticated');
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     const supabase = getSupabaseServerClient();
 
     if (!supabase) {
+      console.error('[DEBUG] Supabase not initialized');
       return NextResponse.json(
         { error: 'Supabase not configured' },
         { status: 500 }
       );
     }
 
+    console.log('[DEBUG] Supabase client initialized');
+
     // Simulate premium activation for current user
     const premiumUntil = new Date();
     premiumUntil.setMonth(premiumUntil.getMonth() + 1); // 1 month from now
+
+    console.log('[DEBUG] Attempting upsert with data:', {
+      user_id: userId,
+      is_premium: true,
+      premium_until: premiumUntil.toISOString(),
+    });
 
     const { data, error } = await supabase
       .from('user_premium_usage')
@@ -102,20 +115,30 @@ export async function POST(req: Request) {
         premium_until: premiumUntil.toISOString(),
         stripe_customer_id: 'test_customer',
         stripe_subscription_id: 'test_subscription',
-        updated_at: new Date().toISOString(),
       })
       .select();
 
     if (error) {
+      console.error('[DEBUG] Supabase error:', error);
+      console.error('[DEBUG] Error code:', error.code);
+      console.error('[DEBUG] Error message:', error.message);
+      console.error('[DEBUG] Error details:', error.details);
+      console.error('[DEBUG] Error hint:', error.hint);
+
       return NextResponse.json(
         {
           success: false,
           error: error.message,
-          details: error,
+          errorCode: error.code,
+          errorDetails: error.details,
+          errorHint: error.hint,
+          fullError: error,
         },
         { status: 500 }
       );
     }
+
+    console.log('[DEBUG] ✅ Success! Data:', data);
 
     return NextResponse.json({
       success: true,
@@ -125,9 +148,12 @@ export async function POST(req: Request) {
       data,
     });
   } catch (error) {
+    console.error('[DEBUG] Unexpected error:', error);
     return NextResponse.json(
       {
+        success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 500 }
     );
