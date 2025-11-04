@@ -34,7 +34,7 @@ export async function GET() {
       };
     } else {
       // Try to query the user_premium_usage table
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_premium_usage')
         .select('count')
         .limit(1);
@@ -73,7 +73,7 @@ export async function GET() {
 }
 
 // Test webhook simulation - manually trigger premium activation
-export async function POST(req: Request) {
+export async function POST() {
   try {
     console.log('🔍 [DEBUG] POST /api/debug/webhook-test called');
 
