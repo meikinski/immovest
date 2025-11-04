@@ -97,12 +97,34 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   const subscriptionId = session.subscription as string;
   const customerId = session.customer as string;
 
+  if (!subscriptionId) {
+    console.error('❌ [WEBHOOK] No subscription ID found in checkout session');
+    return;
+  }
+
   console.log('[WEBHOOK] Retrieving subscription:', subscriptionId);
 
-  const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
-  // Access the subscription data from the response
-  const subscription = subscriptionResponse as unknown as { current_period_end: number };
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+  console.log('[WEBHOOK] Subscription retrieved:', {
+    id: subscription.id,
+    status: subscription.status,
+    current_period_end: subscription.current_period_end,
+    current_period_start: subscription.current_period_start,
+  });
+
+  if (!subscription.current_period_end) {
+    console.error('❌ [WEBHOOK] Subscription has no current_period_end');
+    console.error('[WEBHOOK] Full subscription object:', JSON.stringify(subscription, null, 2));
+    return;
+  }
+
   const premiumUntil = new Date(subscription.current_period_end * 1000);
+
+  if (isNaN(premiumUntil.getTime())) {
+    console.error('❌ [WEBHOOK] Invalid date created from current_period_end:', subscription.current_period_end);
+    return;
+  }
 
   console.log('[WEBHOOK] Premium until:', premiumUntil.toISOString());
   console.log('[WEBHOOK] Updating Supabase for user:', userId);
@@ -131,16 +153,28 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const sub = subscription as unknown as { metadata?: { userId?: string }; current_period_end: number; status: string; id: string };
-  const userId = sub.metadata?.userId;
-  if (!userId) return;
+  const userId = subscription.metadata?.userId;
+  if (!userId) {
+    console.log('[WEBHOOK] No userId in subscription metadata, skipping update');
+    return;
+  }
 
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
-  // Type assertion for accessing properties
-  const premiumUntil = new Date(sub.current_period_end * 1000);
-  const isActive = sub.status === 'active';
+  if (!subscription.current_period_end) {
+    console.error('❌ [WEBHOOK] Subscription has no current_period_end');
+    return;
+  }
+
+  const premiumUntil = new Date(subscription.current_period_end * 1000);
+
+  if (isNaN(premiumUntil.getTime())) {
+    console.error('❌ [WEBHOOK] Invalid date from current_period_end:', subscription.current_period_end);
+    return;
+  }
+
+  const isActive = subscription.status === 'active';
 
   const { error } = await supabase
     .from('user_premium_usage')
@@ -149,7 +183,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       premium_until: premiumUntil.toISOString(),
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', sub.id);
+    .eq('stripe_subscription_id', subscription.id);
 
   if (error) {
     console.error('❌ [WEBHOOK] Error updating subscription:', error);
@@ -162,7 +196,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
-  const sub = subscription as unknown as { id: string };
+  console.log('[WEBHOOK] Deactivating subscription:', subscription.id);
+
   const { error } = await supabase
     .from('user_premium_usage')
     .update({
@@ -170,7 +205,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       premium_until: null,
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', sub.id);
+    .eq('stripe_subscription_id', subscription.id);
 
   if (error) {
     console.error('❌ [WEBHOOK] Error deleting subscription:', error);
@@ -181,12 +216,15 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
   // Extend premium period
-  const inv = invoice as unknown as { subscription?: string };
-  const subscriptionId = inv.subscription;
-  if (!subscriptionId) return;
+  const subscriptionId = invoice.subscription as string | undefined;
+  if (!subscriptionId) {
+    console.log('[WEBHOOK] Invoice has no subscription, skipping');
+    return;
+  }
 
-  const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
-  const subscription = subscriptionResponse as unknown as Stripe.Subscription;
+  console.log('[WEBHOOK] Payment succeeded for subscription:', subscriptionId);
+
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
   await handleSubscriptionUpdated(subscription);
 }
 
