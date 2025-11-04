@@ -117,6 +117,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
       updated_at: new Date().toISOString(),
+    }, {
+      onConflict: 'user_id'
     });
 
   if (error) {
@@ -140,7 +142,7 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const premiumUntil = new Date(sub.current_period_end * 1000);
   const isActive = sub.status === 'active';
 
-  await supabase
+  const { error } = await supabase
     .from('user_premium_usage')
     .update({
       is_premium: isActive,
@@ -148,6 +150,12 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', sub.id);
+
+  if (error) {
+    console.error('❌ [WEBHOOK] Error updating subscription:', error);
+  } else {
+    console.log('✅ [WEBHOOK] Subscription updated for user');
+  }
 }
 
 async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
@@ -155,7 +163,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   if (!supabase) return;
 
   const sub = subscription as unknown as { id: string };
-  await supabase
+  const { error } = await supabase
     .from('user_premium_usage')
     .update({
       is_premium: false,
@@ -163,6 +171,12 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
       updated_at: new Date().toISOString(),
     })
     .eq('stripe_subscription_id', sub.id);
+
+  if (error) {
+    console.error('❌ [WEBHOOK] Error deleting subscription:', error);
+  } else {
+    console.log('✅ [WEBHOOK] Subscription deleted for user');
+  }
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
