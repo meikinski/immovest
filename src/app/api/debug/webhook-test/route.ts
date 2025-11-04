@@ -115,6 +115,8 @@ export async function POST() {
         premium_until: premiumUntil.toISOString(),
         stripe_customer_id: 'test_customer',
         stripe_subscription_id: 'test_subscription',
+      }, {
+        onConflict: 'user_id'  // ← This tells Supabase which field to check for conflicts
       })
       .select();
 
