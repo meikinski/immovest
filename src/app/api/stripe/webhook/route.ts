@@ -70,27 +70,42 @@ export async function POST(req: Request) {
 }
 
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  console.log('🎉 [WEBHOOK] checkout.session.completed received');
+  console.log('[WEBHOOK] Session ID:', session.id);
+
   const userId = session.metadata?.userId || session.client_reference_id;
   if (!userId) {
-    console.error('No userId found in checkout session');
+    console.error('❌ [WEBHOOK] No userId found in checkout session');
+    console.error('[WEBHOOK] Session metadata:', session.metadata);
+    console.error('[WEBHOOK] client_reference_id:', session.client_reference_id);
     return;
   }
 
+  console.log('✅ [WEBHOOK] Found userId:', userId);
+
   const supabase = getSupabaseServerClient();
   if (!supabase) {
-    // Fallback to localStorage (handled on client)
-    console.log('Supabase not configured, premium status will be managed on client');
+    console.error('❌ [WEBHOOK] Supabase not configured - check environment variables');
+    console.error('[WEBHOOK] NEXT_PUBLIC_SUPABASE_URL:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.error('[WEBHOOK] SUPABASE_SERVICE_ROLE_KEY:', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
     return;
   }
+
+  console.log('✅ [WEBHOOK] Supabase client initialized');
 
   // Get subscription details
   const subscriptionId = session.subscription as string;
   const customerId = session.customer as string;
 
+  console.log('[WEBHOOK] Retrieving subscription:', subscriptionId);
+
   const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
   // Access the subscription data from the response
   const subscription = subscriptionResponse as unknown as { current_period_end: number };
   const premiumUntil = new Date(subscription.current_period_end * 1000);
+
+  console.log('[WEBHOOK] Premium until:', premiumUntil.toISOString());
+  console.log('[WEBHOOK] Updating Supabase for user:', userId);
 
   // Update or insert user premium status
   const { error } = await supabase
@@ -105,9 +120,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     });
 
   if (error) {
-    console.error('Error updating premium status:', error);
+    console.error('❌ [WEBHOOK] Error updating premium status:', error);
+    console.error('[WEBHOOK] Error details:', JSON.stringify(error, null, 2));
   } else {
-    console.log(`Premium activated for user ${userId} until ${premiumUntil}`);
+    console.log(`✅ [WEBHOOK] Premium activated for user ${userId} until ${premiumUntil}`);
+    console.log('[WEBHOOK] Database updated successfully!');
   }
 }
 
