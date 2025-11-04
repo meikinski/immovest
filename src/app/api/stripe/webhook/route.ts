@@ -100,9 +100,34 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   console.log('[WEBHOOK] Retrieving subscription:', subscriptionId);
 
   const subscriptionResponse = await stripe.subscriptions.retrieve(subscriptionId);
-  // Access the subscription data from the response
-  const subscription = subscriptionResponse as unknown as { current_period_end: number };
-  const premiumUntil = new Date(subscription.current_period_end * 1000);
+  console.log('[WEBHOOK] Subscription retrieved:', {
+    id: subscriptionResponse.id,
+    status: subscriptionResponse.status,
+    current_period_end: subscriptionResponse.current_period_end,
+    current_period_start: subscriptionResponse.current_period_start,
+  });
+
+  // Access the subscription data - handle both old and new API versions
+  const subscription = subscriptionResponse as unknown as {
+    current_period_end?: number;
+    items?: { data?: Array<{ current_period_end?: number }> };
+  };
+
+  // Try to get current_period_end from subscription or from items
+  let periodEnd: number | undefined = subscription.current_period_end;
+
+  if (!periodEnd && subscription.items?.data?.[0]?.current_period_end) {
+    periodEnd = subscription.items.data[0].current_period_end;
+    console.log('[WEBHOOK] Using current_period_end from items.data[0]');
+  }
+
+  if (!periodEnd) {
+    console.error('❌ [WEBHOOK] Subscription has no current_period_end');
+    console.error('[WEBHOOK] Full subscription object:', JSON.stringify(subscriptionResponse, null, 2));
+    return;
+  }
+
+  const premiumUntil = new Date(periodEnd * 1000);
 
   console.log('[WEBHOOK] Premium until:', premiumUntil.toISOString());
   console.log('[WEBHOOK] Updating Supabase for user:', userId);
@@ -131,15 +156,31 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const sub = subscription as unknown as { metadata?: { userId?: string }; current_period_end: number; status: string; id: string };
+  const sub = subscription as unknown as {
+    metadata?: { userId?: string };
+    current_period_end?: number;
+    status: string;
+    id: string;
+    items?: { data?: Array<{ current_period_end?: number }> };
+  };
   const userId = sub.metadata?.userId;
   if (!userId) return;
 
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
-  // Type assertion for accessing properties
-  const premiumUntil = new Date(sub.current_period_end * 1000);
+  // Get current_period_end from subscription or items
+  let periodEnd = sub.current_period_end;
+  if (!periodEnd && sub.items?.data?.[0]?.current_period_end) {
+    periodEnd = sub.items.data[0].current_period_end;
+  }
+
+  if (!periodEnd) {
+    console.error('❌ [WEBHOOK] Subscription update has no current_period_end');
+    return;
+  }
+
+  const premiumUntil = new Date(periodEnd * 1000);
   const isActive = sub.status === 'active';
 
   const { error } = await supabase
