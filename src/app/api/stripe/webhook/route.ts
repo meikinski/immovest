@@ -39,6 +39,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
+    // Optional: Filter test events in production
+    // Uncomment this block if you only want to process live events in production
+    /*
+    if (process.env.NODE_ENV === 'production' && !event.livemode) {
+      console.log('⚠️ [WEBHOOK] Ignoring test event in production:', event.type);
+      return NextResponse.json({ received: true, message: 'Test event ignored' });
+    }
+    */
+
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed': {

@@ -18,15 +18,29 @@ export function SaveAnalysisButton() {
     try {
       const stateData = exportState();
 
-      // Save to localStorage (for now)
-      const analysisId = saveAnalysis(userId || null, stateData);
+      // Save to Supabase via API
+      const response = await fetch('/api/analysis', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(stateData),
+      });
 
-      console.log('Analyse gespeichert:', analysisId);
+      if (!response.ok) {
+        throw new Error('Failed to save analysis');
+      }
+
+      const result = await response.json();
+      console.log('✅ Analyse gespeichert:', result.analysisId);
+
+      // Also save to localStorage as backup
+      saveAnalysis(userId || null, stateData);
 
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
-      console.error('Fehler beim Speichern:', error);
+      console.error('❌ Fehler beim Speichern:', error);
       alert('Fehler beim Speichern der Analyse');
     } finally {
       setIsSaving(false);
