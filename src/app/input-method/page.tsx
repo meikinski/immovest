@@ -3,12 +3,13 @@
 import React, { useState, useRef } from 'react';
 import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, BarChart3, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
+import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 
 export default function InputMethodPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { user } = useUser();
   const importData = useImmoStore(s => s.importData);
 
   // Screenshot State
@@ -213,7 +214,10 @@ export default function InputMethodPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
-              Wie möchtest du starten?
+              {isSignedIn && user?.firstName
+                ? `Hey ${user.firstName} 👋 bereit deine nächste Immobilie zu prüfen?`
+                : 'Wie möchtest du starten?'
+              }
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Wähle deine bevorzugte Methode für den Datenimport
