@@ -9,6 +9,22 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// Helper function to get current_period_end from subscription
+// In newer Stripe API versions, this might be in subscription.items.data[0]
+function getCurrentPeriodEnd(subscription: Stripe.Subscription): number | undefined {
+  // Try top-level first (older API versions)
+  if (subscription.current_period_end) {
+    return subscription.current_period_end;
+  }
+
+  // Try subscription items (newer API versions)
+  if (subscription.items?.data?.[0]?.current_period_end) {
+    return subscription.items.data[0].current_period_end;
+  }
+
+  return undefined;
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.text();
@@ -106,23 +122,26 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
+  const currentPeriodEnd = getCurrentPeriodEnd(subscription);
+
   console.log('[WEBHOOK] Subscription retrieved:', {
     id: subscription.id,
     status: subscription.status,
     current_period_end: subscription.current_period_end,
-    current_period_start: subscription.current_period_start,
+    current_period_end_from_items: subscription.items?.data?.[0]?.current_period_end,
+    current_period_end_resolved: currentPeriodEnd,
   });
 
-  if (!subscription.current_period_end) {
+  if (!currentPeriodEnd) {
     console.error('❌ [WEBHOOK] Subscription has no current_period_end');
     console.error('[WEBHOOK] Full subscription object:', JSON.stringify(subscription, null, 2));
     return;
   }
 
-  const premiumUntil = new Date(subscription.current_period_end * 1000);
+  const premiumUntil = new Date(currentPeriodEnd * 1000);
 
   if (isNaN(premiumUntil.getTime())) {
-    console.error('❌ [WEBHOOK] Invalid date created from current_period_end:', subscription.current_period_end);
+    console.error('❌ [WEBHOOK] Invalid date created from current_period_end:', currentPeriodEnd);
     return;
   }
 
@@ -162,15 +181,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
 
-  if (!subscription.current_period_end) {
+  const currentPeriodEnd = getCurrentPeriodEnd(subscription);
+
+  if (!currentPeriodEnd) {
     console.error('❌ [WEBHOOK] Subscription has no current_period_end');
     return;
   }
 
-  const premiumUntil = new Date(subscription.current_period_end * 1000);
+  const premiumUntil = new Date(currentPeriodEnd * 1000);
 
   if (isNaN(premiumUntil.getTime())) {
-    console.error('❌ [WEBHOOK] Invalid date from current_period_end:', subscription.current_period_end);
+    console.error('❌ [WEBHOOK] Invalid date from current_period_end:', currentPeriodEnd);
     return;
   }
 
