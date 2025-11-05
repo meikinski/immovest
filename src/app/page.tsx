@@ -212,23 +212,15 @@ export default function LandingPage() {
                 </button>
               </>
             ) : (
-              <>
-                <button
-                  onClick={handleGetStarted}
-                  className="rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#264171]/20 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
-                >
-                  Jetzt Immobilie bewerten
-                </button>
-                <UserButton afterSignOutUrl="/">
-                  <UserButton.MenuItems>
-                    <UserButton.Link
-                      label="Profil & Einstellungen"
-                      labelIcon={<Save size={16} />}
-                      href="/profile"
-                    />
-                  </UserButton.MenuItems>
-                </UserButton>
-              </>
+              <UserButton afterSignOutUrl="/">
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Profil & Einstellungen"
+                    labelIcon={<Save size={16} />}
+                    href="/profile"
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
             )}
           </div>
         </div>
@@ -262,9 +254,16 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-10 py-4 text-base font-semibold text-white shadow-xl shadow-[#264171]/20 transition-all duration-200 hover:shadow-2xl hover:-translate-y-0.5 sm:w-auto"
               >
-                Kostenlos testen
+                {isSignedIn ? 'Jetzt Immobilie bewerten' : 'Kostenlos testen'}
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
+              {!isSignedIn && (
+                <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
+                  <button className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#264171] bg-transparent px-10 py-4 text-base font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white sm:w-auto">
+                    Einloggen
+                  </button>
+                </SignInButton>
+              )}
             </div>
 
             {!isSignedIn && (
