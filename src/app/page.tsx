@@ -198,19 +198,11 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-3">
             {!isSignedIn ? (
-              <>
-                <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button className="rounded-full border-2 border-[#264171] px-5 py-2 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white">
-                    Einloggen
-                  </button>
-                </SignInButton>
-                <button
-                  onClick={handleGetStarted}
-                  className="rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#264171]/20 transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
-                >
-                  Kostenlos testen
+              <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
+                <button className="rounded-full border-2 border-[#264171] px-5 py-2 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white">
+                  Einloggen
                 </button>
-              </>
+              </SignInButton>
             ) : (
               <UserButton afterSignOutUrl="/">
                 <UserButton.MenuItems>
@@ -260,7 +252,7 @@ export default function LandingPage() {
               {!isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
                   <button className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#264171] bg-transparent px-10 py-4 text-base font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white sm:w-auto">
-                    Einloggen
+                    Einloggen/Anmelden
                   </button>
                 </SignInButton>
               )}
