@@ -18,7 +18,7 @@ import {
   Sparkles,
   Save,
 } from 'lucide-react';
-import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
+import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function LandingPage() {
   const router = useRouter();
