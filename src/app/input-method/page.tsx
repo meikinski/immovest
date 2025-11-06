@@ -221,7 +221,7 @@ export default function InputMethodPage() {
                   </span>
                   <span className="inline-block">👋</span>
                   <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                    {' '}Bist du bereit, deine nächste Immobilie zu prüfen?
+                    {' '}Bist du bereit für deine nächste Immobilie?
                   </span>
                 </>
               ) : (
