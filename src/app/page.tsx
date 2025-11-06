@@ -240,24 +240,24 @@ export default function LandingPage() {
             backgroundRepeat: 'no-repeat'
           }}
         >
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/60 via-[#6C7F99]/50 to-[#E6AE63]/45 -z-10" />
+          {/* Gradient overlay with new colors */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0F223F]/80 via-transparent to-[#C47B57]/35 -z-10" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
-            {/* Logo */}
+            {/* Logo - much bigger, no white background, less padding */}
             <div className="mb-8 flex justify-center">
-              <div className="inline-flex items-center gap-3">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl p-2">
+              <div className="inline-flex items-center gap-2">
+                <div className="w-28 h-28 flex items-center justify-center">
                   <Image
                     src="/logo.png"
                     alt="ImVestr Logo"
-                    width={56}
-                    height={56}
+                    width={112}
+                    height={112}
                     className="w-full h-full object-contain"
                     priority
                   />
                 </div>
-                <span className="text-3xl font-bold text-white">ImVestr</span>
+                <span className="text-6xl font-bold text-white">ImVestr</span>
               </div>
             </div>
 
@@ -274,14 +274,14 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={handleGetStarted}
-                className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-10 py-4 text-base font-semibold text-[#264171] shadow-2xl transition-all duration-200 hover:bg-[#E6AE63] hover:text-white hover:shadow-[#E6AE63]/40 hover:-translate-y-0.5 sm:w-auto"
+                className="group flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#0F223F] sm:w-auto"
               >
                 Analyse starten
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
               {!isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#264171] sm:w-auto">
+                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white sm:w-auto">
                     Einloggen/Anmelden
                   </button>
                 </SignInButton>
