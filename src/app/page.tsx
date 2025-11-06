@@ -107,17 +107,17 @@ export default function LandingPage() {
 
   const importFeatures = [
     {
-      icon: <LinkIcon className="w-6 h-6 text-[#E6AE63]" />,
+      icon: <LinkIcon className="w-6 h-6" />,
       title: 'URL-Import',
       description: 'ImmoScout24-, Immowelt- oder andere Links einfach einfügen – wir extrahieren alle Daten automatisch.',
     },
     {
-      icon: <Camera className="w-6 h-6 text-[#264171]" />,
+      icon: <Camera className="w-6 h-6" />,
       title: 'Foto-Analyse',
       description: 'Screenshot vom Exposé machen, hochladen – fertig. KI erkennt Kaufpreis, Fläche, Miete und mehr.',
     },
     {
-      icon: <Keyboard className="w-6 h-6 text-[#6C7F99]" />,
+      icon: <Keyboard className="w-6 h-6" />,
       title: 'Manuelle Eingabe',
       description: 'Adresse und Eckdaten selbst eintragen – vollständige Kontrolle über jeden Wert.',
     },
@@ -125,22 +125,22 @@ export default function LandingPage() {
 
   const analysisFeatures = [
     {
-      icon: <BarChart3 className="w-6 h-6 text-[#264171]" />,
+      icon: <BarChart3 className="w-6 h-6" />,
       title: 'Kennzahlen',
       description: 'Cashflow, Nettomietrendite, Eigenkapitalrendite, DSCR und Amortisation – alle wichtigen KPIs auf einen Blick.',
     },
     {
-      icon: <MapPin className="w-6 h-6 text-[#E6AE63]" />,
+      icon: <MapPin className="w-6 h-6" />,
       title: 'Lagebewertung',
       description: 'Mikrolage-Score, Infrastruktur, Verkehrsanbindung und Entwicklungspotenzial der Immobilie.',
     },
     {
-      icon: <LineChart className="w-6 h-6 text-[#6C7F99]" />,
+      icon: <LineChart className="w-6 h-6" />,
       title: 'Kauf- und Mietpreisvergleich',
       description: 'Vergleich mit lokalem Markt: €/m² Kauf- und Mietpreis, Abweichung vom Durchschnitt, Fairness-Check.',
     },
     {
-      icon: <FileBarChart className="w-6 h-6 text-[#264171]" />,
+      icon: <FileBarChart className="w-6 h-6" />,
       title: 'Investitionsanalyse',
       description: 'Detaillierte Analyse der Rentabilität mit verschiedenen Szenarien und Annahmen für fundierte Entscheidungen.',
     },
@@ -178,13 +178,17 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <header className="fixed top-0 left-0 right-0 z-50">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--brand))]/20 to-transparent"></div>
+
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 hover:opacity-80 transition"
+            className="flex items-center gap-2"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center">
+            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[hsl(var(--brand))]/20">
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
@@ -298,10 +302,10 @@ export default function LandingPage() {
               {importFeatures.map((feature) => (
                 <div
                   key={feature.title}
-                  className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-8 transition-all duration-200 hover:border-[#E6AE63]/40 hover:shadow-lg hover:-translate-y-1"
+                  className="group flex flex-col gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-8 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/10 transition-transform group-hover:scale-110">
-                    {feature.icon}
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
+                    <div className="text-white">{feature.icon}</div>
                   </div>
                   <h3 className="text-xl font-semibold text-[#0F172A]">{feature.title}</h3>
                   <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
@@ -377,10 +381,10 @@ export default function LandingPage() {
               {analysisFeatures.map((feature) => (
                 <div
                   key={feature.title}
-                  className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-10 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1"
+                  className="group flex flex-col gap-4 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 p-10 transition-all duration-200 hover:border-[hsl(var(--brand-2))]/40 hover:shadow-xl hover:-translate-y-1"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/5 transition-transform group-hover:scale-110">
-                    {feature.icon}
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--brand-2))] transition-transform group-hover:scale-110 shadow-lg">
+                    <div className="text-white">{feature.icon}</div>
                   </div>
                   <h3 className="text-xl font-semibold text-[#0F172A]">
                     {feature.title}
@@ -572,7 +576,10 @@ export default function LandingPage() {
 
         <section aria-label="Call-to-Action" className="px-6 py-24 bg-white">
           <div className="mx-auto max-w-5xl">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#264171] via-[#6C7F99] to-[#E6AE63] p-12 md:p-16 text-center text-white shadow-2xl">
+            <div
+              className="relative overflow-hidden rounded-3xl p-12 md:p-16 text-center text-white shadow-2xl"
+              style={{ background: 'linear-gradient(135deg, #0F223F 0%, #C47B57 100%)' }}
+            >
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40"></div>
 
               <div className="relative z-10">
