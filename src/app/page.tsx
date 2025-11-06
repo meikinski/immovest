@@ -125,40 +125,39 @@ export default function LandingPage() {
 
   const analysisFeatures = [
     {
-      icon: <MapPin className="w-6 h-6 text-[#264171]" />,
-      title: 'Lage-Bewertung',
-      description: 'Mikrolage-Score, Infrastruktur, Verkehrsanbindung und Entwicklungspotenzial auf einen Blick.',
+      icon: <BarChart3 className="w-6 h-6 text-[#264171]" />,
+      title: 'Kennzahlen',
+      description: 'Cashflow, Nettomietrendite, Eigenkapitalrendite, DSCR und Amortisation – alle wichtigen KPIs auf einen Blick.',
     },
     {
-      icon: <LineChart className="w-6 h-6 text-[#E6AE63]" />,
-      title: 'Miete & Kaufpreis',
+      icon: <MapPin className="w-6 h-6 text-[#E6AE63]" />,
+      title: 'Lagebewertung',
+      description: 'Mikrolage-Score, Infrastruktur, Verkehrsanbindung und Entwicklungspotenzial der Immobilie.',
+    },
+    {
+      icon: <LineChart className="w-6 h-6 text-[#6C7F99]" />,
+      title: 'Kauf- und Mietpreisvergleich',
       description: 'Vergleich mit lokalem Markt: €/m² Kauf- und Mietpreis, Abweichung vom Durchschnitt, Fairness-Check.',
     },
     {
-      icon: <BarChart3 className="w-6 h-6 text-[#6C7F99]" />,
-      title: 'Investment-Analyse',
-      description: 'Cashflow, Nettomietrendite, Eigenkapitalrendite, DSCR und Amortisation – alle KPIs automatisch.',
-    },
-    {
-      icon: <FileBarChart className="w-6 h-6 text-white" />,
-      title: 'Bankfähiger Report',
-      description: 'PDF mit allen Annahmen, Szenarien und Berechnungen zum Download und Teilen.',
-      accent: true,
+      icon: <FileBarChart className="w-6 h-6 text-[#264171]" />,
+      title: 'Investitionsanalyse',
+      description: 'Detaillierte Analyse der Rentabilität mit verschiedenen Szenarien und Annahmen für fundierte Entscheidungen.',
     },
   ];
 
   const steps = [
     {
-      title: '1 · Objekt kurz beschreiben',
+      title: '1 · Objekt beschreiben',
       description: 'Adresse, Kaufpreis und Miete eintragen oder Import nutzen.',
     },
     {
-      title: '2 · Zahlen prüfen',
+      title: '2 · Ergebnis prüfen',
       description: 'Kennzahlen, Marktvergleich und Cashflow live bewerten.',
     },
     {
-      title: '3 · Szenario sichern',
-      description: 'PDF exportieren, mit Bank teilen oder als Favorit speichern.',
+      title: '3 · Szenarien durchspielen',
+      description: 'Verschiedene Finanzierungsoptionen testen, optimale Parameter finden und als PDF für dein Bankgespräch exportieren.',
     },
   ];
 
@@ -179,17 +178,14 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/5 via-[#E6AE63]/5 to-transparent backdrop-blur-lg"></div>
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#E6AE63]/30 to-transparent"></div>
-
+        <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-[#264171]/10">
         <div className="relative max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[#264171] to-[#E6AE63] rounded-lg flex items-center justify-center shadow-lg shadow-[#264171]/20">
-              <BarChart3 className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-[#264171] to-[#E6AE63] rounded-xl flex items-center justify-center shadow-md">
+              <BarChart3 className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[#264171] to-[#E6AE63] bg-clip-text text-transparent">
               ImVestr
@@ -199,7 +195,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-3">
             {!isSignedIn ? (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button className="rounded-full border-2 border-[#264171] px-5 py-2 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white">
+                <button className="rounded-full border-2 border-[#264171] px-6 py-2.5 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white hover:shadow-md">
                   Einloggen
                 </button>
               </SignInButton>
@@ -220,38 +216,50 @@ export default function LandingPage() {
 
       <main role="main">
         <section aria-label="Hero" className="relative overflow-hidden pt-36 pb-24">
+          {/* Background with placeholder for city skyline image */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/10" />
-            <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#264171]/10 blur-3xl" />
+            {/* TODO: Add city skyline background image here */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/95 via-[#6C7F99]/90 to-[#E6AE63]/85" />
+            <div className="absolute inset-0 bg-[url('/placeholder-skyline.jpg')] bg-cover bg-center opacity-20" />
+            <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#E6AE63]/20 blur-3xl" />
           </div>
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {isSignedIn && user?.firstName && (
-              <p className="mb-6 text-base text-[#6C7F99] font-medium">Hey {user.firstName}, lass uns die nächste Chance prüfen.</p>
+              <p className="mb-6 text-base text-white/90 font-medium">Hey {user.firstName}, lass uns die nächste Chance prüfen.</p>
             )}
 
-            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
-              <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Immobilien-Investment.<br />
-                Einfach. Datenbasiert.
-              </span>
+            {/* Logo */}
+            <div className="mb-8 flex justify-center">
+              <div className="inline-flex items-center gap-3">
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
+                  <BarChart3 className="w-9 h-9 text-[#264171]" />
+                </div>
+                <span className="text-3xl font-bold text-white">ImVestr</span>
+              </div>
+            </div>
+
+            {/* Main Claim as H1 */}
+            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white">
+              In Sekunden wissen,<br />
+              ob sich eine Immobilie lohnt
             </h1>
 
-            <p className="mt-6 text-xl text-[#6C7F99] max-w-2xl mx-auto leading-relaxed">
-              In Sekunden wissen, ob sich eine Immobilie lohnt
+            <p className="mt-6 text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+              Datenbasierte Entscheidungen statt Bauchgefühl
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <button
                 onClick={handleGetStarted}
-                className="group flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#264171] to-[#E6AE63] px-10 py-4 text-base font-semibold text-white shadow-xl shadow-[#264171]/20 transition-all duration-200 hover:shadow-2xl hover:-translate-y-0.5 sm:w-auto"
+                className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-10 py-4 text-base font-semibold text-[#264171] shadow-2xl transition-all duration-200 hover:bg-[#E6AE63] hover:text-white hover:shadow-[#E6AE63]/40 hover:-translate-y-0.5 sm:w-auto"
               >
                 {isSignedIn ? 'Jetzt Immobilie bewerten' : 'Kostenlos testen'}
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
               {!isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#264171] bg-transparent px-10 py-4 text-base font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white sm:w-auto">
+                  <button className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#264171] sm:w-auto">
                     Einloggen/Anmelden
                   </button>
                 </SignInButton>
@@ -259,13 +267,13 @@ export default function LandingPage() {
             </div>
 
             {!isSignedIn && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-[#6C7F99]">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-[#22c55e]" />
+                  <CheckCircle2 className="h-5 w-5 text-white" />
                   <span>Keine Kreditkarte</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-[#22c55e]" />
+                  <CheckCircle2 className="h-5 w-5 text-white" />
                   <span>Sofort starten</span>
                 </div>
               </div>
@@ -372,23 +380,15 @@ export default function LandingPage() {
               {analysisFeatures.map((feature) => (
                 <div
                   key={feature.title}
-                  className={`group flex flex-col gap-4 rounded-3xl border p-10 transition-all duration-200 ${
-                    feature.accent
-                      ? 'bg-gradient-to-br from-[#264171] via-[#6C7F99] to-[#E6AE63] text-white border-transparent shadow-xl hover:shadow-2xl hover:-translate-y-1'
-                      : 'bg-gradient-to-br from-white to-[#F7F9FF] border-[#264171]/8 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1'
-                  }`}
+                  className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-10 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1"
                 >
-                  <div
-                    className={`flex h-14 w-14 items-center justify-center rounded-2xl transition-transform group-hover:scale-110 ${
-                      feature.accent ? 'bg-white/15 backdrop-blur-sm' : 'bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/5'
-                    }`}
-                  >
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/5 transition-transform group-hover:scale-110">
                     {feature.icon}
                   </div>
-                  <h3 className={`text-xl font-semibold ${feature.accent ? 'text-white' : 'text-[#0F172A]'}`}>
+                  <h3 className="text-xl font-semibold text-[#0F172A]">
                     {feature.title}
                   </h3>
-                  <p className={`text-base leading-relaxed ${feature.accent ? 'text-white/90' : 'text-[#6C7F99]'}`}>
+                  <p className="text-base leading-relaxed text-[#6C7F99]">
                     {feature.description}
                   </p>
                 </div>
