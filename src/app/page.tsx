@@ -178,25 +178,25 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-[#264171]/10">
-        <div className="relative max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+        <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 hover:opacity-80 transition"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-[#264171] to-[#E6AE63] rounded-xl flex items-center justify-center shadow-md">
-              <BarChart3 className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center">
+              <BarChart3 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[#264171] to-[#E6AE63] bg-clip-text text-transparent">
-              ImVestr
+            <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+              ImmoVest
             </span>
           </button>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button className="rounded-full border-2 border-[#264171] px-6 py-2.5 text-sm font-semibold text-[#264171] transition-all duration-200 hover:bg-[#264171] hover:text-white hover:shadow-md">
-                  Einloggen
+                <button type="button" className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
+                  Anmelden
                 </button>
               </SignInButton>
             ) : (
@@ -225,10 +225,6 @@ export default function LandingPage() {
           </div>
 
           <div className="max-w-4xl mx-auto px-6 text-center">
-            {isSignedIn && user?.firstName && (
-              <p className="mb-6 text-base text-white/90 font-medium">Hey {user.firstName}, lass uns die nächste Chance prüfen.</p>
-            )}
-
             {/* Logo */}
             <div className="mb-8 flex justify-center">
               <div className="inline-flex items-center gap-3">
@@ -251,6 +247,7 @@ export default function LandingPage() {
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <button
+                type="button"
                 onClick={handleGetStarted}
                 className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-10 py-4 text-base font-semibold text-[#264171] shadow-2xl transition-all duration-200 hover:bg-[#E6AE63] hover:text-white hover:shadow-[#E6AE63]/40 hover:-translate-y-0.5 sm:w-auto"
               >
@@ -259,7 +256,7 @@ export default function LandingPage() {
               </button>
               {!isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#264171] sm:w-auto">
+                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#264171] sm:w-auto">
                     Einloggen/Anmelden
                   </button>
                 </SignInButton>
@@ -594,6 +591,7 @@ export default function LandingPage() {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
+                    type="button"
                     onClick={handleGetStarted}
                     className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
                   >
@@ -602,8 +600,8 @@ export default function LandingPage() {
                   </button>
 
                   {!isSignedIn && (
-                    <SignInButton mode="modal">
-                      <button className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-5 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
+                    <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
+                      <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-5 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
                         Kostenlos registrieren
                       </button>
                     </SignInButton>
