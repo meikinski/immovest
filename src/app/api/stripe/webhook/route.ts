@@ -15,14 +15,14 @@ function getCurrentPeriodEnd(subscription: Stripe.Subscription): number | undefi
   // Try top-level first (older API versions)
   // @ts-expect-error - current_period_end exists in Stripe API but may not be in type definition
   if (subscription.current_period_end) {
-    // @ts-expect-error
+    // @ts-expect-error - Stripe type definition incomplete
     return subscription.current_period_end;
   }
 
   // Try subscription items (newer API versions)
-  // @ts-expect-error
+  // @ts-expect-error - Property exists in actual API response
   if (subscription.items?.data?.[0]?.current_period_end) {
-    // @ts-expect-error
+    // @ts-expect-error - Stripe API property not in types
     return subscription.items.data[0].current_period_end;
   }
 
