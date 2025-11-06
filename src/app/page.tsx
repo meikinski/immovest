@@ -24,6 +24,17 @@ export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const [isScrolled, setIsScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      // Check if scrolled past hero (roughly 600px)
+      setIsScrolled(window.scrollY > 600);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleGetStarted = () => {
     router.push('/input-method');
@@ -183,10 +194,14 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className="fixed top-0 left-0 right-0 z-50">
-        {/* Gradient background - stronger for better visibility */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0F223F]/90 via-[#264171]/85 to-transparent backdrop-blur-xl"></div>
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-lg shadow-sm' : ''}`}>
+        {/* Gradient background - only when not scrolled */}
+        {!isScrolled && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
+            <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+          </>
+        )}
 
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
@@ -203,16 +218,16 @@ export default function LandingPage() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold text-white">
+            <span className={`text-xl font-bold transition-colors ${isScrolled ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent' : 'text-white'}`}>
               ImVestr
             </span>
           </button>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#steps" className="text-sm font-medium text-white/90 hover:text-white transition">
+            <a href="#steps" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
               So funktioniert's
             </a>
-            <a href="#faq" className="text-sm font-medium text-white/90 hover:text-white transition">
+            <a href="#faq" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
               FAQ
             </a>
           </nav>
@@ -220,7 +235,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button type="button" className="text-sm font-medium text-white/90 hover:text-white transition">
+                <button type="button" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
                   Anmelden
                 </button>
               </SignInButton>
