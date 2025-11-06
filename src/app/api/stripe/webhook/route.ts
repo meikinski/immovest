@@ -9,9 +9,18 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// Extended Stripe Subscription type with missing properties
+type StripeSubscriptionExtended = Stripe.Subscription & {
+  current_period_end?: number;
+  items?: {
+    data?: Array<{
+      current_period_end?: number;
+    }>;
+  };
+};
+
 // Helper function to get current_period_end from subscription
-// Using 'any' type to bypass incomplete Stripe type definitions
-function getCurrentPeriodEnd(subscription: any): number | undefined {
+function getCurrentPeriodEnd(subscription: StripeSubscriptionExtended): number | undefined {
   // Try top-level first (older API versions)
   if (subscription.current_period_end) {
     return subscription.current_period_end;
