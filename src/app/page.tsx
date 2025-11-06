@@ -258,7 +258,7 @@ export default function LandingPage() {
       <main role="main">
         <section
           aria-label="Hero"
-          className="relative overflow-hidden pt-36 pb-24"
+          className="relative overflow-hidden pt-44 pb-32"
           style={{
             backgroundImage: 'url(/hero-background.jpg)',
             backgroundSize: 'cover',
@@ -271,7 +271,7 @@ export default function LandingPage() {
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
-            <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
+            <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
               KI-Analyse für deine Immobilie
             </h1>
 
