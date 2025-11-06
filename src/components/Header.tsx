@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { BarChart3, Save } from 'lucide-react';
 
@@ -27,8 +28,15 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
           onClick={() => router.push('/')}
           className="flex items-center gap-2 hover:opacity-80 transition"
         >
-          <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center">
-            <BarChart3 className="w-5 h-5 text-white" />
+          <div className="w-9 h-9 relative">
+            <Image
+              src="/logo.png"
+              alt="ImmoVest Logo"
+              width={36}
+              height={36}
+              className="rounded-lg"
+              priority
+            />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
             ImmoVest
