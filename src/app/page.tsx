@@ -202,7 +202,7 @@ export default function LandingPage() {
             <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </>
         ) : (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl"></div>
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-2xl"></div>
         )}
 
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
