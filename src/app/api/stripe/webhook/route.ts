@@ -19,6 +19,11 @@ type StripeSubscriptionExtended = Stripe.Subscription & {
   };
 };
 
+// Extended Stripe Invoice type with missing properties
+type StripeInvoiceExtended = Stripe.Invoice & {
+  subscription?: string;
+};
+
 // Helper function to get current_period_end from subscription
 function getCurrentPeriodEnd(subscription: StripeSubscriptionExtended): number | undefined {
   // Try top-level first (older API versions)
@@ -253,9 +258,9 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   }
 }
 
-async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {
+async function handleInvoicePaymentSucceeded(invoice: StripeInvoiceExtended) {
   // Extend premium period
-  const subscriptionId = invoice.subscription as string | undefined;
+  const subscriptionId = invoice.subscription;
   if (!subscriptionId) {
     console.log('[WEBHOOK] Invoice has no subscription, skipping');
     return;
