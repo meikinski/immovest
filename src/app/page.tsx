@@ -184,9 +184,9 @@ export default function LandingPage() {
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
         <header className="fixed top-0 left-0 right-0 z-50">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--brand))]/20 to-transparent"></div>
+        {/* Gradient background - stronger for better visibility */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0F223F]/90 via-[#264171]/85 to-transparent backdrop-blur-xl"></div>
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
@@ -203,16 +203,16 @@ export default function LandingPage() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-white">
               ImVestr
             </span>
           </button>
 
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#steps" className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
+            <a href="#steps" className="text-sm font-medium text-white/90 hover:text-white transition">
               So funktioniert's
             </a>
-            <a href="#faq" className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
+            <a href="#faq" className="text-sm font-medium text-white/90 hover:text-white transition">
               FAQ
             </a>
           </nav>
@@ -220,7 +220,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button type="button" className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
+                <button type="button" className="text-sm font-medium text-white/90 hover:text-white transition">
                   Anmelden
                 </button>
               </SignInButton>
