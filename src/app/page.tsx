@@ -231,16 +231,15 @@ export default function LandingPage() {
 
       <main role="main">
         <section aria-label="Hero" className="relative overflow-hidden pt-36 pb-24">
-          {/* Background with optional hero image */}
+          {/* Background with hero image - TESTING WITHOUT GRADIENT */}
           <div className="absolute inset-0 -z-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/hero-background.jpg"
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
+              style={{ display: 'block' }}
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/60 via-[#6C7F99]/50 to-[#E6AE63]/45" />
-            <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#E6AE63]/20 blur-3xl" />
           </div>
 
           <div className="max-w-4xl mx-auto px-6 text-center">
