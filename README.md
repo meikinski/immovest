@@ -1,4 +1,4 @@
-# ImmoVest - KI-gestützte Immobilien-Investitionsanalyse
+# ImVestr - KI-gestützte Immobilien-Investitionsanalyse
 
 Deine intelligente Plattform für Immobilien-Investment-Analysen mit KI-Unterstützung.
 

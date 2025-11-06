@@ -173,7 +173,7 @@ export default function InputMethodPage() {
               <BarChart3 className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
-              ImmoVest
+              ImVestr
             </span>
           </button>
 
