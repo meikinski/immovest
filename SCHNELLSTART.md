@@ -1,4 +1,4 @@
-# 🚀 SCHNELLSTART GUIDE - ImmoVest Setup
+# 🚀 SCHNELLSTART GUIDE - ImVestr Setup
 
 Diese Anleitung führt dich in 30 Minuten durch das komplette Setup von Supabase, Stripe und Deployment.
 
@@ -25,7 +25,7 @@ Diese Anleitung führt dich in 30 Minuten durch das komplette Setup von Supabase
 
 1. ✅ In Supabase: Klicke links auf **"SQL Editor"**
 2. ✅ Klicke **"New query"**
-3. ✅ Öffne die Datei `supabase-schema.sql` aus deinem ImmoVest Projekt
+3. ✅ Öffne die Datei `supabase-schema.sql` aus deinem ImVestr Projekt
 4. ✅ Kopiere den **KOMPLETTEN INHALT** (Strg+A, Strg+C)
 5. ✅ Füge ihn in den SQL Editor ein (Strg+V)
 6. ✅ Klicke **"Run"** (oder drücke F5)
@@ -102,7 +102,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 1. ✅ Klicke **"+ Add product"**
 2. ✅ Fülle aus:
-   - **Name:** ImmoVest Premium Monat
+   - **Name:** ImVestr Premium Monat
    - **Description:** Unbegrenzte Markt- & Lageanalysen
    - **Pricing model:** Recurring (wiederkehrend)
    - **Price:** 13.99 EUR
@@ -116,7 +116,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 1. ✅ Klicke **"+ Add product"**
 2. ✅ Fülle aus:
-   - **Name:** ImmoVest Premium Jahr
+   - **Name:** ImVestr Premium Jahr
    - **Description:** Spare 59% mit dem Jahresabo
    - **Pricing model:** Recurring
    - **Price:** 69.00 EUR
@@ -326,7 +326,7 @@ OPENAI_API_KEY = sk-...
 2. ✅ Gehe zu Stripe Dashboard → **"Developers"** → **"Webhooks"**
 3. ✅ Klicke **"+ Add endpoint"**
 4. ✅ Endpoint URL: `https://immovest-xxx.vercel.app/api/stripe/webhook`
-5. ✅ Description: `ImmoVest Production Webhook`
+5. ✅ Description: `ImVestr Production Webhook`
 6. ✅ **Events to send:** Klicke "Select events"
    - ✅ Suche und wähle: `checkout.session.completed`
    - ✅ Suche und wähle: `customer.subscription.updated`

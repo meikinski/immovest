@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KI-basierter Immobilien-Renditerechner | ImmoVest – Lohnt sich diese Immobilie?",
+  title: "KI-basierter Immobilien-Renditerechner | ImVestr – Lohnt sich diese Immobilie?",
   description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
   keywords: [
     "immobilien renditerechner",
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     "rendite rechner immobilie",
     "immobilien roi rechner",
   ],
-  authors: [{ name: "ImmoVest" }],
-  creator: "ImmoVest",
-  publisher: "ImmoVest",
+  authors: [{ name: "ImVestr" }],
+  creator: "ImVestr",
+  publisher: "ImVestr",
   metadataBase: new URL('https://immovestr.de'),
   alternates: {
     canonical: '/',
@@ -45,21 +45,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_DE",
     url: "https://immovestr.de",
-    title: "KI-basierter Immobilien-Renditerechner | ImmoVest",
+    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
-    siteName: "ImmoVest",
+    siteName: "ImVestr",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "ImmoVest - KI-basierter Immobilien-Renditerechner",
+        alt: "ImVestr - KI-basierter Immobilien-Renditerechner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KI-basierter Immobilien-Renditerechner | ImmoVest",
+    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     images: ["/og-image.jpg"],
   },

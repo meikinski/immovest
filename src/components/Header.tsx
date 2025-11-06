@@ -31,7 +31,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
           <div className="w-9 h-9 relative">
             <Image
               src="/logo.png"
-              alt="ImmoVest Logo"
+              alt="ImVestr Logo"
               width={36}
               height={36}
               className="rounded-lg"
@@ -39,7 +39,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
             />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
-            ImmoVest
+            ImVestr
           </span>
         </button>
 

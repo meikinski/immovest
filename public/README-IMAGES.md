@@ -1,4 +1,4 @@
-# 📸 Benötigte Bilddateien für ImmoVest
+# 📸 Benötigte Bilddateien für ImVestr
 
 Dieser Ordner (`public/`) sollte folgende Bilddateien enthalten:
 
@@ -8,7 +8,7 @@ Dieser Ordner (`public/`) sollte folgende Bilddateien enthalten:
 - `sitemap.xml` - Sitemap für Suchmaschinen
 
 **Hinweis**: Das Favicon wird jetzt dynamisch aus `src/app/icon.tsx` generiert.
-Sie sehen ein "IV" Logo (ImmoVest Initialen) bis Sie ein echtes Logo hinzufügen.
+Sie sehen ein "IV" Logo (ImVestr Initialen) bis Sie ein echtes Logo hinzufügen.
 
 ## ⚠️ FEHLT NOCH - Bitte hinzufügen:
 

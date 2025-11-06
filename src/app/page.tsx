@@ -32,7 +32,7 @@ export default function LandingPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "ImmoVest",
+    "name": "ImVestr",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -66,7 +66,7 @@ export default function LandingPage() {
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ImmoVest",
+    "name": "ImVestr",
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
@@ -85,7 +85,7 @@ export default function LandingPage() {
         'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
     },
     {
-      question: 'Was kostet ImmoVest?',
+      question: 'Was kostet ImVestr?',
       answer:
         'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
     },
@@ -195,7 +195,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 relative">
               <Image
                 src="/logo.png"
-                alt="ImmoVest Logo"
+                alt="ImVestr Logo"
                 width={36}
                 height={36}
                 className="rounded-lg"
@@ -203,7 +203,7 @@ export default function LandingPage() {
               />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
-              ImmoVest
+              ImVestr
             </span>
           </button>
 
@@ -245,14 +245,14 @@ export default function LandingPage() {
                 <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl p-2">
                   <Image
                     src="/logo.png"
-                    alt="ImmoVest Logo"
+                    alt="ImVestr Logo"
                     width={56}
                     height={56}
                     className="w-full h-full object-contain"
                     priority
                   />
                 </div>
-                <span className="text-3xl font-bold text-white">ImmoVest</span>
+                <span className="text-3xl font-bold text-white">ImVestr</span>
               </div>
             </div>
 
