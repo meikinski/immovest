@@ -23,7 +23,6 @@ import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   React.useEffect(() => {
@@ -227,7 +226,7 @@ export default function LandingPage() {
 
           <nav className="hidden md:flex items-center gap-8">
             <a href="#steps" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
-              So funktioniert's
+              So funktioniert&apos;s
             </a>
             <a href="#faq" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
               FAQ

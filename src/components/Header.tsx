@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
-import { BarChart3, Save } from 'lucide-react';
+import { Save } from 'lucide-react';
 
 interface HeaderProps {
   variant?: 'fixed' | 'sticky' | 'static';
