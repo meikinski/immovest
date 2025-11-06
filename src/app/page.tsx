@@ -233,7 +233,13 @@ export default function LandingPage() {
         <section aria-label="Hero" className="relative overflow-hidden pt-36 pb-24">
           {/* Background with optional hero image */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute inset-0 bg-[url('/hero-background.jpg')] bg-cover bg-center" />
+            <Image
+              src="/hero-background.jpg"
+              alt=""
+              fill
+              className="object-cover"
+              priority
+            />
             <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/85 via-[#6C7F99]/75 to-[#E6AE63]/70" />
             <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#E6AE63]/20 blur-3xl" />
           </div>
