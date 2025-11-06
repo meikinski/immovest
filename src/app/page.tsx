@@ -194,13 +194,15 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-xl shadow-md' : ''}`}>
-        {/* Gradient background - only when not scrolled */}
-        {!isScrolled && (
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
+        {/* Background layers */}
+        {!isScrolled ? (
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
             <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
           </>
+        ) : (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl"></div>
         )}
 
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
