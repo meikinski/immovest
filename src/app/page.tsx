@@ -270,37 +270,20 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-[#0F223F]/80 via-transparent to-[#C47B57]/22 -z-10" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
-            {/* Logo - 20% smaller */}
-            <div className="mb-6 flex justify-center">
-              <div className="inline-flex items-center gap-2">
-                <div className="w-20 h-20 flex items-center justify-center">
-                  <Image
-                    src="/logo.png"
-                    alt="ImVestr Logo"
-                    width={80}
-                    height={80}
-                    className="w-full h-full object-contain"
-                    priority
-                  />
-                </div>
-                <span className="text-5xl font-bold text-white/95">ImVestr</span>
-              </div>
-            </div>
-
-            {/* Main Claim as H1 - without dash, with colon */}
-            <h1 className="text-3xl md:text-5xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
-              Dein KI-basierter Immobilien-Renditerechner: Lohnt sich diese Immobilie?
+            {/* Main Claim as H1 - focused and clear */}
+            <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
+              KI-Analyse für deine Immobilie
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren.
+              Adresse rein - Wir liefern KPIs, Marktvergleiche und eine Investment-Einschätzung mit Empfehlungen. PDF fürs Bankgespräch inklusive.
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <button
                 type="button"
                 onClick={handleGetStarted}
-                className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-10 py-4 text-base font-semibold text-[#0F223F] shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/50 sm:w-auto"
+                className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
               >
                 Analyse starten
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
