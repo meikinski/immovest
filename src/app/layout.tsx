@@ -16,25 +16,37 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ImVestr – Immobilien-Renditerechner | Cashflow, DSCR & Mikrolage in Sekunden",
-  description: "In Sekunden wissen, ob sich eine Immobilie lohnt. Immobilien-Renditerechner mit URL-Import, Foto-Analyse, Cashflow-Berechnung, Nettomietrendite, DSCR und bankfähigem PDF-Report. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
+  title: "KI-basierter Immobilien-Renditerechner | ImmoVest – Lohnt sich diese Immobilie?",
+  description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   keywords: [
     "immobilien renditerechner",
+    "ki immobilien analyse",
     "cashflow immobilie berechnen",
-    "nettomietrendite",
-    "eigenkapitalrendite",
-    "dscr immobilie",
+    "nettomietrendite rechner",
+    "eigenkapitalrendite immobilie",
+    "dscr rechner",
     "mietpreis vergleich",
-    "quadratmeterpreis",
-    "mikrolage bewerten",
-    "immobilien analyse",
+    "quadratmeterpreis analyse",
+    "mikrolage bewertung",
     "immobilienscout24 import",
-    "immobilie bewertung",
-    "investment immobilie",
+    "immobilie bewertung tool",
+    "investment immobilie rechner",
+    "rendite rechner immobilie",
+    "immobilien roi rechner",
   ],
-  authors: [{ name: "ImVestr" }],
-  creator: "ImVestr",
-  publisher: "ImVestr",
+  authors: [{ name: "ImmoVest" }],
+  creator: "ImmoVest",
+  publisher: "ImmoVest",
   metadataBase: new URL('https://immovestr.de'),
   alternates: {
     canonical: '/',
@@ -43,22 +55,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_DE",
     url: "https://immovestr.de",
-    title: "ImVestr – Immobilien-Renditerechner | Cashflow, DSCR & Mikrolage",
-    description: "In Sekunden wissen, ob sich eine Immobilie lohnt. URL-Import, Foto-Analyse, Cashflow-Berechnung, DSCR und bankfähiger PDF-Report.",
-    siteName: "ImVestr",
+    title: "KI-basierter Immobilien-Renditerechner | ImmoVest",
+    description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
+    siteName: "ImmoVest",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "ImVestr - Immobilien-Renditerechner",
+        alt: "ImmoVest - KI-basierter Immobilien-Renditerechner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ImVestr – Immobilien-Renditerechner",
-    description: "In Sekunden wissen, ob sich eine Immobilie lohnt. Cashflow, DSCR, Mikrolage-Analyse.",
+    title: "KI-basierter Immobilien-Renditerechner | ImmoVest",
+    description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     images: ["/og-image.jpg"],
   },
   robots: {
@@ -71,6 +83,9 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+  },
+  verification: {
+    google: 'your-google-site-verification-code', // TODO: Replace with actual verification code from Google Search Console
   },
 };
 

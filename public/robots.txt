@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /sign-in/
+Disallow: /sign-up/
+
+# Sitemap
+Sitemap: https://immovestr.de/sitemap.xml

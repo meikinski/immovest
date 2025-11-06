@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import {
   ArrowRight,
   BarChart3,
@@ -31,7 +32,7 @@ export default function LandingPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "ImVestr",
+    "name": "ImmoVest",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -39,15 +40,15 @@ export default function LandingPage() {
       "price": "0",
       "priceCurrency": "EUR",
     },
-    "description": "Immobilien-Renditerechner mit URL-Import, Foto-Analyse und automatischer Berechnung von Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR. Mikrolage-Bewertung und bankfähiger PDF-Report.",
+    "description": "KI-basierter Immobilien-Renditerechner mit URL-Import, Foto-Analyse und automatischer Berechnung von Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR. Mikrolage-Bewertung und bankfähiger PDF-Report.",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
       "ratingCount": "127",
     },
     "featureList": [
-      "URL-Import von ImmoScout24 und Immowelt",
-      "Foto-Analyse mit KI",
+      "KI-basierter URL-Import von ImmoScout24 und Immowelt",
+      "Automatische Foto-Analyse mit KI",
       "Cashflow-Berechnung",
       "Nettomietrendite-Berechnung",
       "Eigenkapitalrendite (ROI)",
@@ -55,17 +56,20 @@ export default function LandingPage() {
       "Mikrolage-Bewertung",
       "Mietpreis-Vergleich",
       "Quadratmeterpreis-Analyse",
+      "Szenarien-Rechner",
       "Bankfähiger PDF-Report",
     ],
+    "url": "https://immovestr.de",
+    "screenshot": "https://immovestr.de/og-image.jpg",
   };
 
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ImVestr",
+    "name": "ImmoVest",
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
-    "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen",
+    "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
     "sameAs": [],
   };
 
@@ -81,7 +85,7 @@ export default function LandingPage() {
         'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
     },
     {
-      question: 'Was kostet ImVestr?',
+      question: 'Was kostet ImmoVest?',
       answer:
         'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
     },
@@ -188,8 +192,15 @@ export default function LandingPage() {
             onClick={() => router.push('/')}
             className="flex items-center gap-2"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-lg flex items-center justify-center shadow-lg shadow-[hsl(var(--brand))]/20">
-              <BarChart3 className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 relative">
+              <Image
+                src="/logo.png"
+                alt="ImmoVest Logo"
+                width={36}
+                height={36}
+                className="rounded-lg"
+                priority
+              />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
               ImmoVest
