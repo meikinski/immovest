@@ -241,12 +241,11 @@ export default function LandingPage() {
 
             {/* Main Claim as H1 */}
             <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white">
-              In Sekunden wissen,<br />
-              ob sich eine Immobilie lohnt
+              KI-basierter Immobilien-Renditerechner – Lohnt sich diese Immobilie?
             </h1>
 
             <p className="mt-6 text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-              Datenbasierte Entscheidungen statt Bauchgefühl
+              Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren.
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -255,7 +254,7 @@ export default function LandingPage() {
                 onClick={handleGetStarted}
                 className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-10 py-4 text-base font-semibold text-[#264171] shadow-2xl transition-all duration-200 hover:bg-[#E6AE63] hover:text-white hover:shadow-[#E6AE63]/40 hover:-translate-y-0.5 sm:w-auto"
               >
-                {isSignedIn ? 'Jetzt Immobilie bewerten' : 'Kostenlos testen'}
+                Analyse starten
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
               {!isSignedIn && (
@@ -589,11 +588,11 @@ export default function LandingPage() {
                 </div>
 
                 <h2 className="text-3xl md:text-5xl font-semibold mb-6">
-                  Bereit für deine nächste<br className="hidden md:block" /> Immobilie?
+                  Bereit für deine nächste Immobilie?
                 </h2>
 
                 <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed">
-                  Entscheide datenbasiert statt aus dem Bauch heraus. Starte jetzt deine erste Analyse.
+                  Cashflow, Nettomietrendite, EK-Rendite – klar aufbereitet.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -602,7 +601,7 @@ export default function LandingPage() {
                     onClick={handleGetStarted}
                     className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
                   >
-                    Kostenlos testen
+                    Jetzt kostenlos testen!
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
