@@ -138,7 +138,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   console.log('[WEBHOOK] Retrieving subscription:', subscriptionId);
 
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId) as StripeSubscriptionExtended;
 
   const currentPeriodEnd = getCurrentPeriodEnd(subscription);
 
