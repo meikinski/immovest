@@ -13,12 +13,16 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 // In newer Stripe API versions, this might be in subscription.items.data[0]
 function getCurrentPeriodEnd(subscription: Stripe.Subscription): number | undefined {
   // Try top-level first (older API versions)
+  // @ts-ignore - current_period_end exists in Stripe API but may not be in type definition
   if (subscription.current_period_end) {
+    // @ts-ignore
     return subscription.current_period_end;
   }
 
   // Try subscription items (newer API versions)
+  // @ts-ignore
   if (subscription.items?.data?.[0]?.current_period_end) {
+    // @ts-ignore
     return subscription.items.data[0].current_period_end;
   }
 
