@@ -194,7 +194,7 @@ export default function LandingPage() {
       />
 
       <div className="min-h-screen bg-[#F7F9FF] text-[#0F172A]">
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-lg shadow-sm' : ''}`}>
+        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-xl shadow-md' : ''}`}>
         {/* Gradient background - only when not scrolled */}
         {!isScrolled && (
           <>
