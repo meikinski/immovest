@@ -239,7 +239,7 @@ export default function LandingPage() {
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/85 via-[#6C7F99]/75 to-[#E6AE63]/70" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/60 via-[#6C7F99]/50 to-[#E6AE63]/45" />
             <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#E6AE63]/20 blur-3xl" />
           </div>
 
