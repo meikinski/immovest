@@ -231,11 +231,10 @@ export default function LandingPage() {
 
       <main role="main">
         <section aria-label="Hero" className="relative overflow-hidden pt-36 pb-24">
-          {/* Background with placeholder for city skyline image */}
+          {/* Background with optional hero image */}
           <div className="absolute inset-0 -z-10">
-            {/* TODO: Add city skyline background image here */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/95 via-[#6C7F99]/90 to-[#E6AE63]/85" />
-            <div className="absolute inset-0 bg-[url('/placeholder-skyline.jpg')] bg-cover bg-center opacity-20" />
+            <div className="absolute inset-0 bg-[url('/hero-background.jpg')] bg-cover bg-center opacity-20" />
             <div className="absolute left-1/2 top-0 h-[620px] w-[620px] -translate-x-1/2 rounded-full bg-[#E6AE63]/20 blur-3xl" />
           </div>
 
@@ -243,10 +242,17 @@ export default function LandingPage() {
             {/* Logo */}
             <div className="mb-8 flex justify-center">
               <div className="inline-flex items-center gap-3">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
-                  <BarChart3 className="w-9 h-9 text-[#264171]" />
+                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-2xl p-2">
+                  <Image
+                    src="/logo.png"
+                    alt="ImmoVest Logo"
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-contain"
+                    priority
+                  />
                 </div>
-                <span className="text-3xl font-bold text-white">ImVestr</span>
+                <span className="text-3xl font-bold text-white">ImmoVest</span>
               </div>
             </div>
 
