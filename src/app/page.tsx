@@ -137,32 +137,32 @@ export default function LandingPage() {
     {
       icon: <MapPin className="w-6 h-6" />,
       title: 'Lagebewertung',
-      description: 'Mikrolage-Score, Infrastruktur, Verkehrsanbindung und Entwicklungspotenzial der Immobilie.',
+      description: 'Bewertung von Vermietbarkeit und Leerstandsrisiko. KI analysiert Lage, Infrastruktur und lokale Nachfrage.',
     },
     {
       icon: <LineChart className="w-6 h-6" />,
       title: 'Kauf- und Mietpreisvergleich',
-      description: 'Vergleich mit lokalem Markt: €/m² Kauf- und Mietpreis, Abweichung vom Durchschnitt, Fairness-Check.',
+      description: 'Sieh auf einen Blick, ob du unter oder über Markt liegst. So weißt du, ob Anpassungen sinnvoll sind.',
     },
     {
       icon: <FileBarChart className="w-6 h-6" />,
       title: 'Investitionsanalyse',
-      description: 'Detaillierte Analyse der Rentabilität mit verschiedenen Szenarien und Annahmen für fundierte Entscheidungen.',
+      description: 'KI gibt fundierte Entscheidungshilfe und bewertet Zahlen, Lage, Risiken. Hilft im Investitions-Dschungel.',
     },
   ];
 
   const steps = [
     {
-      title: '1 · Objekt beschreiben',
-      description: 'Adresse, Kaufpreis und Miete eintragen oder Import nutzen.',
+      title: '1 · Daten eingeben',
+      description: 'Infos zu Objekt, Einnahmen und Finanzierung eingeben.',
     },
     {
-      title: '2 · Ergebnis prüfen',
-      description: 'Kennzahlen, Marktvergleich und Cashflow live bewerten.',
+      title: '2 · Ergebnis erhalten',
+      description: 'Du erhältst alle relevanten Kennzahlen, Marktvergleiche und Investitionsanalyse, die dir bei der Entscheidung hilft.',
     },
     {
       title: '3 · Szenarien durchspielen',
-      description: 'Verschiedene Finanzierungsoptionen testen, optimale Parameter finden und als PDF für dein Bankgespräch exportieren.',
+      description: 'Passe deine Eingaben an, um deine Kennzahlen zu verbessern und bereite dich optimal auf dein Finanzierungsgespräch vor. Inkl. PDF Export.',
     },
   ];
 
@@ -405,7 +405,7 @@ export default function LandingPage() {
                 Komplette Investitions-Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Von Lage über Marktpreise bis zur Rendite – wir bewerten jede Kennzahl automatisch.
+                Von Lage über Marktpreise bis zur Rendite – wir bewerten alles, was wichtig ist für dein Investment.
               </p>
             </div>
 
@@ -437,7 +437,7 @@ export default function LandingPage() {
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Drei Schritte vom Objekt zum bankfähigen Report. Transparent und nachvollziehbar.
+                Drei Schritte vom Objekt zur Entscheidung.
               </p>
             </div>
 
