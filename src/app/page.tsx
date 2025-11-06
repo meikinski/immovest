@@ -257,16 +257,16 @@ export default function LandingPage() {
                     priority
                   />
                 </div>
-                <span className="text-6xl font-bold text-white">ImVestr</span>
+                <span className="text-6xl font-bold text-white/95">ImVestr</span>
               </div>
             </div>
 
             {/* Main Claim as H1 */}
-            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white">
+            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
               KI-basierter Immobilien-Renditerechner – Lohnt sich diese Immobilie?
             </h1>
 
-            <p className="mt-6 text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            <p className="mt-6 text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
               Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren.
             </p>
 
@@ -274,14 +274,14 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={handleGetStarted}
-                className="group flex w-full items-center justify-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white hover:text-[#0F223F] sm:w-auto"
+                className="group flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/90 bg-transparent px-10 py-4 text-base font-semibold text-white/95 transition-all duration-200 hover:bg-white hover:text-[#0F223F] sm:w-auto"
               >
                 Analyse starten
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
               {!isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/50 bg-transparent px-10 py-4 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white sm:w-auto">
+                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 sm:w-auto">
                     Einloggen/Anmelden
                   </button>
                 </SignInButton>
@@ -289,7 +289,7 @@ export default function LandingPage() {
             </div>
 
             {!isSignedIn && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-white" />
                   <span>Keine Kreditkarte</span>
