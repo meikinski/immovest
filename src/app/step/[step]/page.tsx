@@ -1409,7 +1409,7 @@ const exportPdf = React.useCallback(async () => {
         <p className="text-gray-600 mb-3 text-xs">
           Erhalte eine erste Einschätzung basierend auf deinen Kennzahlen. Nach der Anmeldung erhältst du 2 Premium-Analysen gratis.
         </p>
-        <SignInButton mode="modal">
+        <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
           <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
             <Lock size={16} />
             Kostenlos anmelden
