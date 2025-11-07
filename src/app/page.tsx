@@ -269,8 +269,8 @@ export default function LandingPage() {
             backgroundRepeat: 'no-repeat'
           }}
         >
-          {/* Gradient overlay with stronger contrast on right */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0F223F]/80 via-transparent to-[#C47B57]/22 -z-10" />
+          {/* Brand gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/70 via-[#6C7F99]/50 to-[#E6AE63]/40 -z-10" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
@@ -618,7 +618,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-5xl">
             <div
               className="relative overflow-hidden rounded-3xl p-12 md:p-16 text-center text-white shadow-2xl"
-              style={{ background: 'linear-gradient(135deg, #17345A 0%, #6C7F99 44%, #C47B57 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #264171 0%, #6C7F99 38%, #E6AE63 70%, #A56554 100%)' }}
             >
 
               <div className="relative z-10">
