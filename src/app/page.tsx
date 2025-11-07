@@ -572,7 +572,7 @@ export default function LandingPage() {
                   quote: 'Datenquellen transparent, Annahmen editierbar.',
                   color: '#264171'
                 },
-              ].map((persona, idx) => (
+              ].map((persona) => (
                 <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-6 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#264171] font-semibold text-white shadow-md">
