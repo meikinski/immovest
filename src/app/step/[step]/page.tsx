@@ -1401,23 +1401,20 @@ const exportPdf = React.useCallback(async () => {
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-      <div className="text-center p-6 max-w-md">
-        <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-          <Lock className="w-8 h-8 text-white" />
+      <div className="text-center p-4 max-w-sm">
+        <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <Lock className="w-6 h-6 text-white" />
         </div>
-        <h3 className="text-xl font-bold mb-2">KI-Einschätzung freischalten</h3>
-        <p className="text-gray-600 mb-4 text-sm">
-          Erhalte eine detaillierte KI-Analyse deiner Immobilie. Die Anmeldung ist komplett kostenlos!
+        <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
+        <p className="text-gray-600 mb-3 text-xs">
+          Erhalte eine erste Einschätzung basierend auf deinen Kennzahlen.
         </p>
         <SignInButton mode="modal">
-          <button className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto">
-            <Lock size={18} />
+          <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+            <Lock size={16} />
             Kostenlos anmelden
           </button>
         </SignInButton>
-        <p className="text-xs text-gray-500 mt-3">
-          Keine Kreditkarte erforderlich • Sofortiger Zugriff
-        </p>
       </div>
     </div>
   )}
