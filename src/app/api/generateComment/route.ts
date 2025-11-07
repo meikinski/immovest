@@ -1,5 +1,6 @@
 // src/app/api/generateComment/route.ts
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -154,6 +155,17 @@ function ruleBasedComment(p: CommentInput): string {
 
 export async function POST(req: Request) {
   try {
+    // --- Auth-Check: Nur angemeldete User bekommen den vollen Kommentar ---
+    const { userId } = await auth();
+
+    if (!userId) {
+      // Nicht angemeldet -> locked Response
+      return NextResponse.json({
+        comment: '',
+        locked: true
+      });
+    }
+
     // --- Eingabe normalisieren (ohne any) ---
     type Norm = {
       [key: string]: unknown;

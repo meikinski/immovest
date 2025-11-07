@@ -22,6 +22,7 @@ import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { toast } from 'sonner';
+import { useAuth, SignInButton } from '@clerk/nextjs';
 
 
 
@@ -55,6 +56,8 @@ export default function StepPage() {
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
   const hasIncrementedUsage = useRef(false);
 
+  // Auth für KI-Kommentar Gate
+  const { isSignedIn } = useAuth();
 
   // Hydration guard
   const [mounted, setMounted] = useState(false);
@@ -275,6 +278,7 @@ const dscr =
   const generatedComment = useImmoStore(s => s.generatedComment);
   const setGeneratedComment = useImmoStore(s => s.setGeneratedComment);
   const [isLoadingComment, setIsLoadingComment] = useState<boolean>(false);
+  const [isCommentLocked, setIsCommentLocked] = useState<boolean>(false);
   const commentFetched = useRef(false);
   const lastCommentInputs = useRef<string>('');
 
@@ -348,7 +352,13 @@ const dscr =
     })
       .then(r => r.json())
       .then(json => {
-        setGeneratedComment(json.comment || '');
+        if (json.locked) {
+          setIsCommentLocked(true);
+          setGeneratedComment('');
+        } else {
+          setIsCommentLocked(false);
+          setGeneratedComment(json.comment || '');
+        }
         commentFetched.current = true;
       })
       .catch(() => setGeneratedComment('Leider konnte die KI-Einschätzung nicht geladen werden.'))
@@ -1390,25 +1400,51 @@ const exportPdf = React.useCallback(async () => {
 </div>
 
 {/* KI-Kurzkommentar (deutlich beratender Ton) */}
-<div className="card-gradient">
-  <div className="flex items-center mb-2">
-    <span className="font-bold">KI-Einschätzung</span>
-    <Bot className="ml-2" />
-  </div>
-  {isLoadingComment ? (
-  <LoadingSpinner 
-    size="sm"
-    messages={[
-      'Analysiere Cashflow und Rendite...',
-      'Bewerte Eigenkapitalquote...',
-      'Prüfe Schuldendienstdeckung...',
-      'Erstelle Investment-Einschätzung...',
-    ]}
-  />
-) : (
-    <HtmlContent className="text-gray-700" html={generatedComment || '<p>–</p>'} />
+<div className="card-gradient relative">
+  {/* Blur Overlay wenn nicht angemeldet */}
+  {isCommentLocked && !isLoadingComment && (
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
+      <div className="text-center p-6 max-w-md">
+        <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+          <Lock className="w-8 h-8 text-white" />
+        </div>
+        <h3 className="text-xl font-bold mb-2">KI-Einschätzung freischalten</h3>
+        <p className="text-gray-600 mb-4 text-sm">
+          Erhalte eine detaillierte KI-Analyse deiner Immobilie. Die Anmeldung ist komplett kostenlos!
+        </p>
+        <SignInButton mode="modal">
+          <button className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto">
+            <Lock size={18} />
+            Kostenlos anmelden
+          </button>
+        </SignInButton>
+        <p className="text-xs text-gray-500 mt-3">
+          Keine Kreditkarte erforderlich • Sofortiger Zugriff
+        </p>
+      </div>
+    </div>
   )}
-  
+
+  {/* Content (geblurred wenn locked) */}
+  <div className={isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}>
+    <div className="flex items-center mb-2">
+      <span className="font-bold">KI-Einschätzung</span>
+      <Bot className="ml-2" />
+    </div>
+    {isLoadingComment ? (
+      <LoadingSpinner
+        size="sm"
+        messages={[
+          'Analysiere Cashflow und Rendite...',
+          'Bewerte Eigenkapitalquote...',
+          'Prüfe Schuldendienstdeckung...',
+          'Erstelle Investment-Einschätzung...',
+        ]}
+      />
+    ) : (
+      <HtmlContent className="text-gray-700" html={generatedComment || '<p>Das sieht richtig gut aus: 287 €/Monat bei 4,2 % Rendite (überdurchschnittlich). Die Zahlen passen alle – läuft. Die Rate ist locker gedeckt (DSCR 1,35) – du hast ordentlich Puffer. Check jetzt "Markt & Lage" – liegt die Miete über dem Median? Kaufst du am richtigen Ort?</p>'} />
+    )}
+  </div>
 </div>
 <div className="mt-3">
     <button
