@@ -207,7 +207,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-3"
+            className="flex items-center gap-3 cursor-pointer"
           >
             <div className="w-12 h-12 relative">
               <Image
@@ -236,7 +236,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             {!isSignedIn ? (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button type="button" className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
+                <button type="button" className={`text-sm font-medium transition-colors cursor-pointer ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
                   Anmelden
                 </button>
               </SignInButton>
