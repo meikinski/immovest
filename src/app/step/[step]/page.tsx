@@ -22,7 +22,7 @@ import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { toast } from 'sonner';
-import { SignInButton } from '@clerk/nextjs';
+import { SignInButton, useAuth } from '@clerk/nextjs';
 
 
 
@@ -52,7 +52,8 @@ export default function StepPage() {
   const nextStep = idx < steps.length - 1 ? steps[idx + 1] : 'tabs';
   const showProgress = step !== 'tabs';
 
-  // Paywall
+  // Auth & Paywall
+  const { isSignedIn } = useAuth();
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
   const hasIncrementedUsage = useRef(false);
 
@@ -1327,7 +1328,7 @@ const exportPdf = React.useCallback(async () => {
     { key: 'szenarien', label: 'Szenarien & Export', premium: true },
   ] as const).map(t => {
     const active = activeTab === t.key;
-    const locked = t.premium && !canAccessPremium;
+    const locked = t.premium && (!isSignedIn || !canAccessPremium);
     return (
       <button
         key={t.key}
@@ -1407,7 +1408,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
         <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
         <p className="text-gray-600 mb-3 text-xs">
-          Erhalte eine erste Einschätzung basierend auf deinen Kennzahlen. Nach der Anmeldung erhältst du 2 Premium-Analysen gratis.
+          Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
         </p>
         <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
           <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
@@ -1445,15 +1446,15 @@ const exportPdf = React.useCallback(async () => {
 <div className={`mt-3 relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
     <button
       onClick={() => {
-        if (!canAccessPremium) {
+        if (!isSignedIn || !canAccessPremium) {
           setShowUpgradeModal(true);
         } else {
           setActiveTab('markt');
         }
       }}
-      className={`btn-secondary ${!canAccessPremium ? 'opacity-75' : ''}`}
+      className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
     >
-      {!canAccessPremium && <Lock size={16} className="mr-2" />}
+      {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
       Weiter zu Marktvergleich & Lage →
     </button>
   </div>
@@ -1465,7 +1466,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'markt' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {!canAccessPremium && (
+            {(!isSignedIn || !canAccessPremium) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
                 <div className="text-center p-4 max-w-sm">
                   <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -1475,24 +1476,35 @@ const exportPdf = React.useCallback(async () => {
                   <p className="text-gray-600 mb-3 text-xs">
                     Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
                   </p>
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
-                  >
-                    <Crown size={16} />
-                    Jetzt freischalten
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3">
-                    {2 - premiumUsageCount > 0
-                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                      : 'Nur 19,90 €/Monat'}
-                  </p>
+                  {!isSignedIn ? (
+                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+                        <Lock size={16} />
+                        Kostenlos anmelden
+                      </button>
+                    </SignInButton>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                      >
+                        <Crown size={16} />
+                        Jetzt freischalten
+                      </button>
+                      <p className="text-xs text-gray-500 mt-3">
+                        {2 - premiumUsageCount > 0
+                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                          : 'Nur 19,90 €/Monat'}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {/* Block 1: Objekt- & Marktanalyse */}
             <div className="card-gradient">
@@ -1594,7 +1606,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'szenarien' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {!canAccessPremium && (
+            {(!isSignedIn || !canAccessPremium) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
                 <div className="text-center p-4 max-w-sm">
                   <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -1604,24 +1616,35 @@ const exportPdf = React.useCallback(async () => {
                   <p className="text-gray-600 mb-3 text-xs">
                     Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
                   </p>
-                  <button
-                    onClick={() => setShowUpgradeModal(true)}
-                    className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
-                  >
-                    <Crown size={16} />
-                    Jetzt freischalten
-                  </button>
-                  <p className="text-xs text-gray-500 mt-3">
-                    {2 - premiumUsageCount > 0
-                      ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                      : 'Nur 19,90 €/Monat'}
-                  </p>
+                  {!isSignedIn ? (
+                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+                        <Lock size={16} />
+                        Kostenlos anmelden
+                      </button>
+                    </SignInButton>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                      >
+                        <Crown size={16} />
+                        Jetzt freischalten
+                      </button>
+                      <p className="text-xs text-gray-500 mt-3">
+                        {2 - premiumUsageCount > 0
+                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                          : 'Nur 19,90 €/Monat'}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={!canAccessPremium ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
   <>
     {/* Kein H2, Tab-Button dient als Titel */}
 <p className="text-gray-600 mt-1 pb-6">
