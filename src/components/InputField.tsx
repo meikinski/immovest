@@ -18,9 +18,19 @@ export function InputField({
   type = 'text',
   onChange,
   onValueChange,
+  onFocus,
   className = '',
   ...rest
 }: InputFieldProps) {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Auto-select wenn Wert 0 ist (für bessere UX)
+    const val = e.target.value;
+    if (val === '0' || val === '0,00' || val === '0.00') {
+      e.target.select();
+    }
+    onFocus?.(e);
+  };
+
   return (
     <div className="relative">
       {label && (
@@ -35,8 +45,9 @@ export function InputField({
           onChange?.(e); // native Event weiterreichen
           onValueChange?.(e.target.value); // eigene string-API verwenden
         }}
+        onFocus={handleFocus}
         className={`w-full bg-transparent focus:outline-none border-none ${className}`}
-        {...rest} // alle weiteren Props (z. B. onBlur, onFocus, placeholder)
+        {...rest} // alle weiteren Props (z. B. onBlur, onFocus, placeholder)
       />
       {unit && (
         <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">

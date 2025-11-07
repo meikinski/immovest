@@ -5,6 +5,7 @@ import { Save, Check } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 import { saveAnalysis } from '@/lib/storage';
+import { toast } from 'sonner';
 
 export function SaveAnalysisButton() {
   const { userId } = useAuth();
@@ -38,10 +39,11 @@ export function SaveAnalysisButton() {
       saveAnalysis(userId || null, stateData);
 
       setSaved(true);
+      toast.success('Analyse erfolgreich gespeichert');
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error('❌ Fehler beim Speichern:', error);
-      alert('Fehler beim Speichern der Analyse');
+      toast.error('Fehler beim Speichern der Analyse');
     } finally {
       setIsSaving(false);
     }

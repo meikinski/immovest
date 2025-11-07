@@ -21,6 +21,7 @@ import { UpgradeModal } from '@/components/UpgradeModal';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
+import { toast } from 'sonner';
 
 
 
@@ -573,7 +574,10 @@ const exportPdf = React.useCallback(async () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
-    if (!res.ok) throw new Error('PDF-Export fehlgeschlagen');
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(errorText || 'PDF-Export fehlgeschlagen');
+    }
 
     const blob = await res.blob();
     const url  = URL.createObjectURL(blob);
@@ -583,8 +587,10 @@ const exportPdf = React.useCallback(async () => {
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
+    toast.success('PDF erfolgreich heruntergeladen');
   } catch (err) {
     console.error('PDF export failed', err);
+    toast.error('PDF-Export fehlgeschlagen. Bitte versuche es erneut.');
   } finally {
     setPdfBusy(false);
   }
@@ -1795,11 +1801,18 @@ const exportPdf = React.useCallback(async () => {
     {/* Actions unten – modern, ohne Bullet-Liste */}
     <div className="mt-6 flex flex-col sm:flex-row gap-3">
       <button
-  className="btn-primary"
+  className="btn-primary flex items-center gap-2"
   onClick={exportPdf}
   disabled={pdfBusy}
 >
-  {pdfBusy ? 'Exportiert…' : 'PDF exportieren'}
+  {pdfBusy ? (
+    <>
+      <LoadingSpinner size="sm" />
+      PDF wird erstellt...
+    </>
+  ) : (
+    'PDF exportieren'
+  )}
 </button>
       <SaveAnalysisButton />
     </div>

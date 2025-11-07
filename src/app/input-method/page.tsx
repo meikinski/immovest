@@ -86,7 +86,7 @@ export default function InputMethodPage() {
       const result = await response.json();
 
       if (!response.ok) {
-        let errorMsg = result.error || 'Bildanalyse fehlgeschlagen';
+        let errorMsg = result.error || 'Bildanalyse fehlgeschlagen. Bitte versuche es mit einem klareren Bild.';
         if (result.hint) {
           errorMsg += ' ' + result.hint;
         }
@@ -133,7 +133,7 @@ export default function InputMethodPage() {
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || result.details || 'Fehler beim Laden der Daten');
+        throw new Error(result.error || result.details || 'Die Daten konnten nicht geladen werden. Stelle sicher, dass die URL korrekt ist.');
       }
 
       // Import data into store
@@ -147,7 +147,7 @@ export default function InputMethodPage() {
 
         router.push('/step/a');
       } else {
-        throw new Error('Keine Daten gefunden');
+        throw new Error('Keine Immobiliendaten in der URL gefunden. Versuche eine andere URL.');
       }
     } catch (err) {
       setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
