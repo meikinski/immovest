@@ -158,8 +158,8 @@ export default function LandingPage() {
     },
     {
       icon: <FileBarChart className="w-6 h-6" />,
-      title: 'Investitionsanalyse',
-      description: 'KI gibt fundierte Entscheidungshilfe und bewertet Zahlen, Lage, Risiken. Hilft im Investitions-Dschungel.',
+      title: 'KI-Einschätzung',
+      description: 'Erste Einschätzung basierend auf deinen Kennzahlen. KI bewertet Zahlen und gibt dir eine initiale Orientierung.',
     },
   ];
 
@@ -170,7 +170,7 @@ export default function LandingPage() {
     },
     {
       title: '2 · Ergebnis erhalten',
-      description: 'Du erhältst alle relevanten Kennzahlen, Marktvergleiche und Investitionsanalyse, die dir bei der Entscheidung hilft.',
+      description: 'Du erhältst alle relevanten Kennzahlen, Marktvergleiche und eine erste KI-Einschätzung basierend auf deinen Zahlen.',
     },
     {
       title: '3 · Szenarien durchspielen',
@@ -314,19 +314,6 @@ export default function LandingPage() {
                 </SignInButton>
               )}
             </div>
-
-            {mounted && !isSignedIn && (
-              <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-white" />
-                  <span>Keine Kreditkarte</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-white" />
-                  <span>Sofort starten</span>
-                </div>
-              </div>
-            )}
           </div>
         </section>
 
@@ -415,13 +402,13 @@ export default function LandingPage() {
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-4">
                 <BarChart3 className="h-4 w-4 text-[#264171]" />
-                Analyse & Bewertung
+                Kennzahlen & Einschätzung
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
-                Komplette Investitions-Analyse
+                Alle Kennzahlen auf einen Blick
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Von Lage über Marktpreise bis zur Rendite – wir bewerten alles, was wichtig ist für dein Investment.
+                Von Lage über Marktpreise bis zur Rendite – plus eine erste KI-Einschätzung basierend auf deinen Zahlen.
               </p>
             </div>
 
@@ -667,23 +654,6 @@ export default function LandingPage() {
                     </SignInButton>
                   )}
                 </div>
-
-                {mounted && !isSignedIn && (
-                  <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5" />
-                      <span>Keine Kreditkarte</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5" />
-                      <span>Sofort starten</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5" />
-                      <span>Volle Transparenz</span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
