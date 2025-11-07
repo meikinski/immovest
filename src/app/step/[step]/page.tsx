@@ -1442,7 +1442,7 @@ const exportPdf = React.useCallback(async () => {
         ]}
       />
     ) : (
-      <HtmlContent className="text-gray-700" html={generatedComment || '<p>Das sieht richtig gut aus: 287 €/Monat bei 4,2 % Rendite (überdurchschnittlich). Die Zahlen passen alle – läuft. Die Rate ist locker gedeckt (DSCR 1,35) – du hast ordentlich Puffer. Check jetzt "Markt & Lage" – liegt die Miete über dem Median? Kaufst du am richtigen Ort?</p>'} />
+      <HtmlContent className="text-gray-700" html={generatedComment || '<p>–</p>'} />
     )}
   </div>
 </div>
