@@ -46,6 +46,9 @@ export interface ImmoState {
   score: number;
   anschaffungskosten: number;
 
+  // Generated content
+  generatedComment: string;
+
   // Methods
   updateDerived: () => void;
   resetAnalysis: () => void;
@@ -73,6 +76,7 @@ export interface ImmoState {
   setEk: (v: number) => void;
   setZins: (v: number) => void;
   setTilgung: (v: number) => void;
+  setGeneratedComment: (v: string) => void;
   importData: (data: Partial<ImmoState>) => void;
 }
 
@@ -112,6 +116,7 @@ const initialState = {
   nettorendite: 0,
   score: 0,
   anschaffungskosten: 0,
+  generatedComment: '',
 };
 
 export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
@@ -238,6 +243,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set({ tilgung: v });
     get().updateDerived();
   },
+  setGeneratedComment: (v: string) => {
+    set({ generatedComment: v });
+  },
   importData: (data) => {
     set(data);
     get().updateDerived();
@@ -301,6 +309,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       nettorendite: state.nettorendite,
       score: state.score,
       anschaffungskosten: state.anschaffungskosten,
+      generatedComment: state.generatedComment,
     };
   },
 }));

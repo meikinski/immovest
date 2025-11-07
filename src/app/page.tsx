@@ -313,7 +313,7 @@ export default function LandingPage() {
             </div>
 
             {!isSignedIn && (
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+              <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-white" />
                   <span>Keine Kreditkarte</span>
@@ -666,7 +666,7 @@ export default function LandingPage() {
                 </div>
 
                 {!isSignedIn && (
-                  <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+                  <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5" />
                       <span>Keine Kreditkarte</span>
@@ -692,7 +692,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Logo & Description */}
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <div className="w-10 h-10 relative">
                   <Image
                     src="/logo.png"
