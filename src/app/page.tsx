@@ -286,7 +286,7 @@ export default function LandingPage() {
           <div className="absolute -top-20 right-[-8%] h-[65vh] w-[45vw] bg-[#A56554]/28 blur-3xl rounded-full
                   mix-blend-screen z-0" />
 
-          <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
             <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
               KI-Analyse für deinen Immobilienkauf
