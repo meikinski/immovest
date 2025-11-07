@@ -207,7 +207,7 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 cursor-pointer"
+            className="flex items-center gap-1.5 cursor-pointer"
           >
             <div className="w-12 h-12 relative">
               <Image
@@ -270,17 +270,17 @@ export default function LandingPage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_35%] brightness-[1.18] contrast-[0.98] saturate-[1.05] -z-20"
+            className="object-cover object-[50%_35%] brightness-[1.35] contrast-[0.95] saturate-[1.08] -z-20"
           />
 
           {/* Direkt-Navy→Terracotta, helles Soft-Light statt Abdunkeln */}
           <div
-            className="absolute inset-0 mix-blend-soft-light -z-10"
+            className="absolute inset-0 mix-blend-soft-light opacity-60 -z-10"
             style={{ background: 'linear-gradient(135deg, #264171 0%, #3A5B89 28%, #A56554 100%)' }}
           />
 
           {/* Optional: Terracotta Glow rechts (macht heller) */}
-          <div className="absolute -top-20 right-[-8%] h-[65vh] w-[55vw] bg-[#A56554]/26 blur-3xl rounded-full mix-blend-screen -z-10" />
+          <div className="absolute -top-20 right-[-8%] h-[65vh] w-[55vw] bg-[#E6AE63]/30 blur-3xl rounded-full mix-blend-screen -z-10" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
@@ -691,7 +691,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Logo & Description */}
             <div className="flex flex-col items-center md:items-start gap-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <div className="w-10 h-10 relative">
                   <Image
                     src="/logo.png"
