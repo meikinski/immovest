@@ -22,7 +22,7 @@ import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { toast } from 'sonner';
-import { useAuth, SignInButton } from '@clerk/nextjs';
+import { SignInButton } from '@clerk/nextjs';
 
 
 
@@ -55,9 +55,6 @@ export default function StepPage() {
   // Paywall
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
   const hasIncrementedUsage = useRef(false);
-
-  // Auth für KI-Kommentar Gate
-  const { isSignedIn } = useAuth();
 
   // Hydration guard
   const [mounted, setMounted] = useState(false);
