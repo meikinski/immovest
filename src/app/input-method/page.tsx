@@ -168,7 +168,7 @@ export default function InputMethodPage() {
           {/* Logo */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-3"
+            className="flex items-center gap-1"
           >
             <div className="w-12 h-12 relative">
               <Image

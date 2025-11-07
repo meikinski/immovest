@@ -272,7 +272,8 @@ const dscr =
   }, [step, updateDerived]);
 
   // === KI-Kurzkommentar (Tab 1) ===
-  const [comment, setComment] = useState<string>('');
+  const generatedComment = useImmoStore(s => s.generatedComment);
+  const setGeneratedComment = useImmoStore(s => s.setGeneratedComment);
   const [isLoadingComment, setIsLoadingComment] = useState<boolean>(false);
   const commentFetched = useRef(false);
   const lastCommentInputs = useRef<string>('');
@@ -288,8 +289,17 @@ const dscr =
       cashflowVorSteuer, nettoMietrendite, bruttoMietrendite
     });
 
+    // If comment already exists from loaded analysis, mark as fetched and skip
+    if (generatedComment && !commentFetched.current) {
+      commentFetched.current = true;
+      lastCommentInputs.current = inputFingerprint;
+      return;
+    }
+
     // Skip if already fetched with same inputs
-    if (commentFetched.current && lastCommentInputs.current === inputFingerprint) return;
+    if (commentFetched.current && lastCommentInputs.current === inputFingerprint) {
+      return;
+    }
 
     lastCommentInputs.current = inputFingerprint;
     setIsLoadingComment(true);
@@ -338,12 +348,12 @@ const dscr =
     })
       .then(r => r.json())
       .then(json => {
-        setComment(json.comment || '');
+        setGeneratedComment(json.comment || '');
         commentFetched.current = true;
       })
-      .catch(() => setComment('Leider konnte die KI-Einschätzung nicht geladen werden.'))
+      .catch(() => setGeneratedComment('Leider konnte die KI-Einschätzung nicht geladen werden.'))
       .finally(() => setIsLoadingComment(false));
-  }, [step, activeTab, score,
+  }, [step, activeTab, score, generatedComment, setGeneratedComment,
   cashflowVorSteuer, cashflowAfterTax, bruttoMietrendite, nettoMietrendite, ek, anschaffungskosten,
   adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, kalkKostenMonthly, warmmiete, objekttyp]);
 
@@ -1396,7 +1406,7 @@ const exportPdf = React.useCallback(async () => {
     ]}
   />
 ) : (
-    <HtmlContent className="text-gray-700" html={comment || '<p>–</p>'} />
+    <HtmlContent className="text-gray-700" html={generatedComment || '<p>–</p>'} />
   )}
   
 </div>
