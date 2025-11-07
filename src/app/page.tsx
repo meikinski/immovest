@@ -24,8 +24,10 @@ export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const [isScrolled, setIsScrolled] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       // Check if scrolled past hero (roughly 600px)
       setIsScrolled(window.scrollY > 600);
@@ -237,13 +239,14 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            {!isSignedIn ? (
+            {mounted && !isSignedIn && (
               <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
                 <button type="button" className={`text-sm font-medium transition-colors cursor-pointer ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
                   Anmelden
                 </button>
               </SignInButton>
-            ) : (
+            )}
+            {mounted && isSignedIn && (
               <UserButton afterSignOutUrl="/">
                 <UserButton.MenuItems>
                   <UserButton.Link
@@ -302,7 +305,7 @@ export default function LandingPage() {
                 Analyse starten
                 <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
               </button>
-              {!isSignedIn && (
+              {mounted && !isSignedIn && (
                 <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
                   <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto">
                     <LogIn className="h-5 w-5" />
@@ -312,7 +315,7 @@ export default function LandingPage() {
               )}
             </div>
 
-            {!isSignedIn && (
+            {mounted && !isSignedIn && (
               <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-white" />
@@ -656,7 +659,7 @@ export default function LandingPage() {
                     <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
-                  {!isSignedIn && (
+                  {mounted && !isSignedIn && (
                     <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
                       <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
                         Kostenlos registrieren
@@ -665,7 +668,7 @@ export default function LandingPage() {
                   )}
                 </div>
 
-                {!isSignedIn && (
+                {mounted && !isSignedIn && (
                   <div className="mt-8 hidden md:flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                     <div className="flex items-center gap-2">
                       <CheckCircle2 className="h-5 w-5" />
