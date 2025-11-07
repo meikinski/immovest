@@ -26,7 +26,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
         {/* Logo */}
         <button
           onClick={() => router.push('/')}
-          className="flex items-center gap-3 hover:opacity-80 transition"
+          className="flex items-center gap-2 hover:opacity-80 transition"
         >
           <div className="w-12 h-12 relative">
             <Image
