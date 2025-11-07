@@ -23,10 +23,16 @@ interface Props {
 const AddressAutocomplete = ({ value, onChange }: Props) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (value.length < 2) return;
+    if (value.length < 2) {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
 
+    setIsSearching(true);
     const timeout = setTimeout(async () => {
       try {
         const res = await fetch(
@@ -44,6 +50,9 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
         }
       } catch (e) {
         console.error("Geoapify Fehler:", e);
+        setSuggestions([]);
+      } finally {
+        setIsSearching(false);
       }
     }, 300);
 
@@ -68,18 +77,30 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
         placeholder="z. B. 10115 Berlin oder Mainzer Str. 10"
       />
 
-      {showSuggestions && suggestions.length > 0 && (
-        <ul className="absolute z-10 bg-white border border-gray-200 rounded-md mt-1 w-full shadow-lg max-h-60 overflow-y-auto">
-          {suggestions.map((sug, idx) => (
-            <li
-              key={idx}
-              className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
-              onClick={() => handleSelect(sug)}
-            >
-              {sug.properties.formatted}
-            </li>
-          ))}
-        </ul>
+      {showSuggestions && value.length >= 2 && (
+        <div className="absolute z-10 bg-white border border-gray-200 rounded-md mt-1 w-full shadow-lg max-h-60 overflow-y-auto">
+          {isSearching ? (
+            <div className="p-4 text-center text-sm text-gray-500">
+              Suche läuft...
+            </div>
+          ) : suggestions.length > 0 ? (
+            <ul>
+              {suggestions.map((sug, idx) => (
+                <li
+                  key={idx}
+                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                  onClick={() => handleSelect(sug)}
+                >
+                  {sug.properties.formatted}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="p-4 text-center text-sm text-gray-500">
+              Keine Ergebnisse gefunden. Versuche eine andere Adresse.
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

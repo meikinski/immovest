@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface PricingCardsProps {
   onClose?: () => void;
@@ -56,7 +57,7 @@ export default function PricingCards({}: PricingCardsProps) {
 
   const handleSelectPlan = async (priceId: string) => {
     if (!userId) {
-      alert('Bitte melde dich zuerst an');
+      toast.error('Bitte melde dich zuerst an');
       return;
     }
 

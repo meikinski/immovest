@@ -6,6 +6,8 @@ import { useAuth, UserButton } from '@clerk/nextjs';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
 import { useImmoStore } from '@/store/useImmoStore';
+import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
   Crown,
   CreditCard,
@@ -71,11 +73,11 @@ export default function ProfilePage() {
         }
       } else {
         const { error } = await response.json();
-        alert(error || 'Fehler beim Öffnen des Abrechnungsportals');
+        toast.error(error || 'Fehler beim Öffnen des Abrechnungsportals');
       }
     } catch (error) {
       console.error('Error opening portal:', error);
-      alert('Fehler beim Öffnen des Abrechnungsportals');
+      toast.error('Fehler beim Öffnen des Abrechnungsportals');
     }
   };
 
@@ -88,17 +90,14 @@ export default function ProfilePage() {
     if (success) {
       router.push('/step/tabs');
     } else {
-      alert('Fehler beim Laden der Analyse');
+      toast.error('Fehler beim Laden der Analyse');
     }
   };
 
   if (!isLoaded || !isSignedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--brand))]"></div>
-          <p className="mt-4 text-gray-600">Lädt...</p>
-        </div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
