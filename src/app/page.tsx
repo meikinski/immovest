@@ -270,17 +270,18 @@ export default function LandingPage() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_35%] brightness-[1.35] contrast-[0.95] saturate-[1.08] -z-20"
+            className="object-cover object-[50%_35%] brightness-[1.0] contrast-[0.98] saturate-[1.05] -z-10"
           />
 
           {/* Direkt-Navy→Terracotta, helles Soft-Light statt Abdunkeln */}
           <div
-            className="absolute inset-0 mix-blend-soft-light opacity-60 -z-10"
-            style={{ background: 'linear-gradient(135deg, #264171 0%, #3A5B89 28%, #A56554 100%)' }}
+            className="absolute inset-0 mix-blend-screen opacity-25 z-0 sm:opacity-30 md:opacity-20"
+            style={{ background: 'linear-gradient(135deg, #264171 0%, #3A5B89 42%, #A56554 100%)' }}
           />
 
           {/* Optional: Terracotta Glow rechts (macht heller) */}
-          <div className="absolute -top-20 right-[-8%] h-[65vh] w-[55vw] bg-[#E6AE63]/30 blur-3xl rounded-full mix-blend-screen -z-10" />
+          <div className="absolute -top-20 right-[-8%] h-[75vh] w-[55vw] bg-[#A56554]/28 blur-3xl rounded-full
+                  mix-blend-screen z-0" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
