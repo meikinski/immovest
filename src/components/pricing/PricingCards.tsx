@@ -20,7 +20,6 @@ export default function PricingCards({}: PricingCardsProps) {
     'KI-gestützte Investitionsempfehlungen',
     'Detaillierte Szenario-Analysen',
     'PDF-Export deiner Analysen',
-    'Premium-Support',
     'Gespeicherte Analysen ohne Limit',
   ];
 
