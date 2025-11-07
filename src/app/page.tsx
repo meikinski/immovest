@@ -43,7 +43,7 @@ export default function LandingPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "ImVestr",
+    "name": "Imvestr",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -77,7 +77,7 @@ export default function LandingPage() {
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "ImVestr",
+    "name": "Imvestr",
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
@@ -96,7 +96,7 @@ export default function LandingPage() {
         'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
     },
     {
-      question: 'Was kostet ImVestr?',
+      question: 'Was kostet Imvestr?',
       answer:
         'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
     },
@@ -207,20 +207,20 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-3"
           >
-            <div className="w-9 h-9 relative">
+            <div className="w-12 h-12 relative">
               <Image
                 src="/logo.png"
-                alt="ImVestr Logo"
-                width={36}
-                height={36}
+                alt="Imvestr Logo"
+                width={48}
+                height={48}
                 className="rounded-lg"
                 priority
               />
             </div>
             <span className={`text-xl font-bold transition-colors ${isScrolled ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent' : 'text-white'}`}>
-              ImVestr
+              Imvestr
             </span>
           </button>
 
@@ -272,11 +272,11 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
             <h1 className="text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-8 text-white/95">
-              KI-Analyse für deine Immobilie
+              KI-Analyse für deinen Immobilienkauf
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Adresse rein - Wir liefern KPIs, Marktvergleiche und eine Investment-Einschätzung mit Empfehlungen. PDF fürs Bankgespräch inklusive.
+              Adresse eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF fürs Bankgespräch inklusive.
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -432,6 +432,10 @@ export default function LandingPage() {
         <section className="bg-[#F7F9FF] px-6 py-24" id="steps" aria-label="Wie es funktioniert">
           <div className="mx-auto max-w-6xl">
             <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <LineChart className="h-4 w-4 text-[#264171]" />
+                Prozess
+              </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 So läuft deine Analyse
               </h2>
@@ -445,7 +449,7 @@ export default function LandingPage() {
                 {steps.map((step, idx) => (
                   <div key={step.title} className="group rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-8 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171] via-[#6C7F99] to-[#E6AE63] text-xl font-semibold text-white shadow-md transition-transform group-hover:scale-110">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#264171] text-xl font-semibold text-white shadow-md transition-transform group-hover:scale-110">
                         {idx + 1}
                       </div>
                       <div className="flex-1">
@@ -530,11 +534,15 @@ export default function LandingPage() {
         <section aria-label="Zielgruppen" className="px-6 py-24 bg-white">
           <div className="mx-auto max-w-6xl">
             <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
+                Für jeden geeignet
+              </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 Für Einsteiger & Profis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Egal ob erste Immobilie oder zehntes Objekt – ImVestr liefert, was du brauchst.
+                Egal ob erste Immobilie oder zehntes Objekt – Imvestr liefert, was du brauchst.
               </p>
             </div>
 
@@ -567,13 +575,7 @@ export default function LandingPage() {
               ].map((persona, idx) => (
                 <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-6 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1">
                   <div className="flex items-center gap-3">
-                    <div
-                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full font-semibold text-white shadow-md ${
-                        idx === 1 ? 'bg-gradient-to-br from-[#264171] to-[#E6AE63]' :
-                        idx === 2 ? 'bg-[#6C7F99]' :
-                        'bg-[#264171]'
-                      }`}
-                    >
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#264171] font-semibold text-white shadow-md">
                       {persona.name[0]}
                     </div>
                     <div>
@@ -591,6 +593,10 @@ export default function LandingPage() {
         <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <ShieldCheck className="h-4 w-4 text-[#264171]" />
+                FAQ
+              </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">Häufige Fragen</h2>
               <p className="text-lg text-[#6C7F99]">Alles, was du wissen musst – kurz und klar.</p>
             </div>
@@ -631,9 +637,9 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={handleGetStarted}
-                    className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
+                    className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
                   >
-                    Jetzt kostenlos testen!
+                    Jetzt kostenlos testen
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </button>
 
@@ -673,14 +679,20 @@ export default function LandingPage() {
           <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
             <div className="flex flex-col items-center md:items-start gap-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#264171] to-[#6C7F99] flex items-center justify-center shadow-lg shadow-[#264171]/20">
-                  <BarChart3 className="w-5 h-5 text-white" />
+                <div className="w-10 h-10 relative">
+                  <Image
+                    src="/logo.png"
+                    alt="Imvestr Logo"
+                    width={40}
+                    height={40}
+                    className="rounded-lg"
+                  />
                 </div>
-                <span className="text-xl font-semibold tracking-tight text-[#264171]">ImVestr</span>
+                <span className="text-xl font-semibold tracking-tight text-[#264171]">Imvestr</span>
               </div>
               <p className="text-center md:text-left text-[#6C7F99] max-w-sm">
-                Deine KI für Rendite, Cashflow und bankfähige Reports.<br />
-                <span className="font-medium text-[#264171]">Transparent. Vertrauenswürdig. Schnell.</span>
+                Imvestr. Deine KI für smarte Immobilien-Investments.<br />
+                <span className="font-medium text-[#264171]">Schnell. Klar. Vertrauenswürdig.</span>
               </p>
             </div>
 
@@ -691,7 +703,7 @@ export default function LandingPage() {
                   Keine Anlageberatung. Ergebnisse sind Modell-Schätzungen und hängen von deinen Eingaben ab.
                 </p>
               </div>
-              <p className="text-xs">© {new Date().getFullYear()} ImVestr. Alle Rechte vorbehalten.</p>
+              <p className="text-xs">© {new Date().getFullYear()} Imvestr. Alle Rechte vorbehalten.</p>
             </div>
           </div>
         </div>
