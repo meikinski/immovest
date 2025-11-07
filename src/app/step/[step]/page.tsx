@@ -1407,7 +1407,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
         <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
         <p className="text-gray-600 mb-3 text-xs">
-          Erhalte eine erste Einschätzung basierend auf deinen Kennzahlen.
+          Erhalte eine erste Einschätzung basierend auf deinen Kennzahlen. Nach der Anmeldung erhältst du 2 Premium-Analysen gratis.
         </p>
         <SignInButton mode="modal">
           <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
@@ -1440,11 +1440,20 @@ const exportPdf = React.useCallback(async () => {
     )}
   </div>
 </div>
-<div className="mt-3">
+
+{/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
+<div className={`mt-3 relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
     <button
-      onClick={() => setActiveTab('markt')}
-      className="btn-secondary"
+      onClick={() => {
+        if (!canAccessPremium) {
+          setShowUpgradeModal(true);
+        } else {
+          setActiveTab('markt');
+        }
+      }}
+      className={`btn-secondary ${!canAccessPremium ? 'opacity-75' : ''}`}
     >
+      {!canAccessPremium && <Lock size={16} className="mr-2" />}
       Weiter zu Marktvergleich & Lage →
     </button>
   </div>
@@ -1457,23 +1466,23 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {!canAccessPremium && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-8 max-w-md">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                    <Lock className="w-10 h-10 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-4 max-w-sm">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Lock className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-6">
+                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-3 text-xs">
                     Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
                   </p>
                   <button
                     onClick={() => setShowUpgradeModal(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
                   >
-                    <Crown size={20} />
+                    <Crown size={16} />
                     Jetzt freischalten
                   </button>
-                  <p className="text-sm text-gray-500 mt-4">
+                  <p className="text-xs text-gray-500 mt-3">
                     {2 - premiumUsageCount > 0
                       ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                       : 'Nur 19,90 €/Monat'}
@@ -1586,23 +1595,23 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {!canAccessPremium && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-8 max-w-md">
-                  <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                    <Lock className="w-10 h-10 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
+                <div className="text-center p-4 max-w-sm">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Lock className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-6">
+                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
+                  <p className="text-gray-600 mb-3 text-xs">
                     Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
                   </p>
                   <button
                     onClick={() => setShowUpgradeModal(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl transition-all flex items-center gap-2 mx-auto"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
                   >
-                    <Crown size={20} />
+                    <Crown size={16} />
                     Jetzt freischalten
                   </button>
-                  <p className="text-sm text-gray-500 mt-4">
+                  <p className="text-xs text-gray-500 mt-3">
                     {2 - premiumUsageCount > 0
                       ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                       : 'Nur 19,90 €/Monat'}
