@@ -261,16 +261,26 @@ export default function LandingPage() {
       <main role="main">
         <section
           aria-label="Hero"
-          className="relative overflow-hidden pt-44 pb-32"
-          style={{
-            backgroundImage: 'url(/hero-background.jpg)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
+          className="relative isolate overflow-hidden pt-44 pb-32"
         >
-          {/* Brand gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#264171]/70 via-[#6C7F99]/50 to-[#E6AE63]/40 -z-10" />
+          {/* Background Image with filters */}
+          <Image
+            src="/hero-background.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[50%_35%] brightness-[1.18] contrast-[0.98] saturate-[1.05] -z-20"
+          />
+
+          {/* Direkt-Navy→Terracotta, helles Soft-Light statt Abdunkeln */}
+          <div
+            className="absolute inset-0 mix-blend-soft-light -z-10"
+            style={{ background: 'linear-gradient(135deg, #264171 0%, #3A5B89 28%, #A56554 100%)' }}
+          />
+
+          {/* Optional: Terracotta Glow rechts (macht heller) */}
+          <div className="absolute -top-20 right-[-8%] h-[65vh] w-[55vw] bg-[#A56554]/26 blur-3xl rounded-full mix-blend-screen -z-10" />
 
           <div className="max-w-4xl mx-auto px-6 text-center">
             {/* Main Claim as H1 - focused and clear */}
@@ -618,7 +628,7 @@ export default function LandingPage() {
           <div className="mx-auto max-w-5xl">
             <div
               className="relative overflow-hidden rounded-3xl p-12 md:p-16 text-center text-white shadow-2xl"
-              style={{ background: 'linear-gradient(135deg, #264171 0%, #6C7F99 38%, #E6AE63 70%, #A56554 100%)' }}
+              style={{ background: 'linear-gradient(135deg, #264171 0%, #315080 32%, #A56554 100%)' }}
             >
 
               <div className="relative z-10">
