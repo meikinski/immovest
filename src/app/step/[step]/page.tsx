@@ -863,6 +863,13 @@ const exportPdf = React.useCallback(async () => {
         >
           Weiter <SkipForward className='ml-2' />
         </button>
+
+        {/* Mobile Progress Text */}
+        <div className="mt-4 text-center sm:hidden">
+          <p className="text-sm text-gray-600">
+            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
+          </p>
+        </div>
       </>
     );
 
@@ -1029,10 +1036,10 @@ const exportPdf = React.useCallback(async () => {
           <div className="mb-2 text-lg font-semibold flex items-center">
             Steuern&nbsp;<span><SquarePercent /></span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
             {/* AfA Satz */}
             <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center min-h-[2.5rem]">
+              <label className="text-xs text-gray-600 mb-1 flex items-center">
                 AfA Satz (% p.a.)
                 <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
                   <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
@@ -1048,7 +1055,7 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Anteil Gebäude */}
             <div onBlur={() => setSteuer(Number(gebText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center min-h-[2.5rem]">
+              <label className="text-xs text-gray-600 mb-1 flex items-center">
                 Anteil Gebäude am Kaufpreis (%)
                 <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
                   <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
@@ -1087,6 +1094,13 @@ const exportPdf = React.useCallback(async () => {
         >
           Weiter <SkipForward className='ml-2' />
         </button>
+
+        {/* Mobile Progress Text */}
+        <div className="mt-4 text-center sm:hidden">
+          <p className="text-sm text-gray-600">
+            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
+          </p>
+        </div>
       </>
     );
   } else if (step === 'c') {
@@ -1230,6 +1244,13 @@ const exportPdf = React.useCallback(async () => {
           Berechnen
           <Calculator className='ml-2' />
         </button>
+
+        {/* Mobile Progress Text */}
+        <div className="mt-4 text-center sm:hidden">
+          <p className="text-sm text-gray-600">
+            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
+          </p>
+        </div>
       </>
     );
   } else if (step === 'tabs') {
@@ -1276,7 +1297,7 @@ const exportPdf = React.useCallback(async () => {
 </div>
 
 {/* Tabs */}
-<div className="mt-6 mb-5 flex flex-wrap gap-2">
+<div className="mt-6 mb-5 flex flex-wrap justify-center gap-2">
   {([
     { key: 'kpi', label: 'KPIs', premium: false },
     { key: 'markt', label: 'Marktvergleich & Lage', premium: true },

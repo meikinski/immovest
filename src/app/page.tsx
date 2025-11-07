@@ -631,7 +631,7 @@ export default function LandingPage() {
                   <button
                     type="button"
                     onClick={handleGetStarted}
-                    className="group inline-flex items-center gap-2 rounded-full bg-white px-10 py-5 text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
+                    className="group inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-[#264171] shadow-xl transition-all duration-200 hover:bg-[#F7F9FF] hover:shadow-2xl hover:-translate-y-0.5"
                   >
                     Jetzt kostenlos testen!
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -639,7 +639,7 @@ export default function LandingPage() {
 
                   {!isSignedIn && (
                     <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                      <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-10 py-5 text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
+                      <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
                         Kostenlos registrieren
                       </button>
                     </SignInButton>
