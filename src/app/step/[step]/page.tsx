@@ -1337,35 +1337,35 @@ const exportPdf = React.useCallback(async () => {
     title="Cashflow (vor Steuern)"
     value={`${cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
     // kein trend-Prop mehr → kein Pfeil
-    help="Monatlicher Überschuss vor Steuern. Positiv = laufend tragfähig, negativ = Liquiditätslücke."
+    help="Monatlicher Überschuss = Mieteinnahmen minus alle laufenden Kosten (Kredit, Hausgeld, Rücklagen etc.). Positiv bedeutet: Die Immobilie trägt sich selbst. Negativ: Du musst monatlich zuschießen."
   />
   <KpiCard
     title="Cashflow (nach Steuern)"
     value={`${cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    help="Monatlicher Überschuss nach Steuern (vereinfacht). Hilft, die tatsächliche Belastung zu verstehen."
+    help="Überschuss nach Abzug von Steuern (vereinfachte Berechnung). Zeigt dir, was am Ende wirklich bei dir ankommt bzw. wie viel du tatsächlich monatlich einplanst."
   />
   <KpiCard
     title="Nettomietrendite"
     value={`${nettoMietrendite.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`}
-    help="Ertragsrendite nach Bewirtschaftungskosten. < 2% eher schwach, 2–3% solide, > 3% attraktiv (je nach Lage/Objekt)."
+    help="Jahresertrag nach allen Bewirtschaftungskosten geteilt durch Kaufpreis. Orientierung: unter 2% schwach, 2-3% solide, über 3% attraktiv. Wichtig: Stark abhängig von Lage und Objekttyp."
   />
   <KpiCard
     title="Bruttomietrendite"
     value={`${bruttoMietrendite.toFixed(1)} %`}
-    help="Einfache Rendite ohne Kostenabzüge. Gut zur groben Einordnung, aber optimistischer als netto."
+    help="Einfache Berechnung: Jahreskaltmiete geteilt durch Kaufpreis. Berücksichtigt KEINE Nebenkosten, Instandhaltung oder Leerstand – daher immer höher als Nettomietrendite. Gut für ersten Überblick."
   />
   <KpiCard
     title="EK-Quote"
     value={`${anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'} %`}
-    help="Anteil Eigenkapital an der Gesamtinvestition. Höhere Quote = geringerer Zinsdruck, aber gebundenes Kapital."
+    help="Wie viel % der Gesamtkosten du aus eigener Tasche zahlst. Höhere Quote = weniger Kredit nötig, niedrigere Zinslast. Aber: Mehr gebundenes Kapital. Banken mögen oft 20-30%."
   />
   <KpiCard
     title="EK-Rendite"
     value={`${ekRendite.toFixed(1)} %`}
-    help="Rendite auf dein eingesetztes Eigenkapital. Wichtige Größe für den Kapitalhebel."
+    help="Wie viel % Rendite du auf dein eingesetztes Eigenkapital machst. Zeigt den Hebel-Effekt: Mit Kredit kann diese Rendite höher sein als die Nettomietrendite. Aber Vorsicht: Funktioniert nur, wenn Objekt sich trägt."
   />
-  <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Jahr, in dem der aufsummierte Cashflow ab Start den eingesetzten Betrag (vereinfacht) ausgleicht. Näherungswert." />
-  <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Näherung: 1/(Zins+Tilgung). Unterstellt konstante Rate ohne Sondertilgungen."/>
+  <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
+  <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>
 <KpiCard
   title="DSCR"
   value={`${dscr.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}

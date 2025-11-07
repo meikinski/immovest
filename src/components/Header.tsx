@@ -26,20 +26,20 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
         {/* Logo */}
         <button
           onClick={() => router.push('/')}
-          className="flex items-center gap-2 hover:opacity-80 transition"
+          className="flex items-center gap-3 hover:opacity-80 transition"
         >
-          <div className="w-9 h-9 relative">
+          <div className="w-12 h-12 relative">
             <Image
               src="/logo.png"
-              alt="ImVestr Logo"
-              width={36}
-              height={36}
+              alt="Imvestr Logo"
+              width={48}
+              height={48}
               className="rounded-lg"
               priority
             />
           </div>
           <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
-            ImVestr
+            Imvestr
           </span>
         </button>
 
