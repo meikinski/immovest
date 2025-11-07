@@ -28,7 +28,7 @@ export function Tooltip({ text, children }: TooltipProps) {
           bg-[hsl(var(--accent))] shadow-lg rounded-md
           transition-opacity duration-300 z-20
           whitespace-pre-line text-[13px] font-medium leading-snug
-          max-w-[220px] text-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          max-w-[90vw] sm:max-w-[220px] text-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         {text}
         <div

@@ -191,10 +191,6 @@ export default function PricingCards({}: PricingCardsProps) {
               {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
             </button>
 
-            {/* Money-back guarantee */}
-            <p className="text-center text-xs text-gray-500 mt-4">
-              14 Tage Geld-zurück-Garantie
-            </p>
           </div>
         ))}
       </div>
