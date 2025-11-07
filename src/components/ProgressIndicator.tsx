@@ -90,13 +90,6 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
           })}
         </div>
       </div>
-
-      {/* Mobile Progress Text */}
-      <div className="mt-6 text-center sm:hidden">
-        <p className="text-sm text-gray-600">
-          Schritt <span className="font-bold text-[hsl(var(--brand))]">{currentIndex + 1}</span> von {STEPS.length}
-        </p>
-      </div>
     </div>
   );
 }

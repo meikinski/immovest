@@ -1,7 +1,7 @@
 // src/components/Tooltip.tsx
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 interface TooltipProps {
   text: string | ReactNode;
@@ -9,16 +9,26 @@ interface TooltipProps {
 }
 
 export function Tooltip({ text, children }: TooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
+
   return (
-    <span className="relative inline-block group">
+    <span
+      className="relative inline-block group"
+      onClick={(e) => {
+        e.stopPropagation();
+        setIsVisible(!isVisible);
+      }}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
       {children}
       <div
-        className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3
+        className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3
           px-3 py-2 text-xs text-white
           bg-[hsl(var(--accent))] shadow-lg rounded-md
-          opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20
-          pointer-events-none whitespace-pre-line text-[13px] font-medium leading-snug
-          max-w-[220px] text-center"
+          transition-opacity duration-300 z-20
+          whitespace-pre-line text-[13px] font-medium leading-snug
+          max-w-[220px] text-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         {text}
         <div
