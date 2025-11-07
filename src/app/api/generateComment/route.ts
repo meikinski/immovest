@@ -156,7 +156,15 @@ function ruleBasedComment(p: CommentInput): string {
 export async function POST(req: Request) {
   try {
     // --- Auth-Check: Nur angemeldete User bekommen den vollen Kommentar ---
-    const { userId } = await auth();
+    let userId: string | null = null;
+
+    try {
+      const authResult = await auth();
+      userId = authResult.userId;
+    } catch (error) {
+      console.error('[generateComment] Auth check failed:', error);
+      // Falls auth() fehlschlägt, behandeln wir User als nicht angemeldet
+    }
 
     if (!userId) {
       // Nicht angemeldet -> locked Response
