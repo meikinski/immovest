@@ -433,14 +433,17 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-[#F7F9FF] to-white" id="steps" aria-label="Wie es funktioniert">
-          {/* Subtle accent decorations */}
-          <div className="absolute top-0 left-0 w-72 h-72 bg-[#264171]/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#264171]/3 rounded-full blur-3xl"></div>
+        <section className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-[#264171]/[0.03] via-[#315080]/[0.02] to-white" id="steps" aria-label="Wie es funktioniert">
+          {/* Subtle navy accent decorations */}
+          <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#264171]/[0.06] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#315080]/[0.04] rounded-full blur-3xl"></div>
+
+          {/* Decorative dots pattern */}
+          <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(#264171 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
 
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/10 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#264171] shadow-sm mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
                 <LineChart className="h-4 w-4 text-[#264171]" />
                 Prozess
               </div>
@@ -455,13 +458,13 @@ export default function LandingPage() {
             <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
               <div className="flex-1 space-y-6">
                 {steps.map((step, idx) => (
-                  <div key={step.title} className="group rounded-3xl border-2 border-[#264171]/8 bg-white p-8 transition-all duration-300 hover:border-[#264171]/20 hover:shadow-xl hover:shadow-[#264171]/5 hover:-translate-y-1">
+                  <div key={step.title} className="group rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-8 transition-all duration-300 hover:border-[#264171]/25 hover:shadow-2xl hover:shadow-[#264171]/8 hover:-translate-y-1 hover:bg-white">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#264171] text-xl font-semibold text-white shadow-md shadow-[#264171]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-[#264171]/30">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171] to-[#315080] text-xl font-bold text-white shadow-lg shadow-[#264171]/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#264171]/35">
                         {idx + 1}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-[#0F172A] mb-2">{step.title.split(' · ')[1]}</h3>
+                        <h3 className="text-xl font-bold text-[#264171] mb-2">{step.title.split(' · ')[1]}</h3>
                         <p className="text-base text-[#6C7F99] leading-relaxed">{step.description}</p>
                       </div>
                     </div>
@@ -471,8 +474,8 @@ export default function LandingPage() {
 
               {/* Visual Dashboard Mockup */}
               <div className="flex-1 relative">
-                <div className="sticky top-24 rounded-3xl border-2 border-[#264171]/8 bg-white p-6 shadow-xl shadow-[#264171]/5 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/5 to-transparent rounded-full blur-3xl"></div>
+                <div className="sticky top-24 rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-6 shadow-2xl shadow-[#264171]/10 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/8 to-transparent rounded-full blur-3xl"></div>
 
                   <div className="relative">
                     <div className="flex items-center gap-2 mb-6">
@@ -539,14 +542,17 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section aria-label="Zielgruppen" className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-white to-[#F7F9FF]">
+        <section aria-label="Zielgruppen" className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-[#E6AE63]/[0.04] via-[#D4995A]/[0.03] to-white">
           {/* Subtle warm accent decorations */}
-          <div className="absolute top-20 right-0 w-80 h-80 bg-[#E6AE63]/8 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#E6AE63]/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-20 right-0 w-[550px] h-[550px] bg-[#E6AE63]/[0.08] rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-[#C88850]/[0.06] rounded-full blur-3xl"></div>
+
+          {/* Decorative grid pattern */}
+          <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: 'linear-gradient(#E6AE63 1px, transparent 1px), linear-gradient(90deg, #E6AE63 1px, transparent 1px)', backgroundSize: '40px 40px' }}></div>
 
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/20 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#264171] shadow-sm mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/25 bg-gradient-to-r from-[#E6AE63]/15 to-[#D4995A]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
                 <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
                 Für jeden geeignet
               </div>
@@ -585,17 +591,17 @@ export default function LandingPage() {
                   color: '#264171'
                 },
               ].map((persona) => (
-                <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border-2 border-[#E6AE63]/10 bg-white p-6 transition-all duration-300 hover:border-[#E6AE63]/30 hover:shadow-xl hover:shadow-[#E6AE63]/5 hover:-translate-y-1">
+                <div key={persona.name} className="group flex flex-col gap-5 rounded-3xl border-2 border-[#E6AE63]/15 bg-white/90 backdrop-blur-sm p-6 transition-all duration-300 hover:border-[#E6AE63]/35 hover:shadow-2xl hover:shadow-[#E6AE63]/10 hover:-translate-y-1 hover:bg-white">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E6AE63] font-semibold text-white shadow-md shadow-[#E6AE63]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-[#E6AE63]/30">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#E6AE63] to-[#D4995A] font-bold text-xl text-white shadow-lg shadow-[#E6AE63]/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#E6AE63]/35">
                       {persona.name[0]}
                     </div>
                     <div>
-                      <p className="text-base font-semibold text-[#0F172A]">{persona.name}</p>
-                      <p className="text-sm text-[#6C7F99]">{persona.role}</p>
+                      <p className="text-base font-bold text-[#E6AE63]">{persona.name}</p>
+                      <p className="text-sm font-medium text-[#6C7F99]">{persona.role}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-[#4b5563] leading-relaxed italic">&ldquo;{persona.quote}&rdquo;</p>
+                  <p className="text-sm text-[#4b5563] leading-relaxed italic border-l-4 border-[#E6AE63]/30 pl-4">&ldquo;{persona.quote}&rdquo;</p>
                 </div>
               ))}
             </div>
