@@ -45,7 +45,7 @@ export default function LandingPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Imvestr",
+    "name": "imvestr",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
     "offers": {
@@ -79,7 +79,7 @@ export default function LandingPage() {
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Imvestr",
+    "name": "imvestr",
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
@@ -98,7 +98,7 @@ export default function LandingPage() {
         'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
     },
     {
-      question: 'Was kostet Imvestr?',
+      question: 'Was kostet imvestr?',
       answer:
         'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
     },
@@ -214,7 +214,7 @@ export default function LandingPage() {
             <div className="w-12 h-12 relative">
               <Image
                 src="/logo.png"
-                alt="Imvestr Logo"
+                alt="imvestr Logo"
                 width={48}
                 height={48}
                 className="rounded-lg"
@@ -222,7 +222,7 @@ export default function LandingPage() {
               />
             </div>
             <span className={`text-xl font-bold transition-colors ${isScrolled ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent' : 'text-white'}`}>
-              Imvestr
+              imvestr
             </span>
           </button>
 
@@ -433,17 +433,17 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="bg-[#F7F9FF] px-6 py-12 md:py-24" id="steps" aria-label="Wie es funktioniert">
-          <div className="mx-auto max-w-6xl">
+        <section className="relative px-6 py-12 md:py-24 overflow-hidden" id="steps" aria-label="Wie es funktioniert" style={{ background: 'linear-gradient(135deg, #264171 0%, #315080 50%, #3A5B89 100%)' }}>
+          <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
-                <LineChart className="h-4 w-4 text-[#264171]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur mb-4">
+                <LineChart className="h-4 w-4 text-[#E6AE63]" />
                 Prozess
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
                 So läuft deine Analyse
               </h2>
-              <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
+              <p className="text-lg text-white/80 max-w-2xl mx-auto">
                 Drei Schritte vom Objekt zur Entscheidung.
               </p>
             </div>
@@ -451,9 +451,9 @@ export default function LandingPage() {
             <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
               <div className="flex-1 space-y-6">
                 {steps.map((step, idx) => (
-                  <div key={step.title} className="group rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-8 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1">
+                  <div key={step.title} className="group rounded-3xl border-2 border-white/20 bg-white/95 backdrop-blur p-8 transition-all duration-200 hover:border-[#E6AE63] hover:shadow-2xl hover:shadow-[#E6AE63]/20 hover:-translate-y-1">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#264171] text-xl font-semibold text-white shadow-md transition-transform group-hover:scale-110">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6AE63] to-[#D4995A] text-xl font-semibold text-white shadow-lg transition-transform group-hover:scale-110">
                         {idx + 1}
                       </div>
                       <div className="flex-1">
@@ -467,8 +467,8 @@ export default function LandingPage() {
 
               {/* Visual Dashboard Mockup */}
               <div className="flex-1 relative">
-                <div className="sticky top-24 rounded-3xl border border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/10 p-6 shadow-xl overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/5 to-[#E6AE63]/10 rounded-full blur-3xl"></div>
+                <div className="sticky top-24 rounded-3xl border-2 border-white/30 bg-white/95 backdrop-blur p-6 shadow-2xl shadow-black/20 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#E6AE63]/20 to-transparent rounded-full blur-3xl"></div>
 
                   <div className="relative">
                     <div className="flex items-center gap-2 mb-6">
@@ -535,18 +535,18 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section aria-label="Zielgruppen" className="px-6 py-12 md:py-24 bg-white">
-          <div className="mx-auto max-w-6xl">
+        <section aria-label="Zielgruppen" className="relative px-6 py-12 md:py-24 overflow-hidden" style={{ background: 'linear-gradient(135deg, #E6AE63 0%, #D4995A 50%, #C88850 100%)' }}>
+          <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
-                <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur mb-4">
+                <CheckCircle2 className="h-4 w-4 text-white" />
                 Für jeden geeignet
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
                 Für Einsteiger & Profis
               </h2>
-              <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Egal ob erste Immobilie oder zehntes Objekt – Imvestr liefert, was du brauchst.
+              <p className="text-lg text-white/90 max-w-2xl mx-auto">
+                Egal ob erste Immobilie oder zehntes Objekt – imvestr liefert, was du brauchst.
               </p>
             </div>
 
@@ -577,9 +577,9 @@ export default function LandingPage() {
                   color: '#264171'
                 },
               ].map((persona) => (
-                <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF] p-6 transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-lg hover:-translate-y-1">
+                <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border-2 border-white/30 bg-white/95 backdrop-blur p-6 transition-all duration-200 hover:border-white hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-1">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#264171] font-semibold text-white shadow-md">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#264171] to-[#315080] font-semibold text-white shadow-lg">
                       {persona.name[0]}
                     </div>
                     <div>
@@ -669,16 +669,16 @@ export default function LandingPage() {
                 <div className="w-10 h-10 relative">
                   <Image
                     src="/logo.png"
-                    alt="Imvestr Logo"
+                    alt="imvestr Logo"
                     width={40}
                     height={40}
                     className="rounded-lg"
                   />
                 </div>
-                <span className="text-xl font-semibold tracking-tight text-[#264171]">Imvestr</span>
+                <span className="text-xl font-semibold tracking-tight text-[#264171]">imvestr</span>
               </div>
               <p className="text-center md:text-left text-[#6C7F99] max-w-sm">
-                Imvestr. Deine KI für smarte Immobilien-Investments.<br />
+                imvestr. Deine KI für smarte Immobilien-Investments.<br />
                 <span className="font-medium text-[#264171]">Schnell. Klar. Vertrauenswürdig.</span>
               </p>
             </div>
@@ -749,7 +749,7 @@ export default function LandingPage() {
                 Keine Anlageberatung. Ergebnisse sind Modell-Schätzungen und hängen von deinen Eingaben ab.
               </p>
             </div>
-            <p className="text-xs">© {new Date().getFullYear()} Imvestr. Alle Rechte vorbehalten.</p>
+            <p className="text-xs">© {new Date().getFullYear()} imvestr. Alle Rechte vorbehalten.</p>
           </div>
         </div>
       </footer>
