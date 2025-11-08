@@ -433,17 +433,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="relative px-6 py-12 md:py-24 overflow-hidden" id="steps" aria-label="Wie es funktioniert" style={{ background: 'linear-gradient(135deg, #264171 0%, #315080 50%, #3A5B89 100%)' }}>
+        <section className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-[#F7F9FF] to-white" id="steps" aria-label="Wie es funktioniert">
+          {/* Subtle accent decorations */}
+          <div className="absolute top-0 left-0 w-72 h-72 bg-[#264171]/5 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#264171]/3 rounded-full blur-3xl"></div>
+
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur mb-4">
-                <LineChart className="h-4 w-4 text-[#E6AE63]" />
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/10 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#264171] shadow-sm mb-4">
+                <LineChart className="h-4 w-4 text-[#264171]" />
                 Prozess
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 So läuft deine Analyse
               </h2>
-              <p className="text-lg text-white/80 max-w-2xl mx-auto">
+              <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
                 Drei Schritte vom Objekt zur Entscheidung.
               </p>
             </div>
@@ -451,9 +455,9 @@ export default function LandingPage() {
             <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
               <div className="flex-1 space-y-6">
                 {steps.map((step, idx) => (
-                  <div key={step.title} className="group rounded-3xl border-2 border-white/20 bg-white/95 backdrop-blur p-8 transition-all duration-200 hover:border-[#E6AE63] hover:shadow-2xl hover:shadow-[#E6AE63]/20 hover:-translate-y-1">
+                  <div key={step.title} className="group rounded-3xl border-2 border-[#264171]/8 bg-white p-8 transition-all duration-300 hover:border-[#264171]/20 hover:shadow-xl hover:shadow-[#264171]/5 hover:-translate-y-1">
                     <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#E6AE63] to-[#D4995A] text-xl font-semibold text-white shadow-lg transition-transform group-hover:scale-110">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#264171] text-xl font-semibold text-white shadow-md shadow-[#264171]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-[#264171]/30">
                         {idx + 1}
                       </div>
                       <div className="flex-1">
@@ -467,8 +471,8 @@ export default function LandingPage() {
 
               {/* Visual Dashboard Mockup */}
               <div className="flex-1 relative">
-                <div className="sticky top-24 rounded-3xl border-2 border-white/30 bg-white/95 backdrop-blur p-6 shadow-2xl shadow-black/20 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#E6AE63]/20 to-transparent rounded-full blur-3xl"></div>
+                <div className="sticky top-24 rounded-3xl border-2 border-[#264171]/8 bg-white p-6 shadow-xl shadow-[#264171]/5 overflow-hidden">
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/5 to-transparent rounded-full blur-3xl"></div>
 
                   <div className="relative">
                     <div className="flex items-center gap-2 mb-6">
@@ -535,17 +539,21 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section aria-label="Zielgruppen" className="relative px-6 py-12 md:py-24 overflow-hidden" style={{ background: 'linear-gradient(135deg, #E6AE63 0%, #D4995A 50%, #C88850 100%)' }}>
+        <section aria-label="Zielgruppen" className="relative px-6 py-12 md:py-24 overflow-hidden bg-gradient-to-br from-white to-[#F7F9FF]">
+          {/* Subtle warm accent decorations */}
+          <div className="absolute top-20 right-0 w-80 h-80 bg-[#E6AE63]/8 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#E6AE63]/5 rounded-full blur-3xl"></div>
+
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur mb-4">
-                <CheckCircle2 className="h-4 w-4 text-white" />
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/20 bg-white/80 backdrop-blur-sm px-4 py-2 text-sm font-medium text-[#264171] shadow-sm mb-4">
+                <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
                 Für jeden geeignet
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 Für Einsteiger & Profis
               </h2>
-              <p className="text-lg text-white/90 max-w-2xl mx-auto">
+              <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
                 Egal ob erste Immobilie oder zehntes Objekt – imvestr liefert, was du brauchst.
               </p>
             </div>
@@ -577,9 +585,9 @@ export default function LandingPage() {
                   color: '#264171'
                 },
               ].map((persona) => (
-                <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border-2 border-white/30 bg-white/95 backdrop-blur p-6 transition-all duration-200 hover:border-white hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-1">
+                <div key={persona.name} className="group flex flex-col gap-4 rounded-3xl border-2 border-[#E6AE63]/10 bg-white p-6 transition-all duration-300 hover:border-[#E6AE63]/30 hover:shadow-xl hover:shadow-[#E6AE63]/5 hover:-translate-y-1">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#264171] to-[#315080] font-semibold text-white shadow-lg">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#E6AE63] font-semibold text-white shadow-md shadow-[#E6AE63]/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-[#E6AE63]/30">
                       {persona.name[0]}
                     </div>
                     <div>
