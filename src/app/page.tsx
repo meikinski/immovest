@@ -333,64 +333,38 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3 mb-12">
-              {importFeatures.map((feature) => (
-                <div
-                  key={feature.title}
-                  className="group flex flex-col gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-8 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
-                    <div className="text-white">{feature.icon}</div>
-                  </div>
-                  <h3 className="text-xl font-semibold text-[#0F172A]">{feature.title}</h3>
-                  <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Visual Mockup - Import Flow */}
-            <div className="relative rounded-3xl border border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-8 overflow-hidden shadow-xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#E6AE63]/10 to-transparent rounded-full blur-3xl"></div>
-
-              <div className="relative space-y-6">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-sm font-semibold">1</div>
-                  <span className="text-sm font-medium text-[#6C7F99] uppercase tracking-wide">Beispiel: URL-Import</span>
-                </div>
-
-                {/* URL Input Mockup */}
-                <div className="rounded-2xl border border-[#264171]/10 bg-white p-6 shadow-md">
-                  <div className="flex items-center gap-3 mb-4">
-                    <LinkIcon className="h-5 w-5 text-[#E6AE63]" />
-                    <span className="text-sm font-medium text-[#6C7F99]">Exposé-Link einfügen</span>
-                  </div>
-                  <div className="flex items-center gap-3 rounded-xl border-2 border-[#E6AE63] bg-[#E6AE63]/5 px-4 py-3">
-                    <span className="flex-1 text-sm text-[#6C7F99]">https://www.immobilienscout24.de/expose/...</span>
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#264171] to-[#E6AE63]">
-                      <ArrowRight className="h-4 w-4 text-white" />
+            <div className="flex flex-col lg:flex-row gap-8 items-center">
+              {/* Left: Import Features */}
+              <div className="flex-1 space-y-6">
+                {importFeatures.map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="group flex items-start gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-6 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
+                  >
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
+                      <div className="text-white">{feature.icon}</div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-[#0F172A] mb-2">{feature.title}</h3>
+                      <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
                     </div>
                   </div>
-                </div>
+                ))}
+              </div>
 
-                {/* Auto-filled Data Mockup */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Kaufpreis', value: '385.000 €', icon: '💶' },
-                    { label: 'Wohnfläche', value: '78 m²', icon: '📏' },
-                    { label: 'Kaltmiete', value: '1.420 €', icon: '🏠' },
-                    { label: 'Zimmer', value: '3', icon: '🚪' },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 p-4">
-                      <div className="text-2xl mb-2">{item.icon}</div>
-                      <div className="text-xs text-[#6C7F99] mb-1">{item.label}</div>
-                      <div className="text-base font-semibold text-[#0F172A]">{item.value}</div>
-                    </div>
-                  ))}
-                </div>
+              {/* Right: Screenshot Placeholder - TODO: Add actual screenshot */}
+              <div className="flex-1 relative rounded-3xl border-2 border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-8 overflow-hidden shadow-xl min-h-[500px] flex items-center justify-center">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#E6AE63]/10 to-transparent rounded-full blur-3xl"></div>
 
-                <div className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#22c55e]/10 to-[#22c55e]/5 border border-[#22c55e]/20 px-4 py-3">
-                  <CheckCircle2 className="h-5 w-5 text-[#22c55e]" />
-                  <span className="text-sm font-medium text-[#22c55e]">Alle Daten automatisch erkannt</span>
+                {/* Placeholder for screenshot - TODO: Replace with actual UI screenshot */}
+                <div className="relative text-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#E6AE63] to-[#D4995A] flex items-center justify-center">
+                    <Camera className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-sm font-medium text-[#6C7F99]">
+                    Screenshot Platzhalter<br />
+                    <span className="text-xs">Hier kommt später ein Screenshot vom Import-Flow</span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -455,86 +429,103 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-12 lg:flex-row lg:items-start">
-              <div className="flex-1 space-y-6">
+            {/* Process Flow - Vertical Timeline */}
+            <div className="max-w-3xl mx-auto mb-16">
+              <div className="relative">
+                {/* Vertical connecting line */}
+                <div className="absolute left-[27px] top-[56px] bottom-[56px] w-0.5 bg-gradient-to-b from-[#264171]/20 via-[#264171]/40 to-[#264171]/20"></div>
+
                 {steps.map((step, idx) => (
-                  <div key={step.title} className="group rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-8 transition-all duration-300 hover:border-[#264171]/25 hover:shadow-2xl hover:shadow-[#264171]/8 hover:-translate-y-1 hover:bg-white">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171] to-[#315080] text-xl font-bold text-white shadow-lg shadow-[#264171]/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#264171]/35">
-                        {idx + 1}
+                  <div key={step.title} className="relative mb-8 last:mb-0">
+                    {/* Step Card */}
+                    <div className="group flex items-start gap-6">
+                      {/* Number Badge with connecting line */}
+                      <div className="relative flex-shrink-0">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171] to-[#315080] text-xl font-bold text-white shadow-lg shadow-[#264171]/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#264171]/35 relative z-10">
+                          {idx + 1}
+                        </div>
+
+                        {/* Arrow to next step */}
+                        {idx < steps.length - 1 && (
+                          <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+12px)] flex flex-col items-center gap-1 z-0">
+                            <ArrowRight className="h-5 w-5 text-[#264171]/40 rotate-90" />
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-[#264171] mb-2">{step.title.split(' · ')[1]}</h3>
+
+                      {/* Content Card */}
+                      <div className="flex-1 rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-8 transition-all duration-300 hover:border-[#264171]/25 hover:shadow-2xl hover:shadow-[#264171]/8 hover:-translate-y-1 hover:bg-white">
+                        <h3 className="text-xl font-bold text-[#264171] mb-3">{step.title.split(' · ')[1]}</h3>
                         <p className="text-base text-[#6C7F99] leading-relaxed">{step.description}</p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
 
-              {/* Visual Dashboard Mockup */}
-              <div className="flex-1 relative">
-                <div className="sticky top-24 rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-6 shadow-2xl shadow-[#264171]/10 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/8 to-transparent rounded-full blur-3xl"></div>
+            {/* Visual Dashboard Mockup - Below Process */}
+            <div className="max-w-2xl mx-auto">
+              <div className="rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-6 shadow-2xl shadow-[#264171]/10 overflow-hidden">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/8 to-transparent rounded-full blur-3xl"></div>
 
-                  <div className="relative">
-                    <div className="flex items-center gap-2 mb-6">
-                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-xs font-semibold">2</div>
-                      <span className="text-xs font-medium text-[#6C7F99] uppercase tracking-wide">Live Analyse-Dashboard</span>
+                <div className="relative">
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-sm font-semibold">✓</div>
+                    <span className="text-sm font-semibold text-[#264171] uppercase tracking-wide">Live Analyse-Dashboard</span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* KPI Cards */}
+                    <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="text-xs text-[#6C7F99] mb-1">Monatlicher Cashflow</div>
+                          <div className="text-2xl font-bold bg-gradient-to-r from-[#22c55e] to-[#16a34a] bg-clip-text text-transparent">+327 €</div>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#22c55e]/10 to-[#22c55e]/5">
+                          <LineChart className="h-5 w-5 text-[#22c55e]" />
+                        </div>
+                      </div>
+                      <div className="h-2 rounded-full bg-[#F7F9FF] overflow-hidden">
+                        <div className="h-full w-3/4 bg-gradient-to-r from-[#22c55e] to-[#16a34a] rounded-full"></div>
+                      </div>
                     </div>
 
-                    <div className="space-y-4">
-                      {/* KPI Cards */}
-                      <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <div className="text-xs text-[#6C7F99] mb-1">Monatlicher Cashflow</div>
-                            <div className="text-2xl font-bold bg-gradient-to-r from-[#22c55e] to-[#16a34a] bg-clip-text text-transparent">+327 €</div>
-                          </div>
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#22c55e]/10 to-[#22c55e]/5">
-                            <LineChart className="h-5 w-5 text-[#22c55e]" />
-                          </div>
+                    {/* Location Score */}
+                    <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <div className="text-xs text-[#6C7F99] mb-1">Mikrolage-Score</div>
+                          <div className="text-2xl font-bold text-[#0F172A]">8.4<span className="text-base text-[#6C7F99]">/10</span></div>
+                          <div className="text-xs text-[#E6AE63] font-medium">Top 15% im Stadtteil</div>
                         </div>
-                        <div className="h-2 rounded-full bg-[#F7F9FF] overflow-hidden">
-                          <div className="h-full w-3/4 bg-gradient-to-r from-[#22c55e] to-[#16a34a] rounded-full"></div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6AE63]/10 to-[#E6AE63]/5">
+                          <MapPin className="h-5 w-5 text-[#E6AE63]" />
                         </div>
                       </div>
-
-                      {/* Location Score */}
-                      <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <div className="text-xs text-[#6C7F99] mb-1">Mikrolage-Score</div>
-                            <div className="text-2xl font-bold text-[#0F172A]">8.4<span className="text-base text-[#6C7F99]">/10</span></div>
-                            <div className="text-xs text-[#E6AE63] font-medium">Top 15% im Stadtteil</div>
-                          </div>
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6AE63]/10 to-[#E6AE63]/5">
-                            <MapPin className="h-5 w-5 text-[#E6AE63]" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Rendite Grid */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="rounded-xl bg-gradient-to-br from-[#264171]/5 to-[#264171]/10 p-4 border border-[#264171]/10">
-                          <div className="text-xs text-[#6C7F99] mb-1">Nettomietrendite</div>
-                          <div className="text-lg font-bold text-[#264171]">4.2%</div>
-                        </div>
-                        <div className="rounded-xl bg-gradient-to-br from-[#E6AE63]/5 to-[#E6AE63]/10 p-4 border border-[#E6AE63]/10">
-                          <div className="text-xs text-[#6C7F99] mb-1">DSCR</div>
-                          <div className="text-lg font-bold text-[#E6AE63]">1.35</div>
-                        </div>
-                      </div>
-
-                      {/* PDF Export Button */}
-                      <button className="w-full flex items-center justify-between rounded-xl bg-gradient-to-r from-[#264171] to-[#E6AE63] p-4 text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
-                        <div className="flex items-center gap-3">
-                          <FileBarChart className="h-5 w-5" />
-                          <span className="text-sm font-semibold">PDF-Report erstellen</span>
-                        </div>
-                        <ArrowRight className="h-4 w-4" />
-                      </button>
                     </div>
+
+                    {/* Rendite Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-xl bg-gradient-to-br from-[#264171]/5 to-[#264171]/10 p-4 border border-[#264171]/10">
+                        <div className="text-xs text-[#6C7F99] mb-1">Nettomietrendite</div>
+                        <div className="text-lg font-bold text-[#264171]">4.2%</div>
+                      </div>
+                      <div className="rounded-xl bg-gradient-to-br from-[#E6AE63]/5 to-[#E6AE63]/10 p-4 border border-[#E6AE63]/10">
+                        <div className="text-xs text-[#6C7F99] mb-1">DSCR</div>
+                        <div className="text-lg font-bold text-[#E6AE63]">1.35</div>
+                      </div>
+                    </div>
+
+                    {/* PDF Export Button */}
+                    <button className="w-full flex items-center justify-between rounded-xl bg-gradient-to-r from-[#264171] to-[#E6AE63] p-4 text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
+                      <div className="flex items-center gap-3">
+                        <FileBarChart className="h-5 w-5" />
+                        <span className="text-sm font-semibold">PDF-Report erstellen</span>
+                      </div>
+                      <ArrowRight className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </div>
