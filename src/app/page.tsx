@@ -384,7 +384,7 @@ export default function LandingPage() {
 
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
                   <img
-                    src="/inputmethod.png"
+                    src="/imvestr_inputmethod.png"
                     alt="Input-Methoden Auswahl"
                     className="w-full h-auto object-contain"
                   />
