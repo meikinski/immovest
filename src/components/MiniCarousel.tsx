@@ -21,18 +21,21 @@ export function MiniCarousel() {
       description: 'Alle wichtigen Kennzahlen auf einen Blick',
       icon: <LineChart className="w-8 h-8" />,
       color: '#264171',
+      image: '/imevstr_kpis.png',
     },
     {
-      title: 'KI-Einschätzung',
-      description: 'Erste Investment-Analyse basierend auf deinen Zahlen',
+      title: 'Objektdaten',
+      description: 'Komplette Immobiliendaten strukturiert erfassen',
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
+      image: '/objektdaten.png',
     },
     {
-      title: 'PDF-Report',
-      description: 'Bankfähiger Report mit allen Details',
+      title: 'Szenarien',
+      description: 'Verschiedene Finanzierungsszenarien durchspielen',
       icon: <FileBarChart className="w-8 h-8" />,
       color: '#A56554',
+      image: '/szenarien.png',
     },
   ];
 
@@ -109,32 +112,21 @@ export function MiniCarousel() {
         >
           {extendedSlides.map((slide, idx) => (
             <div
-              key={slide.title}
-              className="w-full flex-shrink-0 p-12 min-h-[400px] flex flex-col items-center justify-center text-center"
-              style={{
-                background: `linear-gradient(135deg, ${slide.color}08 0%, ${slide.color}15 100%)`,
-              }}
+              key={`${slide.title}-${idx}`}
+              className="w-full flex-shrink-0 p-8 min-h-[500px] flex flex-col items-center justify-center text-center bg-white"
             >
-              {/* Icon */}
-              <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
-                style={{ backgroundColor: slide.color }}
-              >
-                <div className="text-white">{slide.icon}</div>
+              {/* Screenshot */}
+              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="w-full h-auto object-contain"
+                />
               </div>
 
-              {/* Title */}
+              {/* Title & Description */}
               <h3 className="text-2xl font-bold text-[#0F172A] mb-3">{slide.title}</h3>
-
-              {/* Description */}
               <p className="text-base text-[#6C7F99] max-w-md">{slide.description}</p>
-
-              {/* Placeholder Badge */}
-              <div className="mt-8 px-4 py-2 bg-white/50 backdrop-blur-sm rounded-full border border-gray-200">
-                <span className="text-xs font-medium text-gray-600">
-                  Screenshot Placeholder {idx + 1}/3
-                </span>
-              </div>
             </div>
           ))}
         </div>

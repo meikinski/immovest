@@ -35,7 +35,7 @@ export function StackedCards({ steps }: StackedCardsProps) {
   const containerHeight = cardHeight + offset * (steps.length - 1);
 
   return (
-    <div className="py-24 px-6">
+    <div className="py-12 px-6">
       <div className="mx-auto max-w-6xl">
         {/* Desktop: Grid Layout */}
         <div className="hidden md:grid md:grid-cols-3 gap-6">
