@@ -12,6 +12,7 @@ type ExtractedData = {
   baujahr?: number;
   adresse?: string;
   miete?: number;
+  hausgeld?: number;
   objekttyp?: 'wohnung' | 'haus';
 };
 
@@ -57,8 +58,13 @@ export async function POST(req: NextRequest) {
 - Anzahl Zimmer (nur Zahl, z.B. 3.5)
 - Baujahr (nur Jahreszahl)
 - Adresse (vollständig mit PLZ und Ort)
-- Kaltmiete falls angegeben (in €, nur Zahl)
+- Kaltmiete falls angegeben (in €/Monat, nur Zahl)
+- Hausgeld/Nebenkosten (in €/Monat, nur Zahl) - manchmal auch als "NK" oder "Nebenkosten" bezeichnet
 - Objekttyp (nur "wohnung" oder "haus")
+
+WICHTIG: Achte darauf, Kaltmiete und Hausgeld nicht zu verwechseln!
+- Kaltmiete ist normalerweise der größere Wert
+- Hausgeld/Nebenkosten ist normalerweise der kleinere Wert
 
 Antworte NUR mit einem JSON-Objekt in diesem Format:
 {
@@ -68,6 +74,7 @@ Antworte NUR mit einem JSON-Objekt in diesem Format:
   "baujahr": 2015,
   "adresse": "Musterstraße 10, 10115 Berlin",
   "miete": 1200,
+  "hausgeld": 250,
   "objekttyp": "wohnung"
 }
 
@@ -97,10 +104,27 @@ Wenn ein Wert nicht gefunden wird, lasse ihn weg. Antworte NUR mit dem JSON, kei
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error('Ungültiges JSON in der Antwort');
+      return NextResponse.json(
+        {
+          error: 'Das Bild konnte nicht analysiert werden',
+          hint: 'Bitte stelle sicher, dass das Bild ein deutlich lesbares Immobilien-Inserat zeigt. Versuche es mit einem klareren Foto oder besserer Beleuchtung.',
+        },
+        { status: 400 }
+      );
     }
 
-    const data = JSON.parse(jsonMatch[0]) as ExtractedData;
+    let data: ExtractedData;
+    try {
+      data = JSON.parse(jsonMatch[0]) as ExtractedData;
+    } catch (parseError) {
+      return NextResponse.json(
+        {
+          error: 'Die extrahierten Daten konnten nicht verarbeitet werden',
+          hint: 'Das Bild enthält möglicherweise unvollständige oder unleserliche Informationen. Versuche es mit einem anderen Foto.',
+        },
+        { status: 400 }
+      );
+    }
 
     // Validierung
     if (!data.kaufpreis && !data.flaeche && !data.zimmer) {

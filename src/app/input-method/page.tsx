@@ -6,12 +6,15 @@ import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkl
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
+import { saveAnalysis } from '@/lib/storage';
 
 export default function InputMethodPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const importData = useImmoStore(s => s.importData);
+  const exportState = useImmoStore(s => s.exportState);
+  const setAnalysisId = useImmoStore(s => (id: string) => s.importData({ analysisId: id }));
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
@@ -95,6 +98,7 @@ export default function InputMethodPage() {
 
       const { data } = result;
 
+      // Import data into store
       importData({
         kaufpreis: data.kaufpreis || 0,
         adresse: data.adresse || '',
@@ -102,8 +106,14 @@ export default function InputMethodPage() {
         zimmer: data.zimmer || 0,
         baujahr: data.baujahr || new Date().getFullYear(),
         miete: data.miete || 0,
+        hausgeld: data.hausgeld || 0,
         objekttyp: data.objekttyp || 'wohnung',
       });
+
+      // Save to localStorage to persist across login/reload
+      const userId = user?.id || null;
+      const analysisId = saveAnalysis(userId, exportState());
+      setAnalysisId(analysisId);
 
       router.push('/step/a');
     } catch (err) {
@@ -139,6 +149,11 @@ export default function InputMethodPage() {
       // Import data into store
       if (result.data) {
         importData(result.data);
+
+        // Save to localStorage to persist across login/reload
+        const userId = user?.id || null;
+        const analysisId = saveAnalysis(userId, exportState());
+        setAnalysisId(analysisId);
 
         // Show warnings if any
         if (result.warnings.length > 0) {
