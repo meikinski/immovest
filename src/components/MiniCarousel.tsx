@@ -28,7 +28,7 @@ export function MiniCarousel() {
       description: 'Alle wichtigen Kennzahlen auf einen Blick',
       icon: <LineChart className="w-8 h-8" />,
       color: '#264171',
-      image: '/imevstr_kpis.png',
+      image: '/imvestr_kpis.png',
     },
     {
       title: 'Szenarien',
