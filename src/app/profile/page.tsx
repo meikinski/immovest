@@ -33,6 +33,7 @@ export default function ProfilePage() {
   const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
+  const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -82,6 +83,8 @@ export default function ProfilePage() {
   };
 
   const handleNewAnalysis = () => {
+    // Reset all fields to default values
+    resetAnalysis();
     router.push('/input-method');
   };
 
