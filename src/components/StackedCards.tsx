@@ -32,25 +32,32 @@ export function StackedCards({ steps }: StackedCardsProps) {
 
       const container = containerRef.current;
       const rect = container.getBoundingClientRect();
-      const containerTop = window.scrollY + rect.top;
-      const containerHeight = container.offsetHeight;
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
-      // Calculate scroll progress for each card
-      const newProgress = steps.map((_, idx) => {
-        // Distribute cards evenly across the container height
-        const sectionHeight = containerHeight / steps.length;
-        const cardStart = containerTop + (idx * sectionHeight);
-        const cardEnd = cardStart + sectionHeight;
+      // Calculate when container enters/exits viewport
+      const containerTop = scrollY + rect.top;
+      const containerBottom = containerTop + rect.height;
+      const viewportTop = scrollY;
+      const viewportBottom = scrollY + windowHeight;
 
-        // Calculate progress based on viewport center
+      // Each card gets its own scroll "zone"
+      const cardHeight = 400; // Approx card height
+      const offsetBetweenCards = windowHeight * 0.3; // Distance between card activations
+
+      const newProgress = steps.map((_, idx) => {
+        const cardTriggerPoint = containerTop + (idx * offsetBetweenCards);
+        const cardEndPoint = cardTriggerPoint + offsetBetweenCards;
+
         const viewportCenter = scrollY + windowHeight / 2;
-        const progress = Math.max(
-          0,
-          Math.min(1, (viewportCenter - cardStart) / (cardEnd - cardStart))
-        );
-        return progress;
+
+        if (viewportCenter < cardTriggerPoint) {
+          return 0;
+        } else if (viewportCenter > cardEndPoint) {
+          return 1;
+        } else {
+          return (viewportCenter - cardTriggerPoint) / (cardEndPoint - cardTriggerPoint);
+        }
       });
 
       setScrollProgress(newProgress);
@@ -58,7 +65,9 @@ export function StackedCards({ steps }: StackedCardsProps) {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleScroll, { passive: true });
-    handleScroll(); // Initial calculation
+
+    // Initial calculation with small delay to ensure proper layout
+    setTimeout(handleScroll, 100);
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
@@ -71,28 +80,32 @@ export function StackedCards({ steps }: StackedCardsProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative py-24" style={{ minHeight: `${150 * steps.length}vh` }}>
-      <div className="sticky top-20 max-w-2xl mx-auto px-6">
+    <div ref={containerRef} className="relative py-24" style={{ minHeight: `${100 + (steps.length * 50)}vh` }}>
+      <div className="sticky top-24 max-w-2xl mx-auto px-6 h-[500px]">
         {steps.map((step, idx) => {
           const progress = scrollProgress[idx];
-          // Improved scaling: start at 0.9 for cards below and scale to 1
-          const scale = 0.9 + (progress * 0.1);
-          // Fade out previous cards as new one comes in
-          const opacity = idx < steps.length - 1
-            ? Math.max(0, 1 - Math.max(0, scrollProgress[idx + 1] - 0.2) * 5)
-            : 1;
-          // Stack cards with offset
-          const translateY = Math.max(0, (1 - progress) * 80) + (idx * 8);
+
+          // Scale: Cards below current are slightly smaller
+          const scale = 0.95 + (progress * 0.05);
+
+          // Opacity: Fade out cards as next one comes in
+          const nextProgress = idx < steps.length - 1 ? scrollProgress[idx + 1] : 0;
+          const opacity = Math.max(0, 1 - nextProgress * 2);
+
+          // TranslateY: Stack cards with vertical offset
+          const baseOffset = idx * 20; // Base stacking offset
+          const scrollOffset = (1 - progress) * 60; // Move up as it activates
+          const translateY = baseOffset + scrollOffset;
 
           return (
             <div
               key={step.number}
-              className="absolute inset-0 will-change-transform"
+              className="absolute top-0 left-0 right-0 will-change-transform"
               style={{
                 transform: `scale(${scale}) translateY(${translateY}px)`,
                 opacity,
-                zIndex: idx,
-                transition: 'transform 0.1s ease-out, opacity 0.3s ease-out',
+                zIndex: steps.length - idx,
+                pointerEvents: idx === steps.length - 1 || progress > 0.5 ? 'auto' : 'none',
               }}
             >
               <div
