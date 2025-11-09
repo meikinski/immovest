@@ -23,11 +23,8 @@ export function InputField({
   ...rest
 }: InputFieldProps) {
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Auto-select wenn Wert 0 ist (für bessere UX)
-    const val = e.target.value;
-    if (val === '0' || val === '0,00' || val === '0.00') {
-      e.target.select();
-    }
+    // Auto-select all text for easy override (bessere UX)
+    e.target.select();
     onFocus?.(e);
   };
 

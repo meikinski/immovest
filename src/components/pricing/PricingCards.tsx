@@ -115,7 +115,7 @@ export default function PricingCards({}: PricingCardsProps) {
       )}
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+      <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
         {plans.map((plan) => (
           <div
             key={plan.name}
@@ -127,8 +127,8 @@ export default function PricingCards({}: PricingCardsProps) {
           >
             {/* Popular Badge */}
             {plan.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <div className="px-4 py-1 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg">
+              <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                <div className="px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
                   Empfohlen
                 </div>
               </div>

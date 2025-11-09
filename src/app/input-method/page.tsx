@@ -268,6 +268,16 @@ export default function InputMethodPage() {
             </p>
           </div>
 
+          {/* Section Heading */}
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              Deine Eingabemethoden
+            </h2>
+            <p className="text-base text-gray-600">
+              Flexibel, schnell und auf deine Bedürfnisse zugeschnitten
+            </p>
+          </div>
+
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Manual Input - FIRST - Solid Navy Blue */}
