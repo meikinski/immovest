@@ -81,31 +81,32 @@ export function StackedCards({ steps }: StackedCardsProps) {
 
   return (
     <div ref={containerRef} className="relative py-24" style={{ minHeight: `${100 + (steps.length * 50)}vh` }}>
-      <div className="sticky top-24 max-w-2xl mx-auto px-6 h-[500px]">
+      <div className="sticky top-24 max-w-2xl mx-auto px-6 h-[550px]">
         {steps.map((step, idx) => {
           const progress = scrollProgress[idx];
 
-          // Scale: Cards below current are slightly smaller
-          const scale = 0.95 + (progress * 0.05);
+          // Scale: Start smaller and grow to full size
+          const scale = 0.90 + (progress * 0.10);
 
-          // Opacity: Fade out cards as next one comes in
+          // Opacity: Fade out previous cards as next one comes in
           const nextProgress = idx < steps.length - 1 ? scrollProgress[idx + 1] : 0;
-          const opacity = Math.max(0, 1 - nextProgress * 2);
+          const opacity = Math.max(0.3, 1 - nextProgress * 1.5);
 
-          // TranslateY: Stack cards with vertical offset
-          const baseOffset = idx * 20; // Base stacking offset
-          const scrollOffset = (1 - progress) * 60; // Move up as it activates
+          // TranslateY: Large initial offset for visible stacking
+          const baseOffset = idx * 60; // Much larger offset for visible stacking
+          const scrollOffset = (1 - progress) * 100; // Cards slide down more as they activate
           const translateY = baseOffset + scrollOffset;
 
           return (
             <div
               key={step.number}
-              className="absolute top-0 left-0 right-0 will-change-transform"
+              className="absolute top-0 left-0 right-0"
               style={{
                 transform: `scale(${scale}) translateY(${translateY}px)`,
                 opacity,
                 zIndex: steps.length - idx,
-                pointerEvents: idx === steps.length - 1 || progress > 0.5 ? 'auto' : 'none',
+                pointerEvents: progress > 0.3 ? 'auto' : 'none',
+                transition: 'transform 0.05s ease-out, opacity 0.2s ease-out',
               }}
             >
               <div
