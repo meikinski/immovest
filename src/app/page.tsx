@@ -367,25 +367,18 @@ export default function LandingPage() {
 
               {/* Right: Screenshot with Headline */}
               <div className="flex-1 space-y-6">
-                {/* Headline */}
+                {/* Screenshot Caption */}
                 <div className="text-left">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
-                    <Sparkles className="h-4 w-4 text-[#E6AE63]" />
-                    Smart Import
-                  </div>
-                  <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
-                    Drei Wege zum Ergebnis
-                  </h2>
-                  <p className="text-lg text-[#6C7F99] mb-6">
-                    Egal ob Link, Foto oder selbst eintippen – du entscheidest, wie du startest.
-                  </p>
+                  <h3 className="text-xl font-medium text-[#264171] mb-4">
+                    So sieht die Auswahl aus
+                  </h3>
                 </div>
 
                 {/* Input Method Screenshot */}
                 <div
                   className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.08) 0%, rgba(230, 174, 99, 0.12) 50%, rgba(38, 65, 113, 0.08) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.20) 0%, rgba(230, 174, 99, 0.30) 50%, rgba(38, 65, 113, 0.20) 100%)',
                   }}
                 >
                   <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
