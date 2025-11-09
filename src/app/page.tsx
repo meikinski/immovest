@@ -17,8 +17,14 @@ import {
   ShieldCheck,
   Sparkles,
   Save,
+  TrendingUp,
+  Zap,
 } from 'lucide-react';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
+import { StickyBottomCTA } from '@/components/StickyBottomCTA';
+import { MiniCarousel } from '@/components/MiniCarousel';
+import { PricingTeaser } from '@/components/PricingTeaser';
+import { TrustBadges } from '@/components/TrustBadges';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -163,18 +169,30 @@ export default function LandingPage() {
     },
   ];
 
-  const steps = [
+  const processSteps = [
     {
-      title: '1 · Daten eingeben',
-      description: 'Infos zu Objekt, Einnahmen und Finanzierung eingeben.',
+      number: 1,
+      icon: <MapPin className="w-6 h-6" />,
+      title: 'Objekt angeben',
+      description: 'Adresse oder Eckdaten eintragen.',
+      cta: 'Jetzt KPIs berechnen',
+      color: '#264171',
     },
     {
-      title: '2 · Ergebnis erhalten',
-      description: 'Du erhältst alle relevanten Kennzahlen, Marktvergleiche und eine erste KI-Einschätzung basierend auf deinen Zahlen.',
+      number: 2,
+      icon: <BarChart3 className="w-6 h-6" />,
+      title: 'KPIs & KI-Einschätzung',
+      description: 'Cashflow, Rendite, Marktvergleich.',
+      cta: 'Analyse starten',
+      color: '#E6AE63',
     },
     {
-      title: '3 · Szenarien durchspielen',
-      description: 'Passe deine Eingaben an, um deine Kennzahlen zu verbessern und bereite dich optimal auf dein Finanzierungsgespräch vor. Inkl. PDF Export.',
+      number: 3,
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: 'Szenarien testen',
+      description: 'Miete, Zins, EK variieren – Effekt sehen.',
+      cta: 'Miete/Zins anpassen',
+      color: '#A56554',
     },
   ];
 
@@ -296,23 +314,29 @@ export default function LandingPage() {
               Adresse eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF fürs Bankgespräch inklusive.
             </p>
 
-            <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <button
-                type="button"
-                onClick={handleGetStarted}
-                className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
-              >
-                Analyse starten
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </button>
-              {mounted && !isSignedIn && (
-                <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                  <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto">
-                    <LogIn className="h-5 w-5" />
-                    Einloggen/Anmelden
-                  </button>
-                </SignInButton>
-              )}
+            <div className="mt-12 flex flex-col items-center justify-center gap-6">
+              <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={handleGetStarted}
+                  data-cta="main"
+                  className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
+                >
+                  Analyse starten
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </button>
+                {mounted && !isSignedIn && (
+                  <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
+                    <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto">
+                      <LogIn className="h-5 w-5" />
+                      Einloggen/Anmelden
+                    </button>
+                  </SignInButton>
+                )}
+              </div>
+
+              {/* Trust Badges */}
+              <TrustBadges />
             </div>
           </div>
         </section>
@@ -418,117 +442,69 @@ export default function LandingPage() {
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
-                <LineChart className="h-4 w-4 text-[#264171]" />
-                Prozess
+                <Zap className="h-4 w-4 text-[#264171]" />
+                3-Schritte-Prozess
               </div>
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Drei Schritte vom Objekt zur Entscheidung.
+                Weniger Text, mehr Nutzen – klare CTAs für jeden Schritt.
               </p>
             </div>
 
-            {/* Process Flow - Vertical Timeline */}
-            <div className="max-w-3xl mx-auto mb-16">
-              <div className="relative">
-                {/* Vertical connecting line */}
-                <div className="absolute left-[27px] top-[56px] bottom-[56px] w-0.5 bg-gradient-to-b from-[#264171]/20 via-[#264171]/40 to-[#264171]/20"></div>
-
-                {steps.map((step, idx) => (
-                  <div key={step.title} className="relative mb-8 last:mb-0">
-                    {/* Step Card */}
-                    <div className="group flex items-start gap-6">
-                      {/* Number Badge with connecting line */}
-                      <div className="relative flex-shrink-0">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#264171] to-[#315080] text-xl font-bold text-white shadow-lg shadow-[#264171]/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-[#264171]/35 relative z-10">
-                          {idx + 1}
-                        </div>
-
-                        {/* Arrow to next step */}
-                        {idx < steps.length - 1 && (
-                          <div className="absolute left-1/2 -translate-x-1/2 top-[calc(100%+12px)] flex flex-col items-center gap-1 z-0">
-                            <ArrowRight className="h-5 w-5 text-[#264171]/40 rotate-90" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Content Card */}
-                      <div className="flex-1 rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-8 transition-all duration-300 hover:border-[#264171]/25 hover:shadow-2xl hover:shadow-[#264171]/8 hover:-translate-y-1 hover:bg-white">
-                        <h3 className="text-xl font-bold text-[#264171] mb-3">{step.title.split(' · ')[1]}</h3>
-                        <p className="text-base text-[#6C7F99] leading-relaxed">{step.description}</p>
-                      </div>
-                    </div>
+            {/* 3 Compact Cards */}
+            <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto mb-16">
+              {processSteps.map((step) => (
+                <div
+                  key={step.number}
+                  className="group relative rounded-3xl border-2 border-gray-200 bg-white p-6 transition-all duration-300 hover:border-[hsl(var(--brand))]/40 hover:shadow-2xl hover:-translate-y-2"
+                  style={{
+                    background: `linear-gradient(135deg, white 0%, ${step.color}08 100%)`,
+                  }}
+                >
+                  {/* Icon */}
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-transform duration-300 group-hover:scale-110"
+                    style={{ backgroundColor: step.color }}
+                  >
+                    <div className="text-white">{step.icon}</div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Title */}
+                  <h3 className="text-xl font-bold text-[#0F172A] mb-2">
+                    {step.number}. {step.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p className="text-sm text-[#6C7F99] mb-4 leading-relaxed">
+                    {step.description}
+                  </p>
+
+                  {/* Mini CTA */}
+                  <button
+                    onClick={handleGetStarted}
+                    className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
+                    style={{ color: step.color }}
+                  >
+                    {step.cta}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                  </button>
+                </div>
+              ))}
             </div>
 
-            {/* Visual Dashboard Mockup - Below Process */}
-            <div className="max-w-2xl mx-auto">
-              <div className="rounded-3xl border-2 border-[#264171]/12 bg-white/90 backdrop-blur-sm p-6 shadow-2xl shadow-[#264171]/10 overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#264171]/8 to-transparent rounded-full blur-3xl"></div>
-
-                <div className="relative">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-[#264171] to-[#E6AE63] text-white text-sm font-semibold">✓</div>
-                    <span className="text-sm font-semibold text-[#264171] uppercase tracking-wide">Live Analyse-Dashboard</span>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* KPI Cards */}
-                    <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <div className="text-xs text-[#6C7F99] mb-1">Monatlicher Cashflow</div>
-                          <div className="text-2xl font-bold bg-gradient-to-r from-[#22c55e] to-[#16a34a] bg-clip-text text-transparent">+327 €</div>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#22c55e]/10 to-[#22c55e]/5">
-                          <LineChart className="h-5 w-5 text-[#22c55e]" />
-                        </div>
-                      </div>
-                      <div className="h-2 rounded-full bg-[#F7F9FF] overflow-hidden">
-                        <div className="h-full w-3/4 bg-gradient-to-r from-[#22c55e] to-[#16a34a] rounded-full"></div>
-                      </div>
-                    </div>
-
-                    {/* Location Score */}
-                    <div className="rounded-2xl bg-white p-5 shadow-md border border-[#264171]/5">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <div className="text-xs text-[#6C7F99] mb-1">Mikrolage-Score</div>
-                          <div className="text-2xl font-bold text-[#0F172A]">8.4<span className="text-base text-[#6C7F99]">/10</span></div>
-                          <div className="text-xs text-[#E6AE63] font-medium">Top 15% im Stadtteil</div>
-                        </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#E6AE63]/10 to-[#E6AE63]/5">
-                          <MapPin className="h-5 w-5 text-[#E6AE63]" />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Rendite Grid */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-xl bg-gradient-to-br from-[#264171]/5 to-[#264171]/10 p-4 border border-[#264171]/10">
-                        <div className="text-xs text-[#6C7F99] mb-1">Nettomietrendite</div>
-                        <div className="text-lg font-bold text-[#264171]">4.2%</div>
-                      </div>
-                      <div className="rounded-xl bg-gradient-to-br from-[#E6AE63]/5 to-[#E6AE63]/10 p-4 border border-[#E6AE63]/10">
-                        <div className="text-xs text-[#6C7F99] mb-1">DSCR</div>
-                        <div className="text-lg font-bold text-[#E6AE63]">1.35</div>
-                      </div>
-                    </div>
-
-                    {/* PDF Export Button */}
-                    <button className="w-full flex items-center justify-between rounded-xl bg-gradient-to-r from-[#264171] to-[#E6AE63] p-4 text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5">
-                      <div className="flex items-center gap-3">
-                        <FileBarChart className="h-5 w-5" />
-                        <span className="text-sm font-semibold">PDF-Report erstellen</span>
-                      </div>
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
+            {/* Mini Carousel - Screenshot Placeholders */}
+            <div className="mb-12">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
+                  So sieht's aus
+                </h3>
+                <p className="text-base text-[#6C7F99]">
+                  KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
+                </p>
               </div>
+              <MiniCarousel />
             </div>
           </div>
         </section>
@@ -560,13 +536,13 @@ export default function LandingPage() {
                 {
                   name: 'Mariam',
                   role: 'Ärztin',
-                  quote: 'Ja/Nein plus PDF für die Bank – ohne Excel-Nacht.',
+                  quote: 'Hat mir die Bank-Unterlagen gerettet. PDF fertig in 2 Minuten.',
                   color: '#264171'
                 },
                 {
                   name: 'Daniel',
                   role: 'IT-Consultant',
-                  quote: 'Szenarien verschieben, sofort neue Rendite sehen.',
+                  quote: 'Szenarien verschieben, sofort neue Rendite sehen – genau mein Ding.',
                   color: '#E6AE63'
                 },
                 {
@@ -578,7 +554,7 @@ export default function LandingPage() {
                 {
                   name: 'Leandro',
                   role: 'Data-Nerd',
-                  quote: 'Datenquellen transparent, Annahmen editierbar.',
+                  quote: 'Datenquellen transparent, Annahmen editierbar – perfekt.',
                   color: '#264171'
                 },
               ].map((persona) => (
@@ -598,6 +574,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Pricing Teaser */}
+        <PricingTeaser />
 
         <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="mx-auto max-w-4xl">
@@ -641,23 +620,29 @@ export default function LandingPage() {
                   Cashflow, Nettomietrendite, EK-Rendite – klar aufbereitet.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <button
-                    type="button"
-                    onClick={handleGetStarted}
-                    className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-6 py-3 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
-                  >
-                    Jetzt kostenlos testen
-                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
-                  </button>
+                <div className="flex flex-col items-center justify-center gap-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={handleGetStarted}
+                      data-cta="main"
+                      className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-6 py-3 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
+                    >
+                      Jetzt kostenlos testen
+                      <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
+                    </button>
 
-                  {mounted && !isSignedIn && (
-                    <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                      <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
-                        Kostenlos registrieren
-                      </button>
-                    </SignInButton>
-                  )}
+                    {mounted && !isSignedIn && (
+                      <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
+                        <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
+                          Kostenlos registrieren
+                        </button>
+                      </SignInButton>
+                    )}
+                  </div>
+
+                  {/* Trust Badges */}
+                  <TrustBadges />
                 </div>
               </div>
             </div>
@@ -758,6 +743,9 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Sticky Bottom CTA - nur mobil */}
+      <StickyBottomCTA />
       </div>
     </>
   );
