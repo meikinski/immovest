@@ -13,6 +13,8 @@ type ExtractedData = {
   adresse?: string;
   miete?: number;
   hausgeld?: number;
+  hausgeld_umlegbar?: number;
+  hausgeld_nicht_umlegbar?: number;
   objekttyp?: 'wohnung' | 'haus';
 };
 
@@ -66,7 +68,29 @@ WICHTIG: Achte darauf, Kaltmiete und Hausgeld nicht zu verwechseln!
 - Kaltmiete ist normalerweise der größere Wert
 - Hausgeld/Nebenkosten ist normalerweise der kleinere Wert
 
-Antworte NUR mit einem JSON-Objekt in diesem Format:
+HAUSGELD - Suche nach Aufteilung:
+- Falls eine Aufteilung in "umlegbar"/"nicht umlegbar" sichtbar ist:
+  → Extrahiere "hausgeld_umlegbar" und "hausgeld_nicht_umlegbar" separat
+- Falls nur Gesamt-Hausgeld sichtbar ist:
+  → Extrahiere nur "hausgeld" (die Aufteilung wird automatisch berechnet)
+
+Antworte NUR mit einem JSON-Objekt. Beispiele:
+
+Wenn Split sichtbar:
+{
+  "kaufpreis": 350000,
+  "flaeche": 85.5,
+  "zimmer": 3.5,
+  "baujahr": 2015,
+  "adresse": "Musterstraße 10, 10115 Berlin",
+  "miete": 1200,
+  "hausgeld": 250,
+  "hausgeld_umlegbar": 150,
+  "hausgeld_nicht_umlegbar": 100,
+  "objekttyp": "wohnung"
+}
+
+Wenn nur Gesamt-Hausgeld sichtbar:
 {
   "kaufpreis": 350000,
   "flaeche": 85.5,
@@ -139,7 +163,24 @@ Wenn ein Wert nicht gefunden wird, lasse ihn weg. Antworte NUR mit dem JSON, kei
 
     console.log('✅ Extrahierte Daten:', data);
 
-    return NextResponse.json({ success: true, data });
+    // Hausgeld-Split-Logik (wie beim URL-Scraper)
+    const warnings: string[] = [];
+
+    if (data.hausgeld && data.hausgeld > 0) {
+      // Fall 1: Split wurde gefunden
+      if (data.hausgeld_umlegbar && data.hausgeld_nicht_umlegbar) {
+        console.log('✅ Hausgeld-Split gefunden');
+      }
+      // Fall 2: Nur Gesamt-Hausgeld gefunden → 60/40 Aufteilung
+      else {
+        data.hausgeld_umlegbar = Math.round(data.hausgeld * 0.6);
+        data.hausgeld_nicht_umlegbar = Math.round(data.hausgeld * 0.4);
+        warnings.push('Hausgeld-Verteilung ist Schätzung (60/40)');
+        console.log('⚠️ Hausgeld-Split geschätzt (60/40)');
+      }
+    }
+
+    return NextResponse.json({ success: true, data, warnings });
   } catch (error) {
     console.error('❌ Image extraction error:', error);
 
