@@ -6,10 +6,11 @@ import { ChevronLeft, ChevronRight, FileBarChart, LineChart, Bot } from 'lucide-
 /**
  * Mini Carousel mit 3 Screenshots (Placeholders)
  * Zeigt: KPI-Karten, KI-Kommentar, PDF-Muster
- * Mit Swipe-Unterstützung für Mobile
+ * Mit Swipe-Unterstützung für Mobile und echter Infinite Loop
  */
 export function MiniCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(1); // Start at first real slide (after clone)
+  const [isTransitioning, setIsTransitioning] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -35,8 +36,35 @@ export function MiniCarousel() {
     },
   ];
 
-  const next = () => setActiveIndex((prev) => (prev + 1) % slides.length);
-  const prev = () => setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
+  // Create infinite loop by cloning first and last slides
+  const extendedSlides = [slides[slides.length - 1], ...slides, slides[0]];
+
+  const next = () => {
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev + 1);
+  };
+
+  const prev = () => {
+    setIsTransitioning(true);
+    setActiveIndex((prev) => prev - 1);
+  };
+
+  // Handle infinite loop reset
+  useEffect(() => {
+    if (activeIndex === 0) {
+      // At cloned last slide, jump to real last slide
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setActiveIndex(slides.length);
+      }, 500);
+    } else if (activeIndex === extendedSlides.length - 1) {
+      // At cloned first slide, jump to real first slide
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setActiveIndex(1);
+      }, 500);
+    }
+  }, [activeIndex, slides.length, extendedSlides.length]);
 
   // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -76,10 +104,10 @@ export function MiniCarousel() {
       >
         {/* Slides */}
         <div
-          className="flex transition-transform duration-500 ease-out"
+          className={`flex ${isTransitioning ? 'transition-transform duration-500 ease-out' : ''}`}
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
-          {slides.map((slide, idx) => (
+          {extendedSlides.map((slide, idx) => (
             <div
               key={slide.title}
               className="w-full flex-shrink-0 p-12 min-h-[400px] flex flex-col items-center justify-center text-center"
@@ -130,16 +158,25 @@ export function MiniCarousel() {
 
       {/* Dots Indicator */}
       <div className="flex items-center justify-center gap-2 mt-6">
-        {slides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setActiveIndex(idx)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              idx === activeIndex ? 'w-8 bg-[hsl(var(--brand))]' : 'w-2 bg-gray-300'
-            }`}
-            aria-label={`Zu Bild ${idx + 1}`}
-          />
-        ))}
+        {slides.map((_, idx) => {
+          // Map activeIndex to real slide index (accounting for clones)
+          const realIndex = activeIndex === 0 ? slides.length - 1 :
+                           activeIndex === extendedSlides.length - 1 ? 0 :
+                           activeIndex - 1;
+          return (
+            <button
+              key={idx}
+              onClick={() => {
+                setIsTransitioning(true);
+                setActiveIndex(idx + 1);
+              }}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === realIndex ? 'w-8 bg-[hsl(var(--brand))]' : 'w-2 bg-gray-300'
+              }`}
+              aria-label={`Zu Bild ${idx + 1}`}
+            />
+          );
+        })}
       </div>
     </div>
   );

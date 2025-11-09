@@ -10,6 +10,7 @@ import { ShieldCheck, Lock, TrendingUp } from 'lucide-react';
  */
 export function TrustBadges() {
   const [analysisCount, setAnalysisCount] = useState(300);
+  const [displayCount, setDisplayCount] = useState(300);
 
   useEffect(() => {
     // Live counter - increments every 30 seconds
@@ -19,6 +20,29 @@ export function TrustBadges() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Animated counter effect
+  useEffect(() => {
+    if (displayCount === analysisCount) return;
+
+    const duration = 1000; // 1 second animation
+    const steps = 30;
+    const increment = (analysisCount - displayCount) / steps;
+    const stepDuration = duration / steps;
+
+    let currentStep = 0;
+    const timer = setInterval(() => {
+      currentStep++;
+      if (currentStep >= steps) {
+        setDisplayCount(analysisCount);
+        clearInterval(timer);
+      } else {
+        setDisplayCount((prev) => Math.round(prev + increment));
+      }
+    }, stepDuration);
+
+    return () => clearInterval(timer);
+  }, [analysisCount, displayCount]);
 
   const badges = [
     {
@@ -31,7 +55,7 @@ export function TrustBadges() {
     },
     {
       icon: <TrendingUp className="w-3.5 h-3.5" />,
-      text: `> ${analysisCount} Analysen erstellt`,
+      text: `> ${displayCount} Analysen erstellt`,
     },
   ];
 
@@ -40,9 +64,9 @@ export function TrustBadges() {
       {badges.map((badge, idx) => (
         <div
           key={idx}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/40 backdrop-blur-sm border border-white/30 shadow-sm text-xs font-medium text-gray-600 transition-all duration-200 hover:bg-white/50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-white/40 shadow-sm text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-white/80"
         >
-          <div className="flex items-center justify-center opacity-60">
+          <div className="flex items-center justify-center opacity-70">
             {badge.icon}
           </div>
           <span className="whitespace-nowrap">

@@ -589,7 +589,7 @@ export default function LandingPage() {
         {/* Pricing Teaser */}
         <PricingTeaser />
 
-        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
+        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#EEF2FF] via-[#F7F9FF] to-[#FDF8F3]">
           <div className="mx-auto max-w-4xl">
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
