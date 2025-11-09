@@ -1,14 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, FileBarChart, LineChart, Bot } from 'lucide-react';
 
 /**
  * Mini Carousel mit 3 Screenshots (Placeholders)
  * Zeigt: KPI-Karten, KI-Kommentar, PDF-Muster
+ * Mit Swipe-Unterstützung für Mobile
  */
 export function MiniCarousel() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const slides = [
     {
@@ -34,10 +38,42 @@ export function MiniCarousel() {
   const next = () => setActiveIndex((prev) => (prev + 1) % slides.length);
   const prev = () => setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length);
 
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe) {
+      next();
+    } else if (isRightSwipe) {
+      prev();
+    }
+
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
     <div className="relative max-w-2xl mx-auto">
       {/* Carousel Container */}
-      <div className="relative overflow-hidden rounded-3xl border-2 border-gray-200 bg-white shadow-xl">
+      <div
+        ref={carouselRef}
+        className="relative overflow-hidden rounded-3xl border-2 border-gray-200 bg-white shadow-xl"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
         {/* Slides */}
         <div
           className="flex transition-transform duration-500 ease-out"
