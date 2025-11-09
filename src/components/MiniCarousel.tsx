@@ -28,14 +28,14 @@ export function MiniCarousel() {
       description: 'Komplette Immobiliendaten strukturiert erfassen',
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
-      image: '/objektdaten.png',
+      image: '/imvestr_objektdaten.png',
     },
     {
       title: 'Szenarien',
       description: 'Verschiedene Finanzierungsszenarien durchspielen',
       icon: <FileBarChart className="w-8 h-8" />,
       color: '#A56554',
-      image: '/szenarien.png',
+      image: '/imvestr_szenarien.png',
     },
   ];
 
@@ -113,7 +113,10 @@ export function MiniCarousel() {
           {extendedSlides.map((slide, idx) => (
             <div
               key={`${slide.title}-${idx}`}
-              className="w-full flex-shrink-0 p-8 min-h-[500px] flex flex-col items-center justify-center text-center bg-white"
+              className="w-full flex-shrink-0 p-8 min-h-[500px] flex flex-col items-center justify-center text-center"
+              style={{
+                background: `linear-gradient(135deg, ${slide.color}08 0%, ${slide.color}15 100%)`,
+              }}
             >
               {/* Screenshot */}
               <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
