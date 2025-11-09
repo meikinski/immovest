@@ -31,18 +31,24 @@ export function StackedCards({ steps }: StackedCardsProps) {
       if (!containerRef.current) return;
 
       const container = containerRef.current;
-      const containerTop = container.offsetTop;
+      const rect = container.getBoundingClientRect();
+      const containerTop = window.scrollY + rect.top;
       const containerHeight = container.offsetHeight;
       const scrollY = window.scrollY;
       const windowHeight = window.innerHeight;
 
       // Calculate scroll progress for each card
       const newProgress = steps.map((_, idx) => {
-        const cardStart = containerTop + (idx * containerHeight) / steps.length;
-        const cardEnd = cardStart + containerHeight / steps.length;
+        // Distribute cards evenly across the container height
+        const sectionHeight = containerHeight / steps.length;
+        const cardStart = containerTop + (idx * sectionHeight);
+        const cardEnd = cardStart + sectionHeight;
+
+        // Calculate progress based on viewport center
+        const viewportCenter = scrollY + windowHeight / 2;
         const progress = Math.max(
           0,
-          Math.min(1, (scrollY + windowHeight / 2 - cardStart) / (cardEnd - cardStart))
+          Math.min(1, (viewportCenter - cardStart) / (cardEnd - cardStart))
         );
         return progress;
       });
@@ -50,10 +56,14 @@ export function StackedCards({ steps }: StackedCardsProps) {
       setScrollProgress(newProgress);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
     handleScroll(); // Initial calculation
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, [steps.length]);
 
   const handleGetStarted = () => {
@@ -61,22 +71,28 @@ export function StackedCards({ steps }: StackedCardsProps) {
   };
 
   return (
-    <div ref={containerRef} className="relative min-h-[200vh] py-24">
+    <div ref={containerRef} className="relative py-24" style={{ minHeight: `${150 * steps.length}vh` }}>
       <div className="sticky top-20 max-w-2xl mx-auto px-6">
         {steps.map((step, idx) => {
           const progress = scrollProgress[idx];
-          const scale = 1 - (1 - progress) * 0.05 * idx;
-          const opacity = progress > 0.8 && idx < steps.length - 1 ? 1 - (progress - 0.8) * 5 : 1;
-          const translateY = (1 - progress) * 50 * idx;
+          // Improved scaling: start at 0.9 for cards below and scale to 1
+          const scale = 0.9 + (progress * 0.1);
+          // Fade out previous cards as new one comes in
+          const opacity = idx < steps.length - 1
+            ? Math.max(0, 1 - Math.max(0, scrollProgress[idx + 1] - 0.2) * 5)
+            : 1;
+          // Stack cards with offset
+          const translateY = Math.max(0, (1 - progress) * 80) + (idx * 8);
 
           return (
             <div
               key={step.number}
-              className="absolute inset-0 transition-all duration-300"
+              className="absolute inset-0 will-change-transform"
               style={{
                 transform: `scale(${scale}) translateY(${translateY}px)`,
                 opacity,
-                zIndex: steps.length - idx,
+                zIndex: idx,
+                transition: 'transform 0.1s ease-out, opacity 0.3s ease-out',
               }}
             >
               <div
