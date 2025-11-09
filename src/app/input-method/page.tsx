@@ -6,18 +6,22 @@ import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkl
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
+import { saveAnalysis } from '@/lib/storage';
 
 export default function InputMethodPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const importData = useImmoStore(s => s.importData);
+  const exportState = useImmoStore(s => s.exportState);
+  const setAnalysisId = useImmoStore(s => (id: string) => s.importData({ analysisId: id }));
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageLoading, setImageLoading] = useState(false);
   const [imageError, setImageError] = useState('');
+  const [imageWarnings, setImageWarnings] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +44,7 @@ export default function InputMethodPage() {
 
     setImage(file);
     setImageError('');
+    setImageWarnings([]);
 
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -63,6 +68,7 @@ export default function InputMethodPage() {
 
     setImageLoading(true);
     setImageError('');
+    setImageWarnings([]);
 
     try {
       const reader = new FileReader();
@@ -93,8 +99,9 @@ export default function InputMethodPage() {
         throw new Error(errorMsg);
       }
 
-      const { data } = result;
+      const { data, warnings } = result;
 
+      // Import data into store
       importData({
         kaufpreis: data.kaufpreis || 0,
         adresse: data.adresse || '',
@@ -102,10 +109,24 @@ export default function InputMethodPage() {
         zimmer: data.zimmer || 0,
         baujahr: data.baujahr || new Date().getFullYear(),
         miete: data.miete || 0,
+        hausgeld: data.hausgeld || 0,
+        hausgeld_umlegbar: data.hausgeld_umlegbar || 0,
         objekttyp: data.objekttyp || 'wohnung',
       });
 
-      router.push('/step/a');
+      // Save to localStorage to persist across login/reload
+      const userId = user?.id || null;
+      const analysisId = saveAnalysis(userId, exportState());
+      setAnalysisId(analysisId);
+
+      // Show warnings if any
+      if (warnings && warnings.length > 0) {
+        setImageWarnings(warnings);
+        // Give user time to see warnings before navigating
+        setTimeout(() => router.push('/step/a'), 2000);
+      } else {
+        router.push('/step/a');
+      }
     } catch (err) {
       setImageError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
@@ -139,6 +160,11 @@ export default function InputMethodPage() {
       // Import data into store
       if (result.data) {
         importData(result.data);
+
+        // Save to localStorage to persist across login/reload
+        const userId = user?.id || null;
+        const analysisId = saveAnalysis(userId, exportState());
+        setAnalysisId(analysisId);
 
         // Show warnings if any
         if (result.warnings.length > 0) {
@@ -418,6 +444,7 @@ export default function InputMethodPage() {
                         setImage(null);
                         setImagePreview(null);
                         setImageError('');
+                        setImageWarnings([]);
                       }}
                       className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow-lg"
                     >
@@ -428,6 +455,15 @@ export default function InputMethodPage() {
                   {imageError && (
                     <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
                       {imageError}
+                    </div>
+                  )}
+
+                  {imageWarnings.length > 0 && (
+                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-xs space-y-1">
+                      <p className="font-semibold">⚠️ Hinweise:</p>
+                      {imageWarnings.map((warning, idx) => (
+                        <p key={idx}>• {warning}</p>
+                      ))}
                     </div>
                   )}
 
