@@ -498,7 +498,7 @@ export default function LandingPage() {
             <div className="mb-12">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
-                  So sieht's aus
+                  So sieht es aus
                 </h3>
                 <p className="text-base text-[#6C7F99]">
                   KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
