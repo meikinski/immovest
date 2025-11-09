@@ -14,7 +14,6 @@ export default function InputMethodPage() {
   const { user } = useUser();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
-  const setAnalysisId = useImmoStore(s => (id: string) => s.importData({ analysisId: id }));
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
@@ -117,7 +116,7 @@ export default function InputMethodPage() {
       // Save to localStorage to persist across login/reload
       const userId = user?.id || null;
       const analysisId = saveAnalysis(userId, exportState());
-      setAnalysisId(analysisId);
+      importData({ analysisId });
 
       // Show warnings if any
       if (warnings && warnings.length > 0) {
@@ -164,7 +163,7 @@ export default function InputMethodPage() {
         // Save to localStorage to persist across login/reload
         const userId = user?.id || null;
         const analysisId = saveAnalysis(userId, exportState());
-        setAnalysisId(analysisId);
+        importData({ analysisId });
 
         // Show warnings if any
         if (result.warnings.length > 0) {
