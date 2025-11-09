@@ -378,19 +378,16 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* Right: Screenshot Placeholder - TODO: Add actual screenshot */}
-              <div className="flex-1 relative rounded-3xl border-2 border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-8 overflow-hidden shadow-xl min-h-[500px] flex items-center justify-center">
+              {/* Right: Input Method Screenshot */}
+              <div className="flex-1 relative rounded-3xl border-2 border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-6 overflow-hidden shadow-xl">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#E6AE63]/10 to-transparent rounded-full blur-3xl"></div>
 
-                {/* Placeholder for screenshot - TODO: Replace with actual UI screenshot */}
-                <div className="relative text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#E6AE63] to-[#D4995A] flex items-center justify-center">
-                    <Camera className="w-8 h-8 text-white" />
-                  </div>
-                  <p className="text-sm font-medium text-[#6C7F99]">
-                    Screenshot Platzhalter<br />
-                    <span className="text-xs">Hier kommt später ein Screenshot vom Import-Flow</span>
-                  </p>
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
+                  <img
+                    src="/inputmethod.png"
+                    alt="Input-Methoden Auswahl"
+                    className="w-full h-auto object-contain"
+                  />
                 </div>
               </div>
             </div>
