@@ -379,10 +379,13 @@ export default function LandingPage() {
               </div>
 
               {/* Right: Input Method Screenshot */}
-              <div className="flex-1 relative rounded-3xl border-2 border-[#E6AE63]/20 bg-gradient-to-br from-white via-[#F7F9FF] to-[#E6AE63]/5 p-6 overflow-hidden shadow-xl">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#E6AE63]/10 to-transparent rounded-full blur-3xl"></div>
-
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
+              <div
+                className="flex-1 relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, #E6AE6308 0%, #E6AE6315 100%)',
+                }}
+              >
+                <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-200">
                   <img
                     src="/imvestr_inputmethod.png"
                     alt="Input-Methoden Auswahl"

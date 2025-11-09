@@ -17,18 +17,18 @@ export function MiniCarousel() {
 
   const slides = [
     {
-      title: 'KPI-Karten',
-      description: 'Alle wichtigen Kennzahlen auf einen Blick',
-      icon: <LineChart className="w-8 h-8" />,
-      color: '#264171',
-      image: '/imevstr_kpis.png',
-    },
-    {
       title: 'Objektdaten',
       description: 'Komplette Immobiliendaten strukturiert erfassen',
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
       image: '/imvestr_objektdaten.png',
+    },
+    {
+      title: 'KPI-Karten',
+      description: 'Alle wichtigen Kennzahlen auf einen Blick',
+      icon: <LineChart className="w-8 h-8" />,
+      color: '#264171',
+      image: '/imevstr_kpis.png',
     },
     {
       title: 'Szenarien',
