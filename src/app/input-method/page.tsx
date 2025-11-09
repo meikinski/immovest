@@ -269,7 +269,8 @@ export default function InputMethodPage() {
           </div>
 
           {/* Section Heading */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 border-4 border-blue-500 bg-blue-50 p-4 rounded-xl">
+            <div className="text-xs font-bold text-blue-600 mb-2">✅ NEUE ÜBERSCHRIFT HIER ✅</div>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
               Deine Eingabemethoden
             </h2>
