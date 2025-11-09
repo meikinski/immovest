@@ -1155,7 +1155,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="relative">
               <input
                 type="text"
-                value={mounted ? ek.toLocaleString('de-DE') : + ' 0'} 
+                value={mounted ? ek.toLocaleString('de-DE') : + ' 0'}
                 onChange={e => setEk(
                   Number(
                     e.target.value
@@ -1163,6 +1163,7 @@ const exportPdf = React.useCallback(async () => {
                     .replace(',', '.')
                   ) || 0
                 )}
+                onFocus={e => e.target.select()}
                 className="w-full input-uniform input-editable"
               />
               <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">€</span>

@@ -124,7 +124,7 @@ export function PricingTeaser() {
         </div>
 
         {/* Plans Grid - Desktop */}
-        <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
           {plans.map((plan) => (
             <div
               key={plan.name}
@@ -136,7 +136,7 @@ export function PricingTeaser() {
             >
               {/* Highlighted Badge */}
               {plan.highlighted && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg">
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap z-10">
                   Beliebt
                 </div>
               )}
@@ -203,9 +203,9 @@ export function PricingTeaser() {
         </div>
 
         {/* Plans Carousel - Mobile */}
-        <div className="md:hidden max-w-md mx-auto">
+        <div className="md:hidden max-w-md mx-auto pt-6">
           <div
-            className="relative overflow-hidden"
+            className="relative overflow-visible"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -228,7 +228,7 @@ export function PricingTeaser() {
                   >
                     {/* Highlighted Badge */}
                     {plan.highlighted && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg">
+                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap z-10">
                         Beliebt
                       </div>
                     )}

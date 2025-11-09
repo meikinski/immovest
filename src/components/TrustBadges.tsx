@@ -60,11 +60,11 @@ export function TrustBadges() {
   ];
 
   return (
-    <div className="flex flex-row flex-wrap items-center justify-center gap-2 sm:gap-3">
+    <div className="flex flex-row flex-wrap items-center justify-center gap-1.5 sm:gap-3">
       {badges.map((badge, idx) => (
         <div
           key={idx}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-white/40 shadow-sm text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-white/80"
+          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-white/70 backdrop-blur-sm border border-white/40 shadow-sm text-[10px] sm:text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-white/80"
         >
           <div className="flex items-center justify-center opacity-70">
             {badge.icon}

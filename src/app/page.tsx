@@ -451,7 +451,7 @@ export default function LandingPage() {
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                Weniger Text, mehr Nutzen – klare CTAs für jeden Schritt.
+                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und datenbasiert.
               </p>
             </div>
 
