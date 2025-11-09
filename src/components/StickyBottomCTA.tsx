@@ -54,15 +54,12 @@ export function StickyBottomCTA() {
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="bg-white/20 backdrop-blur-xl border-t-4 border-orange-500 shadow-2xl p-4">
-        <div className="text-center text-xs font-bold text-orange-600 mb-2 bg-orange-100 p-1 rounded">
-          ✅ TEXT ÄNDERT SICH JE NACH LOGIN-STATUS
-        </div>
+      <div className="bg-white/20 backdrop-blur-xl border-t border-white/30 shadow-2xl p-4">
         <button
           onClick={() => router.push('/input-method')}
           className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
         >
-          {isSignedIn ? '🔓 Analyse starten (EINGELOGGT)' : '🆓 Kostenlos testen (NICHT EINGELOGGT)'}
+          {isSignedIn ? 'Analyse starten' : 'Kostenlos testen'}
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>

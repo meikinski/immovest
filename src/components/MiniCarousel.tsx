@@ -119,10 +119,7 @@ export function MiniCarousel() {
               }}
             >
               {/* Screenshot */}
-              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-4 border-green-500 relative">
-                <div className="absolute top-2 left-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold z-20">
-                  ✅ NEUE SCHATTEN & BORDER
-                </div>
+              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none z-10" />
                 <img
                   src={slide.image}
