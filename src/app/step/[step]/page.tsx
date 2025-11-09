@@ -23,6 +23,7 @@ import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { toast } from 'sonner';
 import { SignInButton, useAuth } from '@clerk/nextjs';
+import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 
 
 
@@ -60,6 +61,9 @@ export default function StepPage() {
   // Hydration guard
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // State Persistence (lädt Zustand beim Mount, speichert bei Änderungen)
+  useStatePersistence();
 
   // === Common Store (Inputs & Ableitungen) ===
   const score         = useImmoStore(s => s.score);
