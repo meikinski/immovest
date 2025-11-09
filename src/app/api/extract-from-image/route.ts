@@ -140,7 +140,7 @@ Wenn ein Wert nicht gefunden wird, lasse ihn weg. Antworte NUR mit dem JSON, kei
     let data: ExtractedData;
     try {
       data = JSON.parse(jsonMatch[0]) as ExtractedData;
-    } catch (parseError) {
+    } catch {
       return NextResponse.json(
         {
           error: 'Die extrahierten Daten konnten nicht verarbeitet werden',
