@@ -105,7 +105,7 @@ export default function LandingPage() {
     {
       question: 'Unterstützt ihr bei der Bank?',
       answer:
-        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal fürs Gespräch mit Finanzierungspartnern.',
+        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal für das Gespräch mit Finanzierungspartnern.',
     },
   ];
 
@@ -293,7 +293,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Adresse eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF fürs Bankgespräch inklusive.
+              Adresse eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF für das Bankgespräch inklusive.
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
