@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -18,134 +18,88 @@ interface StackedCardsProps {
 }
 
 /**
- * Stacked Cards Component with scroll animation
- * Cards stack on top of each other and fade/scale as you scroll
+ * Stacked Cards Component - Simple Transform-based Stacking
+ * All cards in same layer, staggered via translateY + scale
  */
 export function StackedCards({ steps }: StackedCardsProps) {
   const router = useRouter();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState<number[]>([0, 0, 0]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-
-      const container = containerRef.current;
-      const rect = container.getBoundingClientRect();
-      const scrollY = window.scrollY;
-      const windowHeight = window.innerHeight;
-
-      // Calculate when container enters/exits viewport
-      const containerTop = scrollY + rect.top;
-      const containerBottom = containerTop + rect.height;
-      const viewportTop = scrollY;
-      const viewportBottom = scrollY + windowHeight;
-
-      // Each card gets its own scroll "zone"
-      const cardHeight = 400; // Approx card height
-      const offsetBetweenCards = windowHeight * 0.3; // Distance between card activations
-
-      const newProgress = steps.map((_, idx) => {
-        const cardTriggerPoint = containerTop + (idx * offsetBetweenCards);
-        const cardEndPoint = cardTriggerPoint + offsetBetweenCards;
-
-        const viewportCenter = scrollY + windowHeight / 2;
-
-        if (viewportCenter < cardTriggerPoint) {
-          return 0;
-        } else if (viewportCenter > cardEndPoint) {
-          return 1;
-        } else {
-          return (viewportCenter - cardTriggerPoint) / (cardEndPoint - cardTriggerPoint);
-        }
-      });
-
-      setScrollProgress(newProgress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-
-    // Initial calculation with small delay to ensure proper layout
-    setTimeout(handleScroll, 100);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [steps.length]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const handleGetStarted = () => {
     router.push('/input-method');
   };
 
+  const cardHeight = 280; // Base card height in px
+  const offset = 40; // Vertical offset between cards
+  const containerHeight = cardHeight + offset * (steps.length - 1);
+
   return (
-    <div ref={containerRef} className="relative py-24" style={{ minHeight: `${100 + (steps.length * 50)}vh` }}>
-      <div className="sticky top-24 max-w-2xl mx-auto px-6 h-[550px]">
-        {steps.map((step, idx) => {
-          const progress = scrollProgress[idx];
+    <div className="py-24 px-6">
+      <div className="mx-auto max-w-2xl">
+        {/* Container with calculated height */}
+        <div
+          className="relative isolation-isolate"
+          style={{ height: `${containerHeight}px` }}
+        >
+          {steps.map((step, idx) => {
+            const isActive = activeIndex === idx;
+            const translateY = idx * offset;
+            const scale = isActive ? 1.02 : 1;
+            const zIndex = isActive ? 999 : steps.length - idx;
 
-          // Scale: Start smaller and grow to full size
-          const scale = 0.90 + (progress * 0.10);
-
-          // Opacity: Fade out previous cards as next one comes in
-          const nextProgress = idx < steps.length - 1 ? scrollProgress[idx + 1] : 0;
-          const opacity = Math.max(0.3, 1 - nextProgress * 1.5);
-
-          // TranslateY: Large initial offset for visible stacking
-          const baseOffset = idx * 60; // Much larger offset for visible stacking
-          const scrollOffset = (1 - progress) * 100; // Cards slide down more as they activate
-          const translateY = baseOffset + scrollOffset;
-
-          return (
-            <div
-              key={step.number}
-              className="absolute top-0 left-0 right-0"
-              style={{
-                transform: `scale(${scale}) translateY(${translateY}px)`,
-                opacity,
-                zIndex: steps.length - idx,
-                pointerEvents: progress > 0.3 ? 'auto' : 'none',
-                transition: 'transform 0.05s ease-out, opacity 0.2s ease-out',
-              }}
-            >
+            return (
               <div
-                className="rounded-3xl border-2 border-gray-200 bg-white p-8 shadow-2xl"
+                key={step.number}
+                className="absolute inset-x-0 top-0 cursor-pointer transition-all duration-300 ease-out motion-reduce:transition-none"
                 style={{
-                  background: `linear-gradient(135deg, white 0%, ${step.color}12 100%)`,
+                  transform: `translateY(${translateY}px) scale(${scale})`,
+                  zIndex,
                 }}
+                onClick={() => setActiveIndex(isActive ? null : idx)}
+                onFocus={() => setActiveIndex(idx)}
+                onBlur={() => setActiveIndex(null)}
               >
-                {/* Icon repositioned to top-right corner */}
-                <div className="flex items-start justify-between mb-6">
-                  <div>
-                    <h3 className="text-3xl font-bold text-[#0F172A] mb-2">
-                      {step.number}. {step.title}
-                    </h3>
-                    <p className="text-lg text-[#6C7F99] leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                  <div
-                    className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
-                    style={{ backgroundColor: step.color }}
-                  >
-                    <div className="text-white">{step.icon}</div>
-                  </div>
-                </div>
-
-                {/* CTA Button */}
-                <button
-                  onClick={handleGetStarted}
-                  className="flex items-center gap-2 text-base font-semibold transition-all duration-200 group"
-                  style={{ color: step.color }}
+                <div
+                  className="glass rounded-3xl border-2 border-gray-200 p-8 shadow-xl hover:shadow-2xl transition-shadow duration-300"
+                  style={{
+                    background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${step.color}18 100%)`,
+                  }}
                 >
-                  {step.cta}
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </button>
+                  {/* Content */}
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h3 className="text-2xl font-bold text-[#0F172A] mb-2">
+                        {step.number}. {step.title}
+                      </h3>
+                      <p className="text-base text-[#6C7F99] leading-relaxed">
+                        {step.description}
+                      </p>
+                    </div>
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
+                      style={{ backgroundColor: step.color }}
+                    >
+                      <div className="text-white">{step.icon}</div>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGetStarted();
+                    }}
+                    className="flex items-center gap-2 text-sm font-semibold transition-all duration-200 group"
+                    style={{ color: step.color }}
+                  >
+                    {step.cta}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </div>
   );

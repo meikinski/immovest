@@ -171,6 +171,11 @@ input::placeholder,textarea::placeholder{
    ============================================== */
 
 @layer utilities{
+  /* Glass effect for stacked cards and overlays */
+  .glass {
+    @apply bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50;
+  }
+
   .input-editable{
     @apply px-4 py-3 text-base bg-white;
     border:1px solid hsl(215 16% 80%);
