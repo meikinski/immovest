@@ -25,12 +25,14 @@ import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { MiniCarousel } from '@/components/MiniCarousel';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
+import { StackedCards } from '@/components/StackedCards';
 
 export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
+  const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     setMounted(true);
@@ -453,43 +455,52 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* 3 Compact Cards */}
-            <div className="grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto mb-16">
+            {/* Stacked Cards with Scroll Animation - Desktop */}
+            <div className="hidden md:block">
+              <StackedCards steps={processSteps} />
+            </div>
+
+            {/* Simple Grid - Mobile */}
+            <div className="md:hidden grid gap-6 max-w-5xl mx-auto mb-16">
               {processSteps.map((step) => (
                 <div
                   key={step.number}
-                  className="group relative rounded-3xl border-2 border-gray-200 bg-white p-6 transition-all duration-300 hover:border-[hsl(var(--brand))]/40 hover:shadow-2xl hover:-translate-y-2"
+                  className="group relative rounded-3xl border-2 border-gray-200 bg-white p-6 transition-all duration-300"
                   style={{
                     background: `linear-gradient(135deg, white 0%, ${step.color}08 100%)`,
                   }}
                 >
-                  {/* Icon */}
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-lg transition-transform duration-300 group-hover:scale-110"
-                    style={{ backgroundColor: step.color }}
-                  >
-                    <div className="text-white">{step.icon}</div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      {/* Title */}
+                      <h3 className="text-xl font-bold text-[#0F172A] mb-2">
+                        {step.number}. {step.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-[#6C7F99] mb-4 leading-relaxed">
+                        {step.description}
+                      </p>
+
+                      {/* Mini CTA */}
+                      <button
+                        onClick={handleGetStarted}
+                        className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
+                        style={{ color: step.color }}
+                      >
+                        {step.cta}
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                      </button>
+                    </div>
+
+                    {/* Icon repositioned to right */}
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
+                      style={{ backgroundColor: step.color }}
+                    >
+                      <div className="text-white">{step.icon}</div>
+                    </div>
                   </div>
-
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-[#0F172A] mb-2">
-                    {step.number}. {step.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-sm text-[#6C7F99] mb-4 leading-relaxed">
-                    {step.description}
-                  </p>
-
-                  {/* Mini CTA */}
-                  <button
-                    onClick={handleGetStarted}
-                    className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
-                    style={{ color: step.color }}
-                  >
-                    {step.cta}
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                  </button>
                 </div>
               ))}
             </div>
@@ -588,13 +599,50 @@ export default function LandingPage() {
               <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">Häufige Fragen</h2>
               <p className="text-lg text-[#6C7F99]">Alles, was du wissen musst – kurz und klar.</p>
             </div>
-            <div className="space-y-4">
+            {/* Desktop - Always open */}
+            <div className="hidden md:block space-y-4">
               {faqs.map((faq) => (
                 <div key={faq.question} className="group rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 p-8 shadow-sm transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-md">
                   <h3 className="text-lg font-semibold text-[#0F172A] mb-3">{faq.question}</h3>
                   <p className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Mobile - Accordion */}
+            <div className="md:hidden space-y-3">
+              {faqs.map((faq, idx) => {
+                const isOpen = activeFaqIndex === idx;
+                return (
+                  <div
+                    key={faq.question}
+                    className="rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 shadow-sm overflow-hidden transition-all duration-200"
+                  >
+                    <button
+                      onClick={() => setActiveFaqIndex(isOpen ? null : idx)}
+                      className="w-full flex items-center justify-between p-6 text-left"
+                    >
+                      <h3 className="text-base font-semibold text-[#0F172A] pr-4">
+                        {faq.question}
+                      </h3>
+                      <div className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                        <svg className="w-5 h-5 text-[#264171]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ${
+                        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                    >
+                      <div className="px-6 pb-6">
+                        <p className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -620,7 +668,7 @@ export default function LandingPage() {
                   Cashflow, Nettomietrendite, EK-Rendite – klar aufbereitet.
                 </p>
 
-                <div className="flex flex-col items-center justify-center gap-6">
+                <div className="flex flex-col items-center justify-center gap-4">
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
                       type="button"
@@ -640,9 +688,6 @@ export default function LandingPage() {
                       </SignInButton>
                     )}
                   </div>
-
-                  {/* Trust Badges */}
-                  <TrustBadges />
                 </div>
               </div>
             </div>
