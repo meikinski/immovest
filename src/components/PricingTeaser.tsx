@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { usePaywall } from '@/contexts/PaywallContext';
 
 /**
  * Pricing Teaser mit Toggle Jährlich/Monatlich
@@ -10,10 +11,16 @@ import { useRouter } from 'next/navigation';
  */
 export function PricingTeaser() {
   const router = useRouter();
+  const { isPremium } = usePaywall();
   const [isYearly, setIsYearly] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+
+  // Don't show pricing for premium users
+  if (isPremium) {
+    return null;
+  }
 
   const plans = [
     {
@@ -44,7 +51,6 @@ export function PricingTeaser() {
         { text: 'Szenarien-Rechner', included: true },
         { text: 'Bankfähiger PDF-Export', included: true },
         { text: 'Alle Analysen speichern', included: true },
-        { text: 'Premium Support', included: true },
       ],
       cta: 'Jetzt upgraden',
       highlighted: true,
