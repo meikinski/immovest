@@ -101,7 +101,7 @@ export function MiniCarousel() {
       {/* Carousel Container */}
       <div
         ref={carouselRef}
-        className="relative overflow-hidden rounded-3xl border-2 border-gray-200 bg-white shadow-xl"
+        className="relative overflow-hidden rounded-3xl shadow-xl"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -120,14 +120,13 @@ export function MiniCarousel() {
               }}
             >
               {/* Screenshot */}
-              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
+              <div className="w-full max-w-3xl mb-6">
                 <Image
                   src={slide.image}
                   alt={slide.title}
                   width={1200}
                   height={800}
-                  className="w-full h-auto object-contain scale-110 md:scale-100"
+                  className="w-full h-auto object-contain"
                   quality={85}
                   sizes="(max-width: 768px) 100vw, 672px"
                 />
