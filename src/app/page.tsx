@@ -81,7 +81,7 @@ export default function LandingPage() {
       "Bankfähiger PDF-Report",
     ],
     "url": "https://immovestr.de",
-    "screenshot": "https://immovestr.de/og-image.jpg",
+    "screenshot": "https://immovestr.de/og-image.png",
   };
 
   const organizationData = {
@@ -91,7 +91,13 @@ export default function LandingPage() {
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
-    "sameAs": [],
+    "sameAs": [
+      // TODO: Add social media URLs here for better SEO, e.g.:
+      // "https://www.instagram.com/imvestr",
+      // "https://www.linkedin.com/company/imvestr",
+      // "https://www.facebook.com/imvestr",
+      // "https://www.youtube.com/@imvestr",
+    ],
   };
 
   const faqs = [
