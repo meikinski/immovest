@@ -14,7 +14,19 @@ export function MiniCarousel() {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const slides = [
     {
@@ -23,6 +35,7 @@ export function MiniCarousel() {
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
       image: '/imvestr_objektdaten.png',
+      mobileImage: '/mobile_objektdaten_transparent.png',
     },
     {
       title: 'KPI-Karten',
@@ -30,6 +43,7 @@ export function MiniCarousel() {
       icon: <LineChart className="w-8 h-8" />,
       color: '#264171',
       image: '/imvestr_kpis.png',
+      mobileImage: '/mobile_kpi_transparent.png',
     },
     {
       title: 'Szenarien',
@@ -37,6 +51,7 @@ export function MiniCarousel() {
       icon: <FileBarChart className="w-8 h-8" />,
       color: '#A56554',
       image: '/imvestr_szenarien.png',
+      mobileImage: '/mobile_szenarien_transparent.png',
     },
   ];
 
@@ -101,7 +116,7 @@ export function MiniCarousel() {
       {/* Carousel Container */}
       <div
         ref={carouselRef}
-        className="relative overflow-hidden rounded-3xl border-2 border-gray-200 bg-white shadow-xl"
+        className="relative overflow-hidden rounded-3xl shadow-xl"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -120,14 +135,13 @@ export function MiniCarousel() {
               }}
             >
               {/* Screenshot */}
-              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
+              <div className="w-full max-w-3xl mb-6">
                 <Image
-                  src={slide.image}
+                  src={isMobile ? slide.mobileImage : slide.image}
                   alt={slide.title}
                   width={1200}
                   height={800}
-                  className="w-full h-auto object-contain scale-110 md:scale-100"
+                  className="w-full h-auto object-contain"
                   quality={85}
                   sizes="(max-width: 768px) 100vw, 672px"
                 />
