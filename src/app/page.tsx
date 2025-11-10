@@ -407,17 +407,17 @@ export default function LandingPage() {
 
                 {/* Input Method Screenshot */}
                 <div
-                  className="relative rounded-3xl p-8 overflow-hidden flex items-center justify-center"
+                  className="relative rounded-3xl p-4 md:p-8 overflow-hidden flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.08) 0%, rgba(58, 91, 137, 0.10) 42%, rgba(165, 101, 84, 0.12) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.20) 0%, rgba(58, 91, 137, 0.25) 42%, rgba(165, 101, 84, 0.30) 100%)',
                   }}
                 >
                   <Image
                     src="/imvestr_inputmethod.png"
                     alt="Input-Methoden Auswahl"
-                    width={1200}
-                    height={800}
-                    className="w-full h-auto object-contain"
+                    width={1400}
+                    height={900}
+                    className="w-full h-auto object-contain scale-105"
                     priority
                   />
                 </div>
