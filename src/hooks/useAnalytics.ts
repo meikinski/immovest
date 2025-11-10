@@ -1,0 +1,50 @@
+'use client';
+
+import { useCallback } from 'react';
+import { trackEvent, AnalyticsEvents } from '@/lib/analytics';
+
+/**
+ * React Hook for Analytics Tracking
+ *
+ * Usage example:
+ * ```tsx
+ * const { track } = useAnalytics();
+ *
+ * <button onClick={() => track(AnalyticsEvents.CTA_CLICKED, { cta_location: 'hero' })}>
+ *   Start Analysis
+ * </button>
+ * ```
+ */
+export function useAnalytics() {
+  const track = useCallback((eventName: string, eventParams?: Record<string, any>) => {
+    trackEvent(eventName, eventParams);
+  }, []);
+
+  // Shorthand methods for common events
+  const trackCTA = useCallback((ctaName: string, location: string) => {
+    track(AnalyticsEvents.CTA_CLICKED, {
+      cta_name: ctaName,
+      cta_location: location,
+    });
+  }, [track]);
+
+  const trackInputMethod = useCallback((method: 'ai_import' | 'manual' | 'excel') => {
+    track(AnalyticsEvents.INPUT_METHOD_SELECTED, {
+      input_method: method,
+    });
+  }, [track]);
+
+  const trackUpgradeClick = useCallback((planName: string, location: string) => {
+    track(AnalyticsEvents.UPGRADE_CLICKED, {
+      plan_name: planName,
+      click_location: location,
+    });
+  }, [track]);
+
+  return {
+    track,
+    trackCTA,
+    trackInputMethod,
+    trackUpgradeClick,
+  };
+}

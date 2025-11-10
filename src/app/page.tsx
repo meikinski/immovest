@@ -26,10 +26,13 @@ import { MiniCarousel } from '@/components/MiniCarousel';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { StackedCards } from '@/components/StackedCards';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { trackCTA } = useAnalytics();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
@@ -45,8 +48,15 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = () => {
+  const handleGetStarted = (location: string = 'hero') => {
+    trackCTA('start_analysis', location);
     router.push('/input-method');
+  };
+
+  const handleFaqToggle = (faqQuestion: string, isOpening: boolean) => {
+    if (isOpening) {
+      trackCTA('faq_opened', 'faq_section');
+    }
   };
 
   // Structured Data for SEO (JSON-LD)
@@ -640,7 +650,10 @@ export default function LandingPage() {
                     className="rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 shadow-sm overflow-hidden transition-all duration-200"
                   >
                     <button
-                      onClick={() => setActiveFaqIndex(isOpen ? null : idx)}
+                      onClick={() => {
+                        handleFaqToggle(faq.question, !isOpen);
+                        setActiveFaqIndex(isOpen ? null : idx);
+                      }}
                       className="w-full flex items-center justify-between p-6 text-left"
                     >
                       <h3 className="text-base font-semibold text-[#0F172A] pr-4">
