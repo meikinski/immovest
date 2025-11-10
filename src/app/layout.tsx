@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-site-verification-code', // TODO: Replace with actual verification code from Google Search Console
+    google: 'way_YghTPVpoX2sEDvnTsI2KKH1EcXkObmCNTYLMicg', // TODO: Replace with actual verification code from Google Search Console
   },
   themeColor: '#264171',
   appleWebApp: {
