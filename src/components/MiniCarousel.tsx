@@ -131,17 +131,17 @@ export function MiniCarousel() {
               key={`${slide.title}-${idx}`}
               className="w-full flex-shrink-0 px-4 py-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col items-center justify-center text-center"
               style={{
-                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.20) 0%, rgba(58, 91, 137, 0.25) 42%, rgba(165, 101, 84, 0.30) 100%)`,
+                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.85) 0%, rgba(58, 91, 137, 0.85) 42%, rgba(165, 101, 84, 0.85) 100%)`,
               }}
             >
               {/* Screenshot */}
-              <div className="w-full max-w-3xl mb-6">
+              <div className="w-full max-w-3xl mb-6 drop-shadow-2xl">
                 <Image
                   src={isMobile ? slide.mobileImage : slide.image}
                   alt={slide.title}
                   width={1200}
                   height={800}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.4)]"
                   quality={85}
                   sizes="(max-width: 768px) 100vw, 672px"
                 />
