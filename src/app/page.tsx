@@ -396,7 +396,7 @@ export default function LandingPage() {
               {/* Right: Screenshot with Headline */}
               <div className="flex-1 space-y-6">
                 {/* Screenshot Caption */}
-                <div className="text-left mb-6">
+                <div className="text-center md:text-left mb-6 mt-8 md:mt-0">
                   <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
                     Und so sieht es aus 👇
                   </h3>
@@ -539,7 +539,7 @@ export default function LandingPage() {
 
             {/* Mini Carousel - Screenshot Placeholders */}
             <div className="mb-12">
-              <div className="text-center mb-8">
+              <div className="text-center mb-8 max-w-2xl mx-auto">
                 <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
                   Und so sieht es aus 👇
                 </h3>
