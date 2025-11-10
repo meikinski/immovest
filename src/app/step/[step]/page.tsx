@@ -380,6 +380,23 @@ const dscr =
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
 
+  // Reset market comments when relevant inputs change
+  useEffect(() => {
+    const inputFingerprint = JSON.stringify({
+      adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
+    });
+
+    // If inputs changed (not initial mount), reset comments and fetch flag
+    if (lastMarktInputs.current && lastMarktInputs.current !== inputFingerprint) {
+      setLageComment('');
+      setMietpreisComment('');
+      setQmPreisComment('');
+      setInvestComment('');
+      marktFetched.current = false;
+    }
+  }, [adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung]);
+
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 

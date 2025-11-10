@@ -161,86 +161,86 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   },
   // Setter-Implementierungen
   setKaufpreis: (v: number) => {
-    set({ kaufpreis: v });
+    set({ kaufpreis: v, generatedComment: '' });
     get().updateDerived();
   },
   setObjekttyp: (v: 'wohnung' | 'haus') => {
-    set({ objekttyp: v });
+    set({ objekttyp: v, generatedComment: '' });
   },
   setGrunderwerbsteuerPct: (v: number) => {
-    set({ grunderwerbsteuer_pct: v });
+    set({ grunderwerbsteuer_pct: v, generatedComment: '' });
     get().updateDerived();
   },
   setNotarPct: (v: number) => {
-    set({ notar_pct: v });
+    set({ notar_pct: v, generatedComment: '' });
     get().updateDerived();
   },
   setMaklerPct: (v: number) => {
-    set({ makler_pct: v });
+    set({ makler_pct: v, generatedComment: '' });
     get().updateDerived();
   },
   setFlaeche: (v: number) => {
-    set({ flaeche: v });
+    set({ flaeche: v, generatedComment: '' });
     get().updateDerived();
   },
   setAdresse: (v: string) => {
-    set({ adresse: v });
+    set({ adresse: v, generatedComment: '' });
     get().updateDerived();
   },
   setZimmer: (v: number) => {
-    set({ zimmer: v });
+    set({ zimmer: v, generatedComment: '' });
     get().updateDerived();
   },
   setBaujahr: (v: number) => {
-    set({ baujahr: v });
+    set({ baujahr: v, generatedComment: '' });
     get().updateDerived();
   },
   setMiete: (v: number) => {
-    set({ miete: v });
+    set({ miete: v, generatedComment: '' });
     get().updateDerived();
   },
   setHausgeld: (v: number) => {
-    set({ hausgeld: v });
+    set({ hausgeld: v, generatedComment: '' });
     get().updateDerived();
   },
   setHausgeldUmlegbar: (v: number) => {
-    set({ hausgeld_umlegbar: v });
+    set({ hausgeld_umlegbar: v, generatedComment: '' });
     get().updateDerived();
   },
   setMietausfallPct: (v: number) => {
-    set({ mietausfall_pct: v });
+    set({ mietausfall_pct: v, generatedComment: '' });
     get().updateDerived();
   },
   setInstandhaltungskostenProQm: (v: number) => {
-    set({ instandhaltungskosten_pro_qm: v });
+    set({ instandhaltungskosten_pro_qm: v, generatedComment: '' });
     get().updateDerived();
   },
   setSteuer: (v: number) => {
-    set({ steuer: v });
+    set({ steuer: v, generatedComment: '' });
     get().updateDerived();
   },
   setAfa: (v: number) => {
-    set({ afa: v });
+    set({ afa: v, generatedComment: '' });
     get().updateDerived();
   },
   setRuecklagen: (v: number) => {
-    set({ ruecklagen: v });
+    set({ ruecklagen: v, generatedComment: '' });
     get().updateDerived();
   },
   setPersoenlicherSteuersatz: (v: number) => {
-    set({ persoenlicher_steuersatz: v });
+    set({ persoenlicher_steuersatz: v, generatedComment: '' });
     get().updateDerived();
   },
   setEk: (v: number) => {
-    set({ ek: v });
+    set({ ek: v, generatedComment: '' });
     get().updateDerived();
   },
   setZins: (v: number) => {
-    set({ zins: v });
+    set({ zins: v, generatedComment: '' });
     get().updateDerived();
   },
   setTilgung: (v: number) => {
-    set({ tilgung: v });
+    set({ tilgung: v, generatedComment: '' });
     get().updateDerived();
   },
   setGeneratedComment: (v: string) => {
