@@ -1,11 +1,18 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for imvestr.
+# Allow all search engines to crawl the site
+
 User-agent: *
 Allow: /
 
-# Disallow admin and API routes
+# Disallow private pages
+Disallow: /dashboard
+Disallow: /profile
 Disallow: /api/
-Disallow: /sign-in/
-Disallow: /sign-up/
 
-# Sitemap
+# Allow legal pages
+Allow: /impressum
+Allow: /datenschutz
+Allow: /agb
+
+# Sitemap location
 Sitemap: https://immovestr.de/sitemap.xml

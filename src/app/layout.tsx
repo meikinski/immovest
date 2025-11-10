@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/Providers';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
+import CookieBanner from '@/components/CookieBanner';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -94,6 +95,7 @@ export default function RootLayout({
         <GoogleTagManager />
         <Providers>
           {children}
+          <CookieBanner />
         </Providers>
       </body>
     </html>
