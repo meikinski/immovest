@@ -189,23 +189,23 @@ export default function LandingPage() {
   const processSteps = [
     {
       number: 1,
-      icon: <MapPin className="w-6 h-6" />,
+      icon: null,
       title: 'Objekt angeben',
       description: 'Adresse oder Eckdaten eintragen.',
       cta: 'Jetzt KPIs berechnen',
-      color: '#264171',
+      color: '#A56554',
     },
     {
       number: 2,
-      icon: <BarChart3 className="w-6 h-6" />,
+      icon: null,
       title: 'KPIs & KI-Einschätzung',
       description: 'Cashflow, Rendite, Marktvergleich.',
       cta: 'Analyse starten',
-      color: '#E6AE63',
+      color: '#A56554',
     },
     {
       number: 3,
-      icon: <TrendingUp className="w-6 h-6" />,
+      icon: null,
       title: 'Szenarien testen',
       description: 'Miete, Zins, EK variieren – Effekt sehen.',
       cta: 'Miete/Zins anpassen',
@@ -362,12 +362,12 @@ export default function LandingPage() {
         <section aria-label="Import-Optionen" className="px-6 py-12 md:py-20 bg-white border-y border-[#264171]/5">
           <div className="max-w-6xl mx-auto">
             {/* Section Header */}
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-6">
                 <Sparkles className="h-4 w-4 text-[#E6AE63]" />
                 Smart Import
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
                 Drei Wege zum Ergebnis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -397,17 +397,20 @@ export default function LandingPage() {
               {/* Right: Screenshot with Headline */}
               <div className="flex-1 space-y-6">
                 {/* Screenshot Caption */}
-                <div className="text-left">
-                  <h3 className="text-xl font-medium text-[#264171] mb-4">
-                    So sieht die Auswahl aus
+                <div className="text-left mb-6">
+                  <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
+                    Und so sieht es aus 👇
                   </h3>
+                  <p className="text-base text-[#6C7F99]">
+                    Einfach auswählen, egal ob Desktop oder mobil
+                  </p>
                 </div>
 
                 {/* Input Method Screenshot */}
                 <div
                   className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(108, 127, 153, 0.12) 38%, rgba(230, 174, 99, 0.20) 70%, rgba(165, 101, 84, 0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.08) 0%, rgba(58, 91, 137, 0.10) 42%, rgba(165, 101, 84, 0.12) 100%)',
                   }}
                 >
                   <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
@@ -430,11 +433,11 @@ export default function LandingPage() {
         <section id="features" aria-label="Analyse-Features" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-6">
                 <BarChart3 className="h-4 w-4 text-[#264171]" />
                 Kennzahlen & Einschätzung
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
                 Alle Kennzahlen auf einen Blick
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -473,11 +476,11 @@ export default function LandingPage() {
 
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-6">
                 <Zap className="h-4 w-4 text-[#264171]" />
                 3-Schritte-Prozess
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -504,7 +507,7 @@ export default function LandingPage() {
                     <div className="flex-1">
                       {/* Title */}
                       <h3 className="text-xl font-bold text-[#0F172A] mb-2">
-                        {step.number}. {step.title}
+                        {step.title}
                       </h3>
 
                       {/* Description */}
@@ -523,12 +526,12 @@ export default function LandingPage() {
                       </button>
                     </div>
 
-                    {/* Icon repositioned to right */}
+                    {/* Number Badge repositioned to right */}
                     <div
                       className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
                       style={{ backgroundColor: step.color }}
                     >
-                      <div className="text-white">{step.icon}</div>
+                      <span className="text-white text-xl font-bold">{step.number}</span>
                     </div>
                   </div>
                 </div>
@@ -539,7 +542,7 @@ export default function LandingPage() {
             <div className="mb-12">
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
-                  So sieht es aus
+                  Und so sieht es aus 👇
                 </h3>
                 <p className="text-base text-[#6C7F99]">
                   KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
@@ -560,11 +563,11 @@ export default function LandingPage() {
 
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/25 bg-gradient-to-r from-[#E6AE63]/15 to-[#D4995A]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/25 bg-gradient-to-r from-[#E6AE63]/15 to-[#D4995A]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-6">
                 <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
                 Für jeden geeignet
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
                 Für Einsteiger & Profis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -619,34 +622,34 @@ export default function LandingPage() {
         {/* Pricing Teaser */}
         <PricingTeaser />
 
-        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#EEF2FF] via-[#F7F9FF] to-[#FDF8F3]">
+        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-16 md:py-24 bg-gradient-to-br from-white via-[#F7F9FF] to-[#FDF8F3]">
           <div className="mx-auto max-w-4xl">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
-                <ShieldCheck className="h-4 w-4 text-[#264171]" />
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#A56554]/20 bg-[#A56554]/5 px-4 py-2 text-sm font-medium text-[#A56554] mb-6">
+                <ShieldCheck className="h-4 w-4 text-[#A56554]" />
                 FAQ
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">Häufige Fragen</h2>
-              <p className="text-lg text-[#6C7F99]">Alles, was du wissen musst – kurz und klar.</p>
+              <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6">Häufige Fragen</h2>
+              <p className="text-lg md:text-xl text-[#6C7F99] max-w-2xl mx-auto">Alles, was du wissen musst – kurz und klar.</p>
             </div>
             {/* Desktop - Always open */}
-            <div className="hidden md:block space-y-4">
+            <div className="hidden md:block space-y-5">
               {faqs.map((faq) => (
-                <div key={faq.question} className="group rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 p-8 shadow-sm transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-md">
-                  <h3 className="text-lg font-semibold text-[#0F172A] mb-3">{faq.question}</h3>
+                <div key={faq.question} className="group rounded-2xl border-2 border-[#A56554]/10 bg-white p-8 shadow-sm transition-all duration-200 hover:border-[#A56554]/30 hover:shadow-lg hover:-translate-y-0.5">
+                  <h3 className="text-xl font-bold text-[#0F172A] mb-4">{faq.question}</h3>
                   <p className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</p>
                 </div>
               ))}
             </div>
 
             {/* Mobile - Accordion */}
-            <div className="md:hidden space-y-3">
+            <div className="md:hidden space-y-4">
               {faqs.map((faq, idx) => {
                 const isOpen = activeFaqIndex === idx;
                 return (
                   <div
                     key={faq.question}
-                    className="rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 shadow-sm overflow-hidden transition-all duration-200"
+                    className="rounded-2xl border-2 border-[#A56554]/10 bg-white shadow-sm overflow-hidden transition-all duration-200"
                   >
                     <button
                       onClick={() => {
@@ -655,11 +658,11 @@ export default function LandingPage() {
                       }}
                       className="w-full flex items-center justify-between p-6 text-left"
                     >
-                      <h3 className="text-base font-semibold text-[#0F172A] pr-4">
+                      <h3 className="text-base font-bold text-[#0F172A] pr-4">
                         {faq.question}
                       </h3>
                       <div className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                        <svg className="w-5 h-5 text-[#264171]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-[#A56554]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -669,7 +672,7 @@ export default function LandingPage() {
                         isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      <div className="px-6 pb-6">
+                      <div className="px-6 pb-6 pt-0">
                         <p className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</p>
                       </div>
                     </div>

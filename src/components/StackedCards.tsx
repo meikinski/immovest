@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 interface Step {
   number: number;
-  icon: React.ReactNode;
+  icon: React.ReactNode | null;
   title: string;
   description: string;
   cta: string;
@@ -51,18 +51,18 @@ export function StackedCards({ steps }: StackedCardsProps) {
                   background: `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${step.color}18 100%)`,
                 }}
               >
-                {/* Icon */}
+                {/* Number Badge */}
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-6"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-5"
                   style={{ backgroundColor: step.color }}
                 >
-                  <div className="text-white">{step.icon}</div>
+                  <span className="text-white text-2xl font-bold">{step.number}</span>
                 </div>
 
                 {/* Content */}
                 <div className="flex-1">
-                  <h3 className="text-2xl font-bold text-[#0F172A] mb-2">
-                    {step.number}. {step.title}
+                  <h3 className="text-2xl font-bold text-[#0F172A] mb-3">
+                    {step.title}
                   </h3>
                   <p className="text-base text-[#6C7F99] leading-relaxed">
                     {step.description}
@@ -71,7 +71,7 @@ export function StackedCards({ steps }: StackedCardsProps) {
 
                 {/* CTA */}
                 <div
-                  className="flex items-center gap-2 text-sm font-semibold mt-6 transition-all duration-200"
+                  className="flex items-center gap-2 text-sm font-semibold mt-5 transition-all duration-200"
                   style={{ color: step.color }}
                 >
                   {step.cta}
@@ -118,7 +118,7 @@ export function StackedCards({ steps }: StackedCardsProps) {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-bold text-[#0F172A] mb-2">
-                          {step.number}. {step.title}
+                          {step.title}
                         </h3>
                         <p className="text-sm text-[#6C7F99] leading-relaxed">
                           {step.description}
@@ -128,7 +128,7 @@ export function StackedCards({ steps }: StackedCardsProps) {
                         className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-3"
                         style={{ backgroundColor: step.color }}
                       >
-                        <div className="text-white scale-90">{step.icon}</div>
+                        <span className="text-white text-xl font-bold">{step.number}</span>
                       </div>
                     </div>
 
