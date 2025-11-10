@@ -14,7 +14,7 @@ export default function InputMethodPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
-  const { trackInputMethod, track } = useAnalytics();
+  const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
 

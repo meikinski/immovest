@@ -8,7 +8,7 @@
 // Extend Window type to include dataLayer
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: Record<string, unknown>[];
   }
 }
 
@@ -18,7 +18,7 @@ declare global {
  */
 export const trackEvent = (
   eventName: string,
-  eventParams?: Record<string, any>
+  eventParams?: Record<string, unknown>
 ) => {
   if (typeof window === 'undefined') return;
 
@@ -108,7 +108,7 @@ export const trackConversion = (
 /**
  * Track user properties (for AI segmentation)
  */
-export const setUserProperties = (properties: Record<string, any>) => {
+export const setUserProperties = (properties: Record<string, unknown>) => {
   if (typeof window === 'undefined') return;
 
   window.dataLayer = window.dataLayer || [];
