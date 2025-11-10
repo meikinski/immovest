@@ -16,7 +16,7 @@ import { trackEvent, AnalyticsEvents } from '@/lib/analytics';
  * ```
  */
 export function useAnalytics() {
-  const track = useCallback((eventName: string, eventParams?: Record<string, any>) => {
+  const track = useCallback((eventName: string, eventParams?: Record<string, unknown>) => {
     trackEvent(eventName, eventParams);
   }, []);
 

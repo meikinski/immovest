@@ -27,7 +27,6 @@ import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { StackedCards } from '@/components/StackedCards';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { AnalyticsEvents } from '@/lib/analytics';
 
 export default function LandingPage() {
   const router = useRouter();
