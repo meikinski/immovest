@@ -14,7 +14,19 @@ export function MiniCarousel() {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const slides = [
     {
@@ -23,6 +35,7 @@ export function MiniCarousel() {
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
       image: '/imvestr_objektdaten.png',
+      mobileImage: '/mobile_objektdaten_transparent.png',
     },
     {
       title: 'KPI-Karten',
@@ -30,6 +43,7 @@ export function MiniCarousel() {
       icon: <LineChart className="w-8 h-8" />,
       color: '#264171',
       image: '/imvestr_kpis.png',
+      mobileImage: '/mobile_kpi_transparent.png',
     },
     {
       title: 'Szenarien',
@@ -37,6 +51,7 @@ export function MiniCarousel() {
       icon: <FileBarChart className="w-8 h-8" />,
       color: '#A56554',
       image: '/imvestr_szenarien.png',
+      mobileImage: '/mobile_szenarien_transparent.png',
     },
   ];
 
@@ -122,7 +137,7 @@ export function MiniCarousel() {
               {/* Screenshot */}
               <div className="w-full max-w-3xl mb-6">
                 <Image
-                  src={slide.image}
+                  src={isMobile ? slide.mobileImage : slide.image}
                   alt={slide.title}
                   width={1200}
                   height={800}
