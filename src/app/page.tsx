@@ -335,7 +335,7 @@ export default function LandingPage() {
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <button
                   type="button"
-                  onClick={handleGetStarted}
+                  onClick={() => handleGetStarted('hero')}
                   data-cta="main"
                   className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
                 >
@@ -514,7 +514,7 @@ export default function LandingPage() {
 
                       {/* Mini CTA */}
                       <button
-                        onClick={handleGetStarted}
+                        onClick={() => handleGetStarted('how_it_works')}
                         className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
                         style={{ color: step.color }}
                       >
@@ -705,7 +705,7 @@ export default function LandingPage() {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
                       type="button"
-                      onClick={handleGetStarted}
+                      onClick={() => handleGetStarted('footer_cta')}
                       data-cta="main"
                       className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-6 py-3 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
                     >
