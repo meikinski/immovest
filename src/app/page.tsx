@@ -409,7 +409,7 @@ export default function LandingPage() {
                 <div
                   className="relative rounded-3xl p-4 md:p-8 overflow-hidden flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.08) 0%, rgba(58, 91, 137, 0.10) 42%, rgba(165, 101, 84, 0.12) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.20) 0%, rgba(58, 91, 137, 0.25) 42%, rgba(165, 101, 84, 0.30) 100%)',
                   }}
                 >
                   <Image

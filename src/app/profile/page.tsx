@@ -83,7 +83,8 @@ export default function ProfilePage() {
   };
 
   const handleNewAnalysis = () => {
-    // Navigate to input-method without resetting - keep existing data
+    // Reset all fields to default values
+    resetAnalysis();
     router.push('/input-method');
   };
 
