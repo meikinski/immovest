@@ -407,10 +407,7 @@ export default function LandingPage() {
 
                 {/* Input Method Screenshot */}
                 <div
-                  className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.08) 0%, rgba(58, 91, 137, 0.10) 42%, rgba(165, 101, 84, 0.12) 100%)',
-                  }}
+                  className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center bg-white"
                 >
                   <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
                     <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
