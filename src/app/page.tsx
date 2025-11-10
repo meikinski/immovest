@@ -544,7 +544,7 @@ export default function LandingPage() {
                   Und so sieht es aus 👇
                 </h3>
                 <p className="text-base text-[#6C7F99]">
-                  KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
+                  Daten eingeben, KPIs sehen, Szenarien durchspielen
                 </p>
               </div>
               <MiniCarousel />
