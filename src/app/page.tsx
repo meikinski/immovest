@@ -396,7 +396,7 @@ export default function LandingPage() {
               {/* Right: Screenshot with Headline */}
               <div className="flex-1 space-y-6">
                 {/* Screenshot Caption */}
-                <div className="text-center md:text-left mb-6 mt-8 md:mt-0">
+                <div className="text-center mb-6 mt-8 md:mt-0">
                   <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
                     Und so sieht es aus 👇
                   </h3>
@@ -407,17 +407,17 @@ export default function LandingPage() {
 
                 {/* Input Method Screenshot */}
                 <div
-                  className="relative rounded-3xl p-4 md:p-8 overflow-hidden flex items-center justify-center"
+                  className="relative rounded-3xl p-2 md:p-4 overflow-hidden flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.20) 0%, rgba(58, 91, 137, 0.25) 42%, rgba(165, 101, 84, 0.30) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.85) 0%, rgba(58, 91, 137, 0.85) 42%, rgba(165, 101, 84, 0.85) 100%)',
                   }}
                 >
                   <Image
                     src="/imvestr_inputmethod.png"
                     alt="Input-Methoden Auswahl"
-                    width={1400}
-                    height={900}
-                    className="w-full h-auto object-contain scale-105"
+                    width={1600}
+                    height={1000}
+                    className="w-full h-auto object-contain scale-110"
                     priority
                   />
                 </div>
