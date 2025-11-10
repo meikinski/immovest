@@ -17,7 +17,6 @@ import {
   ShieldCheck,
   Sparkles,
   Save,
-  TrendingUp,
   Zap,
 } from 'lucide-react';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
