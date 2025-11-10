@@ -756,8 +756,8 @@ export default function LandingPage() {
             {/* Legal Links */}
             <div className="flex flex-col items-center md:items-start gap-3">
               <h3 className="font-semibold text-[#264171] mb-2">Rechtliches</h3>
-              <a href="mailto:info@immovestr.de" className="hover:text-[hsl(var(--brand))] transition-colors">
-                info@immovestr.de
+              <a href="mailto:info@imvestr.de" className="hover:text-[hsl(var(--brand))] transition-colors">
+                info@imvestr.de
               </a>
               <a href="/impressum" className="hover:text-[hsl(var(--brand))] transition-colors">
                 Impressum
