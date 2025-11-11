@@ -44,7 +44,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
   const [activeMethod, setActiveMethod] = useState(0);
 
   return (
-    <div className="grid lg:grid-cols-[2fr,3fr] gap-12 items-center">
+    <div className="grid md:grid-cols-[2fr,3fr] gap-12 items-center">
       {/* Left: Tabs/Methods */}
       <div className="space-y-4">
         {inputMethods.map((method, idx) => (
