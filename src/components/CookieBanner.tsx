@@ -9,10 +9,6 @@ interface CookiePreferences {
   marketing: boolean;
 }
 
-interface WindowWithDataLayer {
-  dataLayer?: Array<Record<string, unknown>>;
-}
-
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -39,19 +35,21 @@ export default function CookieBanner() {
 
   const applyConsent = (prefs: CookiePreferences) => {
     // Apply consent to Google Tag Manager
-    const win = window as unknown as WindowWithDataLayer;
-    if (typeof window !== 'undefined' && win.dataLayer) {
-      win.dataLayer.push({
-        event: 'cookie_consent_update',
-        analytics_consent: prefs.analytics ? 'granted' : 'denied',
-        marketing_consent: prefs.marketing ? 'granted' : 'denied',
-      });
-    }
+    if (typeof window !== 'undefined') {
+      const win = window as typeof window & { dataLayer?: Array<Record<string, unknown>> };
+      if (win.dataLayer) {
+        win.dataLayer.push({
+          event: 'cookie_consent_update',
+          analytics_consent: prefs.analytics ? 'granted' : 'denied',
+          marketing_consent: prefs.marketing ? 'granted' : 'denied',
+        });
+      }
 
-    // If analytics is denied, disable GTM
-    if (!prefs.analytics && typeof window !== 'undefined') {
-      // Disable Google Analytics
-      win['ga-disable-' + process.env.NEXT_PUBLIC_GTM_ID] = true;
+      // If analytics is denied, disable GTM
+      if (!prefs.analytics) {
+        // Disable Google Analytics
+        (win as typeof window & { [key: string]: boolean })['ga-disable-' + process.env.NEXT_PUBLIC_GTM_ID] = true;
+      }
     }
   };
 
