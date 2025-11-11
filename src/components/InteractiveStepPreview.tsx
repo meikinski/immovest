@@ -78,7 +78,7 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
 
               {/* Content */}
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-[#0F172A] mb-2">
+                <h3 className="text-xl font-semibold text-[#0F172A] mb-2">
                   {step.title}
                 </h3>
                 <p className="text-sm text-[#6C7F99] leading-relaxed">
@@ -128,23 +128,14 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
           {steps[activeStep].caption}
         </p>
 
-        {/* Micro CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {/* CTA */}
+        <div className="flex justify-center">
           <button
             onClick={onStartAnalysis}
-            className="group flex items-center justify-center gap-2 px-6 py-3 bg-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl hover:shadow-[hsl(var(--brand-2))]/20 transition-all"
+            className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-[hsl(var(--brand-2))] text-white font-medium rounded-xl hover:shadow-xl hover:shadow-[hsl(var(--brand-2))]/20 transition-all"
           >
             <span>Analyse starten</span>
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </button>
-          <button
-            onClick={() => {
-              // TODO: Load example data
-              onStartAnalysis();
-            }}
-            className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-[hsl(var(--brand))]/30 hover:shadow-md transition-all"
-          >
-            <span>Beispiel laden</span>
           </button>
         </div>
       </div>
