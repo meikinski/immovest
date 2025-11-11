@@ -44,7 +44,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
   const [activeMethod, setActiveMethod] = useState(0);
 
   return (
-    <div className="grid md:grid-cols-[2fr,3fr] gap-12 items-center">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
       {/* Left: Tabs/Methods */}
       <div className="space-y-4">
         {inputMethods.map((method, idx) => (
@@ -110,7 +110,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
       </div>
 
       {/* Right: Product Image - Larger */}
-      <div className="relative">
+      <div className="relative hidden md:block">
         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <Image
             src={inputMethods[activeMethod].image}
