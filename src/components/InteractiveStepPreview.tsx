@@ -112,10 +112,10 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
               <div className="relative w-full h-full p-4">
                 <Image
                   src={step.image}
-                  alt={step.title}
+                  alt={`Schritt ${step.number}: ${step.title} - ${step.description}`}
                   fill
                   className="object-contain"
-                  sizes="100vw"
+                  sizes="(max-width: 768px) 100vw, 800px"
                   loading={idx === 0 ? 'eager' : 'lazy'}
                   quality={90}
                 />
@@ -235,7 +235,7 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
           <div className="relative w-full h-full p-4">
             <Image
               src={steps[activeStep].image}
-              alt={steps[activeStep].title}
+              alt={`Schritt ${steps[activeStep].number}: ${steps[activeStep].title} - ${steps[activeStep].description}`}
               fill
               className="object-contain transition-opacity duration-500"
               sizes="(max-width: 1024px) 100vw, 880px"

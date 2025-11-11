@@ -98,11 +98,9 @@ export default function LandingPage() {
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
     "sameAs": [
-      // TODO: Add social media URLs here for better SEO, e.g.:
-      // "https://www.instagram.com/imvestr",
-      // "https://www.linkedin.com/company/imvestr",
-      // "https://www.facebook.com/imvestr",
-      // "https://www.youtube.com/@imvestr",
+      "https://www.instagram.com/immovestr",
+      "https://www.facebook.com/immovestr",
+      "https://www.tiktok.com/@immovestr",
     ],
   };
 
@@ -222,6 +220,7 @@ export default function LandingPage() {
                 alt="imvestr Logo"
                 width={48}
                 height={48}
+                sizes="48px"
                 className="rounded-lg"
                 priority
               />
@@ -606,6 +605,7 @@ export default function LandingPage() {
                     alt="imvestr Logo"
                     width={40}
                     height={40}
+                    sizes="40px"
                     className="rounded-lg"
                   />
                 </div>

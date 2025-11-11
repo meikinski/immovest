@@ -138,7 +138,7 @@ export function MiniCarousel() {
               <div className="w-full max-w-3xl mb-6 drop-shadow-2xl">
                 <Image
                   src={isMobile ? slide.mobileImage : slide.image}
-                  alt={slide.title}
+                  alt={`${slide.title} - ${slide.description}`}
                   width={1200}
                   height={800}
                   className="w-full h-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.4)]"

@@ -3,7 +3,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://immovestr.de/</loc>
-    <lastmod>2025-11-06</lastmod>
+    <lastmod>2025-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,32 +11,16 @@
   <!-- Input Method -->
   <url>
     <loc>https://immovestr.de/input-method</loc>
-    <lastmod>2025-11-06</lastmod>
+    <lastmod>2025-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <!-- Dashboard -->
-  <url>
-    <loc>https://immovestr.de/dashboard</loc>
-    <lastmod>2025-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 
   <!-- Pricing -->
   <url>
     <loc>https://immovestr.de/pricing</loc>
-    <lastmod>2025-11-06</lastmod>
+    <lastmod>2025-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-  </url>
-
-  <!-- Profile -->
-  <url>
-    <loc>https://immovestr.de/profile</loc>
-    <lastmod>2025-11-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
   </url>
 </urlset>
