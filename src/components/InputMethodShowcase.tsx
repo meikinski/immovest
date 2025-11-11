@@ -48,11 +48,11 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
       {/* Left: Tabs/Methods */}
       <div className="space-y-4">
         {inputMethods.map((method, idx) => (
-          <button
+          <div
             key={method.id}
             onClick={() => setActiveMethod(idx)}
             onMouseEnter={() => setActiveMethod(idx)}
-            className={`w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 ${
+            className={`w-full text-left p-6 rounded-2xl border-2 transition-all duration-300 cursor-pointer ${
               activeMethod === idx
                 ? 'border-[hsl(var(--brand))] bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 shadow-lg'
                 : 'border-gray-200 bg-white hover:border-[hsl(var(--brand))]/30 hover:shadow-md'
@@ -105,7 +105,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                 </button>
               </div>
             )}
-          </button>
+          </div>
         ))}
       </div>
 
