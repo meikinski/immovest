@@ -110,7 +110,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
       </div>
 
       {/* Right: Product Image - Larger */}
-      <div className="relative hidden md:block">
+      <div className="relative">
         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <Image
             src={inputMethods[activeMethod].image}
