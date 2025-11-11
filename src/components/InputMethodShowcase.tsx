@@ -44,7 +44,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
   const [activeMethod, setActiveMethod] = useState(0);
 
   return (
-    <div className="grid lg:grid-cols-[2fr,3fr] gap-12 items-center max-w-7xl mx-auto">
+    <div className="grid lg:grid-cols-[2fr,3fr] gap-12 items-center">
       {/* Left: Tabs/Methods */}
       <div className="space-y-4">
         {inputMethods.map((method, idx) => (
@@ -97,7 +97,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                     e.stopPropagation();
                     onMethodSelect(method.id);
                   }}
-                  className="w-full mt-2 py-2.5 px-4 bg-white border-2 border-[hsl(var(--brand-2))] text-[hsl(var(--brand-2))] font-medium rounded-lg hover:bg-[hsl(var(--brand-2))] hover:text-white transition-all"
+                  className="w-full mt-2 px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
                 >
                   {method.id === 'url' && 'URL eingeben'}
                   {method.id === 'photo' && 'Foto hochladen'}
