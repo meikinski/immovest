@@ -24,6 +24,7 @@ import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { InteractiveStepPreview } from '@/components/InteractiveStepPreview';
+import { InputMethodShowcase } from '@/components/InputMethodShowcase';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
@@ -143,24 +144,6 @@ export default function LandingPage() {
     })),
   };
 
-  const importFeatures = [
-    {
-      icon: <LinkIcon className="w-6 h-6" />,
-      title: 'URL-Import',
-      description: 'ImmoScout24-, Immowelt- oder andere Links einfach einfügen – wir extrahieren alle Daten automatisch.',
-    },
-    {
-      icon: <Camera className="w-6 h-6" />,
-      title: 'Foto-Analyse',
-      description: 'Screenshot vom Exposé machen, hochladen – fertig. KI erkennt Kaufpreis, Fläche, Miete und mehr.',
-    },
-    {
-      icon: <Keyboard className="w-6 h-6" />,
-      title: 'Manuelle Eingabe',
-      description: 'Adresse und Eckdaten selbst eintragen – vollständige Kontrolle über jeden Wert.',
-    },
-  ];
-
   const analysisFeatures = [
     {
       icon: <BarChart3 className="w-6 h-6" />,
@@ -181,33 +164,6 @@ export default function LandingPage() {
       icon: <FileBarChart className="w-6 h-6" />,
       title: 'KI-Einschätzung',
       description: 'Erste Einschätzung basierend auf deinen Kennzahlen. KI bewertet Zahlen und gibt dir eine initiale Orientierung.',
-    },
-  ];
-
-  const processSteps = [
-    {
-      number: 1,
-      icon: null,
-      title: 'Objekt angeben',
-      description: 'Adresse oder Eckdaten eintragen.',
-      cta: 'Jetzt KPIs berechnen',
-      color: '#A56554',
-    },
-    {
-      number: 2,
-      icon: null,
-      title: 'KPIs & KI-Einschätzung',
-      description: 'Cashflow, Rendite, Marktvergleich.',
-      cta: 'Analyse starten',
-      color: '#A56554',
-    },
-    {
-      number: 3,
-      icon: null,
-      title: 'Szenarien testen',
-      description: 'Miete, Zins, EK variieren – Effekt sehen.',
-      cta: 'Miete/Zins anpassen',
-      color: '#A56554',
     },
   ];
 
@@ -356,9 +312,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Import Features - USP */}
+        {/* Input Methods Showcase - USP */}
         <section aria-label="Import-Optionen" className="px-6 py-12 md:py-20 bg-white border-y border-[#264171]/5">
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Section Header */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-6">
@@ -373,55 +329,11 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              {/* Left: Import Features */}
-              <div className="flex-1 space-y-6">
-                {importFeatures.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="group flex items-start gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-6 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
-                  >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
-                      <div className="text-white">{feature.icon}</div>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-[#0F172A] mb-2">{feature.title}</h3>
-                      <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right: Screenshot with Headline */}
-              <div className="flex-1 space-y-6">
-                {/* Screenshot Caption */}
-                <div className="text-center mb-6 mt-8 md:mt-0">
-                  <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
-                    Und so sieht es aus 👇
-                  </h3>
-                  <p className="text-base text-[#6C7F99]">
-                    Einfach auswählen, egal ob Desktop oder mobil
-                  </p>
-                </div>
-
-                {/* Input Method Screenshot */}
-                <div
-                  className="relative rounded-3xl p-2 md:p-4 overflow-hidden flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.85) 0%, rgba(58, 91, 137, 0.85) 42%, rgba(165, 101, 84, 0.85) 100%)',
-                  }}
-                >
-                  <Image
-                    src="/imvestr_inputmethod.png"
-                    alt="Input-Methoden Auswahl"
-                    width={1600}
-                    height={1000}
-                    className="w-full h-auto object-contain scale-110"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
+            {/* Interactive Method Showcase */}
+            <InputMethodShowcase onMethodSelect={(methodId) => {
+              // Navigate to input-method page
+              router.push('/input-method');
+            }} />
           </div>
         </section>
 
