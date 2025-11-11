@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   ArrowRight,
   BarChart3,
@@ -109,7 +110,7 @@ export default function LandingPage() {
     {
       question: 'Wie genau sind die Ergebnisse?',
       answer:
-        'Wir rechnen mit aktuellen Markt- und Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
+        'Wir rechnen mit Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
     },
     {
       question: 'Brauche ich einen Account?',
@@ -118,8 +119,14 @@ export default function LandingPage() {
     },
     {
       question: 'Was kostet imvestr?',
-      answer:
-        'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
+      answer: (
+        <>
+          Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.{' '}
+          <Link href="/pricing" className="text-[hsl(var(--brand))] hover:text-[hsl(var(--brand-2))] underline font-semibold">
+            Mehr Details
+          </Link>
+        </>
+      ),
     },
     {
       question: 'Unterstützt ihr bei der Bank?',
@@ -136,7 +143,9 @@ export default function LandingPage() {
       "name": faq.question,
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": faq.answer,
+        "text": typeof faq.answer === 'string'
+          ? faq.answer
+          : 'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
       },
     })),
   };
@@ -388,7 +397,7 @@ export default function LandingPage() {
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und datenbasiert.
+                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und faktenbasiert.
               </p>
             </div>
 
@@ -435,14 +444,14 @@ export default function LandingPage() {
                 },
                 {
                   name: 'Tobias',
-                  role: 'FIRE-Student',
+                  role: 'Immobilien-Investor',
                   quote: 'Cashflow in Sekunden. Endlich weiß ich, ob es sich lohnt.',
                   color: '#6C7F99'
                 },
                 {
                   name: 'Leandro',
                   role: 'Data-Nerd',
-                  quote: 'Datenquellen transparent, Annahmen editierbar – perfekt.',
+                  quote: 'Berechnungen transparent, Annahmen in Szenarien editierbar – perfekt.',
                   color: '#264171'
                 },
               ].map((persona) => (

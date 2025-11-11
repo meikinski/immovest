@@ -24,7 +24,7 @@ const inputMethods: InputMethod[] = [
     id: 'photo',
     icon: <Camera className="w-6 h-6" />,
     title: 'Foto-Analyse',
-    description: 'Exposé-Screenshot hochladen → KI liest Text & Zahlen.',
+    description: 'Bild vom Exposé machen → wir lesen Zahlen & Text.',
     image: '/duo_importfoto_transparent.png',
   },
   {
@@ -122,7 +122,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                       <h3 className="text-xl font-semibold text-[#0F172A]">
                         {method.title}
                       </h3>
-                      {method.id === 'url' && (
+                      {(method.id === 'url' || method.id === 'photo') && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-medium">
                           <Sparkles className="w-3 h-3" />
                           KI
@@ -181,7 +181,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                   <h3 className="text-xl font-semibold text-[#0F172A]">
                     {method.title}
                   </h3>
-                  {method.id === 'url' && (
+                  {(method.id === 'url' || method.id === 'photo') && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-medium">
                       <Sparkles className="w-3 h-3" />
                       KI
