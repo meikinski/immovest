@@ -184,33 +184,6 @@ export default function LandingPage() {
     },
   ];
 
-  const processSteps = [
-    {
-      number: 1,
-      icon: null,
-      title: 'Objekt angeben',
-      description: 'Adresse oder Eckdaten eintragen.',
-      cta: 'Jetzt KPIs berechnen',
-      color: '#A56554',
-    },
-    {
-      number: 2,
-      icon: null,
-      title: 'KPIs & KI-Einschätzung',
-      description: 'Cashflow, Rendite, Marktvergleich.',
-      cta: 'Analyse starten',
-      color: '#A56554',
-    },
-    {
-      number: 3,
-      icon: null,
-      title: 'Szenarien testen',
-      description: 'Miete, Zins, EK variieren – Effekt sehen.',
-      cta: 'Miete/Zins anpassen',
-      color: '#A56554',
-    },
-  ];
-
   return (
     <>
       {/* Structured Data for SEO */}
