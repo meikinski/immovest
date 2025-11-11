@@ -97,7 +97,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                     e.stopPropagation();
                     onMethodSelect(method.id);
                   }}
-                  className="w-full mt-2 py-2.5 px-4 bg-[hsl(var(--brand-2))] text-white font-medium rounded-lg hover:shadow-lg hover:shadow-[hsl(var(--brand-2))]/20 transition-all"
+                  className="w-full mt-2 py-2.5 px-4 bg-white border-2 border-[hsl(var(--brand-2))] text-[hsl(var(--brand-2))] font-medium rounded-lg hover:bg-[hsl(var(--brand-2))] hover:text-white transition-all"
                 >
                   {method.id === 'url' && 'URL eingeben'}
                   {method.id === 'photo' && 'Foto hochladen'}

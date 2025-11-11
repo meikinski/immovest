@@ -132,7 +132,7 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
         <div className="flex justify-center">
           <button
             onClick={onStartAnalysis}
-            className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-[hsl(var(--brand-2))] text-white font-medium rounded-xl hover:shadow-xl hover:shadow-[hsl(var(--brand-2))]/20 transition-all"
+            className="group flex items-center justify-center gap-2 px-8 py-3.5 bg-white border-2 border-[hsl(var(--brand-2))] text-[hsl(var(--brand-2))] font-medium rounded-xl hover:bg-[hsl(var(--brand-2))] hover:text-white hover:shadow-xl transition-all"
           >
             <span>Analyse starten</span>
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
