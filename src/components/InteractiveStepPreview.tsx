@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
@@ -46,11 +46,132 @@ interface InteractiveStepPreviewProps {
 
 export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPreviewProps) {
   const [activeStep, setActiveStep] = useState(0);
+  const [ringFlash, setRingFlash] = useState(false);
+  const imageFrameRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Trigger ring flash animation on mobile
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setRingFlash(true);
+      const timer = setTimeout(() => setRingFlash(false), 600);
+
+      // Auto-scroll to image frame
+      if (imageFrameRef.current) {
+        imageFrameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      return () => clearTimeout(timer);
+    }
+  }, [activeStep]);
 
   return (
-    <div className="grid lg:grid-cols-2 gap-12 items-start max-w-7xl mx-auto">
-      {/* Left: Stepper */}
-      <div className="space-y-4">
+    <div>
+      {/* Mobile: Segmented Control + Image */}
+      <div className="md:hidden">
+        {/* Segmented Control */}
+        <div className="flex justify-center gap-2 mb-6 p-1 bg-gray-100 rounded-full max-w-md mx-auto">
+          {steps.map((step, idx) => (
+            <button
+              key={step.number}
+              onClick={() => setActiveStep(idx)}
+              className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                activeStep === idx
+                  ? 'bg-white shadow-md'
+                  : 'text-gray-600'
+              }`}
+              style={{
+                color: activeStep === idx ? step.color : undefined,
+              }}
+            >
+              {step.number}
+            </button>
+          ))}
+        </div>
+
+        {/* Image Frame with Crossfade */}
+        <div
+          ref={imageFrameRef}
+          className={`relative aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+            ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
+          }`}
+        >
+          {steps.map((step, idx) => (
+            <div
+              key={step.number}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                activeStep === idx ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {/* Highlight Overlay */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: `radial-gradient(circle at 50% 30%, ${step.color}15, transparent 70%)`,
+                }}
+              />
+              <div className="relative w-full h-full p-4">
+                <Image
+                  src={step.image}
+                  alt={step.title}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                  quality={90}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Step Details */}
+        <div className="mt-6 space-y-4">
+          {steps.map((step, idx) => (
+            activeStep === idx && (
+              <div key={step.number} className="p-6 rounded-2xl border-2 border-[hsl(var(--brand))] bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 shadow-lg">
+                <div className="flex items-start gap-4 mb-4">
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-lg"
+                    style={{
+                      backgroundColor: step.color,
+                      color: 'white'
+                    }}
+                  >
+                    {step.number}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-semibold text-[#0F172A] mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-[#6C7F99] leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-center text-base text-[#6C7F99] font-medium mb-4">
+                  {step.caption}
+                </p>
+              </div>
+            )
+          ))}
+        </div>
+
+        {/* Mobile CTA */}
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={onStartAnalysis}
+            className="group flex items-center justify-center gap-2 px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
+          >
+            <span>Analyse starten</span>
+            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop: Two Column Layout */}
+      <div className="hidden md:grid md:grid-cols-2 gap-12 items-start max-w-7xl mx-auto">
+        {/* Left: Stepper */}
+        <div className="space-y-4">
         {steps.map((step, idx) => (
           <button
             key={step.number}
@@ -138,6 +259,7 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
