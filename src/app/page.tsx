@@ -109,22 +109,32 @@ export default function LandingPage() {
     {
       question: 'Wie genau sind die Ergebnisse?',
       answer:
-        'Wir rechnen mit aktuellen Markt- und Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
+        'KPIs (Cashflow, Rendite, EKR, DSCR) werden mit klassischen, nachvollziehbaren Formeln aus deinen Eingaben + aktuellen Marktwerten berechnet. Die Kauf-/Verhandeln-/Lassen-Kommentare sind LLM-gestützt. Keine Anlageberatung, sondern Entscheidungshilfe.',
+    },
+    {
+      question: 'Was kostet Imvestr?',
+      answer:
+        'Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo. Details auf der Preise-Seite.',
     },
     {
       question: 'Brauche ich einen Account?',
       answer:
-        'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
+        'Nein. Mit Account kannst du Analysen speichern, Reports laden und erhältst 2 Premium-Analysen gratis zum Start.',
     },
     {
-      question: 'Was kostet imvestr?',
+      question: 'Welche Kennzahlen berechnet ihr?',
       answer:
-        'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
+        'u. a. Cashflow nach Steuern, Nettomietrendite, Eigenkapital-Rendite, DSCR, Break-even.',
     },
     {
-      question: 'Unterstützt ihr bei der Bank?',
+      question: 'Unterstützt ihr beim Bankgespräch?',
       answer:
-        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal für das Gespräch mit Finanzierungspartnern.',
+        'Ja. Bankfähiger PDF-Report mit DSCR, Cashflow, Zins/Tilgung, Annahmen und Szenario-Vergleichen.',
+    },
+    {
+      question: 'Wie kommen die Daten in die App?',
+      answer:
+        'Über Adresse, Inserat-URL oder Foto; die KI extrahiert Felder, du prüfst und passt an.',
     },
   ];
 
