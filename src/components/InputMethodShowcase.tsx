@@ -9,13 +9,7 @@ interface InputMethod {
   icon: React.ReactNode;
   title: string;
   description: string;
-  hotspot: {
-    top: string;
-    left: string;
-    width: string;
-    height: string;
-    label: string;
-  };
+  image: string;
 }
 
 const inputMethods: InputMethod[] = [
@@ -24,39 +18,21 @@ const inputMethods: InputMethod[] = [
     icon: <LinkIcon className="w-6 h-6" />,
     title: 'URL-Import',
     description: 'Link einfügen → wir ziehen Kaufpreis, Fläche, Miete, Zimmer, Adresse.',
-    hotspot: {
-      top: '35%',
-      left: '30%',
-      width: '40%',
-      height: '15%',
-      label: 'URL Import',
-    },
+    image: '/duo_importurl_transparent.png',
   },
   {
     id: 'photo',
     icon: <Camera className="w-6 h-6" />,
     title: 'Foto-Analyse',
     description: 'Exposé-Screenshot hochladen → KI liest Text & Zahlen.',
-    hotspot: {
-      top: '50%',
-      left: '55%',
-      width: '35%',
-      height: '25%',
-      label: 'Foto Upload',
-    },
+    image: '/duo_importfoto_transparent.png',
   },
   {
     id: 'manual',
     icon: <Keyboard className="w-6 h-6" />,
     title: 'Manuelle Eingabe',
     description: 'Volle Kontrolle über jeden Wert.',
-    hotspot: {
-      top: '20%',
-      left: '20%',
-      width: '30%',
-      height: '20%',
-      label: 'Formular',
-    },
+    image: '/duo_importmanuell_transparent.png',
   },
 ];
 
@@ -68,7 +44,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
   const [activeMethod, setActiveMethod] = useState(0);
 
   return (
-    <div className="grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+    <div className="grid lg:grid-cols-[2fr,3fr] gap-12 items-center max-w-7xl mx-auto">
       {/* Left: Tabs/Methods */}
       <div className="space-y-4">
         {inputMethods.map((method, idx) => (
@@ -133,54 +109,18 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
         ))}
       </div>
 
-      {/* Right: Product Mockup with Hotspot */}
+      {/* Right: Product Image - Larger */}
       <div className="relative">
-        {/* Main Product Image */}
         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <Image
-            src="/imvestr_inputmethod.png"
-            alt="imvestr Input-Methoden"
-            width={1200}
-            height={800}
-            className="w-full h-auto"
+            src={inputMethods[activeMethod].image}
+            alt={inputMethods[activeMethod].title}
+            width={1600}
+            height={1000}
+            className="w-full h-auto transition-opacity duration-500"
             priority
+            quality={90}
           />
-
-          {/* Hotspot Overlay */}
-          <div
-            className="absolute transition-all duration-500 ease-out pointer-events-none"
-            style={{
-              top: inputMethods[activeMethod].hotspot.top,
-              left: inputMethods[activeMethod].hotspot.left,
-              width: inputMethods[activeMethod].hotspot.width,
-              height: inputMethods[activeMethod].hotspot.height,
-            }}
-          >
-            {/* Glow effect */}
-            <div
-              className="absolute inset-0 rounded-2xl"
-              style={{
-                background: 'radial-gradient(circle, rgba(165, 101, 84, 0.2) 0%, transparent 70%)',
-                boxShadow: '0 0 40px rgba(165, 101, 84, 0.4), inset 0 0 20px rgba(165, 101, 84, 0.2)',
-              }}
-            />
-
-            {/* Outline */}
-            <div
-              className="absolute inset-0 rounded-2xl border-2 animate-pulse"
-              style={{
-                borderColor: 'rgba(165, 101, 84, 0.6)',
-                boxShadow: '0 0 20px rgba(165, 101, 84, 0.3)',
-              }}
-            />
-
-            {/* Label */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
-              <span className="px-3 py-1 bg-[hsl(var(--brand-2))] text-white text-sm font-medium rounded-full shadow-lg">
-                {inputMethods[activeMethod].hotspot.label}
-              </span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
