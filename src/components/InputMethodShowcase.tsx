@@ -97,9 +97,10 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
             >
               <Image
                 src={method.image}
-                alt={method.title}
+                alt={`${method.title}: ${method.description}`}
                 width={1600}
                 height={1000}
+                sizes="(max-width: 768px) 100vw, 800px"
                 className="w-full h-full object-cover"
                 loading={idx === 0 ? 'eager' : 'lazy'}
                 quality={90}
@@ -219,9 +220,10 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <Image
             src={inputMethods[activeMethod].image}
-            alt={inputMethods[activeMethod].title}
+            alt={`${inputMethods[activeMethod].title}: ${inputMethods[activeMethod].description}`}
             width={1600}
             height={1000}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
             className="w-full h-auto transition-opacity duration-500"
             priority
             quality={90}
