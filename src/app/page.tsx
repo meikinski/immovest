@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   ArrowRight,
   BarChart3,
@@ -109,12 +110,18 @@ export default function LandingPage() {
     {
       question: 'Wie genau sind die Ergebnisse?',
       answer:
-        'KPIs (Cashflow, Rendite, EKR, DSCR) werden mit klassischen, nachvollziehbaren Formeln aus deinen Eingaben + aktuellen Marktwerten berechnet. Die Kauf-/Verhandeln-/Lassen-Kommentare sind LLM-gestützt. Keine Anlageberatung, sondern Entscheidungshilfe.',
+        'KPIs (Cashflow, Rendite, EKR, DSCR) werden mit klassischen, nachvollziehbaren Formeln aus deinen Eingaben berechnet. Die Kauf-/Verhandeln-/Lassen-Kommentare sind LLM-gestützt. Keine Anlageberatung, sondern Entscheidungshilfe.',
     },
     {
       question: 'Was kostet Imvestr?',
-      answer:
-        'Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo. Details auf der Preise-Seite.',
+      answer: (
+        <>
+          Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo.{' '}
+          <Link href="/pricing" className="text-[hsl(var(--brand))] hover:text-[hsl(var(--brand-2))] underline font-semibold">
+            Mehr Details
+          </Link>
+        </>
+      ),
     },
     {
       question: 'Brauche ich einen Account?',
@@ -146,7 +153,9 @@ export default function LandingPage() {
       "name": faq.question,
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": faq.answer,
+        "text": typeof faq.answer === 'string'
+          ? faq.answer
+          : 'Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo.',
       },
     })),
   };
@@ -398,7 +407,7 @@ export default function LandingPage() {
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und datenbasiert.
+                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und faktenbasiert.
               </p>
             </div>
 
@@ -445,14 +454,14 @@ export default function LandingPage() {
                 },
                 {
                   name: 'Tobias',
-                  role: 'FIRE-Student',
+                  role: 'Immobilien-Investor',
                   quote: 'Cashflow in Sekunden. Endlich weiß ich, ob es sich lohnt.',
                   color: '#6C7F99'
                 },
                 {
                   name: 'Leandro',
                   role: 'Data-Nerd',
-                  quote: 'Datenquellen transparent, Annahmen editierbar – perfekt.',
+                  quote: 'Berechnungen transparent, Annahmen in Szenarien editierbar – perfekt.',
                   color: '#264171'
                 },
               ].map((persona) => (
@@ -491,7 +500,7 @@ export default function LandingPage() {
               {faqs.map((faq) => (
                 <div key={faq.question} className="group rounded-2xl border-2 border-[#A56554]/10 bg-white p-8 shadow-sm transition-all duration-200 hover:border-[#A56554]/30 hover:shadow-lg hover:-translate-y-0.5">
                   <h3 className="text-xl font-bold text-[#0F172A] mb-4">{faq.question}</h3>
-                  <p className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</p>
+                  <div className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</div>
                 </div>
               ))}
             </div>
@@ -527,7 +536,7 @@ export default function LandingPage() {
                       }`}
                     >
                       <div className="px-6 pb-6 pt-0">
-                        <p className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</p>
+                        <div className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</div>
                       </div>
                     </div>
                   </div>

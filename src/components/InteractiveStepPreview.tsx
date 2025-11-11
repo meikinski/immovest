@@ -17,14 +17,14 @@ const steps: Step[] = [
   {
     number: 1,
     title: 'Objekt angeben',
-    description: 'Adresse oder Eckdaten eintippen.',
+    description: 'Adresse und Eckdaten zur Immobilie angeben.',
     caption: 'Schnelle Erfassung aller Immobiliendaten',
     image: '/imvestr_objektdaten.png',
     color: '#E6AE63',
   },
   {
     number: 2,
-    title: 'KPIs & KI-Kurzcheck',
+    title: 'Kennzahlen & Analysen',
     description: 'Cashflow, Nettorendite, DSCR in Sekunden.',
     caption: 'Alle wichtigen Kennzahlen auf einen Blick',
     image: '/imvestr_kpis.png',
