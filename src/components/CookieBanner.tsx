@@ -9,9 +9,8 @@ interface CookiePreferences {
   marketing: boolean;
 }
 
-interface WindowWithDataLayer extends Window {
+interface WindowWithDataLayer {
   dataLayer?: Array<Record<string, unknown>>;
-  [key: string]: unknown;
 }
 
 export default function CookieBanner() {
