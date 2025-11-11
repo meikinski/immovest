@@ -6,12 +6,9 @@ import Image from 'next/image';
 import {
   ArrowRight,
   BarChart3,
-  Camera,
   CheckCircle2,
   FileBarChart,
-  Keyboard,
   LineChart,
-  Link as LinkIcon,
   LogIn,
   MapPin,
   ShieldCheck,
@@ -330,7 +327,7 @@ export default function LandingPage() {
             </div>
 
             {/* Interactive Method Showcase */}
-            <InputMethodShowcase onMethodSelect={(methodId) => {
+            <InputMethodShowcase onMethodSelect={() => {
               // Navigate to input-method page
               router.push('/input-method');
             }} />
