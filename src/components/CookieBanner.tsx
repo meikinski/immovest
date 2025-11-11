@@ -9,6 +9,11 @@ interface CookiePreferences {
   marketing: boolean;
 }
 
+interface WindowWithDataLayer extends Window {
+  dataLayer?: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+}
+
 export default function CookieBanner() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -35,8 +40,9 @@ export default function CookieBanner() {
 
   const applyConsent = (prefs: CookiePreferences) => {
     // Apply consent to Google Tag Manager
-    if (typeof window !== 'undefined' && (window as any).dataLayer) {
-      (window as any).dataLayer.push({
+    const win = window as unknown as WindowWithDataLayer;
+    if (typeof window !== 'undefined' && win.dataLayer) {
+      win.dataLayer.push({
         event: 'cookie_consent_update',
         analytics_consent: prefs.analytics ? 'granted' : 'denied',
         marketing_consent: prefs.marketing ? 'granted' : 'denied',
@@ -46,7 +52,7 @@ export default function CookieBanner() {
     // If analytics is denied, disable GTM
     if (!prefs.analytics && typeof window !== 'undefined') {
       // Disable Google Analytics
-      (window as any)['ga-disable-' + process.env.NEXT_PUBLIC_GTM_ID] = true;
+      win['ga-disable-' + process.env.NEXT_PUBLIC_GTM_ID] = true;
     }
   };
 

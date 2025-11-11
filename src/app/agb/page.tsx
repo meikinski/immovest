@@ -40,13 +40,13 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB") gelten für die Nutzung
-                der Plattform imvestr. (nachfolgend „Plattform") durch registrierte und nicht registrierte
+                (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend &ldquo;AGB&rdquo;) gelten für die Nutzung
+                der Plattform imvestr. (nachfolgend &ldquo;Plattform&rdquo;) durch registrierte und nicht registrierte
                 Nutzer.
               </p>
               <p>
                 (2) Anbieter der Plattform ist imvestr., [Adresse], [E-Mail: info@imvestr.de]
-                (nachfolgend „Anbieter").
+                (nachfolgend &ldquo;Anbieter&rdquo;).
               </p>
               <p>
                 (3) Mit der Nutzung der Plattform erklärt sich der Nutzer mit diesen AGB einverstanden.
