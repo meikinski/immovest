@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Link as LinkIcon, Camera, Keyboard, Sparkles } from 'lucide-react';
 
@@ -42,11 +42,116 @@ interface InputMethodShowcaseProps {
 
 export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps) {
   const [activeMethod, setActiveMethod] = useState(0);
+  const [ringFlash, setRingFlash] = useState(false);
+  const imageFrameRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Trigger ring flash animation on mobile
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setRingFlash(true);
+      const timer = setTimeout(() => setRingFlash(false), 600);
+
+      // Auto-scroll to image frame
+      if (imageFrameRef.current) {
+        imageFrameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      return () => clearTimeout(timer);
+    }
+  }, [activeMethod]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-      {/* Left: Tabs/Methods */}
-      <div className="space-y-4">
+    <div>
+      {/* Mobile: Segmented Control + Image */}
+      <div className="md:hidden">
+        {/* Segmented Control */}
+        <div className="flex justify-center gap-2 mb-6 p-1 bg-gray-100 rounded-full">
+          {inputMethods.map((method, idx) => (
+            <button
+              key={method.id}
+              onClick={() => setActiveMethod(idx)}
+              className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+                activeMethod === idx
+                  ? 'bg-white text-[hsl(var(--brand))] shadow-md'
+                  : 'text-gray-600 hover:text-[hsl(var(--brand))]'
+              }`}
+            >
+              {method.title.replace('-Import', '').replace('Foto-Analyse', 'Foto').replace('Manuelle Eingabe', 'Manuell')}
+            </button>
+          ))}
+        </div>
+
+        {/* Image Frame with Crossfade */}
+        <div
+          ref={imageFrameRef}
+          className={`relative aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+            ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
+          }`}
+        >
+          {inputMethods.map((method, idx) => (
+            <div
+              key={method.id}
+              className={`absolute inset-0 transition-opacity duration-500 ${
+                activeMethod === idx ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              <Image
+                src={method.image}
+                alt={method.title}
+                width={1600}
+                height={1000}
+                className="w-full h-full object-cover"
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                quality={90}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile Tab Details */}
+        <div className="mt-6 space-y-4">
+          {inputMethods.map((method, idx) => (
+            activeMethod === idx && (
+              <div key={method.id} className="p-6 rounded-2xl border-2 border-[hsl(var(--brand))] bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 shadow-lg">
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-[hsl(var(--brand))] text-white shadow-lg">
+                    {method.icon}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="text-xl font-semibold text-[#0F172A]">
+                        {method.title}
+                      </h3>
+                      {method.id === 'url' && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-medium">
+                          <Sparkles className="w-3 h-3" />
+                          KI
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-[#6C7F99] leading-relaxed">
+                      {method.description}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => onMethodSelect(method.id)}
+                  className="w-full px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
+                >
+                  {method.id === 'url' && 'URL eingeben'}
+                  {method.id === 'photo' && 'Foto hochladen'}
+                  {method.id === 'manual' && 'Formular öffnen'}
+                </button>
+              </div>
+            )
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: Two Column Layout */}
+      <div className="hidden md:grid md:grid-cols-2 gap-12 items-center">
+        {/* Left: Tabs/Methods */}
+        <div className="space-y-4">
         {inputMethods.map((method, idx) => (
           <div
             key={method.id}
@@ -122,6 +227,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
             quality={90}
           />
         </div>
+      </div>
       </div>
     </div>
   );
