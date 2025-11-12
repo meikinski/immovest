@@ -114,13 +114,19 @@ Suche SPEZIFISCH nach Daten für:
 - Größenklasse (z.B. "60-80 m²")
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "1950-1990", "ab 2000")
 
-**PRIORITÄT: Ortsteil/PLZ-spezifische Suche ZUERST!**
+**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde nur als NOTFALL-FALLBACK!**
 
-Nutze mehrere Suchbegriffe in dieser Reihenfolge (passe Wording an Locations-Typ an):
-1. "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
-2. "[Ortsteil] [Gemeinde/Stadt] Mietpreise [Zimmeranzahl] Zimmer"
-3. "[Gemeinde/Stadt] [Ortsteil] Mietspiegel [Größe] m²"
-4. "[Gemeinde/Stadt] Mietspiegel [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+**Suchstrategie (STRIKTE Reihenfolge!):**
+1. **ERSTE PRIORITÄT (PFLICHT!):** "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer"
+2. **ZWEITE PRIORITÄT:** "[Ortsteil] [Gemeinde/Stadt] Mietpreise [Zimmeranzahl] Zimmer [PLZ]"
+3. **DRITTE PRIORITÄT:** "[PLZ] Mietspiegel [Größe] m²"
+4. **NUR ALS NOTFALL-FALLBACK:** "[Gemeinde/Stadt] Mietspiegel [Zimmeranzahl] Zimmer"
+
+**WICHTIG:**
+- Suche INTENSIV nach PLZ-Daten bevor du auf Stadt-Ebene gehst!
+- Nutze mehrere Suchvarianten für die PLZ (mindestens 3 Versuche!)
+- Erst wenn WIRKLICH keine PLZ-Daten gefunden → Stadt-Daten als Fallback
+- Dokumentiere in notes WARUM Stadt-Daten genutzt wurden: "Keine PLZ-spezifischen Daten gefunden"
 
 **Für ländliche Gegenden zusätzlich:**
 - "Mietspiegel [Landkreis]" (oft einzige verfügbare Quelle)
@@ -148,13 +154,19 @@ Suche SPEZIFISCH nach Daten für:
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "ab 2000")
 - Objekttyp (z.B. "Eigentumswohnung", "Reihenhaus")
 
-**PRIORITÄT: Ortsteil/PLZ-spezifische Suche ZUERST!**
+**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde nur als NOTFALL-FALLBACK!**
 
-Nutze mehrere Suchbegriffe in dieser Reihenfolge (passe Wording an Locations-Typ an):
-1. "[PLZ] Kaufpreis m² Wohnung [Zimmeranzahl] Zimmer" (HÖCHSTE PRIORITÄT!)
-2. "[Ortsteil] [Gemeinde/Stadt] Kaufpreise Eigentumswohnung"
-3. "Gutachterausschuss [Landkreis] [Ortsteil] Kaufpreise"
-4. "[Gemeinde/Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer" (nur als FALLBACK!)
+**Suchstrategie (STRIKTE Reihenfolge!):**
+1. **ERSTE PRIORITÄT (PFLICHT!):** "[PLZ] Kaufpreis m² Wohnung [Zimmeranzahl] Zimmer"
+2. **ZWEITE PRIORITÄT:** "[Ortsteil] [PLZ] Kaufpreise Eigentumswohnung"
+3. **DRITTE PRIORITÄT:** "Gutachterausschuss [Landkreis] [PLZ] Kaufpreise"
+4. **NUR ALS NOTFALL-FALLBACK:** "[Gemeinde/Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer"
+
+**WICHTIG:**
+- Suche INTENSIV nach PLZ-Daten bevor du auf Stadt-Ebene gehst!
+- Nutze mehrere Suchvarianten für die PLZ (mindestens 3 Versuche!)
+- Erst wenn WIRKLICH keine PLZ-Daten gefunden → Stadt-Daten als Fallback
+- Dokumentiere in notes WARUM Stadt-Daten genutzt wurden: "Keine PLZ-spezifischen Daten gefunden"
 
 **Für ländliche Gegenden zusätzlich:**
 - "Gutachterausschuss [Landkreis] Kaufpreise" (oft einzige verfügbare Quelle)
@@ -169,10 +181,17 @@ KRITISCH - sehr genau dokumentieren!
 - rate: Prozent-Wert (NUR wenn konkrete Zahl in Quelle, sonst NULL)
 - notes: GENAU dokumentieren was gefunden wurde
 
+**WICHTIG: NUR AKTUELLE DATEN (2023-2025)!**
+- Quellen älter als 2023 sind NICHT akzeptabel!
+- ❌ VERBOTEN: Daten von 2014, 2015, etc.
+- ✅ AKZEPTABEL: Daten von 2023, 2024, 2025
+- Wenn nur alte Daten gefunden → rate = NULL, notes = "Keine aktuellen Daten verfügbar"
+
 ✅ RICHTIG:
-"Keine spezifischen Leerstandsdaten für Wettenberg gefunden. Landkreis Gießen: 1,2% (Statistik Hessen 2024) - nur indikativ, NICHT spezifisch für Gemeinde."
+"Keine aktuellen PLZ-spezifischen Leerstandsdaten für PLZ 50677 gefunden. Stadt Köln gesamt: 1,8% (Stadt Köln Wohnungsmarktbericht 2024) - nur indikativ."
 
 ❌ FALSCH:
+"Leerstand in Köln liegt bei 5% (Stadt Köln 2014)" (zu alt!)
 "Leerstandsquote liegt bei 2,5%" (ohne Quelle)
 
 ## 1.4 NACHFRAGE (demand)
@@ -374,15 +393,17 @@ Du hast Zugriff auf:
 1. Objektdaten (Zimmer, Größe) + Kaltmiete
 2. Daraus €/m² (einfach berechnen, keine komplexen Erklärungen)
 3. Vergleich mit PLZ-Median + prozentuale Abweichung
-4. Quelle nennen
+4. **EINE Quelle nennen (max!)** - nicht mehrere Quellen für gleichen Wert
 
 **Beispiel:**
 ✅ "1-Zimmer, 35 m², Kaltmiete 670 €. Das sind 19 €/m². PLZ 50677: Median 14,60 €/m² (Mietspiegel 2024) – du liegst 30% drüber."
 ❌ "Du zahlst 670 € warm, das ergibt etwa 19 €/m² kalt (nur Miete: 670 € minus umlegbare Nebenkosten...)" (zu kompliziert!)
+❌ "Median liegt bei 14,60 €/m² laut Mietspiegel 2024, oder 14,50 €/m² laut Portal X" (zu viele Quellen!)
 
 **Vergleich:**
 - IMMER PLZ-Median (nicht Stadt/Gemeinde)
 - Keine P25-P75 Spannen (zu komplex)
+- **Max 1 Quelle pro Vergleich!**
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
@@ -448,20 +469,22 @@ Du hast Zugriff auf:
 
 **WICHTIG: Vergleiche IMMER auf PLZ-Ebene! Passe Wording an Locations-Typ an.**
 
-**GUIDELINES (variiere die Formulierung!):**
-- Nenne Baujahr und Kaufpreis/m² (berechnet aus Gesamtpreis / Fläche)
-- Vergleiche IMMER mit PLZ-Median (NIE Gemeinde/Stadt als Hauptvergleich)
-- Zeige die prozentuale Abweichung
-- Nenne die Quelle (z.B. "laut Gutachterausschuss 2024")
-- Falls Anzahl der Vergleichsverkäufe bekannt: Erwähne es für Glaubwürdigkeit
-- Falls nur Landkreis/Stadt-Daten: Weise darauf hin, dass lokale Preise abweichen können
+**PRINZIP: Einfach, klar, direkt zu den Zahlen**
 
-**Variiere die Struktur:**
-- Mal "kostet ca.", mal "liegt bei", mal "Preis:"
-- Mal "Vergleichbare Wohnungen", mal "Ähnliche Objekte", mal "Der Markt"
-- Mal "Du liegst X% unter", mal "Das sind X% weniger", mal "X% günstiger als"
+**Struktur:**
+1. Baujahr + Kaufpreis/m² (berechnet aus Gesamtpreis / Fläche)
+2. Vergleich mit PLZ-Median + prozentuale Abweichung
+3. **EINE Quelle nennen (max!)** - nicht mehrere Quellen für gleichen Wert
+4. Falls nur Stadt-Daten: Kurz erwähnen
 
-**KEIN "üblich sind P25 bis P75" - zu kompliziert!**
+**Beispiel:**
+✅ "Baujahr 1980, Kaufpreis 5.714 €/m². PLZ 50677: Median 5.000 €/m² (Gutachterausschuss 2024) – du liegst 14% drüber."
+❌ "Median liegt bei 5.000 €/m² laut Gutachterausschuss, oder 5.100 €/m² laut Portal X" (zu viele Quellen!)
+
+**Vergleich:**
+- IMMER PLZ-Median (nicht Stadt/Gemeinde)
+- Keine P25-P75 Spannen (zu komplex)
+- **Max 1 Quelle pro Vergleich!**
 
 ### Absatz 2: Was bedeutet das? (30-40W)
 
@@ -632,6 +655,17 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 
 **Schreibe in 3 ABSÄTZEN mit <p> Tags für bessere Lesbarkeit:**
 
+**KRITISCH: Jeder Absatz MUSS mit <p>...</p> umschlossen werden!**
+
+**Beispiel-Struktur:**
+```html
+<p>Der Cashflow liegt bei -27€. Das liegt daran, dass der Kaufpreis 13% über Markt liegt (höhere Rate) und die Miete nur knapp am Markt ist. Nach Steuerersparnis liegt der echte Verlust bei ca. -16€.</p>
+
+<p>Die Nettomietrendite beträgt 3,59%. Das ist solide und zeigt, wie viel vom Kaufpreis jährlich als Mietüberschuss zurückkommt.</p>
+
+<p>Der DSCR liegt bei 0,96 – kritisch! Du musst jeden Monat drauflegen, weil die Miete die Rate nicht deckt. Plus: Rücklagen für Mietausfall müsstest du auch noch bilden.</p>
+```
+
 **ABSATZ 1: Cashflow + Begründung (40-50W)**
 Umschließe mit <p>...</p>
 
@@ -675,9 +709,12 @@ Umschließe mit <p>...</p>
 - Bewertung: >1.3 gut, 1.1-1.3 knapp, <1 kritisch
 
 **DSCR <1 (KRITISCH!):**
-- WARNUNG ZUERST: Miete deckt Rate nicht - JEDEN MONAT drauflegen!
-- PLUS: Rücklagen für Mietausfall auch noch bilden (on top)
-- Optional: Hinweis auf Lösung (mehr EK)
+- **STRUKTUR: Warnung → Risiko erklären → (optional) Lösung**
+- WARNUNG ZUERST: "DSCR liegt bei X - kritisch!"
+- RISIKO ERKLÄREN: "Du musst JEDEN MONAT drauflegen, weil die Miete die Rate nicht deckt"
+- ZUSATZRISIKO: "Plus: Rücklagen für Mietausfall müsstest du auch noch bilden (on top)"
+- Optional (als eigener Satz): "Mehr EK könnte die Rate senken"
+- **NICHT:** "Hier ist es wichtig, Rücklagen zu bilden" (zu schwach!)
 
 **DSCR >1:**
 - Zeige Leerstand-Szenario: 3 Monate = X Monate Cashflow
@@ -697,7 +734,12 @@ Umschließe mit <p>...</p>
 ## ABSATZ 2: RISIKEN & POTENZIAL (50-70W)
 <h3>Risiken & Potenzial</h3>
 
-**Nutze <p>...</p> Tags für Absätze!**
+**KRITISCH: Nutze <p>...</p> Tags für Absätze!**
+
+**Beispiel-Struktur:**
+```html
+<p>Die zentrale Lage ist ein großer Pluspunkt. Das Hauptproblem ist der negative Cashflow und DSCR unter 1 – das macht es riskant bei Leerstand.</p>
+```
 
 **PRINZIP: Denke kontextuell, nicht nach Checkliste!**
 
@@ -725,7 +767,12 @@ Umschließe mit <p>...</p>
 ## ABSATZ 3: EMPFEHLUNG (35-50W)
 <h3>Meine Empfehlung</h3>
 
-**Nutze <p>...</p> Tags für Absätze!**
+**KRITISCH: Nutze <p>...</p> Tags für Absätze!**
+
+**Beispiel-Struktur:**
+```html
+<p>Da der Cashflow negativ ist und DSCR unter 1, solltest du mehr Eigenkapital einsetzen, um die Rate zu senken. Außerdem WEG-Unterlagen gründlich checken.</p>
+```
 
 **PRINZIP: Fokussiere auf DAS größte Risiko, sei konkret**
 
@@ -747,7 +794,12 @@ Identifiziere das größte Risiko und gib 1-2 konkrete Empfehlungen.
 ## ABSATZ 4: FAZIT (20-30W)
 <h3>Fazit</h3>
 
-**Nutze <p>...</p> Tags für Absätze!**
+**KRITISCH: Nutze <p>...</p> Tags für Absätze!**
+
+**Beispiel-Struktur:**
+```html
+<p>Grenzwertig wegen negativem Cashflow und DSCR unter 1. Kann funktionieren, wenn du mehr EK einsetzt.</p>
+```
 
 **PRINZIP: Klare Empfehlung + kurze Begründung**
 
