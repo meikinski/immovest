@@ -917,10 +917,6 @@ Wenn Check fehlschlägt: Nochmal überarbeiten!`,
   modelSettings: {
     maxTokens: 1800,
     store: true,
-    temperature: 0.7,
-    top_p: 0.95,
-    frequencyPenalty: 0.2,
-    presencePenalty: 0.1,
   },
 });
 
