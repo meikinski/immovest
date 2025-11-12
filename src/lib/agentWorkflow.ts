@@ -114,19 +114,46 @@ Suche SPEZIFISCH nach Daten für:
 - Größenklasse (z.B. "60-80 m²")
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "1950-1990", "ab 2000")
 
-**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde nur als NOTFALL-FALLBACK!**
+**WICHTIG: KORREKTE BAUJAHR-TERMINOLOGIE!**
+❌ FALSCH: "Altbau von 1980" (1980 ist KEIN Altbau!)
+✅ RICHTIG:
+- **Altbau:** NUR Gebäude bis 1949
+- **Nachkriegsbau / Bestandsgebäude:** 1950-2000
+- **Neubau:** ab 2000 (oder letzten 10-15 Jahre)
+
+**Beispiele:**
+- Baujahr 1900 → "Altbau"
+- Baujahr 1980 → "Bestandsgebäude" oder "Baujahr 1980" (NICHT Altbau!)
+- Baujahr 2020 → "Neubau"
+
+**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde-Daten sind INAKZEPTABEL!**
+
+**ABSOLUT VERBOTEN - Diese Daten DARFST DU NICHT nutzen:**
+❌ "Köln (gesamt) Mietspiegel"
+❌ "München gesamt"
+❌ "Stadt Frankfurt Durchschnitt"
+❌ "Berlin Mietspiegel" (ohne PLZ)
+❌ Jegliche Daten die "gesamt", "Stadt XY", "Durchschnitt Stadt" enthalten
+
+**NUR AKZEPTABEL - Diese Daten DARFST DU nutzen:**
+✅ "PLZ 50677 Mietspiegel"
+✅ "Köln-Südstadt (PLZ 50677) Mietpreise"
+✅ "Mietspiegel Belgisches Viertel PLZ 50672"
+✅ Daten die sich EXPLIZIT auf eine PLZ beziehen
 
 **Suchstrategie (STRIKTE Reihenfolge!):**
 1. **ERSTE PRIORITÄT (PFLICHT!):** "Mietspiegel [PLZ] [Zimmeranzahl] Zimmer"
 2. **ZWEITE PRIORITÄT:** "[Ortsteil] [Gemeinde/Stadt] Mietpreise [Zimmeranzahl] Zimmer [PLZ]"
 3. **DRITTE PRIORITÄT:** "[PLZ] Mietspiegel [Größe] m²"
-4. **NUR ALS NOTFALL-FALLBACK:** "[Gemeinde/Stadt] Mietspiegel [Zimmeranzahl] Zimmer"
+4. **VIERTE PRIORITÄT:** "Mietspiegel [Ortsteil] [Stadt] [PLZ]"
 
-**WICHTIG:**
-- Suche INTENSIV nach PLZ-Daten bevor du auf Stadt-Ebene gehst!
-- Nutze mehrere Suchvarianten für die PLZ (mindestens 3 Versuche!)
-- Erst wenn WIRKLICH keine PLZ-Daten gefunden → Stadt-Daten als Fallback
-- Dokumentiere in notes WARUM Stadt-Daten genutzt wurden: "Keine PLZ-spezifischen Daten gefunden"
+**KRITISCHE REGEL:**
+- Nutze MINDESTENS 5-7 verschiedene Suchvarianten für die PLZ!
+- Wenn nach 5-7 Versuchen WIRKLICH keine PLZ-Daten gefunden werden:
+  → Setze median_psqm = NULL
+  → Setze notes = "Trotz intensiver Suche keine PLZ-spezifischen Daten für PLZ [X] gefunden. Nur Stadt-Daten verfügbar, aber diese sind nicht vergleichbar und wurden daher nicht genutzt."
+- **NIEMALS Stadt-Daten als "Fallback" nutzen - lieber NULL!**
+- Stadt-Daten verfälschen die Analyse und führen zu falschen Investment-Entscheidungen!
 
 **Für ländliche Gegenden zusätzlich:**
 - "Mietspiegel [Landkreis]" (oft einzige verfügbare Quelle)
@@ -154,19 +181,41 @@ Suche SPEZIFISCH nach Daten für:
 - Baujahr-Kategorie (z.B. "Altbau", "Neubau", "bis 1949", "ab 2000")
 - Objekttyp (z.B. "Eigentumswohnung", "Reihenhaus")
 
-**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde nur als NOTFALL-FALLBACK!**
+**WICHTIG: KORREKTE BAUJAHR-TERMINOLOGIE!**
+❌ FALSCH: "Altbau von 1980" (1980 ist KEIN Altbau!)
+✅ RICHTIG:
+- **Altbau:** NUR Gebäude bis 1949
+- **Nachkriegsbau / Bestandsgebäude:** 1950-2000
+- **Neubau:** ab 2000 (oder letzten 10-15 Jahre)
+
+**KRITISCH: PLZ-EBENE IST PFLICHT! Stadt/Gemeinde-Daten sind INAKZEPTABEL!**
+
+**ABSOLUT VERBOTEN - Diese Daten DARFST DU NICHT nutzen:**
+❌ "Köln Durchschnitt Kaufpreise"
+❌ "München Eigentumswohnungen gesamt"
+❌ "Stadt Frankfurt €/m²"
+❌ "Berlin Kaufpreise" (ohne PLZ)
+❌ Jegliche Daten die "Durchschnitt", "gesamt", "Stadt XY" enthalten
+
+**NUR AKZEPTABEL - Diese Daten DARFST DU nutzen:**
+✅ "PLZ 50677 Kaufpreise Eigentumswohnung"
+✅ "Gutachterausschuss PLZ 50677"
+✅ "Köln-Südstadt (PLZ 50677) Kaufpreise"
+✅ Daten die sich EXPLIZIT auf eine PLZ beziehen
 
 **Suchstrategie (STRIKTE Reihenfolge!):**
 1. **ERSTE PRIORITÄT (PFLICHT!):** "[PLZ] Kaufpreis m² Wohnung [Zimmeranzahl] Zimmer"
 2. **ZWEITE PRIORITÄT:** "[Ortsteil] [PLZ] Kaufpreise Eigentumswohnung"
 3. **DRITTE PRIORITÄT:** "Gutachterausschuss [Landkreis] [PLZ] Kaufpreise"
-4. **NUR ALS NOTFALL-FALLBACK:** "[Gemeinde/Stadt] Kaufpreise Eigentumswohnung [Zimmeranzahl] Zimmer"
+4. **VIERTE PRIORITÄT:** "[Ortsteil] [Stadt] Kaufpreise [PLZ]"
 
-**WICHTIG:**
-- Suche INTENSIV nach PLZ-Daten bevor du auf Stadt-Ebene gehst!
-- Nutze mehrere Suchvarianten für die PLZ (mindestens 3 Versuche!)
-- Erst wenn WIRKLICH keine PLZ-Daten gefunden → Stadt-Daten als Fallback
-- Dokumentiere in notes WARUM Stadt-Daten genutzt wurden: "Keine PLZ-spezifischen Daten gefunden"
+**KRITISCHE REGEL:**
+- Nutze MINDESTENS 5-7 verschiedene Suchvarianten für die PLZ!
+- Wenn nach 5-7 Versuchen WIRKLICH keine PLZ-Daten gefunden werden:
+  → Setze median_psqm = NULL
+  → Setze notes = "Trotz intensiver Suche keine PLZ-spezifischen Daten für PLZ [X] gefunden. Nur Stadt-Daten verfügbar, aber diese sind nicht vergleichbar und wurden daher nicht genutzt."
+- **NIEMALS Stadt-Daten als "Fallback" nutzen - lieber NULL!**
+- Stadt-Daten verfälschen die Analyse und führen zu falschen Investment-Entscheidungen!
 
 **Für ländliche Gegenden zusätzlich:**
 - "Gutachterausschuss [Landkreis] Kaufpreise" (oft einzige verfügbare Quelle)
@@ -510,9 +559,13 @@ Bewerte den Kaufpreis im Kontext von Baujahr UND Lage-Qualität.
 - Altbau + schwache Lage: Hat wahrscheinlich Grund, WEG gründlich prüfen
 
 **Deutlich unter Markt (<-20%):**
-- Altbau (<1980): Deutet auf Sanierungsbedarf, WEG SEHR gründlich
+- Altbau (bis 1949): Deutet auf Sanierungsbedarf, WEG SEHR gründlich
 - Neubau: Ungewöhnlich, Grund klären
 - Schwache Lage: Passt zusammen, Zustand prüfen
+
+**WICHTIG: KORREKTE BAUJAHR-TERMINOLOGIE!**
+❌ FALSCH: "Altbau von 1980"
+✅ RICHTIG: Altbau NUR bis 1949, danach "Bestandsgebäude" oder "Baujahr 1980"
 
 ## WICHTIG: KEINE Citation-Links im HTML
 ❌ FALSCH: "laut Gutachterausschuss ([domain](url))"
@@ -585,14 +638,18 @@ Du bist der Kumpel, der ehrlich sagt: Lohnt sich das Investment oder nicht? Klar
 
 **Verknüpfe ALLE Faktoren für individuelle Analysen!** Nicht nur Schwellenwerte abfragen, sondern Zusammenhänge erkennen:
 
+**WICHTIG: KORREKTE BAUJAHR-TERMINOLOGIE!**
+❌ FALSCH: "Altbau von 1980"
+✅ RICHTIG: **Altbau NUR bis 1949**, danach "Bestandsgebäude" oder "Baujahr 1980"
+
 **Kritische Muster (ALARM!):**
 
 1. **Hohe Miete + schwache Lage + Altbau:**
-   - Wenn Miete >15% über Markt UND Lage "sozial gemischt"/"Problemgebiet" UND Baujahr <1980
+   - Wenn Miete >15% über Markt UND Lage "sozial gemischt"/"Problemgebiet" UND Baujahr ≤1949
    - → SEHR riskant! "Überhöhte Miete in weniger begehrter Gegend + Altbau = hohes Risiko bei Mieterwechsel UND Sanierungsbedarf"
 
 2. **Niedriger Preis + Altbau + schwache Lage:**
-   - Wenn Kaufpreis <-20% UND Baujahr <1980 UND Lage nicht "begehrt"
+   - Wenn Kaufpreis <-20% UND Baujahr ≤1949 UND Lage nicht "begehrt"
    - → "Verkäufer will schnell raus - wahrscheinlich Sanierungsstau + schwierige Vermietung"
 
 3. **Hoher Preis + schwache KPIs:**
@@ -742,16 +799,18 @@ Umschließe mit <p>...</p>
 
 1. **Hohe Miete + schwache Lage:** Sehr riskant bei Mieterwechsel
 2. **Hohe Miete + TOP-Lage:** Kann funktionieren, aber trotzdem konservativ kalkulieren
-3. **Niedriger Preis + Altbau (<1980):** Kann auf Sanierungsbedarf hindeuten
-4. **Hoher Preis (>20%):** Überzahlt
-5. **Niedriger Preis (<-20%):** Hat meist einen Grund (WEG prüfen!)
+3. **Niedriger Preis + Altbau (≤1949):** Kann auf erheblichen Sanierungsbedarf hindeuten
+4. **Niedriger Preis + Bestandsgebäude (1950-2000):** Sanierungsstau prüfen
+5. **Hoher Preis (>20%):** Überzahlt
+6. **Niedriger Preis (<-20%):** Hat meist einen Grund (WEG prüfen!)
 
 **Szenarien (NUR wenn sehr relevant!):**
 - Bei hoher Miete: Was passiert bei Marktmiete?
 - Bei schwachem CF + niedriger EK: Was passiert bei mehr EK?
 - Kurz (max 1 Satz)!
 
-**Baujahr <1980:** Sanierungsbedarf einkalkulieren
+**Baujahr ≤1949 (Altbau):** Erhöhter Sanierungsbedarf einkalkulieren
+**Baujahr 1950-2000 (Bestandsgebäude):** Möglichen Sanierungsstau beachten
 
 **Potenzial:** Zeige auch Positives, nicht nur Risiken
 
@@ -776,7 +835,8 @@ Identifiziere das größte Risiko und gib 1-2 konkrete Empfehlungen.
 - **Miete >20% über:** Konservativ mit Marktmiete kalkulieren, zeige neuen CF
 - **Kaufpreis >20% über:** Auf Marktniveau verhandeln
 - **Kaufpreis <-20% unter:** WEG SEHR gründlich prüfen, ggf. Gutachter
-- **Altbau (<1980) + niedriger Preis:** Sanierungsbedarf checken
+- **Altbau (≤1949) + niedriger Preis:** Sanierungsbedarf checken
+- **Bestandsgebäude (1950-2000) + niedriger Preis:** Zustand und Sanierungsstau prüfen
 - **Sonst:** WEG-Unterlagen prüfen, Zustand checken
 
 **Denke mit, formuliere natürlich!**
