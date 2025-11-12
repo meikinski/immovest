@@ -657,14 +657,10 @@ payload.nettoMietrendite = Jährlicher Mietüberschuss nach Kosten / Kaufpreis
 
 **KRITISCH: Jeder Absatz MUSS mit <p>...</p> umschlossen werden!**
 
-**Beispiel-Struktur:**
-```html
-<p>Der Cashflow liegt bei -27€. Das liegt daran, dass der Kaufpreis 13% über Markt liegt (höhere Rate) und die Miete nur knapp am Markt ist. Nach Steuerersparnis liegt der echte Verlust bei ca. -16€.</p>
-
-<p>Die Nettomietrendite beträgt 3,59%. Das ist solide und zeigt, wie viel vom Kaufpreis jährlich als Mietüberschuss zurückkommt.</p>
-
-<p>Der DSCR liegt bei 0,96 – kritisch! Du musst jeden Monat drauflegen, weil die Miete die Rate nicht deckt. Plus: Rücklagen für Mietausfall müsstest du auch noch bilden.</p>
-```
+**Beispiel:**
+- ABSATZ 1: <p>Der Cashflow liegt bei -27€. Das liegt daran, dass der Kaufpreis 13% über Markt liegt (höhere Rate)...</p>
+- ABSATZ 2: <p>Die Nettomietrendite beträgt 3,59%. Das ist solide und zeigt...</p>
+- ABSATZ 3: <p>Der DSCR liegt bei 0,96 – kritisch! Du musst jeden Monat drauflegen...</p>
 
 **ABSATZ 1: Cashflow + Begründung (40-50W)**
 Umschließe mit <p>...</p>
@@ -736,10 +732,7 @@ Umschließe mit <p>...</p>
 
 **KRITISCH: Nutze <p>...</p> Tags für Absätze!**
 
-**Beispiel-Struktur:**
-```html
-<p>Die zentrale Lage ist ein großer Pluspunkt. Das Hauptproblem ist der negative Cashflow und DSCR unter 1 – das macht es riskant bei Leerstand.</p>
-```
+**Beispiel:** <p>Die zentrale Lage ist ein großer Pluspunkt. Das Hauptproblem ist der negative Cashflow und DSCR unter 1...</p>
 
 **PRINZIP: Denke kontextuell, nicht nach Checkliste!**
 
@@ -769,10 +762,7 @@ Umschließe mit <p>...</p>
 
 **KRITISCH: Nutze <p>...</p> Tags für Absätze!**
 
-**Beispiel-Struktur:**
-```html
-<p>Da der Cashflow negativ ist und DSCR unter 1, solltest du mehr Eigenkapital einsetzen, um die Rate zu senken. Außerdem WEG-Unterlagen gründlich checken.</p>
-```
+**Beispiel:** <p>Da der Cashflow negativ ist und DSCR unter 1, solltest du mehr Eigenkapital einsetzen...</p>
 
 **PRINZIP: Fokussiere auf DAS größte Risiko, sei konkret**
 
@@ -796,10 +786,7 @@ Identifiziere das größte Risiko und gib 1-2 konkrete Empfehlungen.
 
 **KRITISCH: Nutze <p>...</p> Tags für Absätze!**
 
-**Beispiel-Struktur:**
-```html
-<p>Grenzwertig wegen negativem Cashflow und DSCR unter 1. Kann funktionieren, wenn du mehr EK einsetzt.</p>
-```
+**Beispiel:** <p>Grenzwertig wegen negativem Cashflow und DSCR unter 1. Kann funktionieren, wenn du mehr EK einsetzt.</p>
 
 **PRINZIP: Klare Empfehlung + kurze Begründung**
 
