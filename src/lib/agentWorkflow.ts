@@ -642,7 +642,7 @@ Wenn Check fehlschlägt: Nochmal web_search ausführen oder NULL + notes dokumen
     store: true,
     maxTokens: 3500,
     temperature: 0.45,
-    top_p: 0.95,
+    topP: 0.95,
   },
 });
 
