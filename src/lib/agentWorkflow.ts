@@ -7,6 +7,12 @@ export type WorkflowInput = {
   payload?: unknown;
 };
 
+// ============================================
+// MODELL-KONFIGURATION
+// ============================================
+const MODEL_ANALYSE = process.env.IMVESTR_MODEL_ANALYSE ?? 'gpt-4o';
+const MODEL_INVEST  = process.env.IMVESTR_MODEL_INVEST  ?? 'gpt-5-mini';
+
 const RangeObjectSchema = z.object({ low: z.number(), high: z.number() }).nullable();
 
 // Facts Schema (für Research-Daten)
@@ -60,7 +66,7 @@ const AnalyseOutputSchema = z.object({
 });
 
 const webSearchPreview = webSearchTool({
-  searchContextSize: 'low',
+  searchContextSize: 'medium',
   userLocation: { type: 'approximate' },
 });
 
@@ -72,6 +78,8 @@ const analyseagent = new Agent({
   name: 'AnalyseAgent',
   instructions: `# KERN-REGELN (RULES-FIRST!)
 SPRACHE: Deutsch. AUSGABE: strikt AnalyseOutputSchema. HTML-only (keine Markdown-Links). ZAHLENFORMAT DE: Tausenderpunkt, Dezimalkomma (z.B. 1.980 €/m²; 9,80 €/m²). Prozent ohne Nachkommastellen. KEINE Schätzungen – fehlende Zahlen = NULL. Erst web_search (min. 2-3 Queries pro Zahlenvergleich!), dann schreiben. PLZ-Ebene PFLICHT – Stadt-Daten VERBOTEN.
+
+VARIANZ (nur Stil): Satzlängen mischen; gleiche Satzanfänge vermeiden; nutze sparsam Synonyme: (zügig|rasch|fix), (solide|ok|stabil), (eher|tendenziell|grundsätzlich), (passt|in Ordnung|marktgerecht).
 
 # ROLLE
 Du bist ein Immobilien-Analyst. Deine Aufgabe: Recherchiere Marktdaten UND erstelle drei fundierte Analysen (Lage, Mietvergleich, Kaufvergleich) für Investoren.
@@ -627,12 +635,14 @@ Dein Output MUSS diesem Schema folgen:
 6. **Delta-Check:** miete.delta_psqm und kauf.delta_psqm gesetzt? (Prozent, keine Nachkommastellen)
 
 Wenn Check fehlschlägt: Nochmal web_search ausführen oder NULL + notes dokumentieren!`,
-  model: 'gpt-5-mini',
+  model: MODEL_ANALYSE,
   tools: [webSearchPreview],
   outputType: AnalyseOutputSchema,
   modelSettings: {
     store: true,
     maxTokens: 3500,
+    temperature: 0.45,
+    top_p: 0.95,
   },
 });
 
@@ -644,6 +654,9 @@ const investitionsanalyseagent = new Agent({
   name: 'InvestitionsanalyseAgent',
   instructions: `# KERN-REGELN (RULES-FIRST!)
 SPRACHE: Deutsch. AUSGABE: HTML (nicht Markdown). ZAHLENFORMAT DE: Tausenderpunkt, Dezimalkomma (z.B. 1.980 €/m²; 9,80 €/m²). Prozent ohne Nachkommastellen. 4 Absätze mit <h3> und <p> Tags. 250-300 Wörter gesamt. KEINE absoluten Kaufpreise/EK-Zahlen. Kontextuell denken – Faktoren verknüpfen, nicht Checkliste abarbeiten.
+
+# STILVARIANTE (DYNAMISCH)
+Wenn input.styleMode gesetzt, passe Ton an: "knackig" = kurze, direkte Sätze; "kollegial" = freundlich, etwas weicher; "sachlich" = nüchtern, klar. Varianz: Satzlängen mischen, Einstiege variieren, keine Copy-Paste-Phrasen.
 
 # ROLLE
 Du bist der Kumpel, der ehrlich sagt: Lohnt sich das Investment oder nicht? Klar, direkt, ohne Bullshit.
@@ -899,11 +912,15 @@ Denke kontextuell und flexibel, nicht nach Checkliste. Formuliere natürlich, ni
 5. **Kontext:** Faktoren verknüpft statt Checkliste?
 
 Wenn Check fehlschlägt: Nochmal überarbeiten!`,
-  model: 'gpt-5-mini',
+  model: MODEL_INVEST,
   outputType: z.object({ html: z.string() }),
   modelSettings: {
     maxTokens: 1800,
-    store: true
+    store: true,
+    temperature: 0.7,
+    top_p: 0.95,
+    frequencyPenalty: 0.2,
+    presencePenalty: 0.1,
   },
 });
 
@@ -998,6 +1015,28 @@ function validateAnalyseOutput(analyse: z.infer<typeof AnalyseOutputSchema>): Va
   }
   if (analyse.facts.price.range_psqm && analyse.facts.price.range_psqm.low >= analyse.facts.price.range_psqm.high) {
     errors.push('price.range_psqm: low >= high ist nicht plausibel');
+  }
+
+  // 9. Recency-Check (mind. eine 2023–2025-Quelle irgendwo in facts)
+  const factsStr = JSON.stringify(analyse.facts);
+  if (!/\b20(2[3-5])\b/.test(factsStr)) {
+    warnings.push('Quellen: keine Jahresangabe 2023–2025 gefunden – Aktualität prüfen');
+  }
+
+  // 10. Geo-Level-Check (PLZ muss in rent/price notes vorkommen, sonst Warnung)
+  const notesRent  = analyse.facts.rent.notes  || '';
+  const notesPrice = analyse.facts.price.notes || '';
+  const hasPLZ = /\b\d{5}\b/.test(notesRent) || /\b\d{5}\b/.test(notesPrice);
+  if (!hasPLZ) {
+    warnings.push('Geo-Level: keine PLZ in rent/price notes – Vergleich evtl. nicht PLZ-basiert');
+  }
+
+  // 11. Price-to-Rent Sanity (nur Warnung, kein Blocker)
+  if (analyse.facts.rent.median_psqm && analyse.facts.price.median_psqm) {
+    const p2r = analyse.facts.price.median_psqm / analyse.facts.rent.median_psqm;
+    if (p2r < 150 || p2r > 300) {
+      warnings.push(`Price-to-Rent unplausibel (${p2r.toFixed(1)}) – Quellen/Segmente prüfen`);
+    }
   }
 
   return {
@@ -1167,6 +1206,15 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
   });
 
   // ============================================
+  // STYLE-MODUS AUS PLZ ABLEITEN (für natürliche Varianz)
+  // ============================================
+  const STYLE_MODES = ['knackig','kollegial','sachlich'];
+  const plzKey = analyse?.facts?.location?.postal_code || '00000';
+  const modeIndex = plzKey.split('').reduce((a,c)=>a + c.charCodeAt(0),0) % STYLE_MODES.length;
+  const styleMode = STYLE_MODES[modeIndex];
+  console.log(`📝 Style-Modus für PLZ ${plzKey}: ${styleMode}`);
+
+  // ============================================
   // 2. INVEST-AGENT (mit neuer Input-Struktur)
   // ============================================
   console.log('💰 Invest-Agent starting...');
@@ -1181,6 +1229,7 @@ export async function runWorkflow(workflow: WorkflowInput): Promise<AgentWorkflo
         kauf: analyse.kauf,
       },
       facts: analyse.facts,
+      styleMode,
     },
     validateInvestOutput,
     'InvestAgent',
