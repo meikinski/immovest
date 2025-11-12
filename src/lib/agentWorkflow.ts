@@ -632,7 +632,6 @@ Wenn Check fehlschlägt: Nochmal web_search ausführen oder NULL + notes dokumen
   outputType: AnalyseOutputSchema,
   modelSettings: {
     store: true,
-    temperature: 0.8,
     maxTokens: 3500,
   },
 });
@@ -903,7 +902,6 @@ Wenn Check fehlschlägt: Nochmal überarbeiten!`,
   model: 'gpt-5-mini',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
-    temperature: 0.8,
     maxTokens: 1800,
     store: true
   },
