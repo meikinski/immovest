@@ -19,9 +19,10 @@ export default function InputMethodPage() {
   const exportState = useImmoStore(s => s.exportState);
   const resetAnalysis = useImmoStore(s => s.resetAnalysis);
 
-  // Reset analysis when component mounts - new analysis always starts fresh
+  // Reset analysis when starting new analysis - clear form and localStorage
   useEffect(() => {
     resetAnalysis();
+    localStorage.removeItem('immovest_kpi_state');
   }, [resetAnalysis]);
 
   // Screenshot State

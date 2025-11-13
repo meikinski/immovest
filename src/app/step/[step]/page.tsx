@@ -380,23 +380,6 @@ const dscr =
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
 
-  // Reset market comments when relevant inputs change
-  useEffect(() => {
-    const inputFingerprint = JSON.stringify({
-      adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
-      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
-    });
-
-    // If inputs changed (not initial mount), reset comments and fetch flag
-    if (lastMarktInputs.current && lastMarktInputs.current !== inputFingerprint) {
-      setLageComment('');
-      setMietpreisComment('');
-      setQmPreisComment('');
-      setInvestComment('');
-      marktFetched.current = false;
-    }
-  }, [adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung]);
-
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
@@ -409,15 +392,17 @@ const dscr =
     return;
   }
 
-  // Create fingerprint of inputs to detect real changes
+  // Create fingerprint of BASE inputs only (not derived values) to detect real changes
   const inputFingerprint = JSON.stringify({
     adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
-    miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
-    cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite
+    miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
   });
 
   // Skip if already fetched with same inputs
-  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) return;
+  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) {
+    console.log('[Markt] Skipping reload - inputs unchanged');
+    return;
+  }
 
   // Increment usage counter (only once per session/analysis)
   if (!isPremium && !hasIncrementedUsage.current) {
@@ -505,10 +490,6 @@ const dscr =
   kaufpreis, flaeche, zimmer, baujahr,
   miete, hausgeld, hausgeld_umlegbar,
   ek, zins, tilgung,
-  // ⚡ NEU: Dependencies für KPIs
-  cashflowVorSteuer, cashflowAfterTax,
-  nettoMietrendite, bruttoMietrendite, ekRendite,
-  dscr, anschaffungskosten,
   // Paywall context dependencies
   canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal,
 ]);
