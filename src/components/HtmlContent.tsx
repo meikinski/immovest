@@ -27,7 +27,7 @@ export default function HtmlContent({ html, className }: HtmlContentProps) {
 
   return (
     <div
-      className={className}
+      className={`${className} [&>p]:mb-4 [&>p:last-child]:mb-0`}
       dangerouslySetInnerHTML={{ __html: sanitized || '<p>–</p>' }}
     />
   );

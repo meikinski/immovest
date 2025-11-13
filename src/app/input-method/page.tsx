@@ -17,12 +17,6 @@ export default function InputMethodPage() {
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
-  const resetAnalysis = useImmoStore(s => s.resetAnalysis);
-
-  // Reset analysis when component mounts - new analysis always starts fresh
-  useEffect(() => {
-    resetAnalysis();
-  }, [resetAnalysis]);
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
