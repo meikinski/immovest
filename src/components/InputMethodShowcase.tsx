@@ -44,8 +44,15 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
   const [activeMethod, setActiveMethod] = useState(0);
   const [ringFlash, setRingFlash] = useState(false);
   const imageFrameRef = useRef<HTMLDivElement>(null);
+  const isInitialMount = useRef(true);
 
   useEffect(() => {
+    // Skip auto-scroll on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
     // Trigger ring flash animation on mobile
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
       setRingFlash(true);
