@@ -491,7 +491,7 @@ const dscr =
   miete, hausgeld, hausgeld_umlegbar,
   ek, zins, tilgung,
   // Paywall context dependencies
-  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal,
+  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
 ]);
 
 
