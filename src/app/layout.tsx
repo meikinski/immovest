@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/Providers';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
-import CookieBanner from '@/components/CookieBanner';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -11,11 +10,27 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "imvestr: KI-Immobilien-Renditerechner | Cashflow & Analyse",
-  description: "Immobilien-Rendite in Sekunden berechnen: Cashflow, Nettomietrendite, EK-Rendite & DSCR. KI-Import von ImmoScout24. Jetzt kostenlos starten!",
-  authors: [{ name: "imvestr" }],
-  creator: "imvestr",
-  publisher: "imvestr",
+  title: "KI-basierter Immobilien-Renditerechner | ImVestr – Lohnt sich diese Immobilie?",
+  description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
+  keywords: [
+    "immobilien renditerechner",
+    "ki immobilien analyse",
+    "cashflow immobilie berechnen",
+    "nettomietrendite rechner",
+    "eigenkapitalrendite immobilie",
+    "dscr rechner",
+    "mietpreis vergleich",
+    "quadratmeterpreis analyse",
+    "mikrolage bewertung",
+    "immobilienscout24 import",
+    "immobilie bewertung tool",
+    "investment immobilie rechner",
+    "rendite rechner immobilie",
+    "immobilien roi rechner",
+  ],
+  authors: [{ name: "ImVestr" }],
+  creator: "ImVestr",
+  publisher: "ImVestr",
   metadataBase: new URL('https://immovestr.de'),
   alternates: {
     canonical: '/',
@@ -24,22 +39,22 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_DE",
     url: "https://immovestr.de",
-    title: "imvestr: KI-Immobilien-Renditerechner | Cashflow & Analyse",
-    description: "Immobilien-Rendite in Sekunden berechnen: Cashflow, Nettomietrendite, EK-Rendite & DSCR. KI-Import von ImmoScout24. Jetzt kostenlos starten!",
-    siteName: "imvestr",
+    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
+    description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
+    siteName: "ImVestr",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "imvestr - KI-basierter Immobilien-Renditerechner",
+        alt: "ImVestr - KI-basierter Immobilien-Renditerechner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "imvestr: KI-Immobilien-Renditerechner | Cashflow & Analyse",
-    description: "Immobilien-Rendite in Sekunden berechnen: Cashflow, Nettomietrendite, EK-Rendite & DSCR. KI-Import von ImmoScout24.",
+    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
+    description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -54,13 +69,13 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'way_YghTPVpoX2sEDvnTsI2KKH1EcXkObmCNTYLMicg', // TODO: Replace with actual verification code from Google Search Console
+    google: 'your-google-site-verification-code', // TODO: Replace with actual verification code from Google Search Console
   },
   themeColor: '#264171',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'imvestr',
+    title: 'ImVestr',
   },
   manifest: '/manifest.json',
 };
@@ -79,7 +94,6 @@ export default function RootLayout({
         <GoogleTagManager />
         <Providers>
           {children}
-          <CookieBanner />
         </Providers>
       </body>
     </html>

@@ -3,26 +3,29 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   ArrowRight,
   BarChart3,
+  Camera,
   CheckCircle2,
   FileBarChart,
+  Keyboard,
   LineChart,
+  Link as LinkIcon,
   LogIn,
   MapPin,
   ShieldCheck,
   Sparkles,
   Save,
+  TrendingUp,
   Zap,
 } from 'lucide-react';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
+import { MiniCarousel } from '@/components/MiniCarousel';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
-import { InteractiveStepPreview } from '@/components/InteractiveStepPreview';
-import { InputMethodShowcase } from '@/components/InputMethodShowcase';
+import { StackedCards } from '@/components/StackedCards';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
@@ -98,9 +101,11 @@ export default function LandingPage() {
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
     "sameAs": [
-      "https://www.instagram.com/immovestr",
-      "https://www.facebook.com/immovestr",
-      "https://www.tiktok.com/@immovestr",
+      // TODO: Add social media URLs here for better SEO, e.g.:
+      // "https://www.instagram.com/imvestr",
+      // "https://www.linkedin.com/company/imvestr",
+      // "https://www.facebook.com/imvestr",
+      // "https://www.youtube.com/@imvestr",
     ],
   };
 
@@ -108,38 +113,22 @@ export default function LandingPage() {
     {
       question: 'Wie genau sind die Ergebnisse?',
       answer:
-        'KPIs (Cashflow, Rendite, EKR, DSCR) werden mit klassischen, nachvollziehbaren Formeln aus deinen Eingaben berechnet. Die Kauf-/Verhandeln-/Lassen-Kommentare sind LLM-gestützt. Keine Anlageberatung, sondern Entscheidungshilfe.',
-    },
-    {
-      question: 'Was kostet Imvestr?',
-      answer: (
-        <>
-          Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo.{' '}
-          <Link href="/pricing" className="text-[hsl(var(--brand))] hover:text-[hsl(var(--brand-2))] underline font-semibold">
-            Mehr Details
-          </Link>
-        </>
-      ),
+        'Wir rechnen mit aktuellen Markt- und Modellwerten. Du siehst jede Annahme transparent, damit du sie anpassen kannst.',
     },
     {
       question: 'Brauche ich einen Account?',
       answer:
-        'Nein. Mit Account kannst du Analysen speichern, Reports laden und erhältst 2 Premium-Analysen gratis zum Start.',
+        'Du kannst sofort testen. Mit Account speicherst du Analysen, lädst Reports herunter und erhältst zwei Premium-Analysen gratis.',
     },
     {
-      question: 'Welche Kennzahlen berechnet ihr?',
+      question: 'Was kostet imvestr?',
       answer:
-        'u. a. Cashflow nach Steuern, Nettomietrendite, Eigenkapital-Rendite, DSCR, Break-even.',
+        'Der Einstieg ist kostenlos. Erweiterte Datenpakete und unbegrenzte Reports kannst du flexibel dazubuchen.',
     },
     {
-      question: 'Unterstützt ihr beim Bankgespräch?',
+      question: 'Unterstützt ihr bei der Bank?',
       answer:
-        'Ja. Bankfähiger PDF-Report mit DSCR, Cashflow, Zins/Tilgung, Annahmen und Szenario-Vergleichen.',
-    },
-    {
-      question: 'Wie kommen die Daten in die App?',
-      answer:
-        'Über Adresse, Inserat-URL oder Foto; die KI extrahiert Felder, du prüfst und passt an.',
+        'Ja. Du bekommst ein bankfähiges PDF mit DSCR, Cashflow und Szenarien – ideal für das Gespräch mit Finanzierungspartnern.',
     },
   ];
 
@@ -151,12 +140,28 @@ export default function LandingPage() {
       "name": faq.question,
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": typeof faq.answer === 'string'
-          ? faq.answer
-          : 'Kostenlos starten. Premium mit erweiterten Daten & unbegrenzten Reports als Monats- oder Jahresabo.',
+        "text": faq.answer,
       },
     })),
   };
+
+  const importFeatures = [
+    {
+      icon: <LinkIcon className="w-6 h-6" />,
+      title: 'URL-Import',
+      description: 'ImmoScout24-, Immowelt- oder andere Links einfach einfügen – wir extrahieren alle Daten automatisch.',
+    },
+    {
+      icon: <Camera className="w-6 h-6" />,
+      title: 'Foto-Analyse',
+      description: 'Screenshot vom Exposé machen, hochladen – fertig. KI erkennt Kaufpreis, Fläche, Miete und mehr.',
+    },
+    {
+      icon: <Keyboard className="w-6 h-6" />,
+      title: 'Manuelle Eingabe',
+      description: 'Adresse und Eckdaten selbst eintragen – vollständige Kontrolle über jeden Wert.',
+    },
+  ];
 
   const analysisFeatures = [
     {
@@ -178,6 +183,33 @@ export default function LandingPage() {
       icon: <FileBarChart className="w-6 h-6" />,
       title: 'KI-Einschätzung',
       description: 'Erste Einschätzung basierend auf deinen Kennzahlen. KI bewertet Zahlen und gibt dir eine initiale Orientierung.',
+    },
+  ];
+
+  const processSteps = [
+    {
+      number: 1,
+      icon: <MapPin className="w-6 h-6" />,
+      title: 'Objekt angeben',
+      description: 'Adresse oder Eckdaten eintragen.',
+      cta: 'Jetzt KPIs berechnen',
+      color: '#264171',
+    },
+    {
+      number: 2,
+      icon: <BarChart3 className="w-6 h-6" />,
+      title: 'KPIs & KI-Einschätzung',
+      description: 'Cashflow, Rendite, Marktvergleich.',
+      cta: 'Analyse starten',
+      color: '#E6AE63',
+    },
+    {
+      number: 3,
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: 'Szenarien testen',
+      description: 'Miete, Zins, EK variieren – Effekt sehen.',
+      cta: 'Miete/Zins anpassen',
+      color: '#A56554',
     },
   ];
 
@@ -220,7 +252,6 @@ export default function LandingPage() {
                 alt="imvestr Logo"
                 width={48}
                 height={48}
-                sizes="48px"
                 className="rounded-lg"
                 priority
               />
@@ -327,16 +358,16 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Input Methods Showcase - USP */}
+        {/* Import Features - USP */}
         <section aria-label="Import-Optionen" className="px-6 py-12 md:py-20 bg-white border-y border-[#264171]/5">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             {/* Section Header */}
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-6">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
                 <Sparkles className="h-4 w-4 text-[#E6AE63]" />
                 Smart Import
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 Drei Wege zum Ergebnis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -344,22 +375,66 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Interactive Method Showcase */}
-            <InputMethodShowcase onMethodSelect={() => {
-              // Navigate to input-method page
-              router.push('/input-method');
-            }} />
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
+              {/* Left: Import Features */}
+              <div className="flex-1 space-y-6">
+                {importFeatures.map((feature) => (
+                  <div
+                    key={feature.title}
+                    className="group flex items-start gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-6 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
+                  >
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
+                      <div className="text-white">{feature.icon}</div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-[#0F172A] mb-2">{feature.title}</h3>
+                      <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Right: Screenshot with Headline */}
+              <div className="flex-1 space-y-6">
+                {/* Screenshot Caption */}
+                <div className="text-left">
+                  <h3 className="text-xl font-medium text-[#264171] mb-4">
+                    So sieht die Auswahl aus
+                  </h3>
+                </div>
+
+                {/* Input Method Screenshot */}
+                <div
+                  className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(108, 127, 153, 0.12) 38%, rgba(230, 174, 99, 0.20) 70%, rgba(165, 101, 84, 0.15) 100%)',
+                  }}
+                >
+                  <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
+                    <Image
+                      src="/imvestr_inputmethod.png"
+                      alt="Input-Methoden Auswahl"
+                      width={1200}
+                      height={800}
+                      className="w-full h-auto object-contain"
+                      priority
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         <section id="features" aria-label="Analyse-Features" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#F7F9FF] to-white">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/20 bg-white px-4 py-2 text-sm font-medium text-[#264171] mb-4">
                 <BarChart3 className="h-4 w-4 text-[#264171]" />
                 Kennzahlen & Einschätzung
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 Alle Kennzahlen auf einen Blick
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -396,22 +471,82 @@ export default function LandingPage() {
           {/* Decorative dots pattern */}
           <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'radial-gradient(#264171 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
 
-          <div className="mx-auto max-w-7xl relative z-10 px-6">
+          <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#264171]/20 bg-gradient-to-r from-[#264171]/10 to-[#315080]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
                 <Zap className="h-4 w-4 text-[#264171]" />
                 3-Schritte-Prozess
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 So läuft deine Analyse
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
-                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und faktenbasiert.
+                In nur 3 einfachen Schritten zur vollständigen Immobilienanalyse – schnell, transparent und datenbasiert.
               </p>
             </div>
 
-            {/* Interactive Step Preview */}
-            <InteractiveStepPreview onStartAnalysis={() => handleGetStarted('how_it_works')} />
+            {/* Stacked Cards with Scroll Animation - Desktop */}
+            <div className="hidden md:block">
+              <StackedCards steps={processSteps} />
+            </div>
+
+            {/* Simple Grid - Mobile */}
+            <div className="md:hidden grid gap-6 max-w-5xl mx-auto mb-16">
+              {processSteps.map((step) => (
+                <div
+                  key={step.number}
+                  className="group relative rounded-3xl border-2 border-gray-200 bg-white p-6 transition-all duration-300"
+                  style={{
+                    background: `linear-gradient(135deg, white 0%, ${step.color}08 100%)`,
+                  }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      {/* Title */}
+                      <h3 className="text-xl font-bold text-[#0F172A] mb-2">
+                        {step.number}. {step.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-sm text-[#6C7F99] mb-4 leading-relaxed">
+                        {step.description}
+                      </p>
+
+                      {/* Mini CTA */}
+                      <button
+                        onClick={() => handleGetStarted('how_it_works')}
+                        className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
+                        style={{ color: step.color }}
+                      >
+                        {step.cta}
+                        <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                      </button>
+                    </div>
+
+                    {/* Icon repositioned to right */}
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
+                      style={{ backgroundColor: step.color }}
+                    >
+                      <div className="text-white">{step.icon}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mini Carousel - Screenshot Placeholders */}
+            <div className="mb-12">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
+                  So sieht es aus
+                </h3>
+                <p className="text-base text-[#6C7F99]">
+                  KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
+                </p>
+              </div>
+              <MiniCarousel />
+            </div>
           </div>
         </section>
 
@@ -425,11 +560,11 @@ export default function LandingPage() {
 
           <div className="mx-auto max-w-6xl relative z-10">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/25 bg-gradient-to-r from-[#E6AE63]/15 to-[#D4995A]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#E6AE63]/25 bg-gradient-to-r from-[#E6AE63]/15 to-[#D4995A]/10 backdrop-blur-sm px-5 py-2.5 text-sm font-semibold text-[#264171] shadow-sm mb-4">
                 <CheckCircle2 className="h-4 w-4 text-[#E6AE63]" />
                 Für jeden geeignet
               </div>
-              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-6">
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">
                 Für Einsteiger & Profis
               </h2>
               <p className="text-lg text-[#6C7F99] max-w-2xl mx-auto">
@@ -453,14 +588,14 @@ export default function LandingPage() {
                 },
                 {
                   name: 'Tobias',
-                  role: 'Immobilien-Investor',
+                  role: 'FIRE-Student',
                   quote: 'Cashflow in Sekunden. Endlich weiß ich, ob es sich lohnt.',
                   color: '#6C7F99'
                 },
                 {
                   name: 'Leandro',
                   role: 'Data-Nerd',
-                  quote: 'Berechnungen transparent, Annahmen in Szenarien editierbar – perfekt.',
+                  quote: 'Datenquellen transparent, Annahmen editierbar – perfekt.',
                   color: '#264171'
                 },
               ].map((persona) => (
@@ -484,34 +619,34 @@ export default function LandingPage() {
         {/* Pricing Teaser */}
         <PricingTeaser />
 
-        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-16 md:py-24 bg-gradient-to-br from-white via-[#F7F9FF] to-[#FDF8F3]">
+        <section id="faq" aria-label="Häufig gestellte Fragen" className="px-6 py-12 md:py-24 bg-gradient-to-br from-[#EEF2FF] via-[#F7F9FF] to-[#FDF8F3]">
           <div className="mx-auto max-w-4xl">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#A56554]/20 bg-[#A56554]/5 px-4 py-2 text-sm font-medium text-[#A56554] mb-6">
-                <ShieldCheck className="h-4 w-4 text-[#A56554]" />
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#264171]/30 bg-[#264171]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
+                <ShieldCheck className="h-4 w-4 text-[#264171]" />
                 FAQ
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-[#0F172A] mb-6">Häufige Fragen</h2>
-              <p className="text-lg md:text-xl text-[#6C7F99] max-w-2xl mx-auto">Alles, was du wissen musst – kurz und klar.</p>
+              <h2 className="text-3xl md:text-4xl font-semibold text-[#0F172A] mb-4">Häufige Fragen</h2>
+              <p className="text-lg text-[#6C7F99]">Alles, was du wissen musst – kurz und klar.</p>
             </div>
             {/* Desktop - Always open */}
-            <div className="hidden md:block space-y-5">
+            <div className="hidden md:block space-y-4">
               {faqs.map((faq) => (
-                <div key={faq.question} className="group rounded-2xl border-2 border-[#A56554]/10 bg-white p-8 shadow-sm transition-all duration-200 hover:border-[#A56554]/30 hover:shadow-lg hover:-translate-y-0.5">
-                  <h3 className="text-xl font-bold text-[#0F172A] mb-4">{faq.question}</h3>
-                  <div className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</div>
+                <div key={faq.question} className="group rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 p-8 shadow-sm transition-all duration-200 hover:border-[#E6AE63]/30 hover:shadow-md">
+                  <h3 className="text-lg font-semibold text-[#0F172A] mb-3">{faq.question}</h3>
+                  <p className="text-base text-[#6C7F99] leading-relaxed">{faq.answer}</p>
                 </div>
               ))}
             </div>
 
             {/* Mobile - Accordion */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden space-y-3">
               {faqs.map((faq, idx) => {
                 const isOpen = activeFaqIndex === idx;
                 return (
                   <div
                     key={faq.question}
-                    className="rounded-2xl border-2 border-[#A56554]/10 bg-white shadow-sm overflow-hidden transition-all duration-200"
+                    className="rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 shadow-sm overflow-hidden transition-all duration-200"
                   >
                     <button
                       onClick={() => {
@@ -520,11 +655,11 @@ export default function LandingPage() {
                       }}
                       className="w-full flex items-center justify-between p-6 text-left"
                     >
-                      <h3 className="text-base font-bold text-[#0F172A] pr-4">
+                      <h3 className="text-base font-semibold text-[#0F172A] pr-4">
                         {faq.question}
                       </h3>
                       <div className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                        <svg className="w-5 h-5 text-[#A56554]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-[#264171]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                         </svg>
                       </div>
@@ -534,8 +669,8 @@ export default function LandingPage() {
                         isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                       }`}
                     >
-                      <div className="px-6 pb-6 pt-0">
-                        <div className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</div>
+                      <div className="px-6 pb-6">
+                        <p className="text-sm text-[#6C7F99] leading-relaxed">{faq.answer}</p>
                       </div>
                     </div>
                   </div>
@@ -605,7 +740,6 @@ export default function LandingPage() {
                     alt="imvestr Logo"
                     width={40}
                     height={40}
-                    sizes="40px"
                     className="rounded-lg"
                   />
                 </div>
@@ -620,8 +754,8 @@ export default function LandingPage() {
             {/* Legal Links */}
             <div className="flex flex-col items-center md:items-start gap-3">
               <h3 className="font-semibold text-[#264171] mb-2">Rechtliches</h3>
-              <a href="mailto:info@imvestr.de" className="hover:text-[hsl(var(--brand))] transition-colors">
-                info@imvestr.de
+              <a href="mailto:info@immovestr.de" className="hover:text-[hsl(var(--brand))] transition-colors">
+                info@immovestr.de
               </a>
               <a href="/impressum" className="hover:text-[hsl(var(--brand))] transition-colors">
                 Impressum

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -17,13 +17,6 @@ export default function InputMethodPage() {
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
-  const resetAnalysis = useImmoStore(s => s.resetAnalysis);
-
-  // Reset analysis when starting new analysis - clear form and localStorage
-  useEffect(() => {
-    resetAnalysis();
-    localStorage.removeItem('immovest_kpi_state');
-  }, [resetAnalysis]);
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
