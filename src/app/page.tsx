@@ -6,12 +6,9 @@ import Image from 'next/image';
 import {
   ArrowRight,
   BarChart3,
-  Camera,
   CheckCircle2,
   FileBarChart,
-  Keyboard,
   LineChart,
-  Link as LinkIcon,
   LogIn,
   MapPin,
   ShieldCheck,
@@ -24,6 +21,7 @@ import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { InteractiveStepPreview } from '@/components/InteractiveStepPreview';
+import { InputMethodShowcase } from '@/components/InputMethodShowcase';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
@@ -47,6 +45,11 @@ export default function LandingPage() {
 
   const handleGetStarted = (location: string = 'hero') => {
     trackCTA('start_analysis', location);
+    router.push('/input-method');
+  };
+
+  const handleMethodSelect = (methodId: string) => {
+    trackCTA('select_input_method', methodId);
     router.push('/input-method');
   };
 
@@ -142,24 +145,6 @@ export default function LandingPage() {
       },
     })),
   };
-
-  const importFeatures = [
-    {
-      icon: <LinkIcon className="w-6 h-6" />,
-      title: 'URL-Import',
-      description: 'ImmoScout24-, Immowelt- oder andere Links einfach einfügen – wir extrahieren alle Daten automatisch.',
-    },
-    {
-      icon: <Camera className="w-6 h-6" />,
-      title: 'Foto-Analyse',
-      description: 'Screenshot vom Exposé machen, hochladen – fertig. KI erkennt Kaufpreis, Fläche, Miete und mehr.',
-    },
-    {
-      icon: <Keyboard className="w-6 h-6" />,
-      title: 'Manuelle Eingabe',
-      description: 'Adresse und Eckdaten selbst eintragen – vollständige Kontrolle über jeden Wert.',
-    },
-  ];
 
   const analysisFeatures = [
     {
@@ -374,58 +359,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 items-start">
-              {/* Left: Import Features */}
-              <div className="flex-1 space-y-6">
-                {importFeatures.map((feature) => (
-                  <div
-                    key={feature.title}
-                    className="group flex items-start gap-4 rounded-3xl border-2 border-[hsl(var(--brand))]/20 bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 p-6 transition-all duration-200 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl hover:-translate-y-1"
-                  >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-[hsl(var(--brand))] transition-transform group-hover:scale-110 shadow-lg">
-                      <div className="text-white">{feature.icon}</div>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold text-[#0F172A] mb-2">{feature.title}</h3>
-                      <p className="text-base leading-relaxed text-[#6C7F99]">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right: Screenshot with Headline */}
-              <div className="flex-1 space-y-6">
-                {/* Screenshot Caption */}
-                <div className="text-center lg:text-left">
-                  <h3 className="text-xl md:text-2xl font-bold text-[#0F172A]">
-                    So sieht&apos;s in der Praxis aus
-                  </h3>
-                  <p className="text-sm text-[#6C7F99] mt-2">
-                    Einfach, intuitiv und schnell zu bedienen
-                  </p>
-                </div>
-
-                {/* Input Method Screenshot */}
-                <div
-                  className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(108, 127, 153, 0.12) 38%, rgba(230, 174, 99, 0.20) 70%, rgba(165, 101, 84, 0.15) 100%)',
-                  }}
-                >
-                  <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
-                    <Image
-                      src="/imvestr_inputmethod.png"
-                      alt="Input-Methoden Auswahl"
-                      width={1200}
-                      height={800}
-                      className="w-full h-auto object-contain"
-                      priority
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Interactive Input Method Showcase */}
+            <InputMethodShowcase onMethodSelect={handleMethodSelect} />
           </div>
         </section>
 
