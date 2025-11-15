@@ -397,10 +397,13 @@ export default function LandingPage() {
               {/* Right: Screenshot with Headline */}
               <div className="flex-1 space-y-6">
                 {/* Screenshot Caption */}
-                <div className="text-left">
-                  <h3 className="text-xl font-medium text-[#264171] mb-4">
-                    So sieht die Auswahl aus
+                <div className="text-center lg:text-left">
+                  <h3 className="text-xl md:text-2xl font-bold text-[#0F172A]">
+                    So sieht's in der Praxis aus
                   </h3>
+                  <p className="text-sm text-[#6C7F99] mt-2">
+                    Einfach, intuitiv und schnell zu bedienen
+                  </p>
                 </div>
 
                 {/* Input Method Screenshot */}
