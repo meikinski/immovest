@@ -116,52 +116,42 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
           ))}
         </div>
 
-        {/* Current Step Badge */}
-        <div className="flex justify-center mb-3">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-gray-200 shadow-md">
-            <span className="text-sm font-semibold" style={{ color: steps[activeStep].color }}>
-              {activeStep + 1}/3
-            </span>
-            <span className="text-sm text-gray-600">
-              {steps[activeStep].title}
-            </span>
-          </div>
-        </div>
-
         {/* Image Frame with Crossfade */}
-        <div
-          ref={imageFrameRef}
-          className={`relative min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
-            ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
-          }`}
-        >
-          {steps.map((step, idx) => (
-            <div
-              key={step.number}
-              className={`absolute inset-0 transition-opacity duration-500 ${
-                activeStep === idx ? 'opacity-100' : 'opacity-0'
-              }`}
-            >
-              {/* Highlight Overlay */}
+        <div className="relative max-w-full overflow-hidden">
+          <div
+            ref={imageFrameRef}
+            className={`relative w-full min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+              ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
+            }`}
+          >
+            {steps.map((step, idx) => (
               <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: `radial-gradient(circle at 50% 30%, ${step.color}15, transparent 70%)`,
-                }}
-              />
-              <div className="relative w-full h-full p-4">
-                <Image
-                  src={step.image}
-                  alt={`Schritt ${step.number}: ${step.title} - ${step.description}`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  loading={idx === 0 ? 'eager' : 'lazy'}
-                  quality={90}
+                key={step.number}
+                className={`absolute inset-0 transition-opacity duration-500 ${
+                  activeStep === idx ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                {/* Highlight Overlay */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(circle at 50% 30%, ${step.color}15, transparent 70%)`,
+                  }}
                 />
+                <div className="relative w-full h-full p-4">
+                  <Image
+                    src={step.image}
+                    alt={`Schritt ${step.number}: ${step.title} - ${step.description}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 800px"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
+                    quality={90}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Mobile Step Details */}
@@ -174,7 +164,7 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
                   glowEffect ? 'ring-4 ring-[hsl(var(--brand))]/30 shadow-[0_0_20px_hsl(var(--brand)/.20)]' : ''
                 }`}
               >
-                <div className="flex items-start gap-4 mb-4">
+                <div className="flex items-start gap-4">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-lg"
                     style={{
@@ -193,9 +183,6 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
                     </p>
                   </div>
                 </div>
-                <p className="text-center text-base text-[#6C7F99] font-medium mb-4">
-                  {step.caption}
-                </p>
               </div>
             )
           ))}
