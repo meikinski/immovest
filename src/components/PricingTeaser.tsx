@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { usePaywall } from '@/contexts/PaywallContext';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 /**
  * Pricing Teaser mit Toggle Jährlich/Monatlich
@@ -12,6 +13,7 @@ import { usePaywall } from '@/contexts/PaywallContext';
 export function PricingTeaser() {
   const router = useRouter();
   const { isPremium } = usePaywall();
+  const { trackUpgradeClick } = useAnalytics();
   const [isYearly, setIsYearly] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
@@ -81,6 +83,15 @@ export function PricingTeaser() {
 
     setTouchStart(0);
     setTouchEnd(0);
+  };
+
+  const handleUpgradeClick = () => {
+    // Track upgrade click with plan type based on yearly/monthly toggle
+    const planName = isYearly ? 'pro_yearly' : 'pro_monthly';
+    trackUpgradeClick(planName, 'pricing_teaser');
+
+    // Navigate to pricing page
+    router.push('/pricing');
   };
 
   return (
@@ -193,7 +204,7 @@ export function PricingTeaser() {
               <button
                 onClick={() =>
                   plan.highlighted
-                    ? router.push('/pricing')
+                    ? handleUpgradeClick()
                     : router.push('/input-method')
                 }
                 className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 ${
@@ -285,7 +296,7 @@ export function PricingTeaser() {
                     <button
                       onClick={() =>
                         plan.highlighted
-                          ? router.push('/pricing')
+                          ? handleUpgradeClick()
                           : router.push('/input-method')
                       }
                       className={`w-full py-3 rounded-xl font-semibold transition-all duration-200 ${
