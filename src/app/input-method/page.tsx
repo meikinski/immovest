@@ -6,7 +6,6 @@ import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkl
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
-import { saveAnalysis } from '@/lib/storage';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
 
@@ -131,9 +130,8 @@ export default function InputMethodPage() {
         objekttyp: data.objekttyp || 'wohnung',
       });
 
-      // Save to localStorage to persist across login/reload
-      const userId = user?.id || null;
-      const analysisId = saveAnalysis(userId, exportState());
+      // Generate analysis ID without saving (user must explicitly save)
+      const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       importData({ analysisId });
 
       // Track successful import
@@ -196,9 +194,8 @@ export default function InputMethodPage() {
       if (result.data) {
         importData(result.data);
 
-        // Save to localStorage to persist across login/reload
-        const userId = user?.id || null;
-        const analysisId = saveAnalysis(userId, exportState());
+        // Generate analysis ID without saving (user must explicitly save)
+        const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
         importData({ analysisId });
 
         // Show warnings if any
