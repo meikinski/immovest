@@ -131,7 +131,7 @@ export function MiniCarousel() {
               key={`${slide.title}-${idx}`}
               className="w-full flex-shrink-0 px-4 py-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col items-center justify-center text-center"
               style={{
-                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.85) 0%, rgba(58, 91, 137, 0.85) 42%, rgba(165, 101, 84, 0.85) 100%)`,
+                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(230, 174, 99, 0.25) 50%, rgba(38, 65, 113, 0.15) 100%)`,
               }}
             >
               {/* Screenshot */}

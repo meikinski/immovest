@@ -22,10 +22,9 @@ import {
 } from 'lucide-react';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
-import { MiniCarousel } from '@/components/MiniCarousel';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
-import { StackedCards } from '@/components/StackedCards';
+import { InteractiveStepPreview } from '@/components/InteractiveStepPreview';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
@@ -485,68 +484,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Stacked Cards with Scroll Animation - Desktop */}
-            <div className="hidden md:block">
-              <StackedCards steps={processSteps} />
-            </div>
-
-            {/* Simple Grid - Mobile */}
-            <div className="md:hidden grid gap-6 max-w-5xl mx-auto mb-16">
-              {processSteps.map((step) => (
-                <div
-                  key={step.number}
-                  className="group relative rounded-3xl border-2 border-gray-200 bg-white p-6 transition-all duration-300"
-                  style={{
-                    background: `linear-gradient(135deg, white 0%, ${step.color}08 100%)`,
-                  }}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      {/* Title */}
-                      <h3 className="text-xl font-bold text-[#0F172A] mb-2">
-                        {step.number}. {step.title}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-sm text-[#6C7F99] mb-4 leading-relaxed">
-                        {step.description}
-                      </p>
-
-                      {/* Mini CTA */}
-                      <button
-                        onClick={() => handleGetStarted('how_it_works')}
-                        className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
-                        style={{ color: step.color }}
-                      >
-                        {step.cta}
-                        <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                      </button>
-                    </div>
-
-                    {/* Icon repositioned to right */}
-                    <div
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 ml-4"
-                      style={{ backgroundColor: step.color }}
-                    >
-                      <div className="text-white">{step.icon}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Mini Carousel - Screenshot Placeholders */}
-            <div className="mb-12">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-semibold text-[#0F172A] mb-2">
-                  So sieht es aus
-                </h3>
-                <p className="text-base text-[#6C7F99]">
-                  KPI-Karten, KI-Kommentar & bankfähiger PDF-Report
-                </p>
-              </div>
-              <MiniCarousel />
-            </div>
+            {/* Interactive Step Preview with Tab Navigation on Mobile */}
+            <InteractiveStepPreview onStartAnalysis={() => handleGetStarted('how_it_works')} />
           </div>
         </section>
 
