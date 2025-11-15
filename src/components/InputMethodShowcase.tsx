@@ -127,7 +127,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
         </div>
 
         {/* Image Frame with Crossfade */}
-        <div className="relative">
+        <div className="relative max-w-full overflow-hidden">
           {/* Coach Mark Hint */}
           {showCoachMark && (
             <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
@@ -140,7 +140,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
 
           <div
             ref={imageFrameRef}
-            className={`relative min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+            className={`relative w-full min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
               ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
             }`}
           >
@@ -157,7 +157,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                 width={1600}
                 height={1000}
                 sizes="(max-width: 768px) 100vw, 800px"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 loading={idx === 0 ? 'eager' : 'lazy'}
                 quality={90}
               />
@@ -166,19 +166,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
           </div>
         </div>
 
-        {/* CTA Button directly under preview */}
-        <div className="mt-6 flex justify-center">
-          <button
-            onClick={() => onMethodSelect(inputMethods[activeMethod].id)}
-            className="w-full max-w-md px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
-          >
-            {inputMethods[activeMethod].id === 'url' && 'URL eingeben'}
-            {inputMethods[activeMethod].id === 'photo' && 'Foto hochladen'}
-            {inputMethods[activeMethod].id === 'manual' && 'Formular öffnen'}
-          </button>
-        </div>
-
-        {/* Mobile Tab Details */}
+        {/* Mobile Tab Details with integrated CTA */}
         <div className="mt-6 space-y-4">
           {inputMethods.map((method, idx) => (
             activeMethod === idx && (
@@ -204,6 +192,15 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                     </p>
                   </div>
                 </div>
+                {/* CTA Button inside card */}
+                <button
+                  onClick={() => onMethodSelect(method.id)}
+                  className="w-full px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
+                >
+                  {method.id === 'url' && 'URL eingeben'}
+                  {method.id === 'photo' && 'Foto hochladen'}
+                  {method.id === 'manual' && 'Formular öffnen'}
+                </button>
               </div>
             )
           ))}
@@ -277,14 +274,14 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
       </div>
 
       {/* Right: Product Image - Larger */}
-      <div className="relative">
+      <div className="relative scale-110">
         <div className="relative rounded-2xl overflow-hidden shadow-2xl">
           <Image
             src={inputMethods[activeMethod].image}
             alt={`${inputMethods[activeMethod].title}: ${inputMethods[activeMethod].description}`}
             width={1600}
             height={1000}
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 800px"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 900px"
             className="w-full h-auto transition-opacity duration-500"
             priority
             quality={90}
