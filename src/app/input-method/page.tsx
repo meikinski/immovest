@@ -15,7 +15,6 @@ export default function InputMethodPage() {
   const { user } = useUser();
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
-  const exportState = useImmoStore(s => s.exportState);
   const resetAnalysis = useImmoStore(s => s.resetAnalysis);
 
   // Screenshot State
