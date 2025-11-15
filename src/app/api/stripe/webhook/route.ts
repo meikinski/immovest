@@ -141,7 +141,25 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
+  if (!customerId) {
+    console.error('❌ [WEBHOOK] No customer ID found in checkout session');
+    return;
+  }
+
   console.log('[WEBHOOK] Retrieving subscription:', subscriptionId);
+
+  // Update Stripe customer metadata to link with Clerk userId
+  try {
+    await stripe.customers.update(customerId, {
+      metadata: {
+        userId: userId,
+      },
+    });
+    console.log('✅ [WEBHOOK] Updated Stripe customer metadata with userId');
+  } catch (error) {
+    console.error('⚠️ [WEBHOOK] Error updating customer metadata:', error);
+    // Continue anyway - this is not critical
+  }
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId) as StripeSubscriptionExtended;
 

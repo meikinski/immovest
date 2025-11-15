@@ -31,6 +31,7 @@ import {
 function PurchaseTracker() {
   const searchParams = useSearchParams();
   const { trackPurchase } = useAnalytics();
+  const { refreshPremiumStatus } = usePaywall();
   const purchaseTracked = useRef(false);
 
   useEffect(() => {
@@ -55,14 +56,17 @@ function PurchaseTracker() {
         },
       ]);
 
-      // Show success message
-      toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.');
+      // Refresh premium status immediately to ensure UI is up to date
+      refreshPremiumStatus().then(() => {
+        // Show success message after status is refreshed
+        toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.');
+      });
 
       // Clean up URL parameters after tracking
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, '', cleanUrl);
     }
-  }, [searchParams, trackPurchase]);
+  }, [searchParams, trackPurchase, refreshPremiumStatus]);
 
   return null;
 }
