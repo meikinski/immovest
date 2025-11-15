@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -14,14 +15,18 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { userId } = useAuth();
+  const { trackUpgradeClick } = useAnalytics();
 
   if (!isOpen) return null;
 
-  const handleSelectPlan = async (priceId: string) => {
+  const handleSelectPlan = async (priceId: string, planName: string) => {
     if (!userId) {
       setError('Bitte melde dich zuerst an');
       return;
     }
+
+    // Track upgrade click before initiating checkout
+    trackUpgradeClick(planName, 'upgrade_modal');
 
     setIsLoading(true);
     setError(null);
@@ -137,7 +142,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               </div>
 
               <button
-                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!)}
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!, 'yearly')}
                 disabled={isLoading}
                 className="w-full bg-[hsl(var(--brand))] text-white py-3 rounded-lg font-semibold hover:bg-[hsl(var(--brand-2))] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -174,7 +179,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               </div>
 
               <button
-                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!)}
+                onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!, 'monthly')}
                 disabled={isLoading}
                 className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >

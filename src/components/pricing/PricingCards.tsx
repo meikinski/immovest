@@ -5,6 +5,7 @@ import { useAuth } from '@clerk/nextjs';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePaywall } from '@/contexts/PaywallContext';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface PricingCardsProps {
   onClose?: () => void;
@@ -13,6 +14,7 @@ interface PricingCardsProps {
 export default function PricingCards({}: PricingCardsProps) {
   const { userId } = useAuth();
   const { isPremium } = usePaywall();
+  const { trackUpgradeClick } = useAnalytics();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,11 +95,14 @@ export default function PricingCards({}: PricingCardsProps) {
     },
   ];
 
-  const handleSelectPlan = async (priceId: string) => {
+  const handleSelectPlan = async (priceId: string, planName: string) => {
     if (!userId) {
       toast.error('Bitte melde dich zuerst an');
       return;
     }
+
+    // Track upgrade click before initiating checkout
+    trackUpgradeClick(planName, 'pricing_page');
 
     setIsLoading(true);
     setError(null);
@@ -218,7 +223,10 @@ export default function PricingCards({}: PricingCardsProps) {
 
             {/* CTA Button */}
             <button
-              onClick={() => handleSelectPlan(plan.priceId)}
+              onClick={() => handleSelectPlan(
+                plan.priceId,
+                plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
+              )}
               disabled={isLoading}
               className={`w-full py-4 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 plan.popular
