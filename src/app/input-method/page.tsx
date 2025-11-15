@@ -17,6 +17,7 @@ export default function InputMethodPage() {
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
+  const resetAnalysis = useImmoStore(s => s.resetAnalysis);
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
@@ -106,6 +107,9 @@ export default function InputMethodPage() {
 
       const { data, warnings } = result;
 
+      // Reset form before importing new data
+      resetAnalysis();
+
       // Import data into store
       importData({
         kaufpreis: data.kaufpreis || 0,
@@ -175,6 +179,9 @@ export default function InputMethodPage() {
       if (!response.ok || !result.success) {
         throw new Error(result.error || result.details || 'Die Daten konnten nicht geladen werden. Stelle sicher, dass die URL korrekt ist.');
       }
+
+      // Reset form before importing new data
+      resetAnalysis();
 
       // Import data into store
       if (result.data) {
@@ -326,7 +333,10 @@ export default function InputMethodPage() {
               </div>
 
               <button
-                onClick={() => router.push('/step/a')}
+                onClick={() => {
+                  resetAnalysis();
+                  router.push('/step/a');
+                }}
                 className="w-full py-4 bg-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt eingeben</span>
