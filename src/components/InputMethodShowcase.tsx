@@ -17,21 +17,21 @@ const inputMethods: InputMethod[] = [
     id: 'url',
     icon: <LinkIcon className="w-6 h-6" />,
     title: 'URL-Import',
-    description: 'Link einfügen → wir ziehen Kaufpreis, Fläche, Miete, Zimmer, Adresse.',
+    description: 'Link einfügen – Preis, Fläche, Miete & Adresse werden erkannt.',
     image: '/duo_importurl_transparent.png',
   },
   {
     id: 'photo',
     icon: <Camera className="w-6 h-6" />,
     title: 'Foto-Analyse',
-    description: 'Bild vom Exposé machen → wir lesen Zahlen & Text.',
+    description: 'Exposé-Screenshot hochladen – KI liest Zahlen & Text.',
     image: '/duo_importfoto_transparent.png',
   },
   {
     id: 'manual',
     icon: <Keyboard className="w-6 h-6" />,
     title: 'Manuelle Eingabe',
-    description: 'Volle Kontrolle über jeden Wert.',
+    description: 'Selbst eintragen – volle Kontrolle über jeden Wert.',
     image: '/duo_importmanuell_transparent.png',
   },
 ];
@@ -43,14 +43,45 @@ interface InputMethodShowcaseProps {
 export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps) {
   const [activeMethod, setActiveMethod] = useState(0);
   const [ringFlash, setRingFlash] = useState(false);
+  const [showCoachMark, setShowCoachMark] = useState(false);
   const imageFrameRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
+  const [announceText, setAnnounceText] = useState('');
+
+  // Check for coach mark hint on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSeenHint = localStorage.getItem('seenImportHint');
+      if (!hasSeenHint) {
+        // Show coach mark on first method change
+        const timeout = setTimeout(() => {
+          setShowCoachMark(false);
+        }, 3000);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     // Skip auto-scroll on initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
+    }
+
+    // Update screen reader announcement
+    setAnnounceText(`Vorschau aktualisiert: ${inputMethods[activeMethod].title}`);
+
+    // Show coach mark on first change
+    if (typeof window !== 'undefined') {
+      const hasSeenHint = localStorage.getItem('seenImportHint');
+      if (!hasSeenHint) {
+        setShowCoachMark(true);
+        localStorage.setItem('seenImportHint', 'true');
+        const timeout = setTimeout(() => {
+          setShowCoachMark(false);
+        }, 3000);
+      }
     }
 
     // Trigger ring flash animation on mobile
@@ -69,15 +100,22 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
 
   return (
     <div>
+      {/* Screen reader announcement */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announceText}
+      </div>
+
       {/* Mobile: Segmented Control + Image */}
       <div className="md:hidden">
-        {/* Segmented Control */}
-        <div className="flex justify-center gap-2 mb-6 p-1 bg-gray-100 rounded-full">
+        {/* Segmented Control - Finger-friendly on mobile */}
+        <div className="flex justify-center gap-2 mb-6 p-1.5 bg-gray-100 rounded-full">
           {inputMethods.map((method, idx) => (
             <button
               key={method.id}
               onClick={() => setActiveMethod(idx)}
-              className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+              aria-label={method.title}
+              aria-current={activeMethod === idx ? 'step' : undefined}
+              className={`flex-1 px-5 py-3.5 rounded-full text-sm font-semibold transition-all duration-200 min-h-[48px] ${
                 activeMethod === idx
                   ? 'bg-white text-[hsl(var(--brand))] shadow-md'
                   : 'text-gray-600 hover:text-[hsl(var(--brand))]'
@@ -89,12 +127,23 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
         </div>
 
         {/* Image Frame with Crossfade */}
-        <div
-          ref={imageFrameRef}
-          className={`relative aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
-            ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
-          }`}
-        >
+        <div className="relative">
+          {/* Coach Mark Hint */}
+          {showCoachMark && (
+            <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-10 animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="px-4 py-2 bg-[hsl(var(--brand))] text-white text-sm font-medium rounded-full shadow-lg flex items-center gap-2">
+                <span>Bereich markiert</span>
+                <span className="text-lg">↓</span>
+              </div>
+            </div>
+          )}
+
+          <div
+            ref={imageFrameRef}
+            className={`relative min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+              ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
+            }`}
+          >
           {inputMethods.map((method, idx) => (
             <div
               key={method.id}
@@ -114,6 +163,19 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
               />
             </div>
           ))}
+          </div>
+        </div>
+
+        {/* CTA Button directly under preview */}
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={() => onMethodSelect(inputMethods[activeMethod].id)}
+            className="w-full max-w-md px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
+          >
+            {inputMethods[activeMethod].id === 'url' && 'URL eingeben'}
+            {inputMethods[activeMethod].id === 'photo' && 'Foto hochladen'}
+            {inputMethods[activeMethod].id === 'manual' && 'Formular öffnen'}
+          </button>
         </div>
 
         {/* Mobile Tab Details */}
@@ -142,14 +204,6 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => onMethodSelect(method.id)}
-                  className="w-full px-6 h-12 rounded-full font-semibold text-[hsl(var(--brand-2))] bg-white border-2 border-[hsl(var(--brand-2))] transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/12 hover:shadow-[0_2px_8px_hsl(var(--brand-2)/.20)] hover:-translate-y-0.5"
-                >
-                  {method.id === 'url' && 'URL eingeben'}
-                  {method.id === 'photo' && 'Foto hochladen'}
-                  {method.id === 'manual' && 'Formular öffnen'}
-                </button>
               </div>
             )
           ))}
