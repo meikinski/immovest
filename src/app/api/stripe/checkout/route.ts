@@ -30,6 +30,9 @@ export async function POST(req: Request) {
       );
     }
 
+    // Determine plan type for analytics
+    const planType = finalPriceId === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ? 'yearly' : 'monthly';
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -40,10 +43,11 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get('origin')}/profile?success=true`,
+      success_url: `${req.headers.get('origin')}/profile?success=true&session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
       cancel_url: `${req.headers.get('origin')}/profile?canceled=true`,
       metadata: {
         userId,
+        planType,
       },
       client_reference_id: userId,
       billing_address_collection: 'required',

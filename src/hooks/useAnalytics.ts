@@ -41,10 +41,29 @@ export function useAnalytics() {
     });
   }, [track]);
 
+  const trackPurchase = useCallback((
+    transactionId: string,
+    value: number,
+    items: Array<{
+      item_id: string;
+      item_name: string;
+      price: number;
+      quantity: number;
+    }>
+  ) => {
+    track(AnalyticsEvents.PURCHASE_COMPLETED, {
+      transaction_id: transactionId,
+      value,
+      currency: 'EUR',
+      items,
+    });
+  }, [track]);
+
   return {
     track,
     trackCTA,
     trackInputMethod,
     trackUpgradeClick,
+    trackPurchase,
   };
 }
