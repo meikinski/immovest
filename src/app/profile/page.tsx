@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
 import { useImmoStore } from '@/store/useImmoStore';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import {
@@ -28,12 +29,15 @@ import {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isLoaded, isSignedIn, userId } = useAuth();
   const { isPremium, premiumUsageCount } = usePaywall();
+  const { trackPurchase } = useAnalytics();
   const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
   const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
+  const purchaseTracked = useRef(false);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -48,6 +52,38 @@ export default function ProfilePage() {
       setAnalyses(loadedAnalyses);
     }
   }, [isLoaded, isSignedIn, userId, router]);
+
+  // Track purchase event on successful checkout
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const sessionId = searchParams.get('session_id');
+    const plan = searchParams.get('plan');
+
+    if (success === 'true' && sessionId && plan && !purchaseTracked.current) {
+      purchaseTracked.current = true;
+
+      // Determine purchase value based on plan
+      const value = plan === 'yearly' ? 69 : 13.99;
+      const planName = plan === 'yearly' ? 'Jahresabo' : 'Monatsabo';
+
+      // Track the purchase event for GTM/GA4
+      trackPurchase(sessionId, value, [
+        {
+          item_id: plan,
+          item_name: planName,
+          price: value,
+          quantity: 1,
+        },
+      ]);
+
+      // Show success message
+      toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.');
+
+      // Clean up URL parameters after tracking
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+  }, [searchParams, trackPurchase]);
 
   const loadPremiumDetails = async () => {
     try {
