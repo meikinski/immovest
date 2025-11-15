@@ -33,7 +33,7 @@ export default function DatenschutzPage() {
           {/* Introduction */}
           <section>
             <p className="text-gray-700 leading-relaxed">
-              Wir freuen uns über Ihr Interesse an unserer Website und unserem Angebot &bdquo;imvestr&rdquo;. Der
+              Wir freuen uns über Ihr Interesse an unserer Website und unserem Angebot &bdquo;imvestr&ldquo;. Der
               Schutz Ihrer personenbezogenen Daten ist uns ein wichtiges Anliegen. Nachfolgend informieren
               wir Sie darüber, welche Daten wir erheben, wofür wir sie nutzen und welche Rechte Sie haben.
             </p>
@@ -48,7 +48,7 @@ export default function DatenschutzPage() {
               <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
               <div className="pl-4 space-y-1">
                 <p>Meike Hüttl</p>
-                <p>handelnd unter &bdquo;imvestr&rdquo;</p>
+                <p>handelnd unter &bdquo;imvestr&ldquo;</p>
                 <p>Genter Straße 19</p>
                 <p>50672 Köln</p>
                 <p>
@@ -209,7 +209,7 @@ export default function DatenschutzPage() {
                 </h3>
                 <p className="mb-2">
                   Wir verwenden Google Tag Manager und Google Analytics 4 der Google Ireland Limited, Gordon
-                  House, Barrow Street, Dublin 4, Irland (&bdquo;Google&rdquo;). Google Analytics ermöglicht uns, die
+                  House, Barrow Street, Dublin 4, Irland (&bdquo;Google&ldquo;). Google Analytics ermöglicht uns, die
                   Nutzung der Website auszuwerten, um unser Angebot zu verbessern.
                 </p>
                 <p className="mb-2">
