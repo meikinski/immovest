@@ -21,10 +21,7 @@ export default function AGBPage() {
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Allgemeine Geschäftsbedingungen</h1>
-              <p className="text-sm text-gray-600">
-                AGB für die Nutzung von imvestr.
-              </p>
+              <h1 className="text-xl font-bold text-gray-900">Allgemeine Geschäftsbedingungen (AGB) für imvestr</h1>
             </div>
           </div>
         </div>
@@ -36,22 +33,31 @@ export default function AGBPage() {
           {/* Section 1 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 1 Geltungsbereich
+              § 1 Geltungsbereich und Anbieterin
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend &ldquo;AGB&rdquo;) gelten für die Nutzung
-                der Plattform imvestr. (nachfolgend &ldquo;Plattform&rdquo;) durch registrierte und nicht registrierte
-                Nutzer.
+                (1) Diese Allgemeinen Geschäftsbedingungen („AGB") gelten für die Nutzung der Plattform
+                „imvestr" (nachfolgend „Plattform") durch registrierte und nicht registrierte Nutzer
+                (nachfolgend zusammen „Nutzer").
               </p>
               <p>
-                (2) Anbieter der Plattform ist imvestr., [Adresse], [E-Mail: info@imvestr.de]
-                (nachfolgend &ldquo;Anbieter&rdquo;).
+                (2) Anbieterin der Plattform ist:
+              </p>
+              <p className="pl-4">
+                Meike Hüttl<br />
+                handelnd unter „imvestr"<br />
+                Genter Straße 19<br />
+                50672 Köln<br />
+                E-Mail: info@imvestr.de
               </p>
               <p>
-                (3) Mit der Nutzung der Plattform erklärt sich der Nutzer mit diesen AGB einverstanden.
-                Abweichende Bedingungen des Nutzers werden nicht anerkannt, es sei denn, der Anbieter
-                stimmt ihrer Geltung ausdrücklich schriftlich zu.
+                (nachfolgend „Anbieterin").
+              </p>
+              <p>
+                (3) Mit der Nutzung der Plattform bzw. der Registrierung erklärt sich der Nutzer mit
+                diesen AGB einverstanden. Abweichende oder entgegenstehende Bedingungen des Nutzers finden
+                keine Anwendung, es sei denn, die Anbieterin stimmt ihrer Geltung ausdrücklich in Textform zu.
               </p>
             </div>
           </section>
@@ -63,25 +69,38 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Die Plattform bietet KI-gestützte Analysen von Immobilieninvestitionen, einschließlich
-                Rendite- und Cashflow-Berechnungen.
+                (1) Die Plattform bietet ein digitales, KI-gestütztes Analysetool für Immobilieninvestitionen.
+                Dazu gehören insbesondere:
               </p>
+              <ul className="list-disc list-inside pl-4 space-y-1">
+                <li>Berechnungen und Modellierungen zu Rendite, Cashflow und weiteren Kennzahlen sowie</li>
+                <li>automatisierte, KI-basierte Erläuterungen und Kommentare zu den eingegebenen Daten.</li>
+              </ul>
               <p>
-                (2) Der Anbieter stellt die Plattform in zwei Versionen zur Verfügung:
+                (2) Die Anbieterin stellt die Plattform in verschiedenen Versionen zur Verfügung, insbesondere:
               </p>
               <ul className="list-disc list-inside pl-4 space-y-1">
                 <li>
-                  <strong>Kostenlose Version:</strong> Limitierte Anzahl von Analysen mit grundlegenden
-                  Funktionen
+                  <strong>Kostenlose Version:</strong> Limitierter Funktionsumfang bzw. begrenzte Anzahl an Analysen.
                 </li>
                 <li>
-                  <strong>Premium-Version:</strong> Unbegrenzte Analysen mit erweiterten Funktionen gegen
-                  monatliche oder jährliche Gebühr
+                  <strong>Premium-Version:</strong> Erweiterter Funktionsumfang und höhere bzw. unbegrenzte
+                  Nutzungskontingente gegen eine wiederkehrende Vergütung (monatlich oder jährlich).
                 </li>
               </ul>
               <p>
-                (3) Der Anbieter behält sich das Recht vor, den Funktionsumfang der Plattform jederzeit zu
-                erweitern oder einzuschränken, sofern dies für den Nutzer zumutbar ist.
+                Die jeweils aktuellen Versionen, Funktionen und Preise sind auf der Plattform einsehbar.
+              </p>
+              <p>
+                (3) Die Plattform dient ausschließlich Informations- und Planungszwecken. Die Ergebnisse
+                beruhen teilweise auf Annahmen, externen Datenquellen und KI-Modellen. Sie können die
+                individuelle Beratung durch Banken, Finanzierungsberater, Steuerberater oder Rechtsanwälte
+                nicht ersetzen.
+              </p>
+              <p>
+                (4) Die Anbieterin ist berechtigt, den Funktionsumfang der Plattform jederzeit zu ändern,
+                zu erweitern oder einzuschränken, soweit dies für den Nutzer zumutbar ist. Ein Anspruch auf
+                Beibehaltung bestimmter – insbesondere kostenloser – Funktionen besteht nicht.
               </p>
             </div>
           </section>
@@ -89,23 +108,28 @@ export default function AGBPage() {
           {/* Section 3 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 3 Registrierung und Vertragsschluss
+              § 3 Registrierung und Nutzerkonto
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Die Nutzung bestimmter Funktionen der Plattform erfordert eine kostenlose Registrierung.
+                (1) Die Nutzung bestimmter Funktionen der Plattform setzt eine Registrierung und das
+                Anlegen eines Nutzerkontos voraus.
               </p>
               <p>
-                (2) Mit der Registrierung gibt der Nutzer ein verbindliches Angebot zum Abschluss eines
-                Nutzungsvertrages ab. Der Vertrag kommt mit der Bestätigung der Registrierung durch den
-                Anbieter zustande.
+                (2) Mit Abschluss des Registrierungsprozesses gibt der Nutzer ein Angebot auf Abschluss
+                eines unentgeltlichen Nutzungsvertrags über die Nutzung der Plattform ab. Der Vertrag
+                kommt zustande, wenn die Anbieterin die Registrierung bestätigt oder den Zugang zur
+                Plattform freischaltet.
               </p>
               <p>
-                (3) Der Nutzer ist verpflichtet, bei der Registrierung wahrheitsgemäße Angaben zu machen
-                und diese aktuell zu halten.
+                (3) Der Nutzer ist verpflichtet, bei der Registrierung und späteren Nutzung wahrheitsgemäße
+                und vollständige Angaben zu machen und diese bei Änderungen unverzüglich zu aktualisieren.
               </p>
               <p>
-                (4) Der Nutzer ist für die Geheimhaltung seiner Zugangsdaten selbst verantwortlich.
+                (4) Der Nutzer hat seine Zugangsdaten (insbesondere Passwort) geheim zu halten und vor dem
+                Zugriff Dritter zu schützen. Eine Weitergabe an Dritte ist nicht gestattet. Der Nutzer ist
+                verpflichtet, die Anbieterin bei Verdacht eines Missbrauchs des Kontos unverzüglich zu
+                informieren.
               </p>
             </div>
           </section>
@@ -113,32 +137,44 @@ export default function AGBPage() {
           {/* Section 4 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 4 Premium-Abonnement
+              § 4 Premium-Abonnement und Zahlungsbedingungen
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Der Nutzer kann ein kostenpflichtiges Premium-Abonnement abschließen. Die aktuellen
-                Preise sind auf der Plattform einsehbar.
+                (1) Der Nutzer kann über die Plattform ein kostenpflichtiges Premium-Abonnement („Premium")
+                abschließen. Die Laufzeiten (z. B. monatlich oder jährlich) sowie die jeweiligen Preise und
+                Leistungen ergeben sich aus der zum Zeitpunkt des Vertragsschlusses auf der Plattform
+                dargestellten Leistungsbeschreibung.
               </p>
               <p>
-                (2) Das Premium-Abonnement verlängert sich automatisch um den gewählten Zeitraum
-                (monatlich oder jährlich), sofern es nicht fristgerecht gekündigt wird.
+                (2) Mit Auswahl eines Premium-Abonnements und Abschluss des Zahlungsprozesses kommt ein
+                kostenpflichtiger Vertrag zwischen dem Nutzer und der Anbieterin zustande.
               </p>
               <p>
-                (3) Die Kündigungsfrist beträgt einen Monat zum Ende der jeweiligen Laufzeit.
+                (3) Das Premium-Abonnement verlängert sich jeweils automatisch um die gewählte Laufzeit,
+                sofern der Nutzer nicht fristgerecht kündigt.
               </p>
               <p>
-                (4) Die Kündigung erfolgt über die Plattform oder per E-Mail an{' '}
+                (4) Die Kündigung ist jederzeit mit Wirkung zum Ende der jeweiligen Mindestlaufzeit möglich
+                und kann über die auf der Plattform bereitgestellte Kontoverwaltung oder per E-Mail an{' '}
                 <a
                   href="mailto:info@imvestr.de"
                   className="text-[hsl(var(--brand))] hover:underline"
                 >
                   info@imvestr.de
                 </a>
-                .
+                {' '}erfolgen. Bereits gezahlte Entgelte werden im Falle einer ordentlichen Kündigung für
+                den laufenden Zeitraum nicht anteilig erstattet.
               </p>
               <p>
-                (5) Bei Zahlungsverzug kann der Anbieter das Premium-Abonnement aussetzen.
+                (5) Die Vergütung ist jeweils im Voraus für die gesamte Laufzeit fällig. Die Abrechnung
+                erfolgt über die auf der Plattform angebotenen Zahlungsmethoden und ggf. über eingebundene
+                Zahlungsdienstleister.
+              </p>
+              <p>
+                (6) Gerät der Nutzer mit Zahlungen in Verzug, ist die Anbieterin berechtigt, den Zugang
+                zu Premium-Funktionen vorübergehend zu sperren oder bei fortbestehendem Verzug den Vertrag
+                außerordentlich zu kündigen.
               </p>
             </div>
           </section>
@@ -146,18 +182,22 @@ export default function AGBPage() {
           {/* Section 5 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 5 Widerrufsrecht
+              § 5 Widerrufsrecht für Verbraucher
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Verbrauchern steht ein gesetzliches Widerrufsrecht zu.
+                (1) Ist der Nutzer Verbraucher im Sinne des § 13 BGB, steht ihm bei Abschluss eines
+                entgeltlichen Vertrags über die Plattform grundsätzlich ein gesetzliches Widerrufsrecht zu.
+                Die Einzelheiten einschließlich der Widerrufsfrist und des Ablaufs ergeben sich aus der
+                gesonderten Widerrufsbelehrung, die dem Nutzer beim Abschluss des Premium-Abonnements zur
+                Verfügung gestellt wird.
               </p>
               <p>
-                (2) Das Widerrufsrecht erlischt bei Verträgen über die Erbringung von Dienstleistungen,
-                wenn der Anbieter die Dienstleistung vollständig erbracht hat und mit der Ausführung der
-                Dienstleistung erst begonnen hat, nachdem der Verbraucher dazu seine ausdrückliche
-                Zustimmung gegeben hat und gleichzeitig seine Kenntnis davon bestätigt hat, dass er sein
-                Widerrufsrecht bei vollständiger Vertragserfüllung durch den Anbieter verliert.
+                (2) Das Widerrufsrecht kann vorzeitig erlöschen, wenn die Anbieterin die vertraglich
+                geschuldete Leistung vollständig erbracht hat, nachdem der Verbraucher ausdrücklich
+                zugestimmt hat, dass die Anbieterin vor Ablauf der Widerrufsfrist mit der Ausführung der
+                Leistung beginnt, und gleichzeitig seine Kenntnis davon bestätigt hat, dass er bei
+                vollständiger Vertragserfüllung sein Widerrufsrecht verliert.
               </p>
             </div>
           </section>
@@ -165,30 +205,41 @@ export default function AGBPage() {
           {/* Section 6 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 6 Haftungsausschluss und Gewährleistung
+              § 6 Keine Anlageberatung, Haftung und Gewährleistung
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Die durch die Plattform bereitgestellten Analysen und Berechnungen dienen ausschließlich
-                zu Informationszwecken und stellen keine Anlageberatung dar.
+                (1) Die durch die Plattform bereitgestellten Berechnungen, Analysen und Kommentare dienen
+                ausschließlich Informationszwecken. Sie stellen insbesondere keine Anlageberatung,
+                Finanzierungsberatung, Rechtsberatung oder Steuerberatung dar und sind keine Empfehlung
+                zum Kauf oder Verkauf bestimmter Immobilien.
               </p>
               <p>
-                (2) Der Nutzer ist selbst dafür verantwortlich, die Richtigkeit und Vollständigkeit der
-                eingegebenen Daten zu überprüfen. Der Anbieter übernimmt keine Haftung für fehlerhafte
-                Eingaben des Nutzers.
+                (2) Die Ergebnisse basieren auf den Eingaben des Nutzers sowie auf externen Datenquellen
+                und statistischen bzw. KI-basierten Modellen. Der Nutzer ist selbst dafür verantwortlich,
+                die Richtigkeit, Vollständigkeit und Plausibilität seiner Eingaben zu prüfen und die
+                Ergebnisse kritisch zu hinterfragen.
               </p>
               <p>
-                (3) Der Anbieter haftet unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für
+                (3) Die Anbieterin haftet unbeschränkt für Vorsatz und grobe Fahrlässigkeit sowie für
                 Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.
               </p>
               <p>
-                (4) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen
-                Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den vertragstypischen,
-                vorhersehbaren Schaden begrenzt.
+                (4) Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten („Kardinalpflichten")
+                ist die Haftung der Anbieterin auf den vertragstypischen, vorhersehbaren Schaden begrenzt.
+                Kardinalpflichten sind solche Pflichten, deren Erfüllung die ordnungsgemäße Durchführung
+                des Vertrags überhaupt erst ermöglicht und auf deren Einhaltung der Nutzer regelmäßig
+                vertrauen darf.
               </p>
               <p>
-                (5) Der Anbieter übernimmt keine Gewähr für die ständige Verfügbarkeit der Plattform.
-                Wartungsarbeiten können zu vorübergehenden Unterbrechungen führen.
+                (5) Im Übrigen ist die Haftung der Anbieterin bei leicht fahrlässigen Pflichtverletzungen
+                ausgeschlossen. Die Haftung nach dem Produkthaftungsgesetz bleibt unberührt.
+              </p>
+              <p>
+                (6) Die Anbieterin übernimmt keine Gewähr für die ununterbrochene Verfügbarkeit der
+                Plattform. Wartungen, Sicherheits- oder Kapazitätsgründe sowie Ereignisse, die nicht im
+                Einflussbereich der Anbieterin liegen (z. B. Störungen von öffentlichen Kommunikationsnetzen,
+                Ausfälle von Hosting-Providern), können zu kurzzeitigen Störungen oder Unterbrechungen führen.
               </p>
             </div>
           </section>
@@ -200,20 +251,24 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Der Nutzer verpflichtet sich, die Plattform nur im Rahmen der geltenden Gesetze zu nutzen.
+                (1) Der Nutzer verpflichtet sich, die Plattform nur im Rahmen der geltenden Gesetze sowie
+                dieser AGB zu nutzen.
               </p>
               <p>
-                (2) Der Nutzer ist insbesondere verpflichtet:
+                (2) Der Nutzer ist insbesondere verpflichtet,
               </p>
               <ul className="list-disc list-inside pl-4 space-y-1">
-                <li>keine rechtswidrigen, beleidigenden oder diffamierenden Inhalte zu übermitteln</li>
-                <li>keine Schadsoftware oder schädlichen Code zu übermitteln</li>
-                <li>keine technischen Maßnahmen zu umgehen oder die Plattform zu überlasten</li>
-                <li>seine Zugangsdaten nicht an Dritte weiterzugeben</li>
+                <li>keine rechtswidrigen, beleidigenden, diskriminierenden oder diffamierenden Inhalte über die Plattform zu verbreiten,</li>
+                <li>keine Viren, Trojaner oder sonstige Schadsoftware zu übermitteln,</li>
+                <li>keine technischen Schutzmaßnahmen oder Sicherheitssysteme der Plattform zu umgehen,</li>
+                <li>die Plattform nicht durch automatisierte Abfragen oder sonstige Maßnahmen zu überlasten,</li>
+                <li>seine Zugangsdaten nicht an Dritte weiterzugeben.</li>
               </ul>
               <p>
-                (3) Bei Verstößen gegen diese Pflichten kann der Anbieter das Nutzerkonto sperren oder
-                löschen.
+                (3) Bei Verstößen gegen diese Pflichten ist die Anbieterin berechtigt, den Zugang des
+                Nutzers vorübergehend zu sperren oder das Nutzerkonto dauerhaft zu löschen und vom Vertrag
+                zurückzutreten bzw. diesen außerordentlich zu kündigen. Weitergehende Ansprüche,
+                insbesondere auf Schadensersatz, bleiben vorbehalten.
               </p>
             </div>
           </section>
@@ -221,20 +276,28 @@ export default function AGBPage() {
           {/* Section 8 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              § 8 Urheberrecht und Nutzungsrechte
+              § 8 Urheberrechte und Nutzungsrechte
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Alle Inhalte der Plattform, insbesondere Texte, Grafiken, Bilder und Software,
-                unterliegen dem Urheberrecht des Anbieters oder seiner Lizenzgeber.
+                (1) Die Inhalte der Plattform, insbesondere Texte, Konzepte, Grafiken, Logos, Bilder,
+                Videos und Software, sind urheber- und/oder kennzeichenrechtlich geschützt. Rechteinhaberin
+                ist die Anbieterin oder ihre jeweiligen Lizenzgeber.
               </p>
               <p>
-                (2) Der Nutzer erhält ein nicht-exklusives, nicht übertragbares Nutzungsrecht an den
-                Inhalten der Plattform für die Dauer der Nutzung.
+                (2) Der Nutzer erhält ein einfaches, nicht übertragbares und nicht unterlizenzierbares
+                Nutzungsrecht an der Plattform und den bereitgestellten Inhalten, beschränkt auf die
+                vertragsgemäße Nutzung im Rahmen dieser AGB.
               </p>
               <p>
-                (3) Die vom Nutzer erstellten Analysen und Berechnungen dürfen für eigene Zwecke gespeichert
-                und verwendet werden.
+                (3) Die durch den Nutzer initiativ erstellten Analysen, Berichte und Berechnungen darf der
+                Nutzer für eigene Zwecke speichern, ausdrucken und weiterverwenden, soweit dies nicht gegen
+                Rechte Dritter oder diese AGB verstößt.
+              </p>
+              <p>
+                (4) Eine über den vertraglich vorgesehenen Umfang hinausgehende Nutzung, insbesondere das
+                systematische Auslesen, Kopieren oder Weiterverkaufen von Inhalten der Plattform, ist
+                untersagt.
               </p>
             </div>
           </section>
@@ -246,15 +309,16 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                Der Anbieter verarbeitet personenbezogene Daten des Nutzers im Einklang mit den geltenden
-                Datenschutzbestimmungen. Weitere Informationen finden Sie in unserer{' '}
+                Die Anbieterin verarbeitet personenbezogene Daten des Nutzers ausschließlich im Rahmen der
+                geltenden Datenschutzgesetze. Einzelheiten zur Verarbeitung personenbezogener Daten, zu
+                Zwecken, Rechtsgrundlagen und Rechten des Nutzers ergeben sich aus der Datenschutzerklärung,
+                abrufbar unter:{' '}
                 <a
                   href="/datenschutz"
                   className="text-[hsl(var(--brand))] hover:underline"
                 >
-                  Datenschutzerklärung
+                  [URL zur Datenschutzerklärung einfügen]
                 </a>
-                .
               </p>
             </div>
           </section>
@@ -266,16 +330,20 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Der Anbieter behält sich das Recht vor, diese AGB jederzeit zu ändern, sofern dies für
-                den Nutzer zumutbar ist.
+                (1) Die Anbieterin ist berechtigt, diese AGB mit Wirkung für die Zukunft zu ändern, sofern
+                hierfür ein sachlicher Grund besteht (z. B. Anpassung an gesetzliche Vorgaben, Änderung der
+                Rechtsprechung, Erweiterung oder Änderung von Leistungen).
               </p>
               <p>
-                (2) Nutzer werden über Änderungen der AGB per E-Mail oder über die Plattform informiert.
+                (2) Über Änderungen der AGB wird die Anbieterin den Nutzer rechtzeitig in Textform (z. B.
+                per E-Mail oder Hinweis in der Plattform) informieren.
               </p>
               <p>
-                (3) Widerspricht der Nutzer den geänderten AGB nicht innerhalb von vier Wochen nach
-                Bekanntgabe, gelten die geänderten AGB als angenommen. Der Anbieter wird den Nutzer in
-                der Änderungsmitteilung auf diese Folge hinweisen.
+                (3) Widerspricht der Nutzer den geänderten AGB nicht innerhalb von vier Wochen nach Zugang
+                der Änderungsmitteilung in Textform, gelten die geänderten AGB als angenommen. Auf das
+                Widerspruchsrecht und die Frist wird die Anbieterin in der Änderungsmitteilung besonders
+                hinweisen. Im Falle des Widerspruchs kann die Anbieterin das Nutzungsverhältnis ordentlich
+                kündigen.
               </p>
             </div>
           </section>
@@ -287,17 +355,20 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Auf Verträge zwischen dem Anbieter und dem Nutzer findet das Recht der Bundesrepublik
-                Deutschland unter Ausschluss des UN-Kaufrechts Anwendung.
+                (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts
+                (CISG). Ist der Nutzer Verbraucher und hat seinen gewöhnlichen Aufenthalt in einem anderen
+                Staat, bleiben zwingende Verbraucherschutzvorschriften dieses Staates unberührt.
               </p>
               <p>
-                (2) Ist der Nutzer Verbraucher, so gilt diese Rechtswahl nur insoweit, als nicht der
-                gewährte Schutz durch zwingende Bestimmungen des Rechts des Staates, in dem der Verbraucher
-                seinen gewöhnlichen Aufenthalt hat, entzogen wird.
+                (2) Ist der Nutzer Kaufmann, juristische Person des öffentlichen Rechts oder öffentlich-rechtliches
+                Sondervermögen, ist ausschließlicher Gerichtsstand für alle Streitigkeiten aus oder im
+                Zusammenhang mit diesen AGB der Sitz der Anbieterin. Gesetzliche Regelungen über
+                ausschließliche Gerichtsstände bleiben unberührt.
               </p>
               <p>
-                (3) Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die
-                Wirksamkeit der übrigen Bestimmungen hiervon unberührt.
+                (3) Sollten einzelne Bestimmungen dieser AGB ganz oder teilweise unwirksam oder undurchführbar
+                sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt. Anstelle der
+                unwirksamen oder undurchführbaren Bestimmung tritt die gesetzliche Regelung.
               </p>
             </div>
           </section>
