@@ -22,9 +22,6 @@ export default function ImpressumPage() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Impressum</h1>
-              <p className="text-sm text-gray-600">
-                Angaben gemäß § 5 TMG
-              </p>
             </div>
           </div>
         </div>
@@ -36,13 +33,13 @@ export default function ImpressumPage() {
           {/* Company Information */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              Anbieter
+              Anbieterin
             </h2>
             <div className="space-y-2 text-gray-700">
-              <p className="font-semibold">imvestr.</p>
-              <p>[Unternehmensform]</p>
-              <p>[Straße und Hausnummer]</p>
-              <p>[PLZ] [Ort]</p>
+              <p>Meike Hüttl</p>
+              <p>handelnd unter „imvestr"</p>
+              <p>Genter Straße 19</p>
+              <p>50672 Köln</p>
             </div>
           </section>
 
@@ -62,25 +59,19 @@ export default function ImpressumPage() {
                 </a>
               </p>
               <p>
-                <span className="font-semibold">Telefon:</span> [Telefonnummer]
+                <span className="font-semibold">Telefon:</span> 0160/8244649
               </p>
             </div>
           </section>
 
-          {/* Register Entry */}
+          {/* Tax ID */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              Registereintrag
+              Umsatzsteuer-ID
             </h2>
             <div className="space-y-2 text-gray-700">
               <p>
-                <span className="font-semibold">Registergericht:</span> [Name des Registergerichts]
-              </p>
-              <p>
-                <span className="font-semibold">Registernummer:</span> [HRB/HRA Nummer]
-              </p>
-              <p>
-                <span className="font-semibold">Umsatzsteuer-ID:</span> [USt-IdNr. gemäß § 27a UStG]
+                Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: DE362432094
               </p>
             </div>
           </section>
@@ -88,12 +79,13 @@ export default function ImpressumPage() {
           {/* Responsible for Content */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV
+              Inhaltlich verantwortlich
             </h2>
             <div className="space-y-2 text-gray-700">
-              <p>[Vor- und Nachname]</p>
-              <p>[Straße und Hausnummer]</p>
-              <p>[PLZ] [Ort]</p>
+              <p>(§ 18 Abs. 2 Medienstaatsvertrag – MStV)</p>
+              <p>Meike Hüttl</p>
+              <p>Genter Straße 19</p>
+              <p>50672 Köln</p>
             </div>
           </section>
 
@@ -114,60 +106,68 @@ export default function ImpressumPage() {
                   https://ec.europa.eu/consumers/odr/
                 </a>
               </p>
-              <p>Unsere E-Mail-Adresse finden Sie oben im Impressum.</p>
+              <p>Unsere E-Mail-Adresse findest du oben im Impressum.</p>
             </div>
           </section>
 
           {/* Consumer Dispute Resolution */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              Verbraucherstreitbeilegung/Universalschlichtungsstelle
+              Verbraucherstreitbeilegung
             </h2>
             <div className="space-y-2 text-gray-700">
               <p>
-                Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
+                Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
                 Verbraucherschlichtungsstelle teilzunehmen.
               </p>
             </div>
           </section>
 
-          {/* Disclaimer */}
+          {/* Liability for Content */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              Haftungsausschluss
+              Haftung für Inhalte
             </h2>
-            <div className="space-y-4 text-gray-700">
-              <div>
-                <h3 className="font-semibold mb-2">Haftung für Inhalte</h3>
-                <p className="text-sm leading-relaxed">
-                  Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten
-                  nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als
-                  Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde
-                  Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige
-                  Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von
-                  Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt.
-                </p>
-              </div>
+            <div className="space-y-2 text-gray-700">
+              <p className="text-sm leading-relaxed">
+                Wir sind als Diensteanbieterin für eigene Inhalte auf diesen Seiten nach den allgemeinen
+                Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte
+                fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige
+                Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen
+                nach den allgemeinen Gesetzen bleiben hiervon unberührt.
+              </p>
+            </div>
+          </section>
 
-              <div>
-                <h3 className="font-semibold mb-2">Haftung für Links</h3>
-                <p className="text-sm leading-relaxed">
-                  Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
-                  Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
-                  Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der
-                  Seiten verantwortlich.
-                </p>
-              </div>
+          {/* Liability for Links */}
+          <section>
+            <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
+              Haftung für Links
+            </h2>
+            <div className="space-y-2 text-gray-700">
+              <p className="text-sm leading-relaxed">
+                Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
+                Einfluss haben. Deshalb können wir für diese fremden Inhalte keine Gewähr übernehmen.
+                Für die Inhalte der verlinkten Seiten ist stets die jeweilige Anbieterin oder Betreiberin
+                der Seiten verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige
+                Links umgehend entfernen.
+              </p>
+            </div>
+          </section>
 
-              <div>
-                <h3 className="font-semibold mb-2">Urheberrecht</h3>
-                <p className="text-sm leading-relaxed">
-                  Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen
-                  dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art
-                  der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen
-                  Zustimmung des jeweiligen Autors bzw. Erstellers.
-                </p>
-              </div>
+          {/* Copyright */}
+          <section>
+            <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
+              Urheberrecht
+            </h2>
+            <div className="space-y-2 text-gray-700">
+              <p className="text-sm leading-relaxed">
+                Die auf dieser Website veröffentlichten Inhalte und Werke unterliegen dem deutschen
+                Urheberrecht. Jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedarf
+                der vorherigen schriftlichen Zustimmung der Rechteinhaberin. Downloads und Kopien dieser
+                Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet, sofern nicht
+                ausdrücklich anders angegeben.
+              </p>
             </div>
           </section>
         </div>
