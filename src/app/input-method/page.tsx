@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -33,6 +33,11 @@ export default function InputMethodPage() {
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
+
+  // Reset form when component mounts (user starts new input)
+  useEffect(() => {
+    resetAnalysis();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
