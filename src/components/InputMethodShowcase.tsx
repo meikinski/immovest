@@ -81,6 +81,7 @@ export function InputMethodShowcase({ onMethodSelect }: InputMethodShowcaseProps
         const timeout = setTimeout(() => {
           setShowCoachMark(false);
         }, 3000);
+        return () => clearTimeout(timeout);
       }
     }
 
