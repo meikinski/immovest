@@ -47,8 +47,10 @@ interface InteractiveStepPreviewProps {
 export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPreviewProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [ringFlash, setRingFlash] = useState(false);
+  const [glowEffect, setGlowEffect] = useState(false);
   const imageFrameRef = useRef<HTMLDivElement>(null);
   const isInitialMount = useRef(true);
+  const [announceText, setAnnounceText] = useState('');
 
   useEffect(() => {
     // Skip auto-scroll on initial mount
@@ -56,6 +58,13 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
       isInitialMount.current = false;
       return;
     }
+
+    // Update screen reader announcement
+    setAnnounceText(`Vorschau aktualisiert: Schritt ${steps[activeStep].number} - ${steps[activeStep].title}`);
+
+    // Trigger glow effect
+    setGlowEffect(true);
+    const glowTimer = setTimeout(() => setGlowEffect(false), 600);
 
     // Trigger ring flash animation on mobile
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -67,21 +76,33 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
         imageFrameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(glowTimer);
+      };
     }
+
+    return () => clearTimeout(glowTimer);
   }, [activeStep]);
 
   return (
     <div>
+      {/* Screen reader announcement */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announceText}
+      </div>
+
       {/* Mobile: Segmented Control + Image */}
       <div className="md:hidden">
-        {/* Segmented Control */}
-        <div className="flex justify-center gap-2 mb-6 p-1 bg-gray-100 rounded-full max-w-md mx-auto">
+        {/* Segmented Control - Finger-friendly on mobile */}
+        <div className="flex justify-center gap-2 mb-6 p-1.5 bg-gray-100 rounded-full max-w-md mx-auto">
           {steps.map((step, idx) => (
             <button
               key={step.number}
               onClick={() => setActiveStep(idx)}
-              className={`flex-1 px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
+              aria-label={`Schritt ${step.number}: ${step.title}`}
+              aria-current={activeStep === idx ? 'step' : undefined}
+              className={`flex-1 px-5 py-3.5 rounded-full text-base font-semibold transition-all duration-200 min-h-[48px] ${
                 activeStep === idx
                   ? 'bg-white shadow-md'
                   : 'text-gray-600'
@@ -95,10 +116,22 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
           ))}
         </div>
 
+        {/* Current Step Badge */}
+        <div className="flex justify-center mb-3">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-gray-200 shadow-md">
+            <span className="text-sm font-semibold" style={{ color: steps[activeStep].color }}>
+              {activeStep + 1}/3
+            </span>
+            <span className="text-sm text-gray-600">
+              {steps[activeStep].title}
+            </span>
+          </div>
+        </div>
+
         {/* Image Frame with Crossfade */}
         <div
           ref={imageFrameRef}
-          className={`relative aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
+          className={`relative min-h-[48vh] aspect-[16/10] bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden transition-all duration-600 ${
             ringFlash ? 'ring-4 ring-[hsl(var(--brand))]/40' : 'ring-0'
           }`}
         >
@@ -135,7 +168,12 @@ export function InteractiveStepPreview({ onStartAnalysis }: InteractiveStepPrevi
         <div className="mt-6 space-y-4">
           {steps.map((step, idx) => (
             activeStep === idx && (
-              <div key={step.number} className="p-6 rounded-2xl border-2 border-[hsl(var(--brand))] bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 shadow-lg">
+              <div
+                key={step.number}
+                className={`p-6 rounded-2xl border-2 border-[hsl(var(--brand))] bg-gradient-to-br from-white to-[hsl(var(--brand))]/5 shadow-lg transition-all duration-600 ${
+                  glowEffect ? 'ring-4 ring-[hsl(var(--brand))]/30 shadow-[0_0_20px_hsl(var(--brand)/.20)]' : ''
+                }`}
+              >
                 <div className="flex items-start gap-4 mb-4">
                   <div
                     className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-lg"
