@@ -22,9 +22,6 @@ export default function DatenschutzPage() {
             </button>
             <div>
               <h1 className="text-xl font-bold text-gray-900">Datenschutzerklärung</h1>
-              <p className="text-sm text-gray-600">
-                Informationen gemäß Art. 13 DSGVO
-              </p>
             </div>
           </div>
         </div>
@@ -36,24 +33,24 @@ export default function DatenschutzPage() {
           {/* Introduction */}
           <section>
             <p className="text-gray-700 leading-relaxed">
-              Wir freuen uns über Ihr Interesse an unserer Website. Der Schutz Ihrer persönlichen Daten
-              ist uns ein wichtiges Anliegen. Nachfolgend informieren wir Sie ausführlich über den Umgang
-              mit Ihren Daten.
+              Wir freuen uns über Ihr Interesse an unserer Website und unserem Angebot „imvestr". Der
+              Schutz Ihrer personenbezogenen Daten ist uns ein wichtiges Anliegen. Nachfolgend informieren
+              wir Sie darüber, welche Daten wir erheben, wofür wir sie nutzen und welche Rechte Sie haben.
             </p>
           </section>
 
-          {/* Controller */}
+          {/* Section 1 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              1. Verantwortlicher
+              1. Verantwortliche
             </h2>
-            <div className="space-y-2 text-gray-700">
-              <p>Verantwortlich für die Datenverarbeitung ist:</p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
               <div className="pl-4 space-y-1">
-                <p className="font-semibold">imvestr.</p>
-                <p>[Unternehmensform]</p>
-                <p>[Straße und Hausnummer]</p>
-                <p>[PLZ] [Ort]</p>
+                <p>Meike Hüttl</p>
+                <p>handelnd unter „imvestr"</p>
+                <p>Genter Straße 19</p>
+                <p>50672 Köln</p>
                 <p>
                   E-Mail:{' '}
                   <a
@@ -67,189 +64,367 @@ export default function DatenschutzPage() {
             </div>
           </section>
 
-          {/* Data Collection */}
+          {/* Section 2 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              2. Erhebung und Speicherung personenbezogener Daten sowie Art und Zweck von deren Verwendung
+              2. Arten der verarbeiteten Daten, Zwecke und Rechtsgrundlagen
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-6 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Wir verarbeiten personenbezogene Daten nur, soweit dies zur Bereitstellung unserer Website,
+                zur Erfüllung des Nutzungsvertrags, zur Abwicklung von Zahlungen oder zur Auswertung und
+                Verbesserung unseres Angebots erforderlich ist oder Sie eingewilligt haben. Rechtsgrundlagen
+                sind insbesondere Art. 6 Abs. 1 lit. a, b und f DSGVO.
+              </p>
+
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  a) Beim Besuch der Website
+                  a) Beim Besuch der Website (Server-Logfiles)
                 </h3>
-                <p className="text-gray-700 text-sm leading-relaxed mb-2">
-                  Beim Aufrufen unserer Website werden durch den auf Ihrem Endgerät zum Einsatz kommenden
-                  Browser automatisch Informationen an den Server unserer Website gesendet. Diese
-                  Informationen werden temporär in einem sog. Logfile gespeichert. Folgende Informationen
-                  werden dabei ohne Ihr Zutun erfasst und bis zur automatisierten Löschung gespeichert:
+                <p className="mb-2">
+                  Beim Aufrufen unserer Website werden durch den von Ihnen verwendeten Browser automatisch
+                  Informationen an unseren Server übermittelt und temporär in Logfiles gespeichert. Hierzu
+                  gehören:
                 </p>
-                <ul className="list-disc list-inside pl-4 space-y-1 text-sm text-gray-700">
-                  <li>IP-Adresse des anfragenden Rechners</li>
+                <ul className="list-disc list-inside pl-4 space-y-1">
+                  <li>IP-Adresse des anfragenden Endgeräts</li>
                   <li>Datum und Uhrzeit des Zugriffs</li>
                   <li>Name und URL der abgerufenen Datei</li>
                   <li>Website, von der aus der Zugriff erfolgt (Referrer-URL)</li>
-                  <li>Verwendeter Browser und ggf. das Betriebssystem Ihres Rechners</li>
+                  <li>verwendeter Browser und Betriebssystem</li>
                 </ul>
+                <p className="mt-2">
+                  Die Verarbeitung erfolgt zur Sicherstellung eines reibungslosen Verbindungsaufbaus, der
+                  Systemsicherheit und zur technischen Administration der Website (Art. 6 Abs. 1 lit. f
+                  DSGVO – berechtigtes Interesse).
+                </p>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  b) Bei Registrierung und Nutzung unserer Dienste
+                  b) Registrierung und Nutzung Ihres Nutzerkontos
                 </h3>
-                <p className="text-gray-700 text-sm leading-relaxed mb-2">
-                  Bei der Nutzung unserer Dienste erheben wir folgende personenbezogene Daten:
+                <p className="mb-2">
+                  Wenn Sie sich für ein Nutzerkonto registrieren und unsere Dienste nutzen, verarbeiten wir
+                  u. a.:
                 </p>
-                <ul className="list-disc list-inside pl-4 space-y-1 text-sm text-gray-700">
+                <ul className="list-disc list-inside pl-4 space-y-1">
                   <li>E-Mail-Adresse</li>
-                  <li>Name (optional)</li>
-                  <li>Nutzungsdaten (eingegebene Immobiliendaten, Berechnungsergebnisse)</li>
-                  <li>Zahlungsinformationen (bei Premium-Abonnements, verarbeitet durch Stripe)</li>
+                  <li>Passwort (als Hash, nicht im Klartext)</li>
+                  <li>optional: Name</li>
+                  <li>Nutzungsdaten (z. B. eingegebene Immobiliendaten, Analysen, Berechnungsergebnisse, Einstellungen)</li>
                 </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  c) Clerk Authentication
-                </h3>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  Für die Benutzerauthentifizierung nutzen wir den Dienst Clerk (Clerk, Inc., 340 S Lemon Ave
-                  #3902, Walnut, CA 91789, USA). Clerk verarbeitet dabei Ihre E-Mail-Adresse, Passwort-Hash
-                  und optional weitere Profildaten. Weitere Informationen finden Sie in der{' '}
-                  <a
-                    href="https://clerk.com/legal/privacy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[hsl(var(--brand))] hover:underline"
-                  >
-                    Datenschutzerklärung von Clerk
-                  </a>
-                  .
+                <p className="mt-2">
+                  Diese Verarbeitung ist zur Durchführung des Nutzungsvertrags und zur Bereitstellung der
+                  Funktionen erforderlich (Art. 6 Abs. 1 lit. b DSGVO).
                 </p>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  d) Zahlungsabwicklung mit Stripe
+                  c) Premium-Abonnement und Zahlungsabwicklung (Stripe)
                 </h3>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  Für die Abwicklung von Zahlungen nutzen wir Stripe (Stripe, Inc., 510 Townsend Street,
-                  San Francisco, CA 94103, USA). Stripe verarbeitet Ihre Zahlungsdaten direkt. Wir erhalten
-                  keine vollständigen Kreditkartendaten. Weitere Informationen finden Sie in der{' '}
+                <p className="mb-2">
+                  Für kostenpflichtige Abonnements nutzen wir den Zahlungsdienstleister Stripe (Stripe, Inc.,
+                  510 Townsend Street, San Francisco, CA 94103, USA). Stripe verarbeitet Zahlungsdaten
+                  (z. B. Kartendaten, Kontoinformationen, Rechnungsadresse) unmittelbar auf seinen Systemen.
+                  Wir erhalten keine vollständigen Zahlungsdaten (keine vollständigen Kreditkartennummern etc.).
+                </p>
+                <p className="mb-2">
+                  Rechtsgrundlage ist die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO). Darüber hinaus kann
+                  Stripe die Daten zu eigenen Zwecken verarbeiten; Einzelheiten entnehmen Sie bitte der
+                  Datenschutzerklärung von Stripe:{' '}
                   <a
                     href="https://stripe.com/de/privacy"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[hsl(var(--brand))] hover:underline"
                   >
-                    Datenschutzerklärung von Stripe
+                    [Stripe Privacy Policy]
                   </a>
                   .
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  d) Benutzerauthentifizierung mit Clerk
+                </h3>
+                <p className="mb-2">
+                  Für Registrierung, Login und Verwaltung Ihres Kontos nutzen wir den Dienst Clerk (Clerk, Inc.,
+                  340 S Lemon Ave #3902, Walnut, CA 91789, USA). Dabei werden u. a. verarbeitet:
+                </p>
+                <ul className="list-disc list-inside pl-4 space-y-1">
+                  <li>E-Mail-Adresse</li>
+                  <li>Passwort-Hash</li>
+                  <li>ggf. weitere Profildaten (z. B. Name, Avatar)</li>
+                  <li>technische Daten wie Logins, Geräteinformationen</li>
+                </ul>
+                <p className="mt-2">
+                  Clerk unterstützt verschiedene Compliance-Standards (u. a. SOC 2, HIPAA) und bietet einen
+                  Data Processing Addendum (DPA) inkl. Standardvertragsklauseln und/oder Data Privacy Framework
+                  (DPF) für Datentransfers aus der EU.
+                </p>
+                <p className="mt-2">
+                  Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Nutzerkontos) und unser
+                  berechtigtes Interesse an sicherer Authentifizierung (Art. 6 Abs. 1 lit. f DSGVO).
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  e) KI-gestützte Analysen mit OpenAI
+                </h3>
+                <p className="mb-2">
+                  Für die automatisierte Auswertung und Kommentierung Ihrer Eingaben (z. B. Lage-Text,
+                  Cashflow-Kommentar) nutzen wir Dienste der OpenAI L.L.C. (3180 18th Street, San Francisco,
+                  CA 94110, USA) über deren API.
+                </p>
+                <p className="mb-2">
+                  Dabei können folgende Daten an OpenAI übermittelt werden:
+                </p>
+                <ul className="list-disc list-inside pl-4 space-y-1">
+                  <li>von Ihnen eingegebene Immobiliendaten (z. B. Lage, Kaufpreis, Miete, Eckdaten zum Objekt)</li>
+                  <li>daraus berechnete Kennzahlen (z. B. Cashflow, Rendite)</li>
+                  <li>ggf. technische Metadaten zur Anfrage</li>
+                </ul>
+                <p className="mt-2">
+                  Wir achten darauf, nur die für die Analyse notwendigen Daten zu übermitteln.
+                </p>
+                <p className="mt-2">
+                  Nach den aktuellen Angaben von OpenAI werden Daten, die über die API übermittelt werden,
+                  nicht zur Verbesserung oder zum Training von Modellen verwendet, es sei denn, der Kunde
+                  stimmt ausdrücklich zu.
+                </p>
+                <p className="mt-2">
+                  Rechtsgrundlage ist die Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO), da die KI-Analyse
+                  zentraler Bestandteil unseres Dienstes ist.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  f) Webanalyse mit Google Analytics und Tag Manager
+                </h3>
+                <p className="mb-2">
+                  Wir verwenden Google Tag Manager und Google Analytics 4 der Google Ireland Limited, Gordon
+                  House, Barrow Street, Dublin 4, Irland („Google"). Google Analytics ermöglicht uns, die
+                  Nutzung der Website auszuwerten, um unser Angebot zu verbessern.
+                </p>
+                <p className="mb-2">
+                  Google Analytics verarbeitet u. a.:
+                </p>
+                <ul className="list-disc list-inside pl-4 space-y-1">
+                  <li>pseudonymisierte Nutzerkennungen</li>
+                  <li>ungefähre Standortdaten (Region/ Stadt, soweit aktiv)</li>
+                  <li>Informationen zu Geräten, Browser, Verweildauer, Klickpfad</li>
+                </ul>
+                <p className="mt-2">
+                  Google Analytics 4 speichert nach aktuellen Angaben für EU-Nutzer keine vollständigen
+                  IP-Adressen, sondern verwirft diese, bevor sie protokolliert werden; dennoch gelten die so
+                  gewonnenen Daten als personenbezogene bzw. personenbeziehbare Daten.
+                </p>
+                <p className="mt-2">
+                  Die Nutzung von Google Analytics erfolgt nur mit Ihrer Einwilligung über unseren
+                  Cookie-/Consent-Banner (Art. 6 Abs. 1 lit. a DSGVO). Sie können Ihre Einwilligung jederzeit
+                  mit Wirkung für die Zukunft widerrufen, indem Sie die Cookie-Einstellungen auf unserer
+                  Website anpassen.
+                </p>
+                <p className="mt-2">
+                  Der Google Tag Manager selbst verarbeitet nach Angaben von Google keine personenbezogenen
+                  Daten, sondern dient nur der Verwaltung von Tags.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  g) Cookies und ähnliche Technologien
+                </h3>
+                <p className="mb-2">
+                  Wir verwenden Cookies und ähnliche Technologien, um:
+                </p>
+                <ul className="list-disc list-inside pl-4 space-y-1">
+                  <li>grundlegende Funktionen der Website bereitzustellen (technisch notwendige Cookies)</li>
+                  <li>statistische Auswertungen (Analytics) und ggf. Marketingfunktionen zu ermöglichen (nur mit Einwilligung)</li>
+                </ul>
+                <p className="mt-2">
+                  Technisch notwendige Cookies setzen wir auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Alle
+                  weiteren Cookies werden nur mit Ihrer Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO gesetzt.
                 </p>
               </div>
             </div>
           </section>
 
-          {/* Analytics & Tracking */}
+          {/* Section 3 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              3. Einsatz von Google Analytics / Google Tag Manager
+              3. Empfänger und Kategorien von Empfängern
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed mb-4">
-              Diese Website nutzt Google Tag Manager. Google Tag Manager ist eine Lösung, mit der wir
-              sog. Website-Tags über eine Oberfläche verwalten können. Der Tag Manager selbst verarbeitet
-              keine personenbezogenen Daten der Nutzer.
-            </p>
-            <p className="text-gray-700 text-sm leading-relaxed mb-4">
-              Wir verwenden Google Analytics, einen Webanalysedienst der Google Ireland Limited, Gordon
-              House, Barrow Street, Dublin 4, Irland (&ldquo;Google&rdquo;). Google Analytics verwendet Cookies.
-              Die durch das Cookie erzeugten Informationen über die Benutzung dieser Website werden in
-              der Regel an einen Server von Google in den USA übertragen und dort gespeichert.
-            </p>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              Sie können die Speicherung der Cookies durch eine entsprechende Einstellung Ihrer
-              Browser-Software verhindern oder über unseren Cookie-Banner widersprechen.
-            </p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Wir geben personenbezogene Daten nur an Dritte weiter, wenn dies gesetzlich erlaubt ist oder
+                Sie eingewilligt haben. Empfänger können insbesondere sein:
+              </p>
+              <ul className="list-disc list-inside pl-4 space-y-1">
+                <li>IT- und Hosting-Dienstleister (für Betrieb und Wartung der Systeme)</li>
+                <li>Clerk (Authentifizierung)</li>
+                <li>Stripe (Zahlungsabwicklung)</li>
+                <li>Google (Analytics/Tag Manager)</li>
+                <li>OpenAI (KI-Analysen)</li>
+              </ul>
+              <p className="mt-2">
+                Mit allen Dienstleistern, die in unserem Auftrag personenbezogene Daten verarbeiten,
+                schließen wir – soweit erforderlich – Auftragsverarbeitungsverträge gemäß Art. 28 DSGVO.
+              </p>
+            </div>
           </section>
 
-          {/* OpenAI */}
+          {/* Section 4 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              4. KI-gestützte Analysen (OpenAI)
+              4. Datenübermittlung in Drittländer
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              Für die Durchführung von Immobilienanalysen nutzen wir KI-Dienste von OpenAI (OpenAI, L.L.C.,
-              3180 18th Street, San Francisco, CA 94110, USA). Die von Ihnen eingegebenen Immobiliendaten
-              werden zur Analyse an OpenAI übermittelt. OpenAI nutzt Ihre Daten nicht zum Training von
-              KI-Modellen. Weitere Informationen finden Sie in der{' '}
-              <a
-                href="https://openai.com/policies/privacy-policy"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[hsl(var(--brand))] hover:underline"
-              >
-                Datenschutzerklärung von OpenAI
-              </a>
-              .
-            </p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Einige der oben genannten Dienstleister (z. B. OpenAI, Stripe, Clerk, Google) haben ihren
+                Sitz in den USA oder verarbeiten Daten dort.
+              </p>
+              <p>
+                Die Übermittlung personenbezogener Daten in die USA kann auf folgende Grundlagen gestützt
+                werden:
+              </p>
+              <ul className="list-disc list-inside pl-4 space-y-1">
+                <li>Angemessenheitsbeschluss (EU–US Data Privacy Framework), sofern der jeweilige Dienst dort zertifiziert ist, und/oder</li>
+                <li>Abschluss von EU-Standardvertragsklauseln (Standard Contractual Clauses – SCC) sowie zusätzliche Schutzmaßnahmen.</li>
+              </ul>
+              <p className="mt-2">
+                Weitere Informationen zum Datenschutz der jeweiligen Dienstleister finden Sie in deren
+                Datenschutzerklärungen.
+              </p>
+            </div>
           </section>
 
-          {/* User Rights */}
+          {/* Section 5 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              5. Ihre Rechte
+              5. Speicherdauer
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed mb-4">
-              Sie haben das Recht:
-            </p>
-            <ul className="list-disc list-inside pl-4 space-y-2 text-sm text-gray-700">
-              <li>gemäß Art. 15 DSGVO Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten zu verlangen</li>
-              <li>gemäß Art. 16 DSGVO unverzüglich die Berichtigung unrichtiger oder Vervollständigung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
-              <li>gemäß Art. 17 DSGVO die Löschung Ihrer bei uns gespeicherten personenbezogenen Daten zu verlangen</li>
-              <li>gemäß Art. 18 DSGVO die Einschränkung der Verarbeitung Ihrer personenbezogenen Daten zu verlangen</li>
-              <li>gemäß Art. 20 DSGVO Ihre personenbezogenen Daten in einem strukturierten, gängigen und maschinenlesbaren Format zu erhalten</li>
-              <li>gemäß Art. 7 Abs. 3 DSGVO Ihre einmal erteilte Einwilligung jederzeit gegenüber uns zu widerrufen</li>
-              <li>gemäß Art. 77 DSGVO sich bei einer Aufsichtsbehörde zu beschweren</li>
-            </ul>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Wir speichern personenbezogene Daten nur so lange, wie es für die genannten Zwecke
+                erforderlich ist oder gesetzliche Aufbewahrungsfristen bestehen.
+              </p>
+              <ul className="list-disc list-inside pl-4 space-y-1">
+                <li>
+                  <strong>Nutzerkonto & Analysen:</strong> Solange Ihr Konto aktiv ist. Nach Löschung Ihres
+                  Kontos werden Ihre Daten – vorbehaltlich gesetzlicher Aufbewahrungsfristen – gelöscht oder
+                  anonymisiert.
+                </li>
+                <li>
+                  <strong>Vertrags- und Abrechnungsdaten:</strong> entsprechend der handels- und
+                  steuerrechtlichen Aufbewahrungsfristen (in der Regel bis zu 10 Jahre).
+                </li>
+                <li>
+                  <strong>Server-Logfiles:</strong> in der Regel wenige Wochen, sofern keine
+                  sicherheitsrelevante Auswertung erforderlich ist.
+                </li>
+                <li>
+                  <strong>Cookies & Analytics-Daten:</strong> entsprechend Ihren Einstellungen im
+                  Consent-Tool und den Vorgaben der jeweiligen Anbieter.
+                </li>
+              </ul>
+            </div>
           </section>
 
-          {/* Data Retention */}
+          {/* Section 6 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              6. Dauer der Speicherung
+              6. Ihre Rechte
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              Wir speichern Ihre personenbezogenen Daten nur so lange, wie dies für die Erfüllung der
-              verfolgten Zwecke notwendig ist oder Sie Ihr Nutzerkonto bei uns führen. Nach Löschung
-              Ihres Accounts werden Ihre Daten gelöscht, es sei denn, ihre Aufbewahrung ist zur Erfüllung
-              gesetzlicher Aufbewahrungsfristen erforderlich.
-            </p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Sie haben hinsichtlich der Sie betreffenden personenbezogenen Daten folgende Rechte:
+              </p>
+              <ul className="list-disc list-inside pl-4 space-y-1">
+                <li>Auskunft (Art. 15 DSGVO)</li>
+                <li>Berichtigung (Art. 16 DSGVO)</li>
+                <li>Löschung (Art. 17 DSGVO)</li>
+                <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+                <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+                <li>Widerspruch gegen bestimmte Verarbeitungen (Art. 21 DSGVO)</li>
+                <li>Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+              </ul>
+              <p className="mt-2">
+                Zur Geltendmachung Ihrer Rechte können Sie sich jederzeit an uns wenden:<br />
+                E-Mail:{' '}
+                <a
+                  href="mailto:info@imvestr.de"
+                  className="text-[hsl(var(--brand))] hover:underline"
+                >
+                  info@imvestr.de
+                </a>
+              </p>
+              <p className="mt-2">
+                Zudem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren
+                (Art. 77 DSGVO), insbesondere in dem Mitgliedstaat Ihres gewöhnlichen Aufenthaltsortes,
+                Ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes.
+              </p>
+            </div>
           </section>
 
-          {/* Data Security */}
+          {/* Section 7 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              7. Datensicherheit
+              7. Widerruf von Einwilligungen & Widerspruchsrecht
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              Wir verwenden innerhalb des Website-Besuchs das verbreitete SSL-Verfahren (Secure Socket Layer)
-              in Verbindung mit der jeweils höchsten Verschlüsselungsstufe, die von Ihrem Browser unterstützt
-              wird. Ob eine einzelne Seite unseres Internetauftrittes verschlüsselt übertragen wird, erkennen
-              Sie an der geschlossenen Darstellung des Schüssel- beziehungsweise Schloss-Symbols in der unteren
-              Statusleiste Ihres Browsers.
-            </p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Sie können uns gegenüber erteilte Einwilligungen (z. B. für Analytics) jederzeit mit Wirkung
+                für die Zukunft widerrufen, u. a. durch Anpassung Ihrer Cookie-Einstellungen.
+              </p>
+              <p>
+                Soweit wir Daten auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse)
+                verarbeiten, haben Sie das Recht, aus Gründen, die sich aus Ihrer besonderen Situation
+                ergeben, Widerspruch einzulegen. Wir verarbeiten die personenbezogenen Daten dann nicht mehr,
+                es sei denn, wir können zwingende schutzwürdige Gründe nachweisen, die Ihre Interessen
+                überwiegen oder die Verarbeitung dient der Geltendmachung, Ausübung oder Verteidigung von
+                Rechtsansprüchen.
+              </p>
+            </div>
           </section>
 
-          {/* Updates */}
+          {/* Section 8 */}
           <section>
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
-              8. Aktualität und Änderung dieser Datenschutzerklärung
+              8. Datensicherheit
             </h2>
-            <p className="text-gray-700 text-sm leading-relaxed">
-              Diese Datenschutzerklärung ist aktuell gültig und hat den Stand November 2025. Durch die
-              Weiterentwicklung unserer Website oder aufgrund geänderter gesetzlicher beziehungsweise
-              behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung zu ändern.
-            </p>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Wir verwenden übliche technische und organisatorische Sicherheitsmaßnahmen, um Ihre Daten vor
+                Verlust, Zerstörung, unbefugtem Zugriff oder Manipulation zu schützen. Dazu gehört
+                insbesondere die Verwendung von SSL-/TLS-Verschlüsselung beim Aufruf unserer Website
+                (erkennbar an „https://" und einem Schloss-Symbol im Browser).
+              </p>
+            </div>
+          </section>
+
+          {/* Section 9 */}
+          <section>
+            <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
+              9. Aktualität und Änderung dieser Datenschutzerklärung
+            </h2>
+            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Diese Datenschutzerklärung ist aktuell gültig und hat den Stand November 2025.
+              </p>
+              <p>
+                Durch die Weiterentwicklung unserer Website oder unseres Angebots sowie aufgrund geänderter
+                gesetzlicher oder behördlicher Vorgaben kann es notwendig werden, diese Datenschutzerklärung
+                anzupassen. Die jeweils aktuelle Fassung können Sie jederzeit auf unserer Website unter
+                [Link zur Datenschutzerklärung] abrufen.
+              </p>
+            </div>
           </section>
         </div>
       </div>
