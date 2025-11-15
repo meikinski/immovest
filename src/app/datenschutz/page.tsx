@@ -404,7 +404,7 @@ export default function DatenschutzPage() {
                 Wir verwenden übliche technische und organisatorische Sicherheitsmaßnahmen, um Ihre Daten vor
                 Verlust, Zerstörung, unbefugtem Zugriff oder Manipulation zu schützen. Dazu gehört
                 insbesondere die Verwendung von SSL-/TLS-Verschlüsselung beim Aufruf unserer Website
-                (erkennbar an &bdquo;https://&rdquo; und einem Schloss-Symbol im Browser).
+                (erkennbar an &bdquo;https://&ldquo; und einem Schloss-Symbol im Browser).
               </p>
             </div>
           </section>

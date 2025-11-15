@@ -37,7 +37,7 @@ export default function ImpressumPage() {
             </h2>
             <div className="space-y-2 text-gray-700">
               <p>Meike Hüttl</p>
-              <p>handelnd unter „imvestr"</p>
+              <p>handelnd unter &bdquo;imvestr&ldquo;</p>
               <p>Genter Straße 19</p>
               <p>50672 Köln</p>
             </div>
