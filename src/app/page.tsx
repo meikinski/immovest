@@ -185,7 +185,8 @@ export default function LandingPage() {
     },
   ];
 
-  const processSteps = [
+  // processSteps removed - InteractiveStepPreview has its own steps defined
+  /* const processSteps = [
     {
       number: 1,
       icon: <MapPin className="w-6 h-6" />,
@@ -210,7 +211,7 @@ export default function LandingPage() {
       cta: 'Miete/Zins anpassen',
       color: '#A56554',
     },
-  ];
+  ]; */
 
   return (
     <>
@@ -398,7 +399,7 @@ export default function LandingPage() {
                 {/* Screenshot Caption */}
                 <div className="text-center lg:text-left">
                   <h3 className="text-xl md:text-2xl font-bold text-[#0F172A]">
-                    So sieht's in der Praxis aus
+                    So sieht&apos;s in der Praxis aus
                   </h3>
                   <p className="text-sm text-[#6C7F99] mt-2">
                     Einfach, intuitiv und schnell zu bedienen
