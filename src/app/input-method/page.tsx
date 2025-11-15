@@ -37,6 +37,8 @@ export default function InputMethodPage() {
   // Reset form when component mounts (user starts new input)
   useEffect(() => {
     resetAnalysis();
+    // Clear localStorage to prevent persistence hook from reloading old data
+    localStorage.removeItem('immovest_kpi_state');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleImageSelect = (file: File) => {
@@ -114,6 +116,7 @@ export default function InputMethodPage() {
 
       // Reset form before importing new data
       resetAnalysis();
+      localStorage.removeItem('immovest_kpi_state');
 
       // Import data into store
       importData({
@@ -187,6 +190,7 @@ export default function InputMethodPage() {
 
       // Reset form before importing new data
       resetAnalysis();
+      localStorage.removeItem('immovest_kpi_state');
 
       // Import data into store
       if (result.data) {
@@ -340,6 +344,7 @@ export default function InputMethodPage() {
               <button
                 onClick={() => {
                   resetAnalysis();
+                  localStorage.removeItem('immovest_kpi_state');
                   router.push('/step/a');
                 }}
                 className="w-full py-4 bg-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
