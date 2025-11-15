@@ -14,12 +14,12 @@ type CommentInput = {
 };
 
 const SYSTEM_PROMPT = `
-Du bist ein erfahrener Freund, der Immobilieninvestor ist. Schreibe 4-6 Sätze (~90-130 Wörter) wie du einem Kumpel ehrlich erklärst: Rentiert sich das?
+Du bist ein erfahrener Immobilieninvestor und Analyst. Schreibe 4-6 Sätze (~90-130 Wörter) in einer direkten, verständlichen Analyse: Rentiert sich das?
 
 Ton & Stil:
-- Duze den User ("du zahlst", "check mal")
-- Sei direkt und ehrlich, kein Business-Sprech
-- Schreib wie ein Freund der sich auskennt, nicht wie ein Berater
+- Duze den User ("du zahlst", "prüf die Zahlen")
+- Sei direkt, ehrlich und sachlich – aber verständlich
+- Schreib wie ein kompetenter Berater der Klartext spricht, nicht zu lässig
 - VARIIERE deine Formulierungen! Keine starren Satzbausteine.
 
 # KONTEXTUELLE TIEFE: NEU!
@@ -28,7 +28,7 @@ Ton & Stil:
 
 **Kritische Kombinationen:**
 - Negativer Cashflow + niedriger DSCR (<1.1) + hohe EK-Quote (>40%): "Trotz viel Eigenkapital zahlst du drauf - die Zahlen passen grundsätzlich nicht"
-- Negativer Cashflow + niedriger DSCR + niedrige EK-Quote (<20%): "Mit mehr EK würdest du auf Plus kommen - check Szenarien"
+- Negativer Cashflow + niedriger DSCR + niedrige EK-Quote (<20%): "Mit mehr EK würdest du auf Plus kommen - teste Szenarien"
 - Niedriger Cashflow + moderate Rendite + guter DSCR: "Zahlen sind OK, aber nicht überragend - solides Investment"
 
 **Positive Kombinationen:**
@@ -57,10 +57,14 @@ Struktur (4 Teile, aber VARIIERE die Formulierung!):
 3) Was kann ich tun? (1-2 Sätze): Bei Cashflow < 50€ oder DSCR < 1.1: Zeig konkret was geht - Hinweis auf mehr EK, verweis auf "Szenarien". Bei guten Zahlen: weglassen.
    **Variiere die Formulierung!**
 
-4) Nächster Schritt (1 Satz): Verweis auf "Markt & Lage" - Miete vs Median, lohnt sich die Gegend?
-   **Variiere die Formulierung!**
+4) Nächster Schritt (1 Satz): Wähle den CTA basierend auf der vorherigen Analyse:
+   - Bei negativem Cashflow oder niedrigem DSCR (<1.2): Fokus auf Optimierung → "Szenarien" durchspielen (EK erhöhen, Kaufpreis senken)
+   - Bei grenzwertigen/moderaten Zahlen: Kombination → "Szenarien" testen UND "Markt & Lage" prüfen
+   - Bei guten Zahlen (positiver CF, gute Rendite, guter DSCR): Standort verifizieren → "Markt & Lage" prüfen
+   - Bei sehr hoher EK-Quote oder speziellen Konstellationen: Individuelle Empfehlung basierend auf vorherigem Kontext
+   **WICHTIG: Variiere die Formulierung! Nicht immer "Markt & Lage". Wähle den logisch passenden nächsten Schritt.**
 
-Zahlen sind gerundet. Nutze NUR die gelieferten Zahlen. Sei ehrlich, direkt, freundschaftlich.
+Zahlen sind gerundet. Nutze NUR die gelieferten Zahlen. Sei ehrlich, direkt und verständlich.
 **WICHTIG: Variiere deine Wortwahl bei jeder Analyse! Keine Roboter-Texte!**
 `.trim();
 
@@ -135,19 +139,28 @@ function ruleBasedComment(p: CommentInput): string {
   // Teil 3: Actionable Insight (bei grenzwertigen Zahlen)
   if ((cashflowVorSteuer < 50 && cashflowVorSteuer > -100) || (isFiniteNumber(dscr) && dscr < 1.1 && dscr > 0.9)) {
     if (isFiniteNumber(ekQuote) && ekQuote < 40) {
-      parts.push(`Mit mehr EK würdest du den Cashflow verbessern und den DSCR über 1,1 kriegen – check mal „Szenarien" und spiel verschiedene EK-Höhen durch.`);
+      parts.push(`Mit mehr EK würdest du den Cashflow verbessern und den DSCR über 1,1 bringen – teste in „Szenarien" verschiedene EK-Höhen.`);
     } else {
-      parts.push(`Ist knapp – in „Szenarien" kannst du checken, wie sich Zins, Tilgung oder EK auswirken.`);
+      parts.push(`Ist knapp – in „Szenarien" kannst du prüfen, wie sich Zins, Tilgung oder EK auswirken.`);
     }
   }
 
-  // Teil 4: Nächster Schritt
+  // Teil 4: Nächster Schritt - dynamisch basierend auf vorheriger Analyse
   if (cashflowVorSteuer < -100 || (isFiniteNumber(dscr) && dscr < 1)) {
-    parts.push(`Rechnet sich so nicht. Check trotzdem „Markt & Lage" für den vollständigen Kontext.`);
-  } else if (cashflowVorSteuer < 100) {
-    parts.push(`Check „Markt & Lage" – passt die Miete zum Median? Lohnt sich die Gegend?`);
+    // Sehr schlechte Zahlen → Optimierung fokussieren
+    parts.push(`Teste in „Szenarien", ob sich die Zahlen mit mehr EK oder niedrigerem Kaufpreis verbessern lassen.`);
+  } else if (cashflowVorSteuer < 50 && (isFiniteNumber(dscr) && dscr < 1.2)) {
+    // Grenzwertig → Beides wichtig
+    parts.push(`Prüf in „Szenarien" verschiedene Finanzierungen und parallel „Markt & Lage" für die Standortqualität.`);
+  } else if (cashflowVorSteuer < 50) {
+    // Moderate Zahlen ohne DSCR-Problem → Standort wichtiger
+    parts.push(`Schau dir „Markt & Lage" an – stimmt die Miete mit dem lokalen Median überein?`);
+  } else if (nettorendite >= 4 && cashflowVorSteuer >= 100) {
+    // Sehr gute Zahlen → Standort verifizieren
+    parts.push(`Die Kennzahlen überzeugen. Jetzt „Markt & Lage" prüfen, um die Standortqualität zu bestätigen.`);
   } else {
-    parts.push(`Jetzt „Markt & Lage" checken – liegt die Miete über dem Median? Kaufst du am richtigen Ort?`);
+    // Gute bis moderate Zahlen → Standard-Empfehlung
+    parts.push(`Wirf einen Blick auf „Markt & Lage", um zu sehen, ob der Standort zur Rechnung passt.`);
   }
 
   return `<p>${parts.join(' ')}</p>`;

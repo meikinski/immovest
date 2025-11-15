@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, FileBarChart, LineChart, Bot } from 'lucide-react';
+import Image from 'next/image';
 
 /**
  * Mini Carousel mit 3 Screenshots (Placeholders)
@@ -13,7 +14,19 @@ export function MiniCarousel() {
   const [isTransitioning, setIsTransitioning] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const slides = [
     {
@@ -22,6 +35,7 @@ export function MiniCarousel() {
       icon: <Bot className="w-8 h-8" />,
       color: '#E6AE63',
       image: '/imvestr_objektdaten.png',
+      mobileImage: '/mobile_objektdaten_transparent.png',
     },
     {
       title: 'KPI-Karten',
@@ -29,6 +43,7 @@ export function MiniCarousel() {
       icon: <LineChart className="w-8 h-8" />,
       color: '#264171',
       image: '/imvestr_kpis.png',
+      mobileImage: '/mobile_kpi_transparent.png',
     },
     {
       title: 'Szenarien',
@@ -36,6 +51,7 @@ export function MiniCarousel() {
       icon: <FileBarChart className="w-8 h-8" />,
       color: '#A56554',
       image: '/imvestr_szenarien.png',
+      mobileImage: '/mobile_szenarien_transparent.png',
     },
   ];
 
@@ -100,7 +116,7 @@ export function MiniCarousel() {
       {/* Carousel Container */}
       <div
         ref={carouselRef}
-        className="relative overflow-hidden rounded-3xl border-2 border-gray-200 bg-white shadow-xl"
+        className="relative overflow-hidden rounded-3xl shadow-xl"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -113,18 +129,21 @@ export function MiniCarousel() {
           {extendedSlides.map((slide, idx) => (
             <div
               key={`${slide.title}-${idx}`}
-              className="w-full flex-shrink-0 p-4 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col items-center justify-center text-center"
+              className="w-full flex-shrink-0 px-4 py-6 md:p-8 min-h-[500px] md:min-h-[600px] flex flex-col items-center justify-center text-center"
               style={{
-                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(230, 174, 99, 0.25) 50%, rgba(38, 65, 113, 0.15) 100%)`,
+                background: `linear-gradient(135deg, rgba(38, 65, 113, 0.85) 0%, rgba(58, 91, 137, 0.85) 42%, rgba(165, 101, 84, 0.85) 100%)`,
               }}
             >
               {/* Screenshot */}
-              <div className="w-full max-w-3xl mb-6 rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none z-10" />
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  className="w-full h-auto object-contain scale-110 md:scale-100"
+              <div className="w-full max-w-3xl mb-6 drop-shadow-2xl">
+                <Image
+                  src={isMobile ? slide.mobileImage : slide.image}
+                  alt={`${slide.title} - ${slide.description}`}
+                  width={1200}
+                  height={800}
+                  className="w-full h-auto object-contain drop-shadow-[0_25px_50px_rgba(0,0,0,0.4)]"
+                  quality={85}
+                  sizes="(max-width: 768px) 100vw, 672px"
                 />
               </div>
 

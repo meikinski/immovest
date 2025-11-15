@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/Providers';
+import { GoogleTagManager } from '@/components/GoogleTagManager';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,7 +44,7 @@ export const metadata: Metadata = {
     siteName: "ImVestr",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: "ImVestr - KI-basierter Immobilien-Renditerechner",
@@ -54,7 +55,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "KI-basierter Immobilien-Renditerechner | ImVestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
-    images: ["/og-image.jpg"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -68,8 +69,15 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-site-verification-code', // TODO: Replace with actual verification code from Google Search Console
+    google: 'UBVnkHXPp98wEw176mPlhACJs8t5v3XkDL1MtyR1E9w', // TODO: Replace with actual verification code from Google Search Console
   },
+  themeColor: '#264171',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'ImVestr',
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
@@ -83,6 +91,7 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased`}
         suppressHydrationWarning
       >
+        <GoogleTagManager />
         <Providers>
           {children}
         </Providers>

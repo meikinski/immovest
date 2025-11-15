@@ -7,11 +7,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 import { saveAnalysis } from '@/lib/storage';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { AnalyticsEvents } from '@/lib/analytics';
 
 export default function InputMethodPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const exportState = useImmoStore(s => s.exportState);
 
@@ -64,6 +67,9 @@ export default function InputMethodPage() {
       setImageError('Bitte wähle ein Bild aus');
       return;
     }
+
+    // Track AI Import Started
+    track(AnalyticsEvents.AI_IMPORT_STARTED, { import_method: 'screenshot' });
 
     setImageLoading(true);
     setImageError('');
@@ -118,6 +124,12 @@ export default function InputMethodPage() {
       const analysisId = saveAnalysis(userId, exportState());
       importData({ analysisId });
 
+      // Track successful import
+      track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
+        import_method: 'screenshot',
+        has_warnings: warnings && warnings.length > 0,
+      });
+
       // Show warnings if any
       if (warnings && warnings.length > 0) {
         setImageWarnings(warnings);
@@ -127,6 +139,11 @@ export default function InputMethodPage() {
         router.push('/step/a');
       }
     } catch (err) {
+      // Track failed import
+      track(AnalyticsEvents.AI_IMPORT_FAILED, {
+        import_method: 'screenshot',
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
       setImageError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
       setImageLoading(false);
@@ -138,6 +155,9 @@ export default function InputMethodPage() {
       setUrlError('Bitte gib eine URL ein');
       return;
     }
+
+    // Track AI Import Started
+    track(AnalyticsEvents.AI_IMPORT_STARTED, { import_method: 'url' });
 
     setUrlLoading(true);
     setUrlError('');
@@ -170,11 +190,22 @@ export default function InputMethodPage() {
           setUrlWarnings(result.warnings);
         }
 
+        // Track successful import
+        track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
+          import_method: 'url',
+          has_warnings: result.warnings.length > 0,
+        });
+
         router.push('/step/a');
       } else {
         throw new Error('Keine Immobiliendaten in der URL gefunden. Versuche eine andere URL.');
       }
     } catch (err) {
+      // Track failed import
+      track(AnalyticsEvents.AI_IMPORT_FAILED, {
+        import_method: 'url',
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
       setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
       setUrlLoading(false);

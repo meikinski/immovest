@@ -26,10 +26,12 @@ import { MiniCarousel } from '@/components/MiniCarousel';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { StackedCards } from '@/components/StackedCards';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
   const router = useRouter();
   const { isSignedIn } = useAuth();
+  const { trackCTA } = useAnalytics();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
@@ -45,8 +47,15 @@ export default function LandingPage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleGetStarted = () => {
+  const handleGetStarted = (location: string = 'hero') => {
+    trackCTA('start_analysis', location);
     router.push('/input-method');
+  };
+
+  const handleFaqToggle = (faqQuestion: string, isOpening: boolean) => {
+    if (isOpening) {
+      trackCTA('faq_opened', 'faq_section');
+    }
   };
 
   // Structured Data for SEO (JSON-LD)
@@ -81,7 +90,7 @@ export default function LandingPage() {
       "Bankfähiger PDF-Report",
     ],
     "url": "https://immovestr.de",
-    "screenshot": "https://immovestr.de/og-image.jpg",
+    "screenshot": "https://immovestr.de/og-image.png",
   };
 
   const organizationData = {
@@ -91,7 +100,13 @@ export default function LandingPage() {
     "url": "https://immovestr.de",
     "logo": "https://immovestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
-    "sameAs": [],
+    "sameAs": [
+      // TODO: Add social media URLs here for better SEO, e.g.:
+      // "https://www.instagram.com/imvestr",
+      // "https://www.linkedin.com/company/imvestr",
+      // "https://www.facebook.com/imvestr",
+      // "https://www.youtube.com/@imvestr",
+    ],
   };
 
   const faqs = [
@@ -320,7 +335,7 @@ export default function LandingPage() {
               <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                 <button
                   type="button"
-                  onClick={handleGetStarted}
+                  onClick={() => handleGetStarted('hero')}
                   data-cta="main"
                   className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-10 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
                 >
@@ -346,6 +361,7 @@ export default function LandingPage() {
         {/* Import Features - USP */}
         <section aria-label="Import-Optionen" className="px-6 py-12 md:py-20 bg-white border-y border-[#264171]/5">
           <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#E6AE63]/30 bg-[#E6AE63]/5 px-4 py-2 text-sm font-medium text-[#264171] mb-4">
                 <Sparkles className="h-4 w-4 text-[#E6AE63]" />
@@ -359,7 +375,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-8 items-center">
+            <div className="flex flex-col lg:flex-row gap-8 items-start">
               {/* Left: Import Features */}
               <div className="flex-1 space-y-6">
                 {importFeatures.map((feature) => (
@@ -378,23 +394,20 @@ export default function LandingPage() {
                 ))}
               </div>
 
-              {/* Right: Screenshot */}
-              <div className="flex-1 space-y-4">
-                {/* Screenshot Headline */}
-                <div className="text-center lg:text-left">
-                  <h3 className="text-xl md:text-2xl font-bold text-[#0F172A]">
-                    So sieht's in der Praxis aus
+              {/* Right: Screenshot with Headline */}
+              <div className="flex-1 space-y-6">
+                {/* Screenshot Caption */}
+                <div className="text-left">
+                  <h3 className="text-xl font-medium text-[#264171] mb-4">
+                    So sieht die Auswahl aus
                   </h3>
-                  <p className="text-sm text-[#6C7F99] mt-2">
-                    Einfach, intuitiv und schnell zu bedienen
-                  </p>
                 </div>
 
                 {/* Input Method Screenshot */}
                 <div
                   className="relative rounded-3xl border-2 border-gray-200 p-8 overflow-hidden shadow-xl flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(230, 174, 99, 0.25) 50%, rgba(38, 65, 113, 0.15) 100%)',
+                    background: 'linear-gradient(135deg, rgba(38, 65, 113, 0.15) 0%, rgba(108, 127, 153, 0.12) 38%, rgba(230, 174, 99, 0.20) 70%, rgba(165, 101, 84, 0.15) 100%)',
                   }}
                 >
                   <div className="w-full max-w-3xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-gray-200/50 relative">
@@ -501,7 +514,7 @@ export default function LandingPage() {
 
                       {/* Mini CTA */}
                       <button
-                        onClick={handleGetStarted}
+                        onClick={() => handleGetStarted('how_it_works')}
                         className="text-sm font-semibold transition-all duration-200 flex items-center gap-1 group/btn"
                         style={{ color: step.color }}
                       >
@@ -636,7 +649,10 @@ export default function LandingPage() {
                     className="rounded-2xl border border-[#264171]/8 bg-gradient-to-br from-white to-[#F7F9FF]/50 shadow-sm overflow-hidden transition-all duration-200"
                   >
                     <button
-                      onClick={() => setActiveFaqIndex(isOpen ? null : idx)}
+                      onClick={() => {
+                        handleFaqToggle(faq.question, !isOpen);
+                        setActiveFaqIndex(isOpen ? null : idx);
+                      }}
                       className="w-full flex items-center justify-between p-6 text-left"
                     >
                       <h3 className="text-base font-semibold text-[#0F172A] pr-4">
@@ -689,7 +705,7 @@ export default function LandingPage() {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button
                       type="button"
-                      onClick={handleGetStarted}
+                      onClick={() => handleGetStarted('footer_cta')}
                       data-cta="main"
                       className="group flex w-full items-center justify-center gap-2 rounded-full bg-[hsl(var(--brand-2))] px-6 py-3 sm:px-10 sm:py-4 text-sm sm:text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-[hsl(var(--brand-2))]/90 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/50 sm:w-auto"
                     >
