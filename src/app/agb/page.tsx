@@ -37,22 +37,22 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Diese Allgemeinen Geschäftsbedingungen („AGB") gelten für die Nutzung der Plattform
-                „imvestr" (nachfolgend „Plattform") durch registrierte und nicht registrierte Nutzer
-                (nachfolgend zusammen „Nutzer").
+                (1) Diese Allgemeinen Geschäftsbedingungen (&bdquo;AGB&ldquo;) gelten für die Nutzung der Plattform
+                &bdquo;imvestr&ldquo; (nachfolgend &bdquo;Plattform&ldquo;) durch registrierte und nicht registrierte Nutzer
+                (nachfolgend zusammen &bdquo;Nutzer&ldquo;).
               </p>
               <p>
                 (2) Anbieterin der Plattform ist:
               </p>
               <p className="pl-4">
                 Meike Hüttl<br />
-                handelnd unter „imvestr"<br />
+                handelnd unter &bdquo;imvestr&ldquo;<br />
                 Genter Straße 19<br />
                 50672 Köln<br />
                 E-Mail: info@imvestr.de
               </p>
               <p>
-                (nachfolgend „Anbieterin").
+                (nachfolgend &bdquo;Anbieterin&ldquo;).
               </p>
               <p>
                 (3) Mit der Nutzung der Plattform bzw. der Registrierung erklärt sich der Nutzer mit
@@ -141,7 +141,7 @@ export default function AGBPage() {
             </h2>
             <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
               <p>
-                (1) Der Nutzer kann über die Plattform ein kostenpflichtiges Premium-Abonnement („Premium")
+                (1) Der Nutzer kann über die Plattform ein kostenpflichtiges Premium-Abonnement (&bdquo;Premium&ldquo;)
                 abschließen. Die Laufzeiten (z. B. monatlich oder jährlich) sowie die jeweiligen Preise und
                 Leistungen ergeben sich aus der zum Zeitpunkt des Vertragsschlusses auf der Plattform
                 dargestellten Leistungsbeschreibung.
@@ -225,7 +225,7 @@ export default function AGBPage() {
                 Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit.
               </p>
               <p>
-                (4) Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten („Kardinalpflichten")
+                (4) Bei leicht fahrlässiger Verletzung wesentlicher Vertragspflichten (&bdquo;Kardinalpflichten&ldquo;)
                 ist die Haftung der Anbieterin auf den vertragstypischen, vorhersehbaren Schaden begrenzt.
                 Kardinalpflichten sind solche Pflichten, deren Erfüllung die ordnungsgemäße Durchführung
                 des Vertrags überhaupt erst ermöglicht und auf deren Einhaltung der Nutzer regelmäßig
