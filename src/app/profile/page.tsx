@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import { usePaywall } from '@/contexts/PaywallContext';
@@ -27,33 +27,12 @@ import {
   Save,
 } from 'lucide-react';
 
-export default function ProfilePage() {
-  const router = useRouter();
+// Separate component for handling search params
+function PurchaseTracker() {
   const searchParams = useSearchParams();
-  const { isLoaded, isSignedIn, userId } = useAuth();
-  const { isPremium, premiumUsageCount } = usePaywall();
   const { trackPurchase } = useAnalytics();
-  const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
-  const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
-  const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
-  const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
   const purchaseTracked = useRef(false);
 
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push('/');
-      return;
-    }
-
-    if (isSignedIn) {
-      loadPremiumDetails();
-      // Load analyses
-      const loadedAnalyses = getAllAnalyses(userId);
-      setAnalyses(loadedAnalyses);
-    }
-  }, [isLoaded, isSignedIn, userId, router]);
-
-  // Track purchase event on successful checkout
   useEffect(() => {
     const success = searchParams.get('success');
     const sessionId = searchParams.get('session_id');
@@ -84,6 +63,32 @@ export default function ProfilePage() {
       window.history.replaceState({}, '', cleanUrl);
     }
   }, [searchParams, trackPurchase]);
+
+  return null;
+}
+
+function ProfileContent() {
+  const router = useRouter();
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const { isPremium, premiumUsageCount } = usePaywall();
+  const [premiumUntil, setPremiumUntil] = useState<string | null>(null);
+  const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
+  const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
+  const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/');
+      return;
+    }
+
+    if (isSignedIn) {
+      loadPremiumDetails();
+      // Load analyses
+      const loadedAnalyses = getAllAnalyses(userId);
+      setAnalyses(loadedAnalyses);
+    }
+  }, [isLoaded, isSignedIn, userId, router]);
 
   const loadPremiumDetails = async () => {
     try {
@@ -142,7 +147,11 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--bg))] to-white">
+    <>
+      <Suspense fallback={null}>
+        <PurchaseTracker />
+      </Suspense>
+      <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--bg))] to-white">
       {/* Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -405,5 +414,18 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }

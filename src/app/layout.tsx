@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from '@/components/Providers';
@@ -8,6 +8,10 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
+
+export const viewport: Viewport = {
+  themeColor: '#264171',
+};
 
 export const metadata: Metadata = {
   title: "KI-basierter Immobilien-Renditerechner | ImVestr – Lohnt sich diese Immobilie?",
@@ -71,7 +75,6 @@ export const metadata: Metadata = {
   verification: {
     google: 'UBVnkHXPp98wEw176mPlhACJs8t5v3XkDL1MtyR1E9w', // TODO: Replace with actual verification code from Google Search Console
   },
-  themeColor: '#264171',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
