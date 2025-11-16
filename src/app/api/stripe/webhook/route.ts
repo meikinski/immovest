@@ -161,6 +161,19 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // Continue anyway - this is not critical
   }
 
+  // Update Stripe subscription metadata to link with userId
+  try {
+    await stripe.subscriptions.update(subscriptionId, {
+      metadata: {
+        userId: userId,
+      },
+    });
+    console.log('✅ [WEBHOOK] Updated Stripe subscription metadata with userId');
+  } catch (error) {
+    console.error('⚠️ [WEBHOOK] Error updating subscription metadata:', error);
+    // Continue anyway - this is not critical
+  }
+
   const subscription = await stripe.subscriptions.retrieve(subscriptionId) as StripeSubscriptionExtended;
 
   const currentPeriodEnd = getCurrentPeriodEnd(subscription);
@@ -213,14 +226,10 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
-  const userId = subscription.metadata?.userId;
-  if (!userId) {
-    console.log('[WEBHOOK] No userId in subscription metadata, skipping update');
-    return;
-  }
-
   const supabase = getSupabaseServerClient();
   if (!supabase) return;
+
+  console.log('[WEBHOOK] Handling subscription update:', subscription.id);
 
   const currentPeriodEnd = getCurrentPeriodEnd(subscription);
 
@@ -238,17 +247,41 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 
   const isActive = subscription.status === 'active';
 
-  const { error } = await supabase
+  // Try to update by subscription_id first
+  const { error, data } = await supabase
     .from('user_premium_usage')
     .update({
       is_premium: isActive,
       premium_until: premiumUntil.toISOString(),
       updated_at: new Date().toISOString(),
     })
-    .eq('stripe_subscription_id', subscription.id);
+    .eq('stripe_subscription_id', subscription.id)
+    .select();
 
   if (error) {
     console.error('❌ [WEBHOOK] Error updating subscription:', error);
+  } else if (!data || data.length === 0) {
+    console.warn('⚠️ [WEBHOOK] No rows updated - subscription ID not found in database:', subscription.id);
+
+    // Try to find by customer ID and update
+    const customerId = subscription.customer as string;
+    if (customerId) {
+      const { error: updateError } = await supabase
+        .from('user_premium_usage')
+        .update({
+          is_premium: isActive,
+          premium_until: premiumUntil.toISOString(),
+          stripe_subscription_id: subscription.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('stripe_customer_id', customerId);
+
+      if (updateError) {
+        console.error('❌ [WEBHOOK] Error updating by customer ID:', updateError);
+      } else {
+        console.log('✅ [WEBHOOK] Subscription updated via customer ID fallback');
+      }
+    }
   } else {
     console.log('✅ [WEBHOOK] Subscription updated for user');
   }
