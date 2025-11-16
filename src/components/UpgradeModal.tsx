@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { toast } from 'sonner';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -16,12 +18,16 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
   const [error, setError] = useState<string | null>(null);
   const { userId } = useAuth();
   const { trackUpgradeClick } = useAnalytics();
+  const router = useRouter();
 
   if (!isOpen) return null;
 
   const handleSelectPlan = async (priceId: string, planName: string) => {
     if (!userId) {
-      setError('Bitte melde dich zuerst an');
+      // Redirect to sign-in page
+      toast.info('Bitte melde dich an, um Premium freizuschalten');
+      onClose(); // Close modal first
+      router.push('/sign-in');
       return;
     }
 
