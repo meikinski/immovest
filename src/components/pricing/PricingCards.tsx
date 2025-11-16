@@ -165,7 +165,7 @@ export default function PricingCards({}: PricingCardsProps) {
             key={plan.name}
             className={`relative rounded-2xl border-2 p-8 transition-all hover:shadow-2xl ${
               plan.popular
-                ? 'border-[hsl(var(--brand))] shadow-xl scale-105'
+                ? 'border-[hsl(var(--brand))] shadow-xl md:scale-105'
                 : 'border-gray-200 hover:border-[hsl(var(--brand))]/50'
             }`}
           >
