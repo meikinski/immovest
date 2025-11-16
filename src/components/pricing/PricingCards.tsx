@@ -18,6 +18,38 @@ export default function PricingCards({}: PricingCardsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Carousel state for mobile
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  // Swipe handlers for mobile carousel
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe && activeIndex < plans.length - 1) {
+      setActiveIndex((prev) => prev + 1);
+    } else if (isRightSwipe && activeIndex > 0) {
+      setActiveIndex((prev) => prev - 1);
+    }
+
+    // Reset values
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   // Show message for premium users
   if (isPremium) {
     return (
@@ -158,14 +190,14 @@ export default function PricingCards({}: PricingCardsProps) {
         </div>
       )}
 
-      {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
+      {/* Pricing Cards - Desktop Grid */}
+      <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
         {plans.map((plan) => (
           <div
             key={plan.name}
             className={`relative rounded-2xl border-2 p-8 transition-all hover:shadow-2xl ${
               plan.popular
-                ? 'border-[hsl(var(--brand))] shadow-xl md:scale-105'
+                ? 'border-[hsl(var(--brand))] shadow-xl scale-105'
                 : 'border-gray-200 hover:border-[hsl(var(--brand))]/50'
             }`}
           >
@@ -239,6 +271,118 @@ export default function PricingCards({}: PricingCardsProps) {
 
           </div>
         ))}
+      </div>
+
+      {/* Pricing Cards - Mobile Carousel */}
+      <div className="md:hidden max-w-md mx-auto pt-6">
+        <div
+          className="relative overflow-hidden"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div
+            className="flex transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          >
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className="w-full flex-shrink-0 px-2"
+              >
+                <div
+                  className={`relative rounded-2xl border-2 p-8 ${
+                    plan.popular
+                      ? 'border-[hsl(var(--brand))] shadow-xl'
+                      : 'border-gray-200'
+                  }`}
+                >
+                  {/* Popular Badge */}
+                  {plan.popular && (
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                      <div className="px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
+                        Empfohlen
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Plan Header */}
+                  <div className="mb-6">
+                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
+                      plan.popular
+                        ? 'bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {plan.icon}
+                    </div>
+
+                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <p className="text-gray-600 text-sm">{plan.description}</p>
+
+                    {/* Price */}
+                    <div className="mt-4">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-bold">{plan.price} €</span>
+                        <span className="text-gray-600">/ {plan.period}</span>
+                      </div>
+
+                      {plan.originalPrice && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-gray-500 line-through text-sm">
+                            {plan.originalPrice} €
+                          </span>
+                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                            Spare {plan.savings}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Features */}
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[hsl(var(--success))] flex-shrink-0 mt-0.5" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={() => handleSelectPlan(
+                      plan.priceId,
+                      plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
+                    )}
+                    disabled={isLoading}
+                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-lg'
+                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                    }`}
+                  >
+                    {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {plans.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                idx === activeIndex ? 'w-8 bg-[hsl(var(--brand))]' : 'w-2 bg-gray-300'
+              }`}
+              aria-label={`Zu Plan ${idx + 1}`}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Trust Badges */}
