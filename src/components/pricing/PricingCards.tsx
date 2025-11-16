@@ -168,7 +168,7 @@ export default function PricingCards({}: PricingCardsProps) {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8">
+    <div className="w-full max-w-6xl mx-auto px-4 py-8 overflow-x-hidden">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--brand))]/10 rounded-full text-[hsl(var(--brand))] font-medium text-sm mb-4">
@@ -274,7 +274,7 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden max-w-md mx-auto pt-6">
+      <div className="md:hidden w-full max-w-md mx-auto pt-6 overflow-hidden">
         <div
           className="relative overflow-hidden"
           onTouchStart={handleTouchStart}
