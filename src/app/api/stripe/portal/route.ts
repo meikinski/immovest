@@ -48,10 +48,6 @@ export async function POST(req: Request) {
       // Fallback: Search Stripe for customer by metadata
       console.log('[Portal] Searching Stripe for customer with userId metadata...');
       try {
-        const customers = await stripe.customers.list({
-          limit: 1,
-        });
-
         // Find customer with matching userId in metadata
         let matchingCustomer = null;
         for await (const customer of stripe.customers.list({ limit: 100 })) {
