@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePaywall } from '@/contexts/PaywallContext';
@@ -15,6 +16,7 @@ export default function PricingCards({}: PricingCardsProps) {
   const { userId } = useAuth();
   const { isPremium } = usePaywall();
   const { trackUpgradeClick } = useAnalytics();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -129,7 +131,9 @@ export default function PricingCards({}: PricingCardsProps) {
 
   const handleSelectPlan = async (priceId: string, planName: string) => {
     if (!userId) {
-      toast.error('Bitte melde dich zuerst an');
+      // Redirect to sign-in page with return URL
+      toast.info('Bitte melde dich an, um fortzufahren');
+      router.push('/sign-in?redirect_url=/pricing');
       return;
     }
 
