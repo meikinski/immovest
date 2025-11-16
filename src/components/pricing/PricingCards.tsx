@@ -159,7 +159,7 @@ export default function PricingCards({}: PricingCardsProps) {
       )}
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
         {plans.map((plan) => (
           <div
             key={plan.name}
@@ -252,34 +252,6 @@ export default function PricingCards({}: PricingCardsProps) {
           <span>💳 Alle Zahlungsmethoden</span>
           <span>•</span>
           <span>🇪🇺 DSGVO-konform</span>
-        </div>
-      </div>
-
-      {/* FAQ Preview */}
-      <div className="mt-16 max-w-3xl mx-auto">
-        <h3 className="text-xl font-bold mb-6 text-center">
-          Häufig gestellte Fragen
-        </h3>
-        <div className="space-y-4">
-          {[
-            {
-              q: 'Kann ich jederzeit kündigen?',
-              a: 'Ja, beim Monatsabo kannst du jederzeit zum Ende des Abrechnungszeitraums kündigen. Beim Jahresabo hast du eine 14-tägige Geld-zurück-Garantie.',
-            },
-            {
-              q: 'Welche Zahlungsmethoden werden akzeptiert?',
-              a: 'Wir akzeptieren alle gängigen Kreditkarten (Visa, Mastercard, American Express) sowie SEPA-Lastschrift.',
-            },
-            {
-              q: 'Was passiert nach Ablauf meines Abos?',
-              a: 'Dein Zugang zu Premium-Features wird deaktiviert, aber deine gespeicherten Analysen bleiben erhalten. Du kannst jederzeit wieder upgraden.',
-            },
-          ].map((faq, idx) => (
-            <div key={idx} className="bg-gray-50 rounded-lg p-4">
-              <h4 className="font-semibold mb-2">{faq.q}</h4>
-              <p className="text-sm text-gray-600">{faq.a}</p>
-            </div>
-          ))}
         </div>
       </div>
     </div>

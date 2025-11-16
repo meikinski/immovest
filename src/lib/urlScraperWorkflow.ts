@@ -302,7 +302,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
   ]);
 
   if (!result.finalOutput) {
-    throw new Error('URL Scraping fehlgeschlagen - keine Daten extrahiert');
+    throw new Error('Die URL enthält keine Immobilien-Exposé-Daten. Bitte stelle sicher, dass du einen Link zu einem Immobilienangebot (z.B. von ImmobilienScout24, Immowelt, etc.) eingibst.');
   }
 
   console.log('[URL Scraper] Complete (before validation):', {
@@ -313,6 +313,20 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     maklergebuehr: result.finalOutput.maklergebuehr,
     confidence: result.finalOutput.confidence,
   });
+
+  // Check if we have minimal required data to consider this a valid expose
+  const hasMinimalData = result.finalOutput.kaufpreis &&
+                         result.finalOutput.flaeche &&
+                         result.finalOutput.adresse;
+
+  if (!hasMinimalData) {
+    const missing = [];
+    if (!result.finalOutput.kaufpreis) missing.push('Kaufpreis');
+    if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
+    if (!result.finalOutput.adresse) missing.push('Adresse');
+
+    throw new Error(`Die URL scheint kein vollständiges Immobilien-Exposé zu sein. Fehlende Informationen: ${missing.join(', ')}. Bitte verwende einen direkten Link zu einem Immobilienangebot.`);
+  }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes
   const validatedOutput = validateAndFixOutput(result.finalOutput);
