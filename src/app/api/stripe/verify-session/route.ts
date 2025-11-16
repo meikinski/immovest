@@ -8,6 +8,31 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
 });
 
+// Extended Stripe Subscription type with missing properties
+type StripeSubscriptionExtended = Stripe.Subscription & {
+  current_period_end?: number;
+  items?: {
+    data?: Array<{
+      current_period_end?: number;
+    }>;
+  };
+};
+
+// Helper function to get current_period_end from subscription (same as webhook)
+function getCurrentPeriodEnd(subscription: StripeSubscriptionExtended): number | undefined {
+  // Try top-level first (older API versions)
+  if (subscription.current_period_end) {
+    return subscription.current_period_end;
+  }
+
+  // Try subscription items (newer API versions)
+  if (subscription.items?.data?.[0]?.current_period_end) {
+    return subscription.items.data[0].current_period_end;
+  }
+
+  return undefined;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
@@ -61,10 +86,34 @@ export async function POST(req: NextRequest) {
 
     console.log('[VerifySession] Subscription:', subscriptionId, 'Customer:', customerId);
 
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId) as StripeSubscriptionExtended;
 
-    const currentPeriodEnd = subscription.current_period_end;
+    console.log('[VerifySession] Subscription retrieved:', {
+      id: subscription.id,
+      status: subscription.status,
+      current_period_end: subscription.current_period_end,
+      items_period_end: subscription.items?.data?.[0]?.current_period_end,
+    });
+
+    const currentPeriodEnd = getCurrentPeriodEnd(subscription);
+
+    if (!currentPeriodEnd) {
+      console.error('[VerifySession] No current_period_end found in subscription');
+      return NextResponse.json(
+        { error: 'Subscription hat kein Ablaufdatum' },
+        { status: 500 }
+      );
+    }
+
     const premiumUntil = new Date(currentPeriodEnd * 1000);
+
+    if (isNaN(premiumUntil.getTime())) {
+      console.error('[VerifySession] Invalid date from current_period_end:', currentPeriodEnd);
+      return NextResponse.json(
+        { error: 'Ungültiges Ablaufdatum' },
+        { status: 500 }
+      );
+    }
 
     console.log('[VerifySession] Premium until:', premiumUntil.toISOString());
 
