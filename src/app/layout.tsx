@@ -89,9 +89,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="de" suppressHydrationWarning className="overflow-x-hidden">
       <body
-        className={`${inter.variable} font-sans antialiased`}
+        className={`${inter.variable} font-sans antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
         <GoogleTagManager />
