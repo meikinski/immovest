@@ -92,7 +92,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
           {/* Features - Beide Abos haben die gleichen Features */}
           <div className="mb-6">
             <h3 className="font-semibold text-lg mb-4">Premium Features:</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {[
                 'Unbegrenzte Markt- & Lageanalysen',
                 'KI-gestützte Investitionsempfehlungen',
