@@ -35,6 +35,13 @@ function PurchaseTracker() {
   const purchaseTracked = useRef(false);
   const [retryCount, setRetryCount] = useState(0);
 
+  // Store the success params so we can use them even after URL cleanup
+  const successRef = useRef<{ success: boolean; sessionId: string | null; plan: string | null }>({
+    success: false,
+    sessionId: null,
+    plan: null,
+  });
+
   useEffect(() => {
     const success = searchParams.get('success');
     const sessionId = searchParams.get('session_id');
@@ -42,6 +49,9 @@ function PurchaseTracker() {
 
     if (success === 'true' && sessionId && plan && !purchaseTracked.current) {
       purchaseTracked.current = true;
+
+      // Store in ref for polling
+      successRef.current = { success: true, sessionId, plan };
 
       // Determine purchase value based on plan
       const value = plan === 'yearly' ? 69 : 13.99;
@@ -59,36 +69,43 @@ function PurchaseTracker() {
 
       // Show initial loading message
       toast.loading('Aktiviere Premium-Zugang...', { id: 'premium-activation' });
-
-      // Clean up URL parameters after tracking
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, '', cleanUrl);
     }
-  }, [searchParams, trackPurchase, refreshPremiumStatus]);
+  }, [searchParams, trackPurchase]);
 
   // Poll for premium status after purchase
   useEffect(() => {
-    const success = searchParams.get('success');
-    const sessionId = searchParams.get('session_id');
+    if (successRef.current.success && successRef.current.sessionId && !isPremium && retryCount < 15) {
+      // First check is immediate, subsequent checks have delay
+      const delay = retryCount === 0 ? 0 : 2000;
 
-    if (success === 'true' && sessionId && !isPremium && retryCount < 10) {
       const timer = setTimeout(async () => {
-        console.log(`[PurchaseTracker] Checking premium status (attempt ${retryCount + 1}/10)`);
+        console.log(`[PurchaseTracker] Checking premium status (attempt ${retryCount + 1}/15)`);
         await refreshPremiumStatus();
         setRetryCount(prev => prev + 1);
-      }, 2000); // Check every 2 seconds
+      }, delay);
 
       return () => clearTimeout(timer);
-    } else if (isPremium && retryCount > 0) {
+    } else if (isPremium && retryCount > 0 && successRef.current.success) {
       // Premium status confirmed!
       toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.', { id: 'premium-activation' });
       console.log('[PurchaseTracker] Premium status confirmed after', retryCount, 'retries');
-    } else if (retryCount >= 10 && !isPremium) {
+
+      // Clear URL parameters after success
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+
+      // Clear ref
+      successRef.current = { success: false, sessionId: null, plan: null };
+    } else if (retryCount >= 15 && !isPremium && successRef.current.success) {
       // Failed to get premium status after retries
-      toast.error('Premium-Status konnte nicht geladen werden. Bitte lade die Seite neu.', { id: 'premium-activation' });
-      console.error('[PurchaseTracker] Failed to get premium status after 10 retries');
+      toast.error('Premium-Status konnte nicht geladen werden. Bitte lade die Seite neu oder kontaktiere den Support.', { id: 'premium-activation' });
+      console.error('[PurchaseTracker] Failed to get premium status after 15 retries');
+
+      // Clear URL parameters even on failure
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
     }
-  }, [searchParams, isPremium, retryCount, refreshPremiumStatus]);
+  }, [isPremium, retryCount, refreshPremiumStatus]);
 
   return null;
 }
