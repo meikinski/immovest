@@ -433,7 +433,7 @@ const dscr =
           ek,
           zins,
           tilgung,
-          
+
           // ⚡ NEU: Berechnete KPIs mitschicken
           cashflowVorSteuer,
           cashflowNachSteuern: cashflowAfterTax,
@@ -445,10 +445,6 @@ const dscr =
         }),
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
-      }
-
       const data = await res.json() as {
         analyse: {
           lage: { html: string };
@@ -457,7 +453,14 @@ const dscr =
           facts: unknown;
         };
         invest: { html: string };
+        error?: boolean;
+        message?: string;
       };
+
+      if (!res.ok || data.error) {
+        const errorMsg = data.message || `HTTP ${res.status}`;
+        throw new Error(errorMsg);
+      }
       setLageComment(data.analyse?.lage?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige Lagehinweise vor.</p>');
       setMietpreisComment(data.analyse?.miete?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Mietdaten vor.</p>');
       setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
@@ -475,10 +478,19 @@ const dscr =
       marktFetched.current = true;
     } catch (e) {
       console.error('Markt/Agent laden fehlgeschlagen', e);
-      setLageComment('<p>Leider kein Ergebnis vom Agenten.</p>');
-      setMietpreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
-      setQmPreisComment('<p>Leider kein Ergebnis vom Agenten.</p>');
-      setInvestComment('<p>Leider kein Ergebnis vom Agenten.</p>');
+
+      // Extract error message to show user why the agent failed
+      const errorMessage = e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten';
+      const errorHtml = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p class="font-semibold text-red-800 mb-2">⚠️ Analyse fehlgeschlagen</p>
+        <p class="text-red-700 text-sm">${errorMessage}</p>
+        <p class="text-red-600 text-xs mt-2">Bitte überprüfe deine Eingaben und versuche es erneut.</p>
+      </div>`;
+
+      setLageComment(errorHtml);
+      setMietpreisComment('<p>Analyse nicht verfügbar.</p>');
+      setQmPreisComment('<p>Analyse nicht verfügbar.</p>');
+      setInvestComment('<p>Analyse nicht verfügbar.</p>');
       // Don't set marktFetched on error - allow retry
     } finally {
       setLoadingDetails(false);
