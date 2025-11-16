@@ -83,6 +83,34 @@ function PurchaseTracker() {
       const timer = setTimeout(async () => {
         console.log(`[PurchaseTracker] 🔄 Checking premium status (attempt ${retryCount + 1}/15)`);
         console.log('[PurchaseTracker] Session ID:', successRef.current.sessionId);
+
+        // After 5 failed attempts, try manual verification
+        if (retryCount >= 5 && successRef.current.sessionId) {
+          console.log('[PurchaseTracker] 🔧 Attempting manual session verification...');
+          try {
+            const verifyResponse = await fetch('/api/stripe/verify-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sessionId: successRef.current.sessionId }),
+            });
+
+            if (verifyResponse.ok) {
+              const verifyData = await verifyResponse.json();
+              console.log('[PurchaseTracker] Manual verification result:', verifyData);
+
+              if (verifyData.success && verifyData.isPremium) {
+                console.log('[PurchaseTracker] ✅ Manual verification successful!');
+                // Force refresh premium status
+                await refreshPremiumStatus();
+                setRetryCount(prev => prev + 1);
+                return; // Exit early, let next cycle check isPremium
+              }
+            }
+          } catch (err) {
+            console.error('[PurchaseTracker] Manual verification error:', err);
+          }
+        }
+
         await refreshPremiumStatus();
         setRetryCount(prev => prev + 1);
       }, delay);
