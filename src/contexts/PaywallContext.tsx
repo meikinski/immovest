@@ -33,10 +33,12 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      console.log('[PaywallContext] Checking premium status for user:', userId);
       // Try to fetch from API/Supabase
       const response = await fetch('/api/premium/status');
       if (response.ok) {
         const data = await response.json();
+        console.log('[PaywallContext] Premium status response:', data);
         setIsPremium(data.isPremium || false);
         setPremiumUsageCount(data.usageCount || 0);
 
@@ -44,6 +46,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(`is_premium_${userId}`, data.isPremium ? 'true' : 'false');
         localStorage.setItem(`premium_usage_${userId}`, (data.usageCount || 0).toString());
       } else {
+        console.warn('[PaywallContext] API request failed, falling back to localStorage');
         // Fallback to localStorage
         const storedPremium = localStorage.getItem(`is_premium_${userId}`);
         const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
@@ -52,7 +55,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
         setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
       }
     } catch (error) {
-      console.error('Error checking premium status:', error);
+      console.error('[PaywallContext] Error checking premium status:', error);
       // Fallback to localStorage
       const storedPremium = localStorage.getItem(`is_premium_${userId}`);
       const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
