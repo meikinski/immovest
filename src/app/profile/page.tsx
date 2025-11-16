@@ -31,8 +31,9 @@ import {
 function PurchaseTracker() {
   const searchParams = useSearchParams();
   const { trackPurchase } = useAnalytics();
-  const { refreshPremiumStatus } = usePaywall();
+  const { refreshPremiumStatus, isPremium } = usePaywall();
   const purchaseTracked = useRef(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const success = searchParams.get('success');
@@ -56,17 +57,38 @@ function PurchaseTracker() {
         },
       ]);
 
-      // Refresh premium status immediately to ensure UI is up to date
-      refreshPremiumStatus().then(() => {
-        // Show success message after status is refreshed
-        toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.');
-      });
+      // Show initial loading message
+      toast.loading('Aktiviere Premium-Zugang...', { id: 'premium-activation' });
 
       // Clean up URL parameters after tracking
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, '', cleanUrl);
     }
   }, [searchParams, trackPurchase, refreshPremiumStatus]);
+
+  // Poll for premium status after purchase
+  useEffect(() => {
+    const success = searchParams.get('success');
+    const sessionId = searchParams.get('session_id');
+
+    if (success === 'true' && sessionId && !isPremium && retryCount < 10) {
+      const timer = setTimeout(async () => {
+        console.log(`[PurchaseTracker] Checking premium status (attempt ${retryCount + 1}/10)`);
+        await refreshPremiumStatus();
+        setRetryCount(prev => prev + 1);
+      }, 2000); // Check every 2 seconds
+
+      return () => clearTimeout(timer);
+    } else if (isPremium && retryCount > 0) {
+      // Premium status confirmed!
+      toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.', { id: 'premium-activation' });
+      console.log('[PurchaseTracker] Premium status confirmed after', retryCount, 'retries');
+    } else if (retryCount >= 10 && !isPremium) {
+      // Failed to get premium status after retries
+      toast.error('Premium-Status konnte nicht geladen werden. Bitte lade die Seite neu.', { id: 'premium-activation' });
+      console.error('[PurchaseTracker] Failed to get premium status after 10 retries');
+    }
+  }, [searchParams, isPremium, retryCount, refreshPremiumStatus]);
 
   return null;
 }
