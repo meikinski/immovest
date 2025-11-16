@@ -74,21 +74,24 @@ function PurchaseTracker() {
 
   // Poll for premium status after purchase
   useEffect(() => {
+    console.log('[PurchaseTracker] Effect triggered - isPremium:', isPremium, 'retryCount:', retryCount, 'hasSuccess:', successRef.current.success);
+
     if (successRef.current.success && successRef.current.sessionId && !isPremium && retryCount < 15) {
       // First check is immediate, subsequent checks have delay
       const delay = retryCount === 0 ? 0 : 2000;
 
       const timer = setTimeout(async () => {
-        console.log(`[PurchaseTracker] Checking premium status (attempt ${retryCount + 1}/15)`);
+        console.log(`[PurchaseTracker] 🔄 Checking premium status (attempt ${retryCount + 1}/15)`);
+        console.log('[PurchaseTracker] Session ID:', successRef.current.sessionId);
         await refreshPremiumStatus();
         setRetryCount(prev => prev + 1);
       }, delay);
 
       return () => clearTimeout(timer);
-    } else if (isPremium && retryCount > 0 && successRef.current.success) {
+    } else if (isPremium && successRef.current.success) {
       // Premium status confirmed!
       toast.success('Zahlung erfolgreich! Dein Premium-Zugang wurde aktiviert.', { id: 'premium-activation' });
-      console.log('[PurchaseTracker] Premium status confirmed after', retryCount, 'retries');
+      console.log('[PurchaseTracker] ✅ Premium status confirmed after', retryCount, 'attempts');
 
       // Clear URL parameters after success
       const cleanUrl = window.location.pathname;
@@ -98,8 +101,13 @@ function PurchaseTracker() {
       successRef.current = { success: false, sessionId: null, plan: null };
     } else if (retryCount >= 15 && !isPremium && successRef.current.success) {
       // Failed to get premium status after retries
-      toast.error('Premium-Status konnte nicht geladen werden. Bitte lade die Seite neu oder kontaktiere den Support.', { id: 'premium-activation' });
-      console.error('[PurchaseTracker] Failed to get premium status after 15 retries');
+      console.error('[PurchaseTracker] ❌ Failed after 15 retries');
+      console.error('[PurchaseTracker] Session ID:', successRef.current.sessionId);
+
+      toast.error('Premium-Aktivierung verzögert. Die Zahlung war erfolgreich, aber die Aktivierung dauert länger. Bitte lade die Seite in 1-2 Minuten neu.', {
+        id: 'premium-activation',
+        duration: 10000
+      });
 
       // Clear URL parameters even on failure
       const cleanUrl = window.location.pathname;
