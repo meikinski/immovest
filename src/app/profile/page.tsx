@@ -155,6 +155,20 @@ function ProfileContent() {
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
   const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
 
+  const loadPremiumDetails = async () => {
+    try {
+      console.log('[ProfileContent] Loading premium details...');
+      const response = await fetch('/api/premium/status');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[ProfileContent] Premium details:', data);
+        setPremiumUntil(data.premiumUntil);
+      }
+    } catch (error) {
+      console.error('[ProfileContent] Error loading premium details:', error);
+    }
+  };
+
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
       router.push('/');
@@ -167,19 +181,7 @@ function ProfileContent() {
       const loadedAnalyses = getAllAnalyses(userId);
       setAnalyses(loadedAnalyses);
     }
-  }, [isLoaded, isSignedIn, userId, router]);
-
-  const loadPremiumDetails = async () => {
-    try {
-      const response = await fetch('/api/premium/status');
-      if (response.ok) {
-        const data = await response.json();
-        setPremiumUntil(data.premiumUntil);
-      }
-    } catch (error) {
-      console.error('Error loading premium details:', error);
-    }
-  };
+  }, [isLoaded, isSignedIn, userId, isPremium]);
 
   const handleManageSubscription = async () => {
     try {
