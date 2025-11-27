@@ -320,8 +320,14 @@ const dscr =
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
+      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
+      if (objekttyp === 'mfh') {
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
+        if (anzahlWohneinheiten > 50) missing.push('Anzahl Wohneinheiten (max. 50)');
+      } else {
+        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+        if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
+      }
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
       if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
       if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
@@ -331,8 +337,12 @@ const dscr =
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
+      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
+      if (objekttyp === 'mfh') {
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
+      } else {
+        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      }
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
       if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
       if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
@@ -343,8 +353,12 @@ const dscr =
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
+      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
+      if (objekttyp === 'mfh') {
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
+      } else {
+        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      }
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
       if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
       if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
@@ -992,24 +1006,6 @@ const exportPdf = React.useCallback(async () => {
   </div>
 </div>
 
-        {/* Anzahl Wohneinheiten (nur für MFH) */}
-        {objekttyp === 'mfh' && (
-          <div className="card">
-            <div className="mb-2 text-lg font-semibold flex items-center">
-              <span>Anzahl Wohneinheiten</span>
-              <span className="ml-2"><House /></span>
-            </div>
-            <InputField
-              label=""
-              type="text"
-              value={anzahlWohneinheiten.toString()}
-              onValueChange={v => setAnzahlWohneinheiten(Number(v))}
-              className="input-uniform input-editable"
-            />
-            <p className="text-xs text-gray-500 mt-1">Anzahl der vermietbaren Wohnungen im Mehrfamilienhaus.</p>
-          </div>
-        )}
-
         {/* Adresse */}
         <div className="card">
           <div className="mb-2 text-lg font-semibold flex items-center">
@@ -1022,26 +1018,39 @@ const exportPdf = React.useCallback(async () => {
           />
         </div>
 
-        {/* Zimmer & Fläche */}
+        {/* Zimmer (ETW/Haus) oder Anzahl Wohneinheiten (MFH) & Fläche */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <div className='card'>
               <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>Zimmer</span><span className="ml-2"><BedSingle /></span>
+                <span>{objekttyp === 'mfh' ? 'Anzahl Wohneinheiten' : 'Zimmer'}</span>
+                <span className="ml-2">{objekttyp === 'mfh' ? <House /> : <BedSingle />}</span>
               </div>
               <InputField
                 label=""
                 type="text"
-                value={zimmer.toString()}
-                onValueChange={v => setZimmer(Number(v))}
+                value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
+                onValueChange={v => objekttyp === 'mfh'
+                  ? setAnzahlWohneinheiten(Number(v))
+                  : setZimmer(Number(v))
+                }
                 className="input-uniform input-editable"
               />
+              {objekttyp === 'mfh' && (
+                <p className="text-xs text-gray-500 mt-1">Anzahl vermietbarer Wohnungen</p>
+              )}
             </div>
           </div>
           <div>
             <div className='card'>
               <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>Fläche</span><span className="ml-2"><Ruler /></span>
+                <span>{objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}</span>
+                <span className="ml-2"><Ruler /></span>
+                {objekttyp === 'mfh' && (
+                  <Tooltip text="Gesamtwohnfläche aller Wohneinheiten zusammen">
+                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                  </Tooltip>
+                )}
               </div>
               <div
                 onBlur={() => {
