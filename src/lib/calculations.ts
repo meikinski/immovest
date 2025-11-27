@@ -31,9 +31,16 @@ export function berechneCashflowOperativ(
     tilgung: number,
     steuer: number,
     afa: number,
-    ruecklagen: number
+    ruecklagen: number,
+    objekttyp?: 'wohnung' | 'haus' | 'mfh',
+    verwaltungskosten?: number
   ): number {
-    const betriebskosten = hausgeld_umlegbar + (hausgeld - hausgeld_umlegbar);
+    // Bei ETW: hausgeld = WEG-Kosten
+    // Bei Haus/MFH: hausgeld = 0, verwaltungskosten separat
+    const betriebskosten = objekttyp === 'wohnung'
+      ? hausgeld_umlegbar + (hausgeld - hausgeld_umlegbar)
+      : (verwaltungskosten || 0);
+
     const mietausfall = (mietausfall_pct / 100) * (miete + hausgeld_umlegbar);
     const instandhaltung = (instandhaltungskosten_pro_qm * (/* qm aus Store holen oder übergeben */ 1)) / 12;
     const zinsRaten = ((kaufpreis - ek) * (zins / 100 + tilgung / 100)) / 12;
@@ -50,9 +57,15 @@ export function berechneCashflowOperativ(
     kaufpreis: number,
     grunderwerbsteuer_pct: number,
     notar_pct: number,
-    makler_pct: number
+    makler_pct: number,
+    objekttyp?: 'wohnung' | 'haus' | 'mfh',
+    verwaltungskosten?: number
   ): number {
-    const nichtUmlage = hausgeld - hausgeld_umlegbar;
+    // Bei ETW: nicht umlagefähiges Hausgeld
+    // Bei Haus/MFH: Verwaltungskosten
+    const nichtUmlage = objekttyp === 'wohnung'
+      ? hausgeld - hausgeld_umlegbar
+      : (verwaltungskosten || 0);
     const jahresNetto = (miete * 12) - (nichtUmlage * 12);
     const kaufneben = berechneNebenkosten(kaufpreis, grunderwerbsteuer_pct, notar_pct, makler_pct).nk;
     const investition = kaufpreis + kaufneben;

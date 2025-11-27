@@ -13,12 +13,13 @@ const ImmobilienDataSchema = z.object({
   zimmer: z.number().nullable(),
   baujahr: z.number().nullable(),
   adresse: z.string().nullable(),
-  miete: z.number().nullable(), // Monatliche Kaltmiete
-  hausgeld: z.number().nullable(), // Gesamt-Hausgeld
-  hausgeld_umlegbar: z.number().nullable(), // Umlegbarer Anteil
-  hausgeld_nicht_umlegbar: z.number().nullable(), // Nicht umlegbarer Anteil
+  miete: z.number().nullable(), // Monatliche Kaltmiete (bei MFH: Summe aller Einheiten)
+  hausgeld: z.number().nullable(), // Gesamt-Hausgeld (nur bei ETW)
+  hausgeld_umlegbar: z.number().nullable(), // Umlegbarer Anteil (bei ETW) oder Nebenkosten umlagbar (bei Haus/MFH)
+  hausgeld_nicht_umlegbar: z.number().nullable(), // Nicht umlegbarer Anteil (bei ETW) oder Verwaltungskosten (bei Haus/MFH)
   maklergebuehr: z.number().nullable(), // Maklergebühr in Prozent (z.B. 3.57 für 3,57%)
-  objekttyp: z.enum(['wohnung', 'haus']).nullable(),
+  objekttyp: z.enum(['wohnung', 'haus', 'mfh']).nullable(),
+  anzahl_wohneinheiten: z.number().nullable(), // Anzahl Wohneinheiten (nur bei MFH)
   confidence: z.enum(['niedrig', 'mittel', 'hoch']),
   notes: z.string().nullable(),
   warnings: z.array(z.string()), // Warnungen für User - immer Array (auch wenn leer)
@@ -199,8 +200,15 @@ DATEN EXTRAHIEREN:
 
 9) OBJEKTTYP:
    - "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
-   - "Haus", "EFH", "MFH" → objekttyp = "haus"
+   - "Mehrfamilienhaus", "MFH", "Renditeobjekt", "Zinshaus" → objekttyp = "mfh"
+   - "Haus", "EFH", "Einfamilienhaus" → objekttyp = "haus"
    - Standard: "wohnung"
+
+10) ANZAHL WOHNEINHEITEN (nur bei MFH):
+   - Nur bei objekttyp = "mfh"
+   - Suche: "Anzahl Wohneinheiten", "X Wohnungen", "X Einheiten"
+   - Beispiel: "5 Wohneinheiten" → anzahl_wohneinheiten = 5
+   - Falls nicht gefunden → anzahl_wohneinheiten = null
 
 OUTPUT-QUALITÄT:
 

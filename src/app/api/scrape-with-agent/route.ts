@@ -5,13 +5,22 @@ import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 /**
  * Normalisiert objekttyp auf erlaubte Werte (safety layer)
  */
-function normalizeObjekttyp(rawTyp: string | null | undefined): 'wohnung' | 'haus' {
+function normalizeObjekttyp(rawTyp: string | null | undefined): 'wohnung' | 'haus' | 'mfh' {
   if (!rawTyp) return 'wohnung';
 
   const normalized = rawTyp.toLowerCase().trim();
 
-  // Haus variants
-  if (normalized.includes('haus') || normalized.includes('efh') || normalized.includes('mfh')) {
+  // MFH variants (check first, more specific)
+  if (normalized.includes('mfh') ||
+      normalized.includes('mehrfamilienhaus') ||
+      normalized.includes('mehrfamilien') ||
+      normalized.includes('renditeobjekt') ||
+      normalized.includes('zinshaus')) {
+    return 'mfh';
+  }
+
+  // Haus variants (EFH)
+  if (normalized.includes('haus') || normalized.includes('efh') || normalized.includes('einfamilienhaus')) {
     return 'haus';
   }
 
@@ -50,6 +59,11 @@ export async function POST(req: NextRequest) {
       hausgeld_nicht_umlegbar: result.hausgeld_nicht_umlegbar ||
         ((result.hausgeld || 0) - (result.hausgeld_umlegbar || 0)),
       objekttyp: normalizeObjekttyp(result.objekttyp),
+      anzahl_wohneinheiten: result.anzahl_wohneinheiten || 0,
+      // Bei Haus/MFH: hausgeld_nicht_umlegbar wird als verwaltungskosten interpretiert
+      verwaltungskosten: (normalizeObjekttyp(result.objekttyp) !== 'wohnung')
+        ? (result.hausgeld_nicht_umlegbar || 0)
+        : 0,
       _meta: {
         confidence: result.confidence,
         notes: result.notes,
