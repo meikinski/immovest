@@ -282,6 +282,55 @@ const dscr =
     s.cashflow_operativ > 0 ? s.ek / (s.cashflow_operativ * 12) : Infinity
   );*/
 
+  // Validation function for required fields
+  const validateStep = (currentStep: string): { isValid: boolean; missingFields: string[] } => {
+    const missing: string[] = [];
+
+    if (currentStep === 'a') {
+      // Step A validation
+      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
+      if (!adresse || adresse.trim() === '') missing.push('Adresse');
+      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+    } else if (currentStep === 'b') {
+      // Step B validation - ensure Step A is complete first
+      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
+      if (!adresse || adresse.trim() === '') missing.push('Adresse');
+      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+      if (!miete || miete <= 0) missing.push('Kaltmiete');
+    } else if (currentStep === 'c') {
+      // Step C validation - ensure all previous steps are complete
+      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
+      if (!adresse || adresse.trim() === '') missing.push('Adresse');
+      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+      if (!miete || miete <= 0) missing.push('Kaltmiete');
+      if (ek === null || ek === undefined) missing.push('Eigenkapital');
+      if (zins === null || zins === undefined || zins < 0) missing.push('Zinssatz');
+      if (tilgung === null || tilgung === undefined || tilgung < 0) missing.push('Tilgungssatz');
+    }
+
+    return { isValid: missing.length === 0, missingFields: missing };
+  };
+
+  const handleNavigateToNextStep = () => {
+    const validation = validateStep(step);
+
+    if (!validation.isValid) {
+      toast.error('Bitte fülle alle Pflichtfelder aus', {
+        description: `Fehlende Felder: ${validation.missingFields.join(', ')}`,
+        duration: 4000,
+      });
+      return;
+    }
+
+    router.push(`/step/${nextStep}`);
+  };
+
   // Bei Wechsel in die Tabs einmalig Derived erzwingen (ersetzt "result")
   useEffect(() => {
     if (step === 'tabs') updateDerived();
@@ -961,7 +1010,7 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Weiter Button */}
         <button
-          onClick={() => router.push(`/step/${nextStep}`)}
+          onClick={handleNavigateToNextStep}
           className="w-full btn-primary flex justify-center space-x-2"
         >
           Weiter <SkipForward className='ml-2' />
@@ -1192,7 +1241,7 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Weiter Button */}
         <button
-          onClick={() => router.push(`/step/${nextStep}`)}
+          onClick={handleNavigateToNextStep}
           className="w-full btn-primary flex items-center justify-center space-x-2"
         >
           Weiter <SkipForward className='ml-2' />
@@ -1342,7 +1391,7 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Berechnen-Button */}
         <button
-          onClick={() => router.push(`/step/${nextStep}`)}
+          onClick={handleNavigateToNextStep}
           className="w-full w-full btn-primary flex items-center justify-center space-x-2"
         >
           Berechnen
