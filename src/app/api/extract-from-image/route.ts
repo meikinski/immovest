@@ -15,7 +15,9 @@ type ExtractedData = {
   hausgeld?: number;
   hausgeld_umlegbar?: number;
   hausgeld_nicht_umlegbar?: number;
-  objekttyp?: 'wohnung' | 'haus';
+  objekttyp?: 'wohnung' | 'haus' | 'mfh';
+  anzahl_wohneinheiten?: number;
+  verwaltungskosten?: number;
 };
 
 export async function POST(req: NextRequest) {
@@ -60,23 +62,34 @@ export async function POST(req: NextRequest) {
 - Anzahl Zimmer (nur Zahl, z.B. 3.5)
 - Baujahr (nur Jahreszahl)
 - Adresse (vollständig mit PLZ und Ort)
-- Kaltmiete falls angegeben (in €/Monat, nur Zahl)
-- Hausgeld/Nebenkosten (in €/Monat, nur Zahl) - manchmal auch als "NK" oder "Nebenkosten" bezeichnet
-- Objekttyp (nur "wohnung" oder "haus")
+- Kaltmiete falls angegeben (in €/Monat, nur Zahl) - bei MFH die Gesamtmiete aller Einheiten
+- Hausgeld/Nebenkosten (in €/Monat, nur Zahl) - nur bei Eigentumswohnungen
+- Objekttyp: "wohnung" (Eigentumswohnung), "haus" (Einfamilienhaus), oder "mfh" (Mehrfamilienhaus)
+- Anzahl Wohneinheiten - nur bei MFH
+
+OBJEKTTYP-ERKENNUNG:
+- "Wohnung", "ETW", "Eigentumswohnung" → objekttyp = "wohnung"
+- "Mehrfamilienhaus", "MFH", "Renditeobjekt", "Zinshaus" → objekttyp = "mfh"
+- "Einfamilienhaus", "EFH", "Haus" → objekttyp = "haus"
 
 WICHTIG: Achte darauf, Kaltmiete und Hausgeld nicht zu verwechseln!
 - Kaltmiete ist normalerweise der größere Wert
 - Hausgeld/Nebenkosten ist normalerweise der kleinere Wert
+- Bei Haus/MFH gibt es oft KEIN Hausgeld
 
-HAUSGELD - Suche nach Aufteilung:
+HAUSGELD (nur bei Eigentumswohnungen):
 - Falls eine Aufteilung in "umlegbar"/"nicht umlegbar" sichtbar ist:
   → Extrahiere "hausgeld_umlegbar" und "hausgeld_nicht_umlegbar" separat
 - Falls nur Gesamt-Hausgeld sichtbar ist:
   → Extrahiere nur "hausgeld" (die Aufteilung wird automatisch berechnet)
 
+MEHRFAMILIENHAUS (MFH):
+- Extrahiere "anzahl_wohneinheiten" falls sichtbar (z.B. "5 Wohneinheiten")
+- Die Miete sollte die Gesamtmiete aller Einheiten sein
+
 Antworte NUR mit einem JSON-Objekt. Beispiele:
 
-Wenn Split sichtbar:
+Eigentumswohnung:
 {
   "kaufpreis": 350000,
   "flaeche": 85.5,
@@ -90,16 +103,15 @@ Wenn Split sichtbar:
   "objekttyp": "wohnung"
 }
 
-Wenn nur Gesamt-Hausgeld sichtbar:
+Mehrfamilienhaus:
 {
-  "kaufpreis": 350000,
-  "flaeche": 85.5,
-  "zimmer": 3.5,
-  "baujahr": 2015,
-  "adresse": "Musterstraße 10, 10115 Berlin",
-  "miete": 1200,
-  "hausgeld": 250,
-  "objekttyp": "wohnung"
+  "kaufpreis": 850000,
+  "flaeche": 420,
+  "baujahr": 1995,
+  "adresse": "Hauptstraße 5, 50667 Köln",
+  "miete": 4800,
+  "anzahl_wohneinheiten": 6,
+  "objekttyp": "mfh"
 }
 
 Wenn ein Wert nicht gefunden wird, lasse ihn weg. Antworte NUR mit dem JSON, keine zusätzlichen Erklärungen.`,

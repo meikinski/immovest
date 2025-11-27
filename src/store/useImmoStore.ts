@@ -19,7 +19,7 @@ export interface ImmoState {
 
   // Input fields
   kaufpreis: number;
-  objekttyp: 'wohnung' | 'haus';
+  objekttyp: 'wohnung' | 'haus' | 'mfh';
   grunderwerbsteuer_pct: number;
   notar_pct: number;
   makler_pct: number;
@@ -32,6 +32,10 @@ export interface ImmoState {
   hausgeld: number;
   hausgeld_umlegbar: number;
   mietausfall_pct: number;
+
+  // MFH-specific fields
+  anzahl_wohneinheiten: number;
+  verwaltungskosten: number;
   instandhaltungskosten_pro_qm: number;
   steuer: number;
   afa: number;
@@ -57,7 +61,7 @@ export interface ImmoState {
   exportState: () => Record<string, unknown>;
 
   setKaufpreis: (v: number) => void;
-  setObjekttyp: (v: 'wohnung' | 'haus') => void;
+  setObjekttyp: (v: 'wohnung' | 'haus' | 'mfh') => void;
   setGrunderwerbsteuerPct: (v: number) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
@@ -79,6 +83,8 @@ export interface ImmoState {
   setZins: (v: number) => void;
   setTilgung: (v: number) => void;
   setGeneratedComment: (v: string) => void;
+  setAnzahlWohneinheiten: (v: number) => void;
+  setVerwaltungskosten: (v: number) => void;
   importData: (data: Partial<ImmoState>) => void;
 }
 
@@ -107,6 +113,8 @@ const initialState = {
   hausgeld: 0,
   hausgeld_umlegbar: 0,
   mietausfall_pct: 0,
+  anzahl_wohneinheiten: 0,
+  verwaltungskosten: 0,
   instandhaltungskosten_pro_qm: 0,
   steuer: 0,
   afa: 2,
@@ -141,7 +149,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       s.tilgung,
       s.steuer,
       s.afa,
-      s.ruecklagen
+      s.ruecklagen,
+      s.objekttyp,
+      s.verwaltungskosten
     );
     const nr = berechneNettomietrendite(
       s.miete,
@@ -150,7 +160,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       s.kaufpreis,
       s.grunderwerbsteuer_pct,
       s.notar_pct,
-      s.makler_pct
+      s.makler_pct,
+      s.objekttyp,
+      s.verwaltungskosten
     );
 
     const darlehensSumme = s.kaufpreis - s.ek;
@@ -167,8 +179,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set({ kaufpreis: v, generatedComment: '' });
     get().updateDerived();
   },
-  setObjekttyp: (v: 'wohnung' | 'haus') => {
+  setObjekttyp: (v: 'wohnung' | 'haus' | 'mfh') => {
     set({ objekttyp: v, generatedComment: '' });
+    get().updateDerived();
   },
   setGrunderwerbsteuerPct: (v: number) => {
     set({ grunderwerbsteuer_pct: v, generatedComment: '' });
@@ -253,6 +266,14 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setGeneratedComment: (v: string) => {
     set({ generatedComment: v });
   },
+  setAnzahlWohneinheiten: (v: number) => {
+    set({ anzahl_wohneinheiten: v, generatedComment: '' });
+    get().updateDerived();
+  },
+  setVerwaltungskosten: (v: number) => {
+    set({ verwaltungskosten: v, generatedComment: '' });
+    get().updateDerived();
+  },
   importData: (data) => {
     set(data);
     get().updateDerived();
@@ -293,6 +314,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       createdAt: state.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       kaufpreis: state.kaufpreis,
+      objekttyp: state.objekttyp,
       grunderwerbsteuer_pct: state.grunderwerbsteuer_pct,
       notar_pct: state.notar_pct,
       makler_pct: state.makler_pct,
@@ -304,6 +326,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       hausgeld: state.hausgeld,
       hausgeld_umlegbar: state.hausgeld_umlegbar,
       mietausfall_pct: state.mietausfall_pct,
+      anzahl_wohneinheiten: state.anzahl_wohneinheiten,
+      verwaltungskosten: state.verwaltungskosten,
       instandhaltungskosten_pro_qm: state.instandhaltungskosten_pro_qm,
       steuer: state.steuer,
       afa: state.afa,

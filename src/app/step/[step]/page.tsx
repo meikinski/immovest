@@ -85,7 +85,8 @@ export default function StepPage() {
   const baujahr     = useImmoStore(s => s.baujahr);
   const setBaujahr  = useImmoStore(s => s.setBaujahr);
 
-  const [objekttyp, setObjekttyp] = useState<'wohnung' | 'haus'>('wohnung');
+  const objekttyp = useImmoStore(s => s.objekttyp);
+  const setObjekttyp = useImmoStore(s => s.setObjekttyp);
 
   const grEStPct    = useImmoStore(s => s.grunderwerbsteuer_pct);
   const grunderwerbsteuer_pct   = useImmoStore(s => s.grunderwerbsteuer_pct);
@@ -109,6 +110,12 @@ export default function StepPage() {
 
   const hausgeld_umlegbar     = useImmoStore(s => s.hausgeld_umlegbar);
   const setHausgeldUmlegbar = useImmoStore(s => s.setHausgeldUmlegbar);
+
+  const anzahlWohneinheiten = useImmoStore(s => s.anzahl_wohneinheiten);
+  const setAnzahlWohneinheiten = useImmoStore(s => s.setAnzahlWohneinheiten);
+
+  const verwaltungskosten = useImmoStore(s => s.verwaltungskosten);
+  const setVerwaltungskosten = useImmoStore(s => s.setVerwaltungskosten);
 
   const instandhaltungskostenProQm = useImmoStore(s => s.instandhaltungskosten_pro_qm);
   const setInstandhaltungskostenProQm = useImmoStore(s => s.setInstandhaltungskostenProQm);
@@ -252,6 +259,25 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   useEffect(() => {
     updateDerived();
   }, [cashflowVorSteuer, taxMonthly, updateDerived]);
+
+  // Default-Werte je Objekttyp setzen
+  useEffect(() => {
+    if (!mounted) return;
+
+    // Instandhaltungskosten-Defaults
+    if (instandhaltungskostenProQm === 0) {
+      const defaultInstand = objekttyp === 'wohnung' ? 9 : objekttyp === 'haus' ? 12 : 15;
+      setInstandhaltungskostenProQm(defaultInstand);
+      setInstandText(defaultInstand.toString().replace('.', ','));
+    }
+
+    // Mietausfall-Defaults
+    if (mietausfallPct === 0) {
+      const defaultMietausfall = (objekttyp === 'mfh' && anzahlWohneinheiten > 3) ? 3 : 5;
+      setMietausfallPct(defaultMietausfall);
+      setMietausfallText(defaultMietausfall.toFixed(2).replace('.', ','));
+    }
+  }, [objekttyp, anzahlWohneinheiten, mounted]);
 
   // KPI-Berechnungen (in %)
   const bruttoMietrendite = anschaffungskosten > 0
@@ -927,11 +953,11 @@ const exportPdf = React.useCallback(async () => {
     <span>Objekttyp</span>
     <span className="ml-2"><House /></span>
   </div>
-  <div className="flex gap-2 p-1.5 bg-gray-100 rounded-lg">
+  <div className="grid grid-cols-3 gap-2 p-1.5 bg-gray-100 rounded-lg">
     <button
       type="button"
       onClick={() => setObjekttyp('wohnung')}
-      className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
         objekttyp === 'wohnung'
           ? 'bg-white text-gray-900 shadow-sm'
           : 'bg-transparent text-gray-600 hover:text-gray-900'
@@ -942,7 +968,7 @@ const exportPdf = React.useCallback(async () => {
     <button
       type="button"
       onClick={() => setObjekttyp('haus')}
-      className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
         objekttyp === 'haus'
           ? 'bg-white text-gray-900 shadow-sm'
           : 'bg-transparent text-gray-600 hover:text-gray-900'
@@ -950,8 +976,37 @@ const exportPdf = React.useCallback(async () => {
     >
       Haus
     </button>
+    <button
+      type="button"
+      onClick={() => setObjekttyp('mfh')}
+      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
+        objekttyp === 'mfh'
+          ? 'bg-white text-gray-900 shadow-sm'
+          : 'bg-transparent text-gray-600 hover:text-gray-900'
+      }`}
+    >
+      Mehrfamilienhaus
+    </button>
   </div>
 </div>
+
+        {/* Anzahl Wohneinheiten (nur für MFH) */}
+        {objekttyp === 'mfh' && (
+          <div className="card">
+            <div className="mb-2 text-lg font-semibold flex items-center">
+              <span>Anzahl Wohneinheiten</span>
+              <span className="ml-2"><House /></span>
+            </div>
+            <InputField
+              label=""
+              type="text"
+              value={anzahlWohneinheiten.toString()}
+              onValueChange={v => setAnzahlWohneinheiten(Number(v))}
+              className="input-uniform input-editable"
+            />
+            <p className="text-xs text-gray-500 mt-1">Anzahl der vermietbaren Wohnungen im Mehrfamilienhaus.</p>
+          </div>
+        )}
 
         {/* Adresse */}
         <div className="card">
@@ -1062,8 +1117,10 @@ const exportPdf = React.useCallback(async () => {
             {/* Kaltmiete gesamt */}
             <div className="flex flex-col">
               <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Kaltmiete gesamt
-                <Tooltip text="Die monatliche Nettokaltmiete ohne Nebenkosten.">
+                {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
+                <Tooltip text={objekttyp === 'mfh'
+                  ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
+                  : 'Die monatliche Nettokaltmiete ohne Nebenkosten.'}>
                   <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
                 </Tooltip>
               </label>
@@ -1102,21 +1159,33 @@ const exportPdf = React.useCallback(async () => {
           </div>
         </div>
 
-        {/* Mietnebenkosten */}
+        {/* Mietnebenkosten / Betriebskosten */}
         <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">Mietnebenkosten&nbsp;<span><ChartBar /></span></div>
+          <div className="mb-2 text-lg font-semibold flex items-center">
+            {objekttyp === 'wohnung' ? 'Mietnebenkosten' : 'Betriebskosten'}
+            &nbsp;<span><ChartBar /></span>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Umlagefähig */}
+            {/* Umlagefähig - für alle Objekttypen */}
             <div
               onBlur={() => {
                 const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
                 setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                setHausgeld(isNaN(um) ? non : um + non);
+                if (objekttyp === 'wohnung') {
+                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                  setHausgeld(isNaN(um) ? non : um + non);
+                }
               }}
               className="flex flex-col"
             >
-              <label className="text-xs text-gray-600 mb-1">Hausgeld umlagefähig</label>
+              <label className="text-xs text-gray-600 mb-1 flex items-center">
+                {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
+                <Tooltip text={objekttyp === 'wohnung'
+                  ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
+                  : 'Monatliche Nebenkosten, die auf Mieter umgelegt werden (Wasser, Müll, Grundsteuer, etc.).'}>
+                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                </Tooltip>
+              </label>
               <InputField
                 value={hausUmlegText}
                 onValueChange={setHausUmlegText}
@@ -1124,24 +1193,58 @@ const exportPdf = React.useCallback(async () => {
                 className="input-uniform input-editable"
               />
             </div>
-            {/* Nicht umlagefähig */}
-            <div
-              onBlur={() => {
-                const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                setHausgeld(isNaN(non) ? um : um + non);
-              }}
-              className="flex flex-col"
-            >
-              <label className="text-xs text-gray-600 mb-1">Hausgeld nicht umlagefähig</label>
-              <InputField
-                value={hausNichtText}
-                onValueChange={setHausNichtText}
-                unit="€"
-                className="input-uniform input-editable"
-              />
-            </div>
+
+            {/* Für ETW: Nicht umlagefähiges Hausgeld */}
+            {objekttyp === 'wohnung' && (
+              <div
+                onBlur={() => {
+                  const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
+                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                  setHausgeldUmlegbar(isNaN(um) ? 0 : um);
+                  setHausgeld(isNaN(non) ? um : um + non);
+                }}
+                className="flex flex-col"
+              >
+                <label className="text-xs text-gray-600 mb-1 flex items-center">
+                  Hausgeld nicht umlagefähig
+                  <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
+                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                  </Tooltip>
+                </label>
+                <InputField
+                  value={hausNichtText}
+                  onValueChange={setHausNichtText}
+                  unit="€"
+                  className="input-uniform input-editable"
+                />
+              </div>
+            )}
+
+            {/* Für Haus/MFH: Verwaltungskosten */}
+            {(objekttyp === 'haus' || objekttyp === 'mfh') && (
+              <div
+                onBlur={() => {
+                  const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                  setVerwaltungskosten(isNaN(verw) ? 0 : verw);
+                }}
+                className="flex flex-col"
+              >
+                <label className="text-xs text-gray-600 mb-1 flex items-center">
+                  Verwaltungskosten
+                  <Tooltip text={objekttyp === 'mfh'
+                    ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
+                    : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
+                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                  </Tooltip>
+                </label>
+                <InputField
+                  value={hausNichtText}
+                  onValueChange={setHausNichtText}
+                  unit="€"
+                  className="input-uniform input-editable"
+                />
+              </div>
+            )}
           </div>
 
           {/* Hinweis bei automatischer Hausgeld-Verteilung */}
