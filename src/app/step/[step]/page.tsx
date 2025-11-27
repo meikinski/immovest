@@ -291,27 +291,41 @@ const dscr =
       if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
+      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
     } else if (currentStep === 'b') {
       // Step B validation - ensure Step A is complete first
       if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
+      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
       if (!miete || miete <= 0) missing.push('Kaltmiete');
     } else if (currentStep === 'c') {
       // Step C validation - ensure all previous steps are complete
       if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
+      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
+      if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
       if (!baujahr || baujahr <= 0) missing.push('Baujahr');
+      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
+      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
       if (!miete || miete <= 0) missing.push('Kaltmiete');
-      if (ek === null || ek === undefined) missing.push('Eigenkapital');
+      if (ek === null || ek === undefined || ek < 0) missing.push('Eigenkapital');
       if (zins === null || zins === undefined || zins < 0) missing.push('Zinssatz');
+      if (zins > 20) missing.push('Zinssatz (max. 20%)');
       if (tilgung === null || tilgung === undefined || tilgung < 0) missing.push('Tilgungssatz');
+      if (tilgung > 10) missing.push('Tilgungssatz (max. 10%)');
     }
 
     return { isValid: missing.length === 0, missingFields: missing };
@@ -1416,7 +1430,7 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Header */}
         <div className="flex items-center mb-4">
-  <button onClick={() => router.back()} className="btn-back">←</button>
+  <button onClick={() => router.push('/step/c')} className="btn-back">←</button>
   <div className="ml-4 flex items-center gap-3">
     <h1 className="text-3xl font-bold">Analyse</h1>
     <BarChart3 size={32} className="text-[var(--color-primary)]" />
