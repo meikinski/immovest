@@ -9,20 +9,20 @@ import { z } from 'zod';
 
 const InputPayloadSchema = z.object({
   // Basis-Objektdaten (REQUIRED)
-  address: z.string().min(5, 'Adresse muss mindestens 5 Zeichen haben'),
+  address: z.string().min(5, 'Bitte gib eine gültige Adresse ein (mindestens 5 Zeichen)'),
   objektTyp: z.enum(['wohnung', 'haus', 'gewerbe']).default('wohnung'),
-  kaufpreis: z.number().positive('Kaufpreis muss positiv sein'),
-  flaeche: z.number().min(10, 'Fläche muss mindestens 10 m² sein'),
-  zimmer: z.number().min(1, 'Mindestens 1 Zimmer erforderlich').max(20, 'Maximal 20 Zimmer'),
-  baujahr: z.number().min(1800, 'Baujahr zu alt').max(new Date().getFullYear() + 2, 'Baujahr in der Zukunft').nullable().optional(),
+  kaufpreis: z.number().positive('Der Kaufpreis muss größer als 0 sein'),
+  flaeche: z.number().min(10, 'Die Wohnfläche muss mindestens 10 m² betragen'),
+  zimmer: z.number().min(1, 'Bitte gib mindestens 1 Zimmer ein').max(20, 'Maximal 20 Zimmer möglich'),
+  baujahr: z.number().min(1800, 'Das Baujahr muss ab 1800 sein').max(new Date().getFullYear() + 2, 'Das Baujahr liegt zu weit in der Zukunft').nullable().optional(),
 
   // Finanz-Daten (REQUIRED)
-  miete: z.number().min(0, 'Miete kann nicht negativ sein'),
-  hausgeld: z.number().min(0, 'Hausgeld kann nicht negativ sein').default(0),
+  miete: z.number().min(0, 'Die Miete kann nicht negativ sein'),
+  hausgeld: z.number().min(0, 'Das Hausgeld kann nicht negativ sein').default(0),
   hausgeld_umlegbar: z.number().min(0).default(0),
-  ek: z.number().min(0, 'Eigenkapital kann nicht negativ sein'),
-  zins: z.number().min(0, 'Zinssatz kann nicht negativ sein').max(20, 'Zinssatz unrealistisch hoch'),
-  tilgung: z.number().min(0, 'Tilgung kann nicht negativ sein').max(10, 'Tilgung unrealistisch hoch'),
+  ek: z.number().min(0, 'Das Eigenkapital kann nicht negativ sein'),
+  zins: z.number().min(0, 'Der Zinssatz kann nicht negativ sein').max(20, 'Der Zinssatz ist unrealistisch hoch (max. 20%)'),
+  tilgung: z.number().min(0, 'Die Tilgung kann nicht negativ sein').max(10, 'Die Tilgung ist unrealistisch hoch (max. 10%)'),
 
   // Berechnete KPIs (OPTIONAL)
   cashflowVorSteuer: z.number().optional(),
@@ -210,11 +210,12 @@ export async function POST(req: NextRequest) {
       validatedPayload = InputPayloadSchema.parse(parsedData);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const errorMessages = err.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+        // Format error messages in a user-friendly way (just the message, not the field path)
+        const errorMessages = err.errors.map(e => e.message).join('. ');
         console.error('[/api/agent/run] Validation error:', errorMessages);
         console.error('[/api/agent/run] Raw body:', JSON.stringify(body, null, 2));
         return NextResponse.json(
-          { error: true, message: `Eingabe-Validierung fehlgeschlagen: ${errorMessages}` },
+          { error: true, message: `Bitte überprüfe deine Eingaben: ${errorMessages}` },
           { status: 400 }
         );
       }
