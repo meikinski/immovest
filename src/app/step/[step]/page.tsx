@@ -965,18 +965,18 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Objekttyp */}
         <div className="card">
-  <div className="mb-2 text-lg font-semibold flex items-center">
+  <div className="mb-3 text-lg font-semibold flex items-center">
     <span>Objekttyp</span>
     <span className="ml-2"><House /></span>
   </div>
-  <div className="grid grid-cols-3 gap-2 p-1.5 bg-gray-100 rounded-lg">
+  <div className="grid grid-cols-3 gap-3">
     <button
       type="button"
       onClick={() => setObjekttyp('wohnung')}
-      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
+      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'wohnung'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'bg-transparent text-gray-600 hover:text-gray-900'
+          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
       Eigentumswohnung
@@ -984,10 +984,10 @@ const exportPdf = React.useCallback(async () => {
     <button
       type="button"
       onClick={() => setObjekttyp('haus')}
-      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
+      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'haus'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'bg-transparent text-gray-600 hover:text-gray-900'
+          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
       Haus
@@ -995,10 +995,10 @@ const exportPdf = React.useCallback(async () => {
     <button
       type="button"
       onClick={() => setObjekttyp('mfh')}
-      className={`py-3 px-2 rounded-md font-medium transition-all duration-200 ${
+      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'mfh'
-          ? 'bg-white text-gray-900 shadow-sm'
-          : 'bg-transparent text-gray-600 hover:text-gray-900'
+          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
       Mehrfamilienhaus
@@ -1046,11 +1046,6 @@ const exportPdf = React.useCallback(async () => {
               <div className="mb-2 text-lg font-semibold flex items-center">
                 <span>{objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}</span>
                 <span className="ml-2"><Ruler /></span>
-                {objekttyp === 'mfh' && (
-                  <Tooltip text="Gesamtwohnfläche aller Wohneinheiten zusammen">
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                  </Tooltip>
-                )}
               </div>
               <div
                 onBlur={() => {
@@ -1069,6 +1064,9 @@ const exportPdf = React.useCallback(async () => {
                   className="input-uniform input-editable"
                 />
               </div>
+              {objekttyp === 'mfh' && (
+                <p className="text-xs text-gray-500 mt-1">Gesamte Wohnfläche aller Einheiten</p>
+              )}
             </div>
           </div>
         </div>
