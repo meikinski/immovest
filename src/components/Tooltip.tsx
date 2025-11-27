@@ -24,11 +24,12 @@ export function Tooltip({ text, children }: TooltipProps) {
       {children}
       <div
         className={`absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3
-          px-3 py-2 text-xs text-white
+          px-4 py-3 text-sm text-white
           bg-[hsl(var(--accent))] shadow-lg rounded-md
           transition-opacity duration-300 z-20
-          whitespace-pre-line text-[13px] font-medium leading-snug
-          max-w-[90vw] sm:max-w-xs md:max-w-sm lg:max-w-md text-center ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+          whitespace-pre-line leading-relaxed
+          w-[85vw] sm:w-[400px] md:w-[480px] lg:w-[540px] xl:w-[600px]
+          text-left ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       >
         {text}
         <div
