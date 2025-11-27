@@ -975,9 +975,10 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('wohnung')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'wohnung'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
+          ? 'text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
+      style={objekttyp === 'wohnung' ? { backgroundColor: 'hsl(var(--brand))' } : undefined}
     >
       Eigentumswohnung
     </button>
@@ -986,9 +987,10 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('haus')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'haus'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
+          ? 'text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
+      style={objekttyp === 'haus' ? { backgroundColor: 'hsl(var(--brand))' } : undefined}
     >
       Haus
     </button>
@@ -997,9 +999,10 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('mfh')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'mfh'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
+          ? 'text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
+      style={objekttyp === 'mfh' ? { backgroundColor: 'hsl(var(--brand))' } : undefined}
     >
       Mehrfamilienhaus
     </button>
