@@ -322,8 +322,8 @@ const dscr =
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
       if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
-        if (anzahlWohneinheiten > 50) missing.push('Anzahl Wohneinheiten (max. 50)');
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
+        if (anzahlWohneinheiten > 50) missing.push('Wohneinheiten (max. 50)');
       } else {
         if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
         if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
@@ -339,7 +339,7 @@ const dscr =
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
       if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
       } else {
         if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
       }
@@ -355,7 +355,7 @@ const dscr =
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
       // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
       if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Anzahl Wohneinheiten');
+        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
       } else {
         if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
       }
@@ -975,7 +975,7 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('wohnung')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'wohnung'
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
@@ -986,7 +986,7 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('haus')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'haus'
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
@@ -997,7 +997,7 @@ const exportPdf = React.useCallback(async () => {
       onClick={() => setObjekttyp('mfh')}
       className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
         objekttyp === 'mfh'
-          ? 'bg-blue-600 text-white shadow-md shadow-blue-200'
+          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
       }`}
     >
@@ -1018,12 +1018,12 @@ const exportPdf = React.useCallback(async () => {
           />
         </div>
 
-        {/* Zimmer (ETW/Haus) oder Anzahl Wohneinheiten (MFH) & Fläche */}
+        {/* Zimmer (ETW/Haus) oder Wohneinheiten (MFH) & Fläche */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div>
             <div className='card'>
               <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>{objekttyp === 'mfh' ? 'Anzahl Wohneinheiten' : 'Zimmer'}</span>
+                <span>{objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}</span>
                 <span className="ml-2">{objekttyp === 'mfh' ? <House /> : <BedSingle />}</span>
               </div>
               <InputField
