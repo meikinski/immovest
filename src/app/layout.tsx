@@ -35,14 +35,14 @@ export const metadata: Metadata = {
   authors: [{ name: "ImVestr" }],
   creator: "ImVestr",
   publisher: "ImVestr",
-  metadataBase: new URL('https://immovestr.de'),
+  metadataBase: new URL('https://imvestr.de'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: "website",
     locale: "de_DE",
-    url: "https://immovestr.de",
+    url: "https://imvestr.de",
     title: "KI-basierter Immobilien-Renditerechner | ImVestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     siteName: "ImVestr",

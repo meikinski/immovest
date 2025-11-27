@@ -97,6 +97,9 @@ export default function StepPage() {
   const maklerPct   = useImmoStore(s => s.makler_pct);
   const setMaklerPct = useImmoStore(s => s.setMaklerPct);
 
+  const sonstigeKosten = useImmoStore(s => s.sonstige_kosten);
+  const setSonstigeKosten = useImmoStore(s => s.setSonstigeKosten);
+
   // Step B: Werte + Setter
   const miete       = useImmoStore(s => s.miete);
   const setMiete    = useImmoStore(s => s.setMiete);
@@ -143,6 +146,9 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   const [maklerText, setMaklerText] = useState(
     maklerPct.toString().replace('.', ',')
   );
+  const [sonstigeKostenText, setSonstigeKostenText] = useState(
+    sonstigeKosten.toString().replace('.', ',')
+  );
   const [flaecheText, setFlaecheText] = useState(
     flaeche.toString().replace('.', ',')
   );
@@ -155,6 +161,11 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
     setMaklerText(maklerPct.toString().replace('.', ','));
   }, [maklerPct]);
 
+  // Update sonstigeKostenText when sonstigeKosten changes
+  useEffect(() => {
+    setSonstigeKostenText(sonstigeKosten.toLocaleString('de-DE'));
+  }, [sonstigeKosten]);
+
   // === Derived Values (einheitlich, keine Duplikate) ===
   const warmmiete = miete + hausgeld_umlegbar;
 
@@ -165,8 +176,8 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
     nk
   } = berechneNebenkosten(kaufpreis, grEStPct, notarPct, maklerPct);
 
-  const anschaffungskosten = kaufpreis + nk;
-  const darlehensSumme     = kaufpreis + nk - ek;
+  const anschaffungskosten = kaufpreis + nk + sonstigeKosten;
+  const darlehensSumme     = kaufpreis + nk + sonstigeKosten - ek;
 
   const jahreskaltmiete     = miete * 12;
   const bewirtschaftungskostenJ =
@@ -287,6 +298,24 @@ const dscr =
   useEffect(() => {
     if (step !== 'tabs') return;
     if (activeTab !== 'kpi') return;
+
+    // Validate required fields before generating analysis
+    const missingFields = [];
+    if (!kaufpreis || kaufpreis <= 0) missingFields.push('Kaufpreis');
+    if (!adresse || adresse.trim() === '') missingFields.push('Adresse');
+    if (!flaeche || flaeche <= 0) missingFields.push('Fläche');
+    if (!zimmer || zimmer <= 0) missingFields.push('Zimmer');
+    if (!baujahr || baujahr <= 0) missingFields.push('Baujahr');
+    if (!miete || miete <= 0) missingFields.push('Kaltmiete');
+    if (!ek && ek !== 0) missingFields.push('Eigenkapital');
+    if (!zins && zins !== 0) missingFields.push('Zinssatz');
+    if (!tilgung && tilgung !== 0) missingFields.push('Tilgung');
+
+    // If required fields are missing, skip analysis
+    if (missingFields.length > 0) {
+      console.log('Skipping analysis - missing required fields:', missingFields);
+      return;
+    }
 
     // Create fingerprint of inputs to detect real changes
     const inputFingerprint = JSON.stringify({
@@ -778,6 +807,29 @@ const exportPdf = React.useCallback(async () => {
             </div>
           ))}
 
+          {/* Sonstige Kosten */}
+          <div className="mt-4">
+            <label className="block text-xs text-gray-600 mb-1 flex items-center">
+              Sonstige Kosten
+              <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
+                <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+              </Tooltip>
+            </label>
+            <div
+              onBlur={() => {
+                const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+                setSonstigeKosten(isNaN(num) ? 0 : num);
+              }}
+            >
+              <InputField
+                value={sonstigeKostenText}
+                onValueChange={setSonstigeKostenText}
+                unit=" €"
+                className="w-full input-uniform input-editable"
+              />
+            </div>
+          </div>
+
           {/* Total-Zeile */}
           <div className="mt-6">
    <label className="block text-xs text-gray-600 mb-1">Gesamtinvestition</label>
@@ -812,16 +864,29 @@ const exportPdf = React.useCallback(async () => {
     <span>Objekttyp</span>
     <span className="ml-2"><House /></span>
   </div>
-  <div className="relative">
-    <select
-      className="w-full select-underline pr-8 appearance-none"
-      value={objekttyp}
-      onChange={(e) => setObjekttyp(e.target.value as 'wohnung' | 'haus')}
+  <div className="flex gap-2 p-1.5 bg-gray-100 rounded-lg">
+    <button
+      type="button"
+      onClick={() => setObjekttyp('wohnung')}
+      className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+        objekttyp === 'wohnung'
+          ? 'bg-white text-gray-900 shadow-sm'
+          : 'bg-transparent text-gray-600 hover:text-gray-900'
+      }`}
     >
-      <option value="wohnung">Eigentumswohnung</option>
-      <option value="haus">Haus</option>
-    </select>
-    <span className="absolute right-4 top-1/2 -translate-y-1/2">▼</span>
+      Eigentumswohnung
+    </button>
+    <button
+      type="button"
+      onClick={() => setObjekttyp('haus')}
+      className={`flex-1 py-3 px-4 rounded-md font-medium transition-all duration-200 ${
+        objekttyp === 'haus'
+          ? 'bg-white text-gray-900 shadow-sm'
+          : 'bg-transparent text-gray-600 hover:text-gray-900'
+      }`}
+    >
+      Haus
+    </button>
   </div>
 </div>
 
@@ -1376,17 +1441,17 @@ const exportPdf = React.useCallback(async () => {
     title="Cashflow (vor Steuern)"
     value={`${cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
     // kein trend-Prop mehr → kein Pfeil
-    help="Monatlicher Überschuss = Mieteinnahmen minus alle laufenden Kosten (Kredit, Hausgeld, Rücklagen etc.). Positiv bedeutet: Die Immobilie trägt sich selbst. Negativ: Du musst monatlich zuschießen."
+    help="Monatlicher Überschuss: Mieteinnahmen minus alle laufenden Kosten (Kreditrate, Hausgeld nicht umlegbar, Instandhaltung, Mietausfall). Positiv = Immobilie trägt sich selbst. Negativ = Du musst monatlich zuschießen."
   />
   <KpiCard
     title="Cashflow (nach Steuern)"
     value={`${cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    help="Überschuss nach Abzug von Steuern (vereinfachte Berechnung). Zeigt dir, was am Ende wirklich bei dir ankommt bzw. wie viel du tatsächlich monatlich einplanst."
+    help="Cashflow nach Steuern: Berücksichtigt vereinfacht die Steuerersparnis durch AfA (Abschreibung) und Zinsen. Zeigt dir realistischer, was am Ende bei dir ankommt oder wie viel du monatlich einplanen musst."
   />
   <KpiCard
     title="Nettomietrendite"
     value={`${nettoMietrendite.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`}
-    help="Jahresertrag nach allen Bewirtschaftungskosten geteilt durch Kaufpreis. Orientierung: unter 2% schwach, 2-3% solide, über 3% attraktiv. Wichtig: Stark abhängig von Lage und Objekttyp."
+    help="Nettomietrendite: (Jahreskaltmiete - Bewirtschaftungskosten) / Kaufpreis. Berücksichtigt Hausgeld, Instandhaltung, Mietausfall. Richtwerte: < 2% schwach, 2-3% solide, > 3% attraktiv. Stark abhängig von Lage & Objekttyp."
   />
   <KpiCard
     title="Bruttomietrendite"
@@ -1401,7 +1466,7 @@ const exportPdf = React.useCallback(async () => {
   <KpiCard
     title="EK-Rendite"
     value={`${ekRendite.toFixed(1)} %`}
-    help="Wie viel % Rendite du auf dein eingesetztes Eigenkapital machst. Zeigt den Hebel-Effekt: Mit Kredit kann diese Rendite höher sein als die Nettomietrendite. Aber Vorsicht: Funktioniert nur, wenn Objekt sich trägt."
+    help="Eigenkapitalrendite: Der jährliche Cashflow (nach Steuern) geteilt durch dein eingesetztes Eigenkapital. Beispiel: 30.000€ EK, 2.000€ Jahrescashflow = 6,7% EK-Rendite. Durch Fremdfinanzierung (Hebel) kann diese höher sein als die Nettomietrendite – aber nur wenn der Cashflow positiv ist."
   />
   <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
   <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>

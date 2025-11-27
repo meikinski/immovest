@@ -23,6 +23,7 @@ export interface ImmoState {
   grunderwerbsteuer_pct: number;
   notar_pct: number;
   makler_pct: number;
+  sonstige_kosten: number;
   flaeche: number;
   adresse: string;
   zimmer: number;
@@ -60,6 +61,7 @@ export interface ImmoState {
   setGrunderwerbsteuerPct: (v: number) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
+  setSonstigeKosten: (v: number) => void;
   setFlaeche: (v: number) => void;
   setAdresse: (v: string) => void;
   setZimmer: (v: number) => void;
@@ -96,6 +98,7 @@ const initialState = {
   grunderwerbsteuer_pct: 6.5,
   notar_pct: 2,
   makler_pct: 3.57,
+  sonstige_kosten: 0,
   flaeche: 0,
   adresse: '',
   zimmer: 0,
@@ -177,6 +180,10 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   },
   setMaklerPct: (v: number) => {
     set({ makler_pct: v, generatedComment: '' });
+    get().updateDerived();
+  },
+  setSonstigeKosten: (v: number) => {
+    set({ sonstige_kosten: v, generatedComment: '' });
     get().updateDerived();
   },
   setFlaeche: (v: number) => {

@@ -309,7 +309,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="mt-6 text-lg md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed">
-              Adresse eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF für das Bankgespräch inklusive.
+              Objektdaten eingeben – wir liefern KPIs, Marktvergleiche und eine klare Investment-Einschätzung mit Empfehlungen. PDF für das Bankgespräch inklusive.
             </p>
 
             <div className="mt-12 flex flex-col items-center justify-center gap-6">
