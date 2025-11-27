@@ -114,6 +114,7 @@ export default function StepPage() {
   const anzahlWohneinheiten = useImmoStore(s => s.anzahl_wohneinheiten);
   const setAnzahlWohneinheiten = useImmoStore(s => s.setAnzahlWohneinheiten);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const verwaltungskosten = useImmoStore(s => s.verwaltungskosten);
   const setVerwaltungskosten = useImmoStore(s => s.setVerwaltungskosten);
 
@@ -277,6 +278,7 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
       setMietausfallPct(defaultMietausfall);
       setMietausfallText(defaultMietausfall.toFixed(2).replace('.', ','));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objekttyp, anzahlWohneinheiten, mounted]);
 
   // KPI-Berechnungen (in %)
