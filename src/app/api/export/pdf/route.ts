@@ -45,16 +45,11 @@ type Payload = {
   } | null;
 };
 
-// Wertdarstellung für twoCols: String ODER { main, delta }
-type ValueCell =
-  | string
-  | { main: string; delta?: string; color?: ReturnType<typeof rgb> };
-
 export async function POST(req: Request) {
   try {
     const d = (await req.json()) as Payload;
 
-    // ===== helpers / derived =====
+    // ===== Helpers =====
     const eur = (n: number, f = 0) =>
       `${new Intl.NumberFormat('de-DE', { minimumFractionDigits: f, maximumFractionDigits: f }).format(n)} €`;
     const pct = (n: number, f = 1) =>
@@ -76,15 +71,8 @@ export async function POST(req: Request) {
       if (d.darlehensSumme && (d.zins || d.tilgung)) return d.darlehensSumme * ((d.zins + d.tilgung) / 100) / 12;
       return 0;
     })();
-    const debtYear = debtMonthly * 12;
 
-    const payoffYears = (z: number, t: number) => (z + t) > 0 ? Math.round(1 / ((z + t) / 100)) : 0;
-    const payoffYearBase = (() => {
-      const yrs = payoffYears(d.zins, d.tilgung);
-      return yrs ? new Date().getFullYear() + yrs : 0;
-    })();
-
-    // base bruttorendite alias (Legacy: "bruttomietrendite")
+    // Legacy brutto alias
     type PayloadCompat = Payload & { bruttomietrendite?: number };
     const hasLegacyBrutto = (input: unknown): input is PayloadCompat =>
       typeof input === 'object' && input !== null && 'bruttomietrendite' in input;
@@ -99,11 +87,10 @@ export async function POST(req: Request) {
       ? altBrutto
       : 0;
 
-    // ===== pdf init =====
+    // ===== PDF Init =====
     const pdf = await PDFDocument.create();
     pdf.registerFontkit(fontkit);
 
-    // Load Unicode-compatible font from local files
     const fontPathRegular = join(process.cwd(), 'public', 'fonts', 'NotoSans-Regular.ttf');
     const fontPathBold = join(process.cwd(), 'public', 'fonts', 'NotoSans-Bold.ttf');
 
@@ -115,593 +102,356 @@ export async function POST(req: Request) {
 
     let page = pdf.addPage([595.28, 841.89]); // A4
 
-    const MARGIN = 40;
+    const MARGIN = 50;
     const WIDTH  = 595.28 - MARGIN * 2;
 
-    // Brand (Navy / Slate / Peach)
-    const PRIMARY = rgb(38/255, 65/255, 113/255);    // Navy #264171
-    const BRAND2  = rgb(230/255, 174/255, 99/255);   // Peach #E6AE63
-    const MUTED   = rgb(108/255, 127/255, 153/255);  // Slate #6C7F99
-    const GREEN   = rgb(39/255, 158/255, 93/255);    // Success
-    const RED     = rgb(217/255, 65/255, 65/255);    // Danger
-    const NEUTRAL = rgb(48/255, 56/255, 69/255);     // dunkles Slate
-    const SKYLINE = rgb(0.86, 0.89, 0.94);           // dezente Linie
+    // Professionelle Bank-Farben (sehr reduziert)
+    const NAVY = rgb(25/255, 42/255, 86/255);        // Dunkles Marineblau
+    const GRAY = rgb(100/255, 100/255, 100/255);     // Mittelgrau für Labels
+    const LIGHT_GRAY = rgb(245/255, 245/255, 245/255); // Hintergrund
+    const BORDER = rgb(220/255, 220/255, 220/255);   // Dezente Linie
+    const GREEN = rgb(39/255, 158/255, 93/255);      // Erfolg
+    const RED = rgb(217/255, 65/255, 65/255);        // Warnung
+    const BLACK = rgb(0, 0, 0);
 
-    // ===== Text-Sanitize =====
-    const sanitizeAnsi = (s: string) =>
+    // ===== Text Helper =====
+    const sanitizeText = (s: string) =>
       (s ?? '')
-        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '')  // Emoji-Bereich entfernen
-        .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ')     // NBSP/thin/figure → space
+        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '')
+        .replace(/[\u00A0\u2007\u202F\u2009]/g, ' ')
         .replace(/[""]/g, '"')
         .replace(/['']/g, "'");
 
     let y = 841.89;
-    const drawText = (t: string, x: number, yy: number, size = 11, isBold = false, color = rgb(0,0,0)) =>
-      page.drawText(sanitizeAnsi(t ?? ''), { x, y: yy, size, font: isBold ? bold : font, color });
-
-    const hr = (gapTop = 18, gapBottom = 24, color = SKYLINE) => {
-      y -= gapTop;
-      page.drawRectangle({ x: MARGIN, y: y - 1, width: WIDTH, height: 0.6, color });
-      y -= gapBottom;
-    };
+    const drawText = (t: string, x: number, yy: number, size = 10, isBold = false, color = BLACK) =>
+      page.drawText(sanitizeText(t ?? ''), { x, y: yy, size, font: isBold ? bold : font, color });
 
     const ensure = (need: number) => {
       if (y - need < 60) {
-        footer();
+        addFooter();
         page = pdf.addPage([595.28, 841.89]);
-        y = 841.89 - 40;
+        y = 841.89 - 60;
       }
     };
 
-    // ===== KPI Card =====
-    const kpiCard = (
+    const addFooter = () => {
+      page.drawRectangle({ x: MARGIN, y: 30, width: WIDTH, height: 0.5, color: BORDER });
+      const footerText = `Erstellt am ${new Date().toLocaleDateString('de-DE')} | Unverbindliche Überschlagsrechnung`;
+      drawText(footerText, MARGIN, 18, 8, false, GRAY);
+    };
+
+    // ===== Bullet Helper =====
+    const extractBullets = (text: string, maxBullets = 5): string[] => {
+      // Versuche Bullet Points zu extrahieren oder aus Sätzen zu machen
+      const lines = text.split(/[.!?]\s+/).filter(l => l.trim().length > 20);
+      return lines.slice(0, maxBullets).map(l => l.trim());
+    };
+
+    // ===== SEITE 1: DECKBLATT =====
+    y = 841.89 - 60;
+
+    // Minimalistischer Header
+    drawText('IMMOBILIEN-ANALYSE', MARGIN, y, 24, true, NAVY);
+    y -= 35;
+    drawText(d.address || 'Keine Adresse', MARGIN, y, 12, false, GRAY);
+    y -= 10;
+    page.drawRectangle({ x: MARGIN, y: y - 2, width: 100, height: 1.5, color: NAVY });
+    y -= 50;
+
+    // ===== 3 GROSSE KPI CARDS =====
+    const cardW = (WIDTH - 40) / 3;
+    const cardH = 110;
+    const cardY = y - cardH;
+
+    // Card Helper
+    const drawKpiCard = (
       label: string,
       value: string,
-      subtext: string | null,
+      subtext: string,
       x: number,
-      yy: number,
-      width: number,
-      height: number,
-      bgColor: ReturnType<typeof rgb>,
-      valueColor: ReturnType<typeof rgb>
+      accentColor: ReturnType<typeof rgb>
     ) => {
-      // Background box mit leichtem Border
+      // Box
       page.drawRectangle({
-        x, y: yy, width, height,
+        x, y: cardY, width: cardW, height: cardH,
         color: rgb(1, 1, 1),
-        borderColor: bgColor,
-        borderWidth: 1.5
+        borderColor: BORDER,
+        borderWidth: 1
       });
 
-      // Colored accent bar oben
+      // Accent top border
       page.drawRectangle({
-        x, y: yy + height - 4, width, height: 4,
-        color: bgColor
+        x, y: cardY + cardH - 3, width: cardW, height: 3,
+        color: accentColor
       });
 
-      // Label (klein, muted)
-      drawText(label, x + 12, yy + height - 20, 9, false, MUTED);
+      // Label
+      drawText(label, x + 16, cardY + cardH - 28, 9, false, GRAY);
 
-      // Value (groß, bold, colored)
-      drawText(value, x + 12, yy + height - 38, 14, true, valueColor);
+      // Value (sehr groß!)
+      drawText(value, x + 16, cardY + cardH - 55, 20, true, NAVY);
 
-      // Subtext (optional, klein)
-      if (subtext) {
-        drawText(subtext, x + 12, yy + height - 52, 9, false, MUTED);
-      }
+      // Subtext
+      drawText(subtext, x + 16, cardY + cardH - 75, 8, false, GRAY);
     };
 
-    // ===== Delta Indicator (ohne Pfeile, nur Text) =====
-    const deltaIndicator = (
-      delta: number,
-      formatter: (n: number) => string,
-      betterIfHigher = true
-    ): { text: string; color: ReturnType<typeof rgb>; prefix: string } => {
-      const prefix = delta > 0 ? '+' : delta < 0 ? '-' : '±';
-      const color = valColor(delta, betterIfHigher);
-      const text = `${prefix}${formatter(Math.abs(delta))}`;
-      return { text, color, prefix };
-    };
-
-    // ===== Progress Bar =====
-    const progressBar = (
-      x: number,
-      yy: number,
-      width: number,
-      percent: number,
-      color: ReturnType<typeof rgb>
-    ) => {
-      // Background
-      page.drawRectangle({
-        x, y: yy, width, height: 8,
-        color: rgb(0.95, 0.95, 0.95)
-      });
-      // Fill
-      const fillWidth = Math.min(Math.max(percent, 0), 100) * width / 100;
-      page.drawRectangle({
-        x, y: yy, width: fillWidth, height: 8,
-        color
-      });
-    };
-
-    const wrap = (text: string, maxWidth: number, size = 11) => {
-      const words = (text || '').split(/\s+/);
-      const lines: string[] = [];
-      let line = '';
-      for (const w of words) {
-        const test = line ? line + ' ' + w : w;
-        if (font.widthOfTextAtSize(test, size) > maxWidth) {
-          if (line) lines.push(line);
-          line = w;
-        } else line = test;
-      }
-      if (line) lines.push(line);
-      return lines;
-    };
-
-    const section = (title: string, accent: 'primary'|'brand2' = 'primary') => {
-      ensure(50);
-      drawText(title, MARGIN, y, 14, true, NEUTRAL);
-      y -= 22;
-      page.drawRectangle({
-        x: MARGIN, y: y + 5, width: 90, height: 3,
-        color: accent === 'primary' ? PRIMARY : BRAND2
-      });
-      y -= 16;
-    };
-
-    const drawValueCell = (labelX: number, valueX: number, yy: number, val: ValueCell) => {
-      if (typeof val === 'string') {
-        drawText(val, valueX, yy, 11, true);
-        return;
-      }
-      const main = val.main ?? '';
-      const delta = val.delta ?? '';
-
-      // main fett
-      drawText(main, valueX, yy, 11, true, NEUTRAL);
-      const mainWidth = font.widthOfTextAtSize(sanitizeAnsi(main), 11);
-      // delta normal, leicht grau
-      drawText(delta, valueX + mainWidth + 6, yy, 10.5, false, MUTED);
-    };
-
-    const twoCols = (left: Array<[string, ValueCell]>, right: Array<[string, ValueCell]>) => {
-      const colW = WIDTH / 2 - 12;
-      const xL = MARGIN;
-      const xR = MARGIN + colW + 24;
-      const lineH = 14;
-      const rows = Math.max(left.length, right.length);
-      for (let i = 0; i < rows; i++) {
-        ensure(lineH);
-        const l = left[i];
-        const r = right[i];
-        if (l) {
-          drawText(l[0], xL, y, 10.5, false, MUTED);
-          drawValueCell(xL, xL + 160, y, l[1]);
-        }
-        if (r) {
-          drawText(r[0], xR, y, 10.5, false, MUTED);
-          drawValueCell(xR, xR + 160, y, r[1]);
-        }
-        y -= lineH;
-      }
-    };
-
-    const footer = () => {
-      // Linie oben
-      page.drawRectangle({ x: MARGIN, y: 35, width: WIDTH, height: 0.6, color: SKYLINE });
-
-      // Footer Text
-      const t = `Erstellt am ${new Date().toLocaleDateString('de-DE')} mit Immovest`;
-      page.drawText(t, { x: MARGIN, y: 22, size: 9, font, color: MUTED });
-
-      // Disclaimer rechts
-      const disclaimer = 'Unverbindliche Überschlagsrechnung';
-      const disclaimerWidth = font.widthOfTextAtSize(disclaimer, 9);
-      page.drawText(disclaimer, { x: 595.28 - MARGIN - disclaimerWidth, y: 22, size: 9, font, color: MUTED });
-    };
-
-    const valColor = (diff: number, betterIfHigher = true) =>
-      diff > 0 ? (betterIfHigher ? GREEN : RED) :
-      diff < 0 ? (betterIfHigher ? RED   : GREEN) : NEUTRAL;
-
-    // ===== Header Seite 1 - Verbessertes Design =====
-    page.drawRectangle({ x: 0, y: 841.89 - 80, width: 595.28, height: 80, color: PRIMARY });
-    drawText('IMMOBILIEN ANALYSE', MARGIN, 841.89 - 32, 20, true, rgb(1,1,1));
-    drawText(d.address || 'Keine Adresse angegeben', MARGIN, 841.89 - 54, 12, false, rgb(0.9, 0.9, 0.9));
-
-    // Datum rechts im Header
-    const dateText = `Erstellt: ${new Date().toLocaleDateString('de-DE')}`;
-    const dateWidth = font.widthOfTextAtSize(dateText, 10);
-    drawText(dateText, 595.28 - MARGIN - dateWidth, 841.89 - 32, 10, false, rgb(0.9, 0.9, 0.9));
-
-    y = 841.89 - 100;
-
-    // ===== Quick Summary KPI Cards =====
-    ensure(100);
-    drawText('Wichtigste Kennzahlen auf einen Blick', MARGIN, y, 14, true, PRIMARY);
-    y -= 30;
-
-    const cardWidth = (WIDTH - 24) / 3; // 3 Cards nebeneinander mit Gaps
-    const cardHeight = 70;
-
-    // Cashflow Card
+    // CARD 1: Cashflow
     const cfColor = d.cashflowVorSteuer >= 0 ? GREEN : RED;
-    kpiCard(
-      'Cashflow (vor Steuern)',
+    const cfStatus = d.cashflowVorSteuer >= 0 ? 'Positiv' : 'Negativ';
+    drawKpiCard(
+      'CASHFLOW (MONATLICH)',
       eur(Math.round(d.cashflowVorSteuer)),
-      d.cashflowVorSteuer >= 0 ? 'Positiver Cashflow' : 'Negativer Cashflow',
+      cfStatus,
       MARGIN,
-      y - cardHeight,
-      cardWidth,
-      cardHeight,
-      cfColor,
       cfColor
     );
 
-    // Nettomietrendite Card
-    const nettoColor = d.nettoMietrendite >= 3 ? GREEN : d.nettoMietrendite >= 1.5 ? BRAND2 : RED;
-    kpiCard(
-      'Nettomietrendite',
-      pct(d.nettoMietrendite),
-      `Ziel: >= 3%`,
-      MARGIN + cardWidth + 12,
-      y - cardHeight,
-      cardWidth,
-      cardHeight,
-      nettoColor,
-      nettoColor
+    // CARD 2: DSCR (SEHR WICHTIG!)
+    const dscrVal = d.dscr ?? 0;
+    const dscrColor = dscrVal >= 1.25 ? GREEN : dscrVal >= 1.0 ? NAVY : RED;
+    const dscrText = dscrVal >= 1.25 ? 'Sehr gut' : dscrVal >= 1.0 ? 'Ausreichend' : 'Kritisch';
+    drawKpiCard(
+      'DSCR (DEBT SERVICE COVERAGE)',
+      num(dscrVal, 2),
+      dscrText,
+      MARGIN + cardW + 20,
+      dscrColor
     );
 
-    // EK-Rendite Card
-    const ekColor = d.ekRendite >= 5 ? GREEN : d.ekRendite >= 2 ? BRAND2 : RED;
-    kpiCard(
-      'Eigenkapitalrendite',
-      pct(d.ekRendite),
-      `Ziel: >= 5%`,
-      MARGIN + (cardWidth + 12) * 2,
-      y - cardHeight,
-      cardWidth,
-      cardHeight,
-      ekColor,
+    // CARD 3: EK-Quote
+    const ekColor = ekQuotePct >= 25 ? GREEN : ekQuotePct >= 15 ? NAVY : RED;
+    const ekText = ekQuotePct >= 25 ? 'Stark' : ekQuotePct >= 15 ? 'Solide' : 'Schwach';
+    drawKpiCard(
+      'EIGENKAPITALQUOTE',
+      pct(ekQuotePct, 1),
+      ekText,
+      MARGIN + (cardW + 20) * 2,
       ekColor
     );
 
-    y -= cardHeight + 40;
+    y = cardY - 50;
 
-    // ===== Eckdaten =====
-    section('Eckdaten');
-    twoCols(
-      [
-        ['Fläche', d.flaeche ? `${num(d.flaeche, 0)} m²` : '–'],
-        ['Zimmer', d.zimmer != null ? String(d.zimmer) : '–'],
-        ['Baujahr', d.baujahr ? String(d.baujahr) : '–'],
-        ['Kaufpreis', eur(Math.round(d.kaufpreis))],
-        ['Gesamtinvestition', d.anschaffungskosten != null ? eur(Math.round(d.anschaffungskosten)) : '–'],
-      ],
-      [
-        ['Kaltmiete (monatl.)', eur(Math.round(d.miete))],
-        ['Kaltmiete (jährl.)', eur(Math.round(rentYear))],
-        ['Kaufpreis/qm', d.flaeche > 0 ? eur(Math.round(pricePerSqm)) : '–'],
-        ['Miete/qm (monatl.)', d.flaeche > 0 ? `${num(rentPerSqm, 2)} €` : '–'],
-        ['—', ''],
-      ]
-    );
-    hr();
+    // ===== OBJEKTDATEN KOMPAKT =====
+    drawText('OBJEKTDATEN', MARGIN, y, 11, true, NAVY);
+    y -= 20;
 
-    // ===== Finanzierung =====
-    section('Finanzierung');
-    twoCols(
-      [
-        ['Eigenkapital', eur(Math.round(d.ek))],
-        ['EK-Quote', isFinite(ekQuotePct) ? pct(ekQuotePct, 1) : '–'],
-        ['Darlehenssumme', d.darlehensSumme != null ? eur(Math.round(d.darlehensSumme)) : '–'],
-      ],
-      [
-        ['Zins / Tilgung', `${d.zins.toFixed(2)} % / ${d.tilgung.toFixed(2)} %`],
-        ['Belastung (monatl.)', debtMonthly ? eur(debtMonthly, 0) : '–'],
-        ['Belastung (jährl.)', debtMonthly ? eur(debtYear, 0) : '–'],
-      ]
-    );
-    hr();
+    // Tabelle: 2 Spalten
+    const objData: [string, string][] = [
+      ['Kaufpreis', eur(Math.round(d.kaufpreis))],
+      ['Fläche', d.flaeche ? `${num(d.flaeche, 0)} m²` : '–'],
+      ['Zimmer', d.zimmer != null ? String(d.zimmer) : '–'],
+      ['Baujahr', d.baujahr ? String(d.baujahr) : '–'],
+      ['Kaltmiete (monatlich)', eur(Math.round(d.miete))],
+      ['Kaufpreis/m²', d.flaeche > 0 ? eur(Math.round(pricePerSqm)) : '–'],
+    ];
 
-    // ===== KPIs mit visueller Darstellung =====
-    section('KPIs & Kennzahlen');
+    const col1X = MARGIN;
+    const col2X = MARGIN + WIDTH / 2;
+    const rowH = 16;
 
-    // Renditen mit Progress Bars
-    ensure(80);
-    drawText('Renditen (%):', MARGIN, y, 11, true, NEUTRAL);
-    y -= 18;
+    for (let i = 0; i < objData.length; i++) {
+      const [label, value] = objData[i];
+      const xPos = i % 2 === 0 ? col1X : col2X;
+      const yPos = y - Math.floor(i / 2) * rowH;
 
-    // Nettomietrendite
-    drawText('Nettomietrendite', MARGIN, y, 10, false, MUTED);
-    drawText(pct(d.nettoMietrendite), MARGIN + 200, y, 11, true, NEUTRAL);
-    y -= 14;
-    progressBar(MARGIN, y, 200, Math.min(d.nettoMietrendite * 10, 100), GREEN);
-    y -= 22;
-
-    // Bruttomietrendite
-    drawText('Bruttomietrendite', MARGIN, y, 10, false, MUTED);
-    drawText(pct(bruttoBase), MARGIN + 200, y, 11, true, NEUTRAL);
-    y -= 14;
-    progressBar(MARGIN, y, 200, Math.min(bruttoBase * 10, 100), PRIMARY);
-    y -= 22;
-
-    // EK-Rendite
-    drawText('Eigenkapitalrendite', MARGIN, y, 10, false, MUTED);
-    drawText(pct(d.ekRendite), MARGIN + 200, y, 11, true, NEUTRAL);
-    y -= 14;
-    progressBar(MARGIN, y, 200, Math.min(d.ekRendite * 10, 100), BRAND2);
-    y -= 30;
-
-    // Cashflow & weitere KPIs
-    twoCols(
-      [
-        ['Cashflow (vor St.)', eur(Math.round(d.cashflowVorSteuer))],
-        ['Cashflow (nach St.)', d.cashflowNachSteuern != null ? eur(Math.round(d.cashflowNachSteuern)) : '–'],
-        ['NOI (monatl.)', typeof d.noiMonthly === 'number' ? eur(Math.round(d.noiMonthly)) : '–'],
-      ],
-      [
-        ['DSCR', typeof d.dscr === 'number' ? num(d.dscr, 2) : '–'],
-        ['Abzahlungsjahr (ca.)', payoffYearBase ? String(payoffYearBase) : '–'],
-        ['—', ''],
-      ]
-    );
-
-    // ===== Markt & Lage =====
-    if (d.lageText || d.mietvergleich || d.preisvergleich) {
-      hr();
-      section('Markt & Lage');
-
-      const textBlock = (title: string, content: string, isFirst = false) => {
-        ensure(60);
-
-        // Mehr Abstand vor der Überschrift (außer beim ersten Block)
-        if (!isFirst) {
-          y -= 12;
-        }
-
-        // Title mit Brand-Color Akzent
-        drawText(title, MARGIN, y, 11, true, PRIMARY);
-        y -= 22;
-
-        // Content Box mit mehr Padding
-        const lines = wrap(content, WIDTH - 40, 10);
-        const lineHeight = 14; // Erhöht von 12 auf 14
-        const boxHeight = lines.length * lineHeight + 28; // Erhöht von 16 auf 28
-        page.drawRectangle({
-          x: MARGIN,
-          y: y - boxHeight + 4,
-          width: WIDTH,
-          height: boxHeight,
-          color: rgb(0.98, 0.98, 0.98),
-          borderColor: PRIMARY,
-          borderWidth: 1
-        });
-
-        for (const line of lines) {
-          drawText(line, MARGIN + 16, y - 8, 10, false, NEUTRAL); // Erhöht von +10/-4 auf +16/-8
-          y -= lineHeight;
-        }
-        y -= 28; // Erhöht von 20 auf 28 für mehr Abstand zwischen Blöcken
-      };
-
-      let isFirstBlock = true;
-      if (d.lageText) {
-        textBlock('Standortanalyse', d.lageText, isFirstBlock);
-        isFirstBlock = false;
-      }
-      if (d.mietvergleich) {
-        textBlock('Mietpreisvergleich', d.mietvergleich, isFirstBlock);
-        isFirstBlock = false;
-      }
-      if (d.preisvergleich) {
-        textBlock('Kaufpreisvergleich', d.preisvergleich, isFirstBlock);
-      }
+      drawText(label, xPos, yPos, 9, false, GRAY);
+      drawText(value, xPos + 140, yPos, 10, true, BLACK);
     }
 
-    // ===== Szenario → IMMER Seite 2 =====
-    if (d.szenario) {
-      // Page break + Header in Brand2
-      footer();
+    y -= Math.ceil(objData.length / 2) * rowH + 20;
+
+    // ===== FINANZIERUNGSÜBERSICHT =====
+    drawText('FINANZIERUNG', MARGIN, y, 11, true, NAVY);
+    y -= 20;
+
+    const finData: [string, string][] = [
+      ['Eigenkapital', eur(Math.round(d.ek))],
+      ['Darlehenssumme', d.darlehensSumme != null ? eur(Math.round(d.darlehensSumme)) : '–'],
+      ['Zinssatz', `${d.zins.toFixed(2)} %`],
+      ['Tilgung', `${d.tilgung.toFixed(2)} %`],
+      ['Monatliche Rate', debtMonthly ? eur(debtMonthly, 0) : '–'],
+      ['Gesamtinvestition', d.anschaffungskosten ? eur(Math.round(d.anschaffungskosten)) : '–'],
+    ];
+
+    for (let i = 0; i < finData.length; i++) {
+      const [label, value] = finData[i];
+      const xPos = i % 2 === 0 ? col1X : col2X;
+      const yPos = y - Math.floor(i / 2) * rowH;
+
+      drawText(label, xPos, yPos, 9, false, GRAY);
+      drawText(value, xPos + 140, yPos, 10, true, BLACK);
+    }
+
+    y -= Math.ceil(finData.length / 2) * rowH + 30;
+
+    // ===== RENDITEKENNZAHLEN =====
+    drawText('RENDITEKENNZAHLEN', MARGIN, y, 11, true, NAVY);
+    y -= 20;
+
+    const rendData: [string, string][] = [
+      ['Nettomietrendite', pct(d.nettoMietrendite)],
+      ['Bruttomietrendite', pct(bruttoBase)],
+      ['Eigenkapitalrendite', pct(d.ekRendite)],
+    ];
+
+    for (const [label, value] of rendData) {
+      drawText(label, MARGIN, y, 9, false, GRAY);
+      drawText(value, MARGIN + 200, y, 11, true, NAVY);
+      y -= rowH;
+    }
+
+    addFooter();
+
+    // ===== SEITE 2: MARKT & LAGE =====
+    if (d.lageText || d.mietvergleich || d.preisvergleich) {
       page = pdf.addPage([595.28, 841.89]);
-      y = 841.89;
+      y = 841.89 - 60;
 
-      page.drawRectangle({ x: 0, y: y - 80, width: 595.28, height: 80, color: BRAND2 });
-      drawText('SZENARIO-ANALYSE', MARGIN, y - 32, 20, true, rgb(1,1,1));
-      drawText(d.address || 'Keine Adresse angegeben', MARGIN, y - 54, 12, false, rgb(0.95, 0.95, 0.95));
+      drawText('MARKT & LAGE', MARGIN, y, 16, true, NAVY);
+      y -= 10;
+      page.drawRectangle({ x: MARGIN, y: y - 2, width: 90, height: 1.5, color: NAVY });
+      y -= 35;
 
-      // "Vergleich zur Basis" rechts
-      const compText = 'Vergleich zur Basis';
-      const compWidth = font.widthOfTextAtSize(compText, 10);
-      drawText(compText, 595.28 - MARGIN - compWidth, y - 32, 10, false, rgb(0.95, 0.95, 0.95));
+      const drawBulletSection = (title: string, text: string) => {
+        ensure(100);
+        drawText(title, MARGIN, y, 11, true, NAVY);
+        y -= 18;
 
-      y = 841.89 - 100;
+        const bullets = extractBullets(text, 5);
+        for (const bullet of bullets) {
+          ensure(30);
+          // Bullet point
+          page.drawCircle({ x: MARGIN + 4, y: y - 3, size: 2, color: NAVY });
 
-      // Section Titel mit Brand2-Akzent
-      section('Szenario', 'brand2');
+          // Wrap text
+          const maxWidth = WIDTH - 20;
+          const words = bullet.split(' ');
+          let line = '';
+
+          for (const word of words) {
+            const test = line ? line + ' ' + word : word;
+            if (font.widthOfTextAtSize(test, 9) > maxWidth) {
+              if (line) {
+                drawText(line, MARGIN + 12, y, 9, false, BLACK);
+                y -= 13;
+                line = word;
+              } else {
+                drawText(word, MARGIN + 12, y, 9, false, BLACK);
+                y -= 13;
+              }
+            } else {
+              line = test;
+            }
+          }
+          if (line) {
+            drawText(line, MARGIN + 12, y, 9, false, BLACK);
+            y -= 13;
+          }
+          y -= 5;
+        }
+        y -= 15;
+      };
+
+      if (d.lageText) drawBulletSection('Standortanalyse', d.lageText);
+      if (d.mietvergleich) drawBulletSection('Mietpreisvergleich', d.mietvergleich);
+      if (d.preisvergleich) drawBulletSection('Kaufpreisvergleich', d.preisvergleich);
+
+      addFooter();
+    }
+
+    // ===== SEITE 3: SZENARIOANALYSE =====
+    if (d.szenario) {
+      page = pdf.addPage([595.28, 841.89]);
+      y = 841.89 - 60;
+
+      drawText('SZENARIO-ANALYSE', MARGIN, y, 16, true, NAVY);
+      y -= 10;
+      page.drawRectangle({ x: MARGIN, y: y - 2, width: 120, height: 1.5, color: NAVY });
+      y -= 35;
 
       const s = d.szenario;
 
-      // Δ vs Basis
-      const deltaPct = (curr?: number, base?: number) =>
-        (typeof curr === 'number' && typeof base === 'number' && base !== 0)
-          ? Math.round(((curr - base) / base) * 100)
-          : 0;
-      const deltaPp = (curr?: number, base?: number) =>
-        (typeof curr === 'number' && typeof base === 'number')
-          ? +(curr - base).toFixed(2)
-          : 0;
+      // Anpassungen
+      drawText('Anpassungen gegenüber Basis', MARGIN, y, 11, true, NAVY);
+      y -= 20;
 
-      const dmiete = deltaPct(s.miete ?? d.miete, d.miete);
-      const dpreis = deltaPct(s.kaufpreis ?? d.kaufpreis, d.kaufpreis);
-      const dzins  = deltaPp(s.zins ?? d.zins, d.zins);
-      const dtilg  = deltaPp(s.tilgung ?? d.tilgung, d.tilgung);
-      const dek    = deltaPct(s.ek ?? d.ek, d.ek);
+      const adjustments: [string, string, string][] = [];
 
-      const colFor = (field: 'miete'|'preis'|'zins'|'tilgung'|'ek', delta: number) => {
-        if (field === 'preis' || field === 'zins') return valColor(delta, /* betterIfHigher */ false);
-        if (field === 'miete' || field === 'ek')   return valColor(delta, /* betterIfHigher */ true);
-        return NEUTRAL; // Tilgung neutral
-      };
+      if (s.miete && s.miete !== d.miete) {
+        const diff = ((s.miete - d.miete) / d.miete) * 100;
+        adjustments.push(['Kaltmiete', `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`, eur(Math.round(s.miete))]);
+      }
+      if (s.kaufpreis && s.kaufpreis !== d.kaufpreis) {
+        const diff = ((s.kaufpreis - d.kaufpreis) / d.kaufpreis) * 100;
+        adjustments.push(['Kaufpreis', `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`, eur(Math.round(s.kaufpreis))]);
+      }
+      if (s.zins != null && s.zins !== d.zins) {
+        const diff = s.zins - d.zins;
+        adjustments.push(['Zinssatz', `${diff >= 0 ? '+' : ''}${diff.toFixed(2)} pp`, `${s.zins.toFixed(2)}%`]);
+      }
+      if (s.tilgung != null && s.tilgung !== d.tilgung) {
+        const diff = s.tilgung - d.tilgung;
+        adjustments.push(['Tilgung', `${diff >= 0 ? '+' : ''}${diff.toFixed(2)} pp`, `${s.tilgung.toFixed(2)}%`]);
+      }
+      if (s.ek && s.ek !== d.ek) {
+        const diff = ((s.ek - d.ek) / d.ek) * 100;
+        adjustments.push(['Eigenkapital', `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}%`, eur(Math.round(s.ek))]);
+      }
 
-      // Anpassungen Box
-      ensure(160);
-      drawText('Anpassungen gegenüber Basis', MARGIN, y, 13, true, PRIMARY);
-      y -= 28;
+      for (const [label, change, newVal] of adjustments) {
+        drawText(label, MARGIN, y, 9, false, GRAY);
+        drawText(change, MARGIN + 140, y, 9, true, NAVY);
+        drawText(`→ ${newVal}`, MARGIN + 240, y, 9, false, BLACK);
+        y -= 16;
+      }
 
-      // Hintergrund-Box für alle Anpassungen
-      const adjustBoxHeight = 120;
-      page.drawRectangle({
-        x: MARGIN - 8,
-        y: y - adjustBoxHeight + 8,
-        width: WIDTH + 16,
-        height: adjustBoxHeight,
-        color: rgb(0.98, 0.98, 0.98),
-        borderColor: BRAND2,
-        borderWidth: 1.5
-      });
+      y -= 25;
 
-      // Helper: Draw adjustment row
-      const adjustRow = (label: string, value: string, newValue: string, color: ReturnType<typeof rgb>, xPos: number, yPos: number) => {
-        drawText(label, xPos + 8, yPos, 9, false, MUTED);
-        drawText(value, xPos + 8, yPos - 14, 11, true, color);
-        drawText(newValue, xPos + 8, yPos - 28, 10, false, NEUTRAL);
-      };
+      // Vergleichstabelle
+      drawText('Ergebnisse im Vergleich', MARGIN, y, 11, true, NAVY);
+      y -= 25;
 
-      const colWidth = (WIDTH + 16) / 3;
-      const startY = y - 16;
+      // Header
+      drawText('Kennzahl', MARGIN, y, 8, true, GRAY);
+      drawText('Basis', MARGIN + 240, y, 8, true, GRAY);
+      drawText('Szenario', MARGIN + 330, y, 8, true, GRAY);
+      drawText('Änderung', MARGIN + 430, y, 8, true, GRAY);
+      y -= 3;
+      page.drawRectangle({ x: MARGIN, y: y - 1, width: WIDTH, height: 0.5, color: BORDER });
+      y -= 15;
 
-      // Neue Werte berechnen
-      const sMiete   = s.miete   ?? d.miete;
-      const sPreis   = s.kaufpreis ?? d.kaufpreis;
-      const sZins    = s.zins    ?? d.zins;
-      const sTilgung = s.tilgung ?? d.tilgung;
-      const sEk      = s.ek      ?? d.ek;
+      const comparison: [string, number, number, (n: number) => string, boolean][] = [
+        ['Cashflow (vor St.)', d.cashflowVorSteuer, s.cashflowVorSteuer ?? d.cashflowVorSteuer, (n) => eur(Math.round(n)), true],
+        ['Nettomietrendite', d.nettoMietrendite, s.nettoRendite ?? d.nettoMietrendite, pct, true],
+        ['Bruttomietrendite', bruttoBase, s.bruttorendite ?? bruttoBase, pct, true],
+        ['EK-Rendite', d.ekRendite, s.ekRendite ?? d.ekRendite, pct, true],
+      ];
 
-      // Row 1: Miete, Kaufpreis, Zins
-      adjustRow(
-        'Kaltmiete',
-        `${dmiete >= 0 ? '+' : ''}${dmiete}%`,
-        eur(Math.round(sMiete)),
-        colFor('miete', dmiete),
-        MARGIN - 8,
-        startY
-      );
-      adjustRow(
-        'Kaufpreis',
-        `${dpreis >= 0 ? '+' : ''}${dpreis}%`,
-        eur(Math.round(sPreis)),
-        colFor('preis', dpreis),
-        MARGIN - 8 + colWidth,
-        startY
-      );
-      adjustRow(
-        'Zins',
-        `${dzins >= 0 ? '+' : ''}${dzins.toFixed(2)} pp`,
-        `${sZins.toFixed(2)} %`,
-        colFor('zins', dzins),
-        MARGIN - 8 + colWidth * 2,
-        startY
-      );
+      if (d.dscr != null && s.dscr != null) {
+        comparison.push(['DSCR', d.dscr, s.dscr, (n) => num(n, 2), true]);
+      }
 
-      // Row 2: Tilgung, Eigenkapital
-      adjustRow(
-        'Tilgung',
-        `${dtilg >= 0 ? '+' : ''}${dtilg.toFixed(2)} pp`,
-        `${sTilgung.toFixed(2)} %`,
-        NEUTRAL,
-        MARGIN - 8,
-        startY - 56
-      );
-      adjustRow(
-        'Eigenkapital',
-        `${dek >= 0 ? '+' : ''}${dek}%`,
-        eur(Math.round(sEk)),
-        colFor('ek', dek),
-        MARGIN - 8 + colWidth,
-        startY - 56
-      );
-
-      y -= adjustBoxHeight + 10;
-
-      // Szenario-KPIs Headline
-      hr(12, 14, rgb(0.95, 0.9, 0.85)); // Peach-ish Linie
-      drawText('Szenario-Ergebnisse', MARGIN, y, 13, true, PRIMARY);
-      y -= 24;
-
-      // Vergleichstabelle: Basis | Szenario | Delta
-      const comparisonRow = (
-        label: string,
-        baseVal: number,
-        scenVal: number,
-        formatter: (n: number) => string,
-        betterIfHigher = true
-      ) => {
-        ensure(24);
-        const labelX = MARGIN;
-        const baseX = MARGIN + 220;
-        const scenX = MARGIN + 340;
-        const deltaX = MARGIN + 460;
-
-        drawText(label, labelX, y, 10, false, MUTED);
-        drawText(formatter(baseVal), baseX, y, 10, false, NEUTRAL);
-        drawText(formatter(scenVal), scenX, y, 11, true, NEUTRAL);
-
+      for (const [label, baseVal, scenVal, formatter, betterIfHigher] of comparison) {
         const diff = scenVal - baseVal;
-        const delta = deltaIndicator(diff, formatter, betterIfHigher);
-        drawText(delta.text, deltaX, y, 10, true, delta.color);
+        const diffText = diff === 0 ? '±0' : `${diff > 0 ? '+' : ''}${formatter(diff)}`;
+        const diffColor = diff > 0 ? (betterIfHigher ? GREEN : RED) : diff < 0 ? (betterIfHigher ? RED : GREEN) : GRAY;
 
-        y -= 18;
-      };
+        drawText(label, MARGIN, y, 9, false, BLACK);
+        drawText(formatter(baseVal), MARGIN + 240, y, 9, false, BLACK);
+        drawText(formatter(scenVal), MARGIN + 330, y, 10, true, NAVY);
+        drawText(diffText, MARGIN + 430, y, 9, true, diffColor);
 
-      const scenCashBefore = s.cashflowVorSteuer ?? d.cashflowVorSteuer;
-      const scenCashAfter  = (s.cashflowNachSteuern ?? (d.cashflowNachSteuern ?? null)) ?? null;
-      const scenNetto      = s.nettoRendite ?? d.nettoMietrendite;
-      const scenBrutto     = s.bruttorendite ?? bruttoBase;
-      const scenEkR        = s.ekRendite ?? d.ekRendite;
-      const scenNoi        = s.noiMonthly ?? (d.noiMonthly ?? null);
-      const scenDscr       = s.dscr ?? (d.dscr ?? null);
-
-      // Table Header
-      drawText('Kennzahl', MARGIN, y, 9, true, MUTED);
-      drawText('Basis', MARGIN + 220, y, 9, true, MUTED);
-      drawText('Szenario', MARGIN + 340, y, 9, true, MUTED);
-      drawText('Veränderung', MARGIN + 460, y, 9, true, MUTED);
-      y -= 16;
-
-      // Linie unter Header
-      page.drawRectangle({ x: MARGIN, y: y + 2, width: WIDTH, height: 0.8, color: SKYLINE });
-      y -= 8;
-
-      // Vergleichszeilen
-      comparisonRow('Cashflow (vor St.)', d.cashflowVorSteuer, scenCashBefore, (n) => eur(Math.round(n)), true);
-
-      if (d.cashflowNachSteuern != null && scenCashAfter != null) {
-        comparisonRow('Cashflow (nach St.)', d.cashflowNachSteuern, scenCashAfter, (n) => eur(Math.round(n)), true);
+        y -= 16;
       }
 
-      comparisonRow('Nettomietrendite', d.nettoMietrendite, scenNetto, pct, true);
-      comparisonRow('Bruttomietrendite', bruttoBase, scenBrutto, pct, true);
-      comparisonRow('EK-Rendite', d.ekRendite, scenEkR, pct, true);
-
-      if (d.noiMonthly != null && scenNoi != null) {
-        comparisonRow('NOI (monatl.)', d.noiMonthly, scenNoi, (n) => eur(Math.round(n)), true);
-      }
-
-      if (d.dscr != null && scenDscr != null) {
-        comparisonRow('DSCR', d.dscr, scenDscr, (n) => num(n, 2), true);
-      }
-
-      // Footer Seite 2
-      footer();
+      addFooter();
     }
 
     const bytes = await pdf.save();
     return new NextResponse(Buffer.from(bytes), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="immo_analyse.pdf"',
+        'Content-Disposition': 'attachment; filename="immobilien_analyse.pdf"',
       },
     });
   } catch (e) {
