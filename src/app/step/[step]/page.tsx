@@ -1912,37 +1912,12 @@ const exportPdf = React.useCallback(async () => {
 </p>
 
     {/* kompakte Regler, Label & Wert in einer Zeile */}
-    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div className="p-4 rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Kaltmiete</span>
-        </div>
-        <Slider value={mieteDeltaPct} onChange={setMieteDeltaPct} min={-30} max={30} step={0.5} suffix="%" label=""/>
-      </div>
-      <div className="p-4 rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Kaufpreis</span>
-        </div>
-        <Slider label="" value={preisDeltaPct} onChange={setPreisDeltaPct} min={-30} max={30} step={0.5} suffix="%" />
-      </div>
-      <div className="p-4 rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Zins</span>
-        </div>
-        <Slider label="" value={zinsDeltaPp} onChange={setZinsDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
-      </div>
-      <div className="p-4 rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Tilgung</span>
-        </div>
-        <Slider label="" value={tilgungDeltaPp} onChange={setTilgungDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
-      </div>
-      <div className="p-4 rounded-xl border border-gray-200 bg-white">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-700">Eigenkapital</span>
-        </div>
-        <Slider label="" value={ekDeltaPct} onChange={setEkDeltaPct} min={-100} max={100} step={1} suffix="%" />
-      </div>
+    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Slider label="Kaltmiete" value={mieteDeltaPct} onChange={setMieteDeltaPct} min={-30} max={30} step={0.5} suffix="%" />
+      <Slider label="Kaufpreis" value={preisDeltaPct} onChange={setPreisDeltaPct} min={-30} max={30} step={0.5} suffix="%" />
+      <Slider label="Zins" value={zinsDeltaPp} onChange={setZinsDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
+      <Slider label="Tilgung" value={tilgungDeltaPp} onChange={setTilgungDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
+      <Slider label="Eigenkapital" value={ekDeltaPct} onChange={setEkDeltaPct} min={-100} max={100} step={1} suffix="%" />
     </div>
 
     {/* Base vs Szenario */}
