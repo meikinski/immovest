@@ -58,8 +58,6 @@ export async function POST(req: Request) {
       new Intl.NumberFormat('de-DE', { minimumFractionDigits: f, maximumFractionDigits: f }).format(n);
 
     const pricePerSqm = d.flaeche > 0 ? d.kaufpreis / d.flaeche : 0;
-    const rentPerSqm  = d.flaeche > 0 ? d.miete / d.flaeche : 0;
-    const rentYear    = d.miete * 12;
 
     const ekQuotePct = ((): number => {
       if (d.anschaffungskosten && d.anschaffungskosten > 0) return (d.ek / d.anschaffungskosten) * 100;
@@ -108,7 +106,6 @@ export async function POST(req: Request) {
     // Professionelle Bank-Farben (sehr reduziert)
     const NAVY = rgb(25/255, 42/255, 86/255);        // Dunkles Marineblau
     const GRAY = rgb(100/255, 100/255, 100/255);     // Mittelgrau für Labels
-    const LIGHT_GRAY = rgb(245/255, 245/255, 245/255); // Hintergrund
     const BORDER = rgb(220/255, 220/255, 220/255);   // Dezente Linie
     const GREEN = rgb(39/255, 158/255, 93/255);      // Erfolg
     const RED = rgb(217/255, 65/255, 65/255);        // Warnung
