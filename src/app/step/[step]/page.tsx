@@ -969,39 +969,44 @@ const exportPdf = React.useCallback(async () => {
     <span>Objekttyp</span>
     <span className="ml-2"><House /></span>
   </div>
-  <div className="grid grid-cols-3 gap-3">
+  <div className="flex justify-center gap-2 p-1.5 bg-gray-100 rounded-full">
     <button
       type="button"
       onClick={() => setObjekttyp('wohnung')}
-      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
         objekttyp === 'wohnung'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ? 'bg-white shadow-md'
+          : 'text-gray-600 hover:text-gray-800'
       }`}
+      style={objekttyp === 'wohnung' ? { color: 'hsl(var(--brand))' } : undefined}
     >
-      Eigentumswohnung
+      <span className="hidden sm:inline">Eigentumswohnung</span>
+      <span className="sm:hidden">ETW</span>
     </button>
     <button
       type="button"
       onClick={() => setObjekttyp('haus')}
-      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
         objekttyp === 'haus'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ? 'bg-white shadow-md'
+          : 'text-gray-600 hover:text-gray-800'
       }`}
+      style={objekttyp === 'haus' ? { color: 'hsl(var(--brand))' } : undefined}
     >
       Haus
     </button>
     <button
       type="button"
       onClick={() => setObjekttyp('mfh')}
-      className={`py-3.5 px-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
         objekttyp === 'mfh'
-          ? 'bg-[hsl(var(--brand))] text-white shadow-md'
-          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          ? 'bg-white shadow-md'
+          : 'text-gray-600 hover:text-gray-800'
       }`}
+      style={objekttyp === 'mfh' ? { color: 'hsl(var(--brand))' } : undefined}
     >
-      Mehrfamilienhaus
+      <span className="hidden sm:inline">Mehrfamilienhaus</span>
+      <span className="sm:hidden">MFH</span>
     </button>
   </div>
 </div>
