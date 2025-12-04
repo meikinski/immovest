@@ -18,6 +18,27 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'], // Tree-shake lucide-react icons
   },
+
+  /* Redirects with proper HTTP status codes for SEO/crawling */
+  async redirects() {
+    return [
+      {
+        source: '/dashboard',
+        destination: '/input-method',
+        permanent: false, // 302 redirect
+      },
+      {
+        source: '/sign-up',
+        destination: '/input-method',
+        permanent: false, // 302 redirect
+      },
+      {
+        source: '/sign-up/:path*',
+        destination: '/input-method',
+        permanent: false, // 302 redirect for all sign-up sub-paths
+      },
+    ];
+  },
 };
 
 export default nextConfig;
