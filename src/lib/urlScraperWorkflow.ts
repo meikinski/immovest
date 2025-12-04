@@ -479,17 +479,31 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     }
   }
 
-  // ALWAYS apply 60/40 split if Hausgeld present but split missing
-  if (validated.hausgeld !== null && validated.hausgeld > 0 &&
-      (!validated.hausgeld_umlegbar || validated.hausgeld_umlegbar === 0) &&
-      (!validated.hausgeld_nicht_umlegbar || validated.hausgeld_nicht_umlegbar === 0)) {
-    validated.hausgeld_umlegbar = Math.round(validated.hausgeld * 0.6 * 100) / 100;
-    validated.hausgeld_nicht_umlegbar = Math.round(validated.hausgeld * 0.4 * 100) / 100;
-    console.log(`[VALIDATION] Applied default 60/40 split: umlegbar=${validated.hausgeld_umlegbar}, nicht_umlegbar=${validated.hausgeld_nicht_umlegbar}`);
+  // ALWAYS apply 60/40 split if Hausgeld present but split missing or incorrect
+  if (validated.hausgeld !== null && validated.hausgeld > 0) {
+    const umlegbar = validated.hausgeld_umlegbar || 0;
+    const nichtUmlegbar = validated.hausgeld_nicht_umlegbar || 0;
+    const splitSum = umlegbar + nichtUmlegbar;
 
-    // Only add warning if not already added earlier
-    if (!warnings.some(w => w.includes('Hausgeld-Aufteilung'))) {
-      warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlegbar, 40% nicht umlegbar (Standardverteilung)');
+    // Apply 60/40 split if:
+    // 1. Both split values are missing/0, OR
+    // 2. Only one split value is set (incomplete), OR
+    // 3. Split sum doesn't match total (with 1€ tolerance for rounding)
+    const needsSplit =
+      (umlegbar === 0 && nichtUmlegbar === 0) ||
+      (umlegbar === 0 && nichtUmlegbar > 0) ||
+      (umlegbar > 0 && nichtUmlegbar === 0) ||
+      (Math.abs(splitSum - validated.hausgeld) > 1);
+
+    if (needsSplit) {
+      validated.hausgeld_umlegbar = Math.round(validated.hausgeld * 0.6 * 100) / 100;
+      validated.hausgeld_nicht_umlegbar = Math.round(validated.hausgeld * 0.4 * 100) / 100;
+      console.log(`[VALIDATION] Applied default 60/40 split: umlegbar=${validated.hausgeld_umlegbar}, nicht_umlegbar=${validated.hausgeld_nicht_umlegbar}`);
+
+      // Only add warning if not already added earlier
+      if (!warnings.some(w => w.includes('Hausgeld-Aufteilung'))) {
+        warnings.push('ℹ️ Hausgeld-Aufteilung: 60% umlagefähig (60%), 40% nicht umlagefähig (40%) - Standardverteilung');
+      }
     }
   }
 

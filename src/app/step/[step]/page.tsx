@@ -1261,20 +1261,74 @@ const exportPdf = React.useCallback(async () => {
             )}
           </div>
 
-          {/* Hinweis bei automatischer Hausgeld-Verteilung */}
-          {hausgeld > 0 && hausgeld_umlegbar > 0 &&
-           Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
-           Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5 && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-start gap-2">
-              <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Automatische Hausgeld-Verteilung</p>
-                <p className="text-xs mt-1">
-                  Das Hausgeld wurde automatisch im Verhältnis 60% umlagefähig / 40% nicht umlagefähig aufgeteilt, da keine genaue Aufteilung in der Anzeige angegeben war. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung an.
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Hinweise zu Hausgeld-Verteilung */}
+          {objekttyp === 'wohnung' && (() => {
+            const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
+            const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
+            const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
+
+            // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
+            const isAutoDistribution = hausgeld > 0 && hausgeld_umlegbar > 0 &&
+              Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
+              Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5;
+
+            // Fall 2: Nur umlagefähig eingetragen, nicht-umlagefähig fehlt
+            const onlyUmlegbarFilled = umlegbarNum > 0 && nichtUmlegbarNum === 0;
+
+            // Fall 3: Nur nicht-umlagefähig eingetragen, umlagefähig fehlt
+            const onlyNichtUmlegbarFilled = nichtUmlegbarNum > 0 && umlegbarNum === 0;
+
+            if (isAutoDistribution) {
+              return (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-start gap-2">
+                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
+                    <p className="text-xs mt-1">
+                      Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
+                    </p>
+                  </div>
+                </div>
+              );
+            } else if (onlyUmlegbarFilled) {
+              const recommendedUmlegbar = totalHausgeld * 0.6;
+              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+              return (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
+                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                    <p className="text-xs mt-1">
+                      Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                    </p>
+                    <p className="text-xs mt-1">
+                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                    </p>
+                  </div>
+                </div>
+              );
+            } else if (onlyNichtUmlegbarFilled) {
+              const recommendedUmlegbar = totalHausgeld * 0.6;
+              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+              return (
+                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
+                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                    <p className="text-xs mt-1">
+                      Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                    </p>
+                    <p className="text-xs mt-1">
+                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                    </p>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
 
         {/* Kalkulatorische Kosten */}
