@@ -4,8 +4,9 @@
 User-agent: *
 Allow: /
 
-# Disallow private pages
+# Disallow private pages and pages that redirect
 Disallow: /dashboard
+Disallow: /sign-up
 Disallow: /profile
 Disallow: /api/
 
