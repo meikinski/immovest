@@ -1,6 +1,19 @@
 {
   "framework": "nextjs",
   "regions": ["fra1"],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.immovestr.de"
+        }
+      ],
+      "destination": "https://immovestr.de/:path*",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/api/stripe/webhook",
