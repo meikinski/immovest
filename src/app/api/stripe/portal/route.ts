@@ -95,8 +95,8 @@ export async function POST(req: Request) {
     // Verify that the customer still exists in Stripe before creating portal session
     try {
       await stripe.customers.retrieve(data.stripe_customer_id);
-    } catch (customerError: any) {
-      if (customerError.statusCode === 404) {
+    } catch (customerError) {
+      if (customerError instanceof Error && 'statusCode' in customerError && customerError.statusCode === 404) {
         console.error('[Portal] Customer not found in Stripe:', data.stripe_customer_id);
         return NextResponse.json(
           { error: 'Kein Abonnement gefunden. Die Kundendaten sind nicht mehr gültig.' },
