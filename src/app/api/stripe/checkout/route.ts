@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     // If no existing customer, create one or let Stripe create it with the user's email
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
-      payment_method_types: ['card', 'sepa_debit'],
+      payment_method_types: ['card'], // Add 'sepa_debit' after activating SEPA in Stripe Dashboard
       line_items: [
         {
           price: finalPriceId,
@@ -81,11 +81,20 @@ export async function POST(req: Request) {
       customer_email: userEmail, // Pre-fill with Clerk email
     };
 
-    // If user already has a Stripe customer, use it instead of customer_email
-    if (stripeCustomerId) {
+    // If user already has a Stripe customer, use it (but only if it matches the current mode)
+    // Test customers start with 'cus_test_' or are created with test keys
+    // Live customers start with 'cus_' (without test prefix)
+    const isLiveMode = process.env.STRIPE_SECRET_KEY?.startsWith('sk_live_');
+    const isTestCustomer = stripeCustomerId?.includes('test_');
+
+    // Only use existing customer if the mode matches
+    if (stripeCustomerId && ((isLiveMode && !isTestCustomer) || (!isLiveMode && isTestCustomer))) {
       delete sessionParams.customer_email;
       sessionParams.customer = stripeCustomerId;
     }
+
+    // Enable promotion codes (for Family & Friends discounts)
+    sessionParams.allow_promotion_codes = true;
 
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create(sessionParams);
