@@ -92,6 +92,20 @@ export async function POST(req: Request) {
 
     console.log('[Portal] Creating portal session for customer:', data.stripe_customer_id);
 
+    // Verify that the customer still exists in Stripe before creating portal session
+    try {
+      await stripe.customers.retrieve(data.stripe_customer_id);
+    } catch (customerError: any) {
+      if (customerError.statusCode === 404) {
+        console.error('[Portal] Customer not found in Stripe:', data.stripe_customer_id);
+        return NextResponse.json(
+          { error: 'Kein Abonnement gefunden. Die Kundendaten sind nicht mehr gültig.' },
+          { status: 404 }
+        );
+      }
+      throw customerError;
+    }
+
     // Create billing portal session
     const session = await stripe.billingPortal.sessions.create({
       customer: data.stripe_customer_id,
