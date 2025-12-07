@@ -16,4 +16,4 @@ Allow: /datenschutz
 Allow: /agb
 
 # Sitemap location
-Sitemap: https://immovestr.de/sitemap.xml
+Sitemap: https://imvestr.de/sitemap.xml
