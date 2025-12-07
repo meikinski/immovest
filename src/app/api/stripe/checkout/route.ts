@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     // If no existing customer, create one or let Stripe create it with the user's email
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
-      payment_method_types: ['card', 'sepa_debit'],
+      payment_method_types: ['card'], // Add 'sepa_debit' after activating SEPA in Stripe Dashboard
       line_items: [
         {
           price: finalPriceId,
