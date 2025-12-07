@@ -1,25 +1,6 @@
 {
   "framework": "nextjs",
   "regions": ["fra1"],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.imvestr.de"
-        }
-      ],
-      "missing": [
-        {
-          "type": "header",
-          "key": "stripe-signature"
-        }
-      ],
-      "destination": "https://imvestr.de/:path*",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/api/stripe/webhook",
