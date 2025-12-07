@@ -87,6 +87,9 @@ export async function POST(req: Request) {
       sessionParams.customer = stripeCustomerId;
     }
 
+    // Enable promotion codes (for Family & Friends discounts)
+    sessionParams.allow_promotion_codes = true;
+
     // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create(sessionParams);
 
