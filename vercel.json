@@ -7,10 +7,16 @@
       "has": [
         {
           "type": "host",
-          "value": "www.immovestr.de"
+          "value": "www.imvestr.de"
         }
       ],
-      "destination": "https://immovestr.de/:path*",
+      "missing": [
+        {
+          "type": "header",
+          "key": "stripe-signature"
+        }
+      ],
+      "destination": "https://imvestr.de/:path*",
       "permanent": true
     }
   ],
