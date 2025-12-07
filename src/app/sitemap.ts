@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://immovestr.de'
+  const baseUrl = 'https://imvestr.de'
   const currentDate = new Date()
 
   return [
