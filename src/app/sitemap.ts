@@ -41,12 +41,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.3,
     },
-    {
-      url: `${baseUrl}/agb`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    }
-    
   ]
 }
