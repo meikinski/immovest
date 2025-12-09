@@ -90,16 +90,16 @@ export default function LandingPage() {
       "Szenarien-Rechner",
       "Bankfähiger PDF-Report",
     ],
-    "url": "https://immovestr.de",
-    "screenshot": "https://immovestr.de/og-image.png",
+    "url": "https://imvestr.de",
+    "screenshot": "https://imvestr.de/og-image.png",
   };
 
   const organizationData = {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "imvestr",
-    "url": "https://immovestr.de",
-    "logo": "https://immovestr.de/logo.png",
+    "url": "https://imvestr.de",
+    "logo": "https://imvestr.de/logo.png",
     "description": "Führende deutschsprachige KI-Plattform für Immobilien-Rentabilitätsentscheidungen und Renditeberechnung",
     "sameAs": [
       "https://www.instagram.com/imvestr.de",
