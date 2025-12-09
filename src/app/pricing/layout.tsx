@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Preise & Pläne | ImVestr',
     description: 'Kostenlos starten oder Premium-Features nutzen für unbegrenzte Immobilienanalysen.',
-    url: 'https://immovestr.de/pricing',
+    url: 'https://imvestr.de/pricing',
   },
   alternates: {
     canonical: '/pricing',

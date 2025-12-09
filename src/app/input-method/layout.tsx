@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Eingabemethoden | ImVestr',
     description: 'KI-Import von ImmoScout24 & Immowelt oder manuelle Dateneingabe - du entscheidest.',
-    url: 'https://immovestr.de/input-method',
+    url: 'https://imvestr.de/input-method',
   },
   alternates: {
     canonical: '/input-method',
