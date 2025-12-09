@@ -119,7 +119,13 @@ export const setUserProperties = (properties: Record<string, unknown>) => {
 };
 
 /**
- * E-commerce tracking for premium purchases
+ * Subscription Plan IDs
+ */
+export type SubscriptionPlanId = 'premium_monthly' | 'premium_yearly';
+
+/**
+ * E-commerce tracking for premium purchases (deprecated - use trackSubscriptionPurchase)
+ * @deprecated Use trackSubscriptionPurchase instead for better subscription tracking
  */
 export const trackPurchase = (
   transactionId: string,
@@ -136,5 +142,40 @@ export const trackPurchase = (
     value,
     currency: 'EUR',
     items,
+  });
+};
+
+/**
+ * Track subscription purchase with detailed plan information
+ * This provides better insights in Google Analytics for subscription analysis
+ */
+export const trackSubscriptionPurchase = (
+  planId: SubscriptionPlanId,
+  transactionId: string,
+  value: number
+) => {
+  const isYearly = planId === 'premium_yearly';
+
+  const itemName =
+    planId === 'premium_yearly'
+      ? 'Imvestr Premium – Jahresabo'
+      : 'Imvestr Premium – Monatsabo';
+
+  const interval = isYearly ? 'year' : 'month';
+
+  trackEvent(AnalyticsEvents.PURCHASE_COMPLETED, {
+    transaction_id: transactionId,
+    value,
+    currency: 'EUR',
+    subscription_plan_id: planId,
+    subscription_interval: interval,
+    items: [
+      {
+        item_id: planId,     // 'premium_monthly' or 'premium_yearly'
+        item_name: itemName, // Clear display name
+        price: value,
+        quantity: 1,
+      },
+    ],
   });
 };

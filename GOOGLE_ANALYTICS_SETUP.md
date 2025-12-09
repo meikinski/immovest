@@ -82,6 +82,8 @@ Diese Anleitung hilft dir, Google Analytics 4 und Google Tag Manager zu konfigur
 | `transaction_id` | `{{dlv - transaction_id}}` |
 | `value` | `{{dlv - value}}` |
 | `currency` | `{{dlv - currency}}` |
+| `subscription_plan_id` | `{{dlv - subscription_plan_id}}` |
+| `subscription_interval` | `{{dlv - subscription_interval}}` |
 | `items` | `{{dlv - items}}` |
 
 7. **Trigger**: Wir erstellen jetzt einen Custom Event Trigger
@@ -125,6 +127,18 @@ Erstelle für jeden Parameter eine Variable:
 1. Name: `dlv - items`
 2. Variablentyp: **"Datenschichtvariable"**
 3. Name der Datenschichtvariablen: `items`
+4. Speichern
+
+**Variable 5: subscription_plan_id**
+1. Name: `dlv - subscription_plan_id`
+2. Variablentyp: **"Datenschichtvariable"**
+3. Name der Datenschichtvariablen: `subscription_plan_id`
+4. Speichern
+
+**Variable 6: subscription_interval**
+1. Name: `dlv - subscription_interval`
+2. Variablentyp: **"Datenschichtvariable"**
+3. Name der Datenschichtvariablen: `subscription_interval`
 4. Speichern
 
 ### 2.6 GTM-Container veröffentlichen
@@ -190,7 +204,14 @@ npm run dev
      "transaction_id": "cs_test_...",
      "value": 69,
      "currency": "EUR",
-     "items": [...]
+     "subscription_plan_id": "premium_yearly",
+     "subscription_interval": "year",
+     "items": [{
+       "item_id": "premium_yearly",
+       "item_name": "Imvestr Premium – Jahresabo",
+       "price": 69,
+       "quantity": 1
+     }]
    }
    ```
 

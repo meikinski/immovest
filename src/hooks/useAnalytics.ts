@@ -1,7 +1,12 @@
 'use client';
 
 import { useCallback } from 'react';
-import { trackEvent, AnalyticsEvents } from '@/lib/analytics';
+import {
+  trackEvent,
+  AnalyticsEvents,
+  trackSubscriptionPurchase as trackSubscriptionPurchaseLib,
+  type SubscriptionPlanId
+} from '@/lib/analytics';
 
 /**
  * React Hook for Analytics Tracking
@@ -59,11 +64,20 @@ export function useAnalytics() {
     });
   }, [track]);
 
+  const trackSubscriptionPurchase = useCallback((
+    planId: SubscriptionPlanId,
+    transactionId: string,
+    value: number
+  ) => {
+    trackSubscriptionPurchaseLib(planId, transactionId, value);
+  }, []);
+
   return {
     track,
     trackCTA,
     trackInputMethod,
     trackUpgradeClick,
     trackPurchase,
+    trackSubscriptionPurchase,
   };
 }

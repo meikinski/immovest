@@ -30,7 +30,7 @@ import {
 // Separate component for handling search params
 function PurchaseTracker() {
   const searchParams = useSearchParams();
-  const { trackPurchase } = useAnalytics();
+  const { trackSubscriptionPurchase } = useAnalytics();
   const { refreshPremiumStatus, isPremium } = usePaywall();
   const purchaseTracked = useRef(false);
   const [retryCount, setRetryCount] = useState(0);
@@ -53,24 +53,17 @@ function PurchaseTracker() {
       // Store in ref for polling
       successRef.current = { success: true, sessionId, plan };
 
-      // Determine purchase value based on plan
+      // Determine purchase value and plan ID based on plan
       const value = plan === 'yearly' ? 69 : 13.99;
-      const planName = plan === 'yearly' ? 'Jahresabo' : 'Monatsabo';
+      const planId = plan === 'yearly' ? 'premium_yearly' : 'premium_monthly';
 
-      // Track the purchase event for GTM/GA4
-      trackPurchase(sessionId, value, [
-        {
-          item_id: plan,
-          item_name: planName,
-          price: value,
-          quantity: 1,
-        },
-      ]);
+      // Track the purchase event for GTM/GA4 with detailed subscription info
+      trackSubscriptionPurchase(planId, sessionId, value);
 
       // Show initial loading message
       toast.loading('Aktiviere Premium-Zugang...', { id: 'premium-activation' });
     }
-  }, [searchParams, trackPurchase]);
+  }, [searchParams, trackSubscriptionPurchase]);
 
   // Poll for premium status after purchase
   useEffect(() => {
