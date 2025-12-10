@@ -30,10 +30,14 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
   const [clerkIsReady, setClerkIsReady] = useState(false);
 
   useEffect(() => {
-    // Check if this is a bot request via cookie set by middleware
-    const isBot = document.cookie.includes('x-is-bot=1');
+    // First, delete any stale bot cookie
+    document.cookie = 'x-is-bot=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 
-    // Only load Clerk for real users (not bots)
+    // Check user agent client-side to detect bots
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp/i.test(userAgent);
+
+    // For real users (not bots), always load Clerk
     const shouldLoad = !isBot;
     setShouldLoadClerk(shouldLoad);
     setIsReady(true);
@@ -42,10 +46,10 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
     if (shouldLoad) {
       const timer = setTimeout(() => {
         setClerkIsReady(true);
-      }, 150);
+      }, 200);
       return () => clearTimeout(timer);
     } else {
-      // For bots, we're immediately ready
+      // For bots, we're immediately ready (no Clerk)
       setClerkIsReady(false);
     }
   }, []);
