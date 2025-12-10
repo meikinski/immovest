@@ -1,6 +1,5 @@
 'use client';
 
-import { useAuth } from '@clerk/nextjs';
 import Link from 'next/link';
 import { LogIn } from 'lucide-react';
 import dynamic from 'next/dynamic';
