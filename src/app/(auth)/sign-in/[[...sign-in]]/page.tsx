@@ -1,8 +1,27 @@
-import { SignIn } from "@clerk/nextjs";
+'use client';
+
+import { SignIn, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Page() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const router = useRouter();
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (isLoaded && isSignedIn) {
+      router.push('/input-method');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Show nothing while checking auth or if already signed in
+  if (!isLoaded || isSignedIn) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--brand))]/5 via-white to-[hsl(var(--brand-2))]/5">
       {/* Header */}

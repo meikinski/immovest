@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { GoogleTagManager } from '@/components/GoogleTagManager';
 import { PaywallProvider } from '@/contexts/PaywallContext';
+import { ClientClerkProvider } from '@/components/ClientClerkProvider';
 import { Toaster } from 'sonner';
 
 const inter = Inter({
@@ -85,12 +86,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root Layout - NO CLERK!
+ * Root Layout with Client-Side Clerk
  *
- * This root layout intentionally does NOT include ClerkProvider to prevent
- * Clerk's external scripts from loading on public pages.
- *
- * ClerkProvider is only added in the (auth) route group for authenticated pages.
+ * Uses ClientClerkProvider which only loads Clerk after client-side hydration.
+ * This prevents Clerk scripts from appearing in SSR HTML (for Google/bots)
+ * while still providing full auth functionality for real users.
  */
 export default function RootLayout({
   children,
@@ -104,11 +104,12 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleTagManager />
-        {/* NO ClerkProvider here - only PaywallProvider and Toaster */}
-        <PaywallProvider>
-          {children}
-          <Toaster position="top-center" richColors />
-        </PaywallProvider>
+        <ClientClerkProvider>
+          <PaywallProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </PaywallProvider>
+        </ClientClerkProvider>
       </body>
     </html>
   );
