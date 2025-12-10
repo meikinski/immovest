@@ -16,7 +16,7 @@ import {
   Save,
   Zap,
 } from 'lucide-react';
-import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
@@ -26,14 +26,11 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
   const { trackCTA } = useAnalytics();
   const [isScrolled, setIsScrolled] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
 
   React.useEffect(() => {
-    setMounted(true);
     const handleScroll = () => {
       // Check if scrolled past hero (roughly 600px)
       setIsScrolled(window.scrollY > 600);
@@ -255,24 +252,12 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            {mounted && !isSignedIn && (
-              <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                <button type="button" className={`text-sm font-medium transition-colors cursor-pointer ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}>
-                  Anmelden
-                </button>
-              </SignInButton>
-            )}
-            {mounted && isSignedIn && (
-              <UserButton afterSignOutUrl="/">
-                <UserButton.MenuItems>
-                  <UserButton.Link
-                    label="Profil & Einstellungen"
-                    labelIcon={<Save size={16} />}
-                    href="/profile"
-                  />
-                </UserButton.MenuItems>
-              </UserButton>
-            )}
+            <Link
+              href="/sign-in"
+              className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}
+            >
+              Anmelden
+            </Link>
           </div>
         </div>
       </header>
@@ -323,14 +308,13 @@ export default function LandingPage() {
                   Analyse starten
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </button>
-                {mounted && !isSignedIn && (
-                  <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                    <button type="button" className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto">
-                      <LogIn className="h-5 w-5" />
-                      Einloggen/Anmelden
-                    </button>
-                  </SignInButton>
-                )}
+                <Link
+                  href="/sign-in"
+                  className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto"
+                >
+                  <LogIn className="h-5 w-5" />
+                  Einloggen/Anmelden
+                </Link>
               </div>
 
               {/* Trust Badges */}
@@ -587,13 +571,12 @@ export default function LandingPage() {
                       <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />
                     </button>
 
-                    {mounted && !isSignedIn && (
-                      <SignInButton mode="modal" forceRedirectUrl="/input-method" fallbackRedirectUrl="/input-method">
-                        <button type="button" className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10">
-                          Kostenlos registrieren
-                        </button>
-                      </SignInButton>
-                    )}
+                    <Link
+                      href="/sign-in"
+                      className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-transparent px-6 py-3 sm:px-10 sm:py-5 text-sm sm:text-base font-semibold text-white transition-all duration-200 hover:bg-white/10"
+                    >
+                      Kostenlos registrieren
+                    </Link>
                   </div>
                 </div>
               </div>
