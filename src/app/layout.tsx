@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from '@/components/Providers';
 import { GoogleTagManager } from '@/components/GoogleTagManager';
+import { PaywallProvider } from '@/contexts/PaywallContext';
+import { Toaster } from 'sonner';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -73,7 +74,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'UBVnkHXPp98wEw176mPlhACJs8t5v3XkDL1MtyR1E9w', // TODO: Replace with actual verification code from Google Search Console
+    google: 'UBVnkHXPp98wEw176mPlhACJs8t5v3XkDL1MtyR1E9w',
   },
   appleWebApp: {
     capable: true,
@@ -83,6 +84,14 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 };
 
+/**
+ * Root Layout - NO CLERK!
+ *
+ * This root layout intentionally does NOT include ClerkProvider to prevent
+ * Clerk's external scripts from loading on public pages.
+ *
+ * ClerkProvider is only added in the (auth) route group for authenticated pages.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -95,9 +104,11 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleTagManager />
-        <Providers>
+        {/* NO ClerkProvider here - only PaywallProvider and Toaster */}
+        <PaywallProvider>
           {children}
-        </Providers>
+          <Toaster position="top-center" richColors />
+        </PaywallProvider>
       </body>
     </html>
   );
