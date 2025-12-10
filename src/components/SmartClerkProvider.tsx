@@ -2,7 +2,16 @@
 
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+
+/**
+ * Context to check if Clerk is loaded
+ */
+const ClerkLoadedContext = createContext<boolean>(false);
+
+export function useIsClerkLoaded() {
+  return useContext(ClerkLoadedContext);
+}
 
 /**
  * Smart ClerkProvider for public pages
@@ -17,6 +26,7 @@ import { ReactNode, useEffect, useState } from 'react';
  */
 export function SmartClerkProvider({ children }: { children: ReactNode }) {
   const [shouldLoadClerk, setShouldLoadClerk] = useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     // Check if this is a bot request via cookie set by middleware
@@ -24,22 +34,38 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
 
     // Only load Clerk for real users (not bots)
     setShouldLoadClerk(!isBot);
+    setIsReady(true);
   }, []);
 
-  // Don't load Clerk during SSR or for bots
+  // During SSR, don't load Clerk
+  if (!isReady) {
+    return (
+      <ClerkLoadedContext.Provider value={false}>
+        {children}
+      </ClerkLoadedContext.Provider>
+    );
+  }
+
+  // For bots, don't load Clerk
   if (!shouldLoadClerk) {
-    return <>{children}</>;
+    return (
+      <ClerkLoadedContext.Provider value={false}>
+        {children}
+      </ClerkLoadedContext.Provider>
+    );
   }
 
   // For real users, load full Clerk functionality
   return (
-    <ClerkProvider
-      localization={deDE}
-      telemetry={false}
-      signInFallbackRedirectUrl="/input-method"
-      signUpFallbackRedirectUrl="/input-method"
-    >
-      {children}
-    </ClerkProvider>
+    <ClerkLoadedContext.Provider value={true}>
+      <ClerkProvider
+        localization={deDE}
+        telemetry={false}
+        signInFallbackRedirectUrl="/input-method"
+        signUpFallbackRedirectUrl="/input-method"
+      >
+        {children}
+      </ClerkProvider>
+    </ClerkLoadedContext.Provider>
   );
 }
