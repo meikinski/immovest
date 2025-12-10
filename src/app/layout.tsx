@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { GoogleTagManager } from '@/components/GoogleTagManager';
-import { PaywallProvider } from '@/contexts/PaywallContext';
 import { Toaster } from 'sonner';
 
 const inter = Inter({
@@ -85,12 +84,13 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root Layout - NO CLERK!
+ * Root Layout - NO CLERK, NO PAYWALL!
  *
- * This root layout intentionally does NOT include ClerkProvider to prevent
- * Clerk's external scripts from loading on public pages.
+ * This root layout intentionally does NOT include:
+ * - ClerkProvider (causes external scripts on public pages)
+ * - PaywallProvider (requires Clerk auth, only needed on auth pages)
  *
- * ClerkProvider is only added in the (auth) route group for authenticated pages.
+ * Both are only added in the (auth) route group for authenticated pages.
  */
 export default function RootLayout({
   children,
@@ -104,11 +104,8 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <GoogleTagManager />
-        {/* NO ClerkProvider here - only PaywallProvider and Toaster */}
-        <PaywallProvider>
-          {children}
-          <Toaster position="top-center" richColors />
-        </PaywallProvider>
+        {children}
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );

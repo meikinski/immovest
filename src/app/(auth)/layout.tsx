@@ -1,11 +1,15 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
+import { PaywallProvider } from '@/contexts/PaywallContext';
 
 /**
- * Auth Layout - WITH CLERK!
+ * Auth Layout - WITH CLERK AND PAYWALL!
  *
  * This layout wraps all authenticated routes (sign-in, dashboard, profile, etc.)
- * with ClerkProvider to enable authentication functionality.
+ * with ClerkProvider and PaywallProvider.
+ *
+ * ClerkProvider enables authentication functionality.
+ * PaywallProvider uses Clerk auth to manage premium features.
  *
  * These pages are NOT meant to be indexed by Google, so it's fine to have
  * Clerk's external scripts here.
@@ -22,7 +26,9 @@ export default function AuthLayout({
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"
     >
-      {children}
+      <PaywallProvider>
+        {children}
+      </PaywallProvider>
     </ClerkProvider>
   );
 }
