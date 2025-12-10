@@ -15,21 +15,8 @@ type PaywallContextType = {
 
 const PaywallContext = createContext<PaywallContextType | undefined>(undefined);
 
-/**
- * Safe wrapper for useAuth that returns null values if ClerkProvider is not available
- * This allows PaywallContext to work on both public pages (without Clerk) and auth pages (with Clerk)
- */
-function useSafeAuth() {
-  try {
-    return useAuth();
-  } catch {
-    // If useAuth throws (because we're not in a ClerkProvider), return null values
-    return { isSignedIn: false, userId: null };
-  }
-}
-
 export function PaywallProvider({ children }: { children: ReactNode }) {
-  const { isSignedIn, userId } = useSafeAuth();
+  const { isSignedIn, userId } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);

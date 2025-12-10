@@ -2,9 +2,10 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
+import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth, UserButton } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
@@ -12,6 +13,7 @@ import { AnalyticsEvents } from '@/lib/analytics';
 export default function InputMethodPage() {
   const router = useRouter();
   const { track } = useAnalytics();
+  const { isSignedIn } = useAuth();
   const importData = useImmoStore(s => s.importData);
   const resetAnalysis = useImmoStore(s => s.resetAnalysis);
 
@@ -253,13 +255,24 @@ export default function InputMethodPage() {
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/sign-in"
-              className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
-            >
-              Anmelden
-            </Link>
-          </div>
+            {isSignedIn ? (
+              <UserButton afterSignOutUrl="/">
+                <UserButton.MenuItems>
+                  <UserButton.Link
+                    label="Profil & Einstellungen"
+                    labelIcon={<Save size={16} />}
+                    href="/profile"
+                  />
+                </UserButton.MenuItems>
+              </UserButton>
+            ) : (
+              <Link
+                href="/sign-in"
+                className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
+              >
+                Anmelden
+              </Link>
+            )}
         </div>
       </header>
 
