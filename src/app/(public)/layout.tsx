@@ -1,14 +1,19 @@
+import { SmartClerkProvider } from '@/components/SmartClerkProvider';
+
 /**
- * Public Layout - Pass-through
+ * Public Layout - Smart Clerk Loading
  *
- * This layout just passes through to children.
- * The root layout already provides the HTML structure and PaywallProvider.
- * This route group ensures NO ClerkProvider is used for public pages.
+ * Uses SmartClerkProvider which:
+ * - Detects bots via cookie (set by middleware)
+ * - Bots (Google, Bing, etc.): No Clerk → Clean indexing ✅
+ * - Real users: Full Clerk → Profile button when logged in ✅
+ *
+ * This is the professional solution used by large websites.
  */
 export default function PublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <SmartClerkProvider>{children}</SmartClerkProvider>;
 }

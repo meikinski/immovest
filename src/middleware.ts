@@ -45,24 +45,30 @@ function isBot(userAgent: string): boolean {
 
 export default clerkMiddleware(async (auth, req) => {
   const userAgent = req.headers.get('user-agent') || '';
+  const isBotRequest = isBot(userAgent);
 
-  // For public routes with bot user-agents, block Clerk external scripts via CSP
-  if (isPublicRoute(req) && isBot(userAgent)) {
+  // For bot requests on public routes, set a cookie to signal bot traffic
+  if (isPublicRoute(req) && isBotRequest) {
     const response = NextResponse.next();
 
-    // Set CSP header to block Clerk's external domain
-    // This prevents the redirect error Google sees when Clerk scripts load
-    response.headers.set(
-      'Content-Security-Policy',
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://stats.g.doubleclick.net; " +
-      "connect-src 'self' https://stats.g.doubleclick.net; " +
-      "default-src *;"
-    );
+    // Set cookie to indicate bot traffic (client can check this)
+    response.cookies.set('x-is-bot', '1', {
+      httpOnly: false, // Client needs to read this
+      maxAge: 60, // Short lived (1 minute)
+      sameSite: 'lax',
+    });
 
     return response;
   }
 
-  // Skip Clerk processing for public routes (non-bot traffic)
+  // For real user requests on public routes, ensure bot cookie is cleared
+  if (isPublicRoute(req) && !isBotRequest) {
+    const response = NextResponse.next();
+    response.cookies.delete('x-is-bot');
+    return response;
+  }
+
+  // Skip Clerk processing for public routes
   if (isPublicRoute(req)) {
     return;
   }
