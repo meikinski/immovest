@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
@@ -13,7 +12,8 @@ interface PricingCardsProps {
 }
 
 export default function PricingCards({}: PricingCardsProps) {
-  const { userId } = useAuth();
+  // For public pages without auth, userId is undefined
+  const userId = undefined;
   const { isPremium } = usePaywall();
   const { trackUpgradeClick } = useAnalytics();
   const router = useRouter();
