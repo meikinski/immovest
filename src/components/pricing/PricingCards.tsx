@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
-import { usePaywall } from '@/contexts/PaywallContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface PricingCardsProps {
@@ -14,7 +13,6 @@ interface PricingCardsProps {
 export default function PricingCards({}: PricingCardsProps) {
   // For public pages without auth, userId is undefined
   const userId = undefined;
-  const { isPremium } = usePaywall();
   const { trackUpgradeClick } = useAnalytics();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -51,43 +49,6 @@ export default function PricingCards({}: PricingCardsProps) {
     setTouchStart(0);
     setTouchEnd(0);
   };
-
-  // Show message for premium users
-  if (isPremium) {
-    return (
-      <div className="w-full max-w-4xl mx-auto px-4 py-16 text-center">
-        <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-lg font-semibold rounded-full shadow-lg mb-6">
-          <Crown className="w-6 h-6" />
-          Du bist bereits Premium-Mitglied
-        </div>
-        <p className="text-lg text-gray-600 mb-8">
-          Du hast bereits Zugriff auf alle Premium-Features. Viel Erfolg bei deinen Immobilienanalysen!
-        </p>
-        <div className="inline-flex flex-col gap-3 text-left bg-white border-2 border-[hsl(var(--brand))]/20 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-center gap-3 text-gray-700">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>Unbegrenzte Markt- & Lageanalysen</span>
-          </div>
-          <div className="flex items-center gap-3 text-gray-700">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>KI-gestützte Investitionsempfehlungen</span>
-          </div>
-          <div className="flex items-center gap-3 text-gray-700">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>Detaillierte Szenario-Analysen</span>
-          </div>
-          <div className="flex items-center gap-3 text-gray-700">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>PDF-Export deiner Analysen</span>
-          </div>
-          <div className="flex items-center gap-3 text-gray-700">
-            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <span>Gespeicherte Analysen ohne Limit</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Beide Abos haben die gleichen Features, nur unterschiedlicher Preis
   const baseFeatures = [
@@ -405,3 +366,4 @@ export default function PricingCards({}: PricingCardsProps) {
     </div>
   );
 }
+
