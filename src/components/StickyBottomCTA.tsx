@@ -3,15 +3,13 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-
 /**
  * Sticky Bottom CTA - nur mobil sichtbar
  * Blendet sich aus, wenn der Haupt-CTA im Viewport ist
+ * Auth-free version for public pages
  */
 export function StickyBottomCTA() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -59,7 +57,7 @@ export function StickyBottomCTA() {
           onClick={() => router.push('/input-method')}
           className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
         >
-          {isSignedIn ? 'Analyse starten' : 'Kostenlos testen'}
+          Kostenlos testen
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>
