@@ -15,7 +15,10 @@ type PaywallContextType = {
 
 const PaywallContext = createContext<PaywallContextType | undefined>(undefined);
 
-export function PaywallProvider({ children }: { children: ReactNode }) {
+/**
+ * Inner provider that uses Clerk auth - only rendered after hydration
+ */
+function PaywallProviderInner({ children }: { children: ReactNode }) {
   const { isSignedIn, userId } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
@@ -105,6 +108,40 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
       {children}
     </PaywallContext.Provider>
   );
+}
+
+/**
+ * Outer provider that waits for hydration before using Clerk
+ * During SSR and first render, provides default values without auth
+ */
+export function PaywallProvider({ children }: { children: ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Before hydration, provide default context without Clerk auth
+  if (!mounted) {
+    const defaultValue: PaywallContextType = {
+      isPremium: false,
+      premiumUsageCount: 0,
+      canAccessPremium: true,
+      incrementPremiumUsage: () => {},
+      showUpgradeModal: false,
+      setShowUpgradeModal: () => {},
+      refreshPremiumStatus: async () => {},
+    };
+
+    return (
+      <PaywallContext.Provider value={defaultValue}>
+        {children}
+      </PaywallContext.Provider>
+    );
+  }
+
+  // After hydration, use real provider with Clerk auth
+  return <PaywallProviderInner>{children}</PaywallProviderInner>;
 }
 
 export function usePaywall() {
