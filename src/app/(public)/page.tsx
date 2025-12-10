@@ -272,6 +272,7 @@ export default function LandingPage() {
                 Anmelden
               </Link>
             )}
+          </div>
         </div>
       </header>
 

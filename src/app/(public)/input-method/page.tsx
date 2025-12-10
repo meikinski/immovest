@@ -273,6 +273,7 @@ export default function InputMethodPage() {
                 Anmelden
               </Link>
             )}
+          </div>
         </div>
       </header>
 
