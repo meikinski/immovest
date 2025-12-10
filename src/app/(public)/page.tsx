@@ -13,22 +13,21 @@ import {
   MapPin,
   ShieldCheck,
   Sparkles,
-  Save,
   Zap,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useAuth, UserButton } from '@clerk/nextjs';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { PricingTeaser } from '@/components/PricingTeaser';
 import { TrustBadges } from '@/components/TrustBadges';
 import { InteractiveStepPreview } from '@/components/InteractiveStepPreview';
 import { InputMethodShowcase } from '@/components/InputMethodShowcase';
+import { AuthUI } from '@/components/AuthUI';
+import { SignInButton } from '@/components/SignInButton';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function LandingPage() {
   const router = useRouter();
   const { trackCTA } = useAnalytics();
-  const { isSignedIn } = useAuth();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
 
@@ -254,24 +253,7 @@ export default function LandingPage() {
           </nav>
 
           <div className="flex items-center gap-4">
-            {isSignedIn ? (
-              <UserButton afterSignOutUrl="/">
-                <UserButton.MenuItems>
-                  <UserButton.Link
-                    label="Profil & Einstellungen"
-                    labelIcon={<Save size={16} />}
-                    href="/profile"
-                  />
-                </UserButton.MenuItems>
-              </UserButton>
-            ) : (
-              <Link
-                href="/sign-in"
-                className={`text-sm font-medium transition-colors ${isScrolled ? 'text-gray-700 hover:text-[hsl(var(--brand))]' : 'text-white/90 hover:text-white'}`}
-              >
-                Anmelden
-              </Link>
-            )}
+            <AuthUI variant={isScrolled ? 'light' : 'dark'} />
           </div>
         </div>
       </header>
@@ -322,15 +304,7 @@ export default function LandingPage() {
                   Analyse starten
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </button>
-                {!isSignedIn && (
-                  <Link
-                    href="/sign-in"
-                    className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-transparent px-10 py-4 text-base font-semibold text-white/90 transition-all duration-200 hover:bg-white/10 hover:border-white/60 focus:outline-none focus:ring-4 focus:ring-white/30 sm:w-auto"
-                  >
-                    <LogIn className="h-5 w-5" />
-                    Einloggen/Anmelden
-                  </Link>
-                )}
+                <SignInButton />
               </div>
 
               {/* Trust Badges */}
