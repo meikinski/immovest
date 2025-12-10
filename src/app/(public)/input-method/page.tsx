@@ -2,17 +2,15 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
-import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles, Save } from 'lucide-react';
+import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useAuth, useUser, SignInButton, UserButton } from '@clerk/nextjs';
+import Link from 'next/link';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
 
 export default function InputMethodPage() {
   const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const resetAnalysis = useImmoStore(s => s.resetAnalysis);
@@ -255,27 +253,12 @@ export default function InputMethodPage() {
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
-            {!isSignedIn ? (
-              <SignInButton
-                mode="modal"
-                forceRedirectUrl="/input-method"
-                fallbackRedirectUrl="/input-method"
-              >
-                <button className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
-                  Anmelden
-                </button>
-              </SignInButton>
-            ) : (
-              <UserButton afterSignOutUrl="/">
-                <UserButton.MenuItems>
-                  <UserButton.Link
-                    label="Profil & Einstellungen"
-                    labelIcon={<Save size={16} />}
-                    href="/profile"
-                  />
-                </UserButton.MenuItems>
-              </UserButton>
-            )}
+            <Link
+              href="/sign-in"
+              className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition"
+            >
+              Anmelden
+            </Link>
           </div>
         </div>
       </header>
@@ -290,21 +273,9 @@ export default function InputMethodPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              {isSignedIn && user?.firstName ? (
-                <>
-                  <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                    Hey {user.firstName}{' '}
-                  </span>
-                  <span className="inline-block">👋</span>
-                  <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                    {' '}Bist du bereit für deine nächste Immobilie?
-                  </span>
-                </>
-              ) : (
-                <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                  Wie möchtest du starten?
-                </span>
-              )}
+              <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
+                Wie möchtest du starten?
+              </span>
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Wähle deine bevorzugte Methode für den Datenimport
