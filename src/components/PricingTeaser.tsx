@@ -3,26 +3,22 @@
 import React, { useState } from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { usePaywall } from '@/contexts/PaywallContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
 /**
  * Pricing Teaser mit Toggle Jährlich/Monatlich
  * Vergleich: Free vs. Pro
+ *
+ * Note: Always shows on public pages (no auth check)
+ * This is a compromise for Google indexing
  */
 export function PricingTeaser() {
   const router = useRouter();
-  const { isPremium } = usePaywall();
   const { trackUpgradeClick } = useAnalytics();
   const [isYearly, setIsYearly] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-
-  // Don't show pricing for premium users
-  if (isPremium) {
-    return null;
-  }
 
   const plans = [
     {
