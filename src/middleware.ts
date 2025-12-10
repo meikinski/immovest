@@ -6,7 +6,22 @@ const isProtectedRoute = createRouteMatcher([
   '/api/user(.*)',
 ]);
 
+// Public routes that should NEVER redirect (important for Google indexing)
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/pricing',
+  '/input-method',
+  '/impressum',
+  '/datenschutz',
+  '/agb',
+]);
+
 export default clerkMiddleware(async (auth, req) => {
+  // Skip middleware entirely for public routes to avoid any redirect issues
+  if (isPublicRoute(req)) {
+    return;
+  }
+
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
