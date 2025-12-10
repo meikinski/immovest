@@ -74,3 +74,4 @@ function AuthUIClient({ variant }: AuthUIProps) {
     </Link>
   );
 }
+
