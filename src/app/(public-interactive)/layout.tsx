@@ -1,28 +1,38 @@
 import { auth } from '@clerk/nextjs/server';
+import { ClerkProvider } from '@clerk/nextjs';
+import { deDE } from '@clerk/localizations';
 import { AuthProvider } from '@/components/AuthProvider';
 
 /**
  * Layout for interactive public pages (/ and /input-method)
  *
- * Server-side auth check WITHOUT loading Clerk client-side:
- * - Uses auth() from Clerk server-side only
- * - Passes auth status to client components via React Context
- * - NO Clerk JavaScript loaded on client → Google sees clean HTML
- * - Users still see correct auth state (profile button when logged in)
+ * Hybrid strategy for best of both worlds:
+ * - SSR: Detects auth state + wraps with ClerkProvider (for UserButton to work)
+ * - Passes isSignedIn to components via AuthProvider
+ * - Components conditionally load Clerk features only for signed-in users
  *
- * This ensures:
- * ✅ Google can index without ANY Clerk scripts or redirects
- * ✅ Users see profile button when logged in
- * ✅ Zero client-side Clerk overhead for public pages
+ * Why this works for Google indexing:
+ * ✅ Google/Bots are NEVER signed in → components show static links only
+ * ✅ Real signed-in users get full Clerk (UserButton, profile, subscription)
+ * ✅ Clerk JS only loads for authenticated users (not bots)
  */
 export default async function PublicInteractiveLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side auth check (Clerk middleware initializes, but we prevent client-side JS)
+  // Server-side auth check
   const { userId } = await auth();
   const isSignedIn = !!userId;
 
-  return <AuthProvider isSignedIn={isSignedIn}>{children}</AuthProvider>;
+  return (
+    <ClerkProvider
+      localization={deDE}
+      telemetry={false}
+      signInFallbackRedirectUrl="/input-method"
+      signUpFallbackRedirectUrl="/input-method"
+    >
+      <AuthProvider isSignedIn={isSignedIn}>{children}</AuthProvider>
+    </ClerkProvider>
+  );
 }
