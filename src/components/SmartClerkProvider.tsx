@@ -14,13 +14,15 @@ export function useIsClerkLoaded() {
 }
 
 /**
- * Smart ClerkProvider for public pages
+ * Smart ClerkProvider for public pages (like /pricing)
  *
- * - For bots (detected by middleware): Never loads Clerk
- * - For real users: Loads Clerk for full auth functionality
+ * Features:
+ * - Bot Detection: Bots/Google never see Clerk scripts (no indexing issues)
+ * - Smart Loading: Real users get Clerk for full auth functionality
+ * - Context API: Provides ClerkLoadedContext for components
  *
  * This ensures:
- * ✅ Google can index without seeing Clerk scripts
+ * ✅ Google can index without Clerk redirect errors
  * ✅ Real users get full auth UX (profile button when logged in)
  * ✅ Professional user experience
  */
@@ -29,14 +31,38 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // First, delete any stale bot cookie
-    document.cookie = 'x-is-bot=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
+    // Check if this is a bot request
+    // 1. Check middleware cookie (server-side bot detection)
+    const botCookie = document.cookie.split('; ').find(row => row.startsWith('x-is-bot='));
+    const isBotFromMiddleware = botCookie?.split('=')[1] === '1';
 
-    // Check user agent client-side to detect bots
+    // 2. Client-side user agent check (backup)
     const userAgent = navigator.userAgent.toLowerCase();
-    const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp/i.test(userAgent);
+    const botPatterns = [
+      'googlebot',
+      'bingbot',
+      'slurp',
+      'duckduckbot',
+      'baiduspider',
+      'yandexbot',
+      'facebookexternalhit',
+      'twitterbot',
+      'rogerbot',
+      'linkedinbot',
+      'embedly',
+      'quora link preview',
+      'showyoubot',
+      'outbrain',
+      'pinterest',
+      'slackbot',
+      'vkshare',
+      'w3c_validator',
+      'whatsapp',
+    ];
+    const isBotFromUA = botPatterns.some(pattern => userAgent.includes(pattern));
 
-    // For real users (not bots), always load Clerk
+    // Only load Clerk for real users (not bots)
+    const isBot = isBotFromMiddleware || isBotFromUA;
     setShouldLoadClerk(!isBot);
     setIsReady(true);
   }, []);

@@ -4,10 +4,10 @@ import Link from 'next/link';
 import { LogIn, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
-import { useIsClerkLoaded } from './SmartClerkProvider';
+import { useIsClerkLoaded } from '@/app/(public-interactive)/InteractiveClerkProvider';
 
 /**
- * Sign-in button for public pages with SmartClerkProvider
+ * Sign-in button for public pages with InteractiveClerkProvider
  * - Bots: See "Einloggen/Anmelden" (no Clerk, clean HTML)
  * - Real users: See "Zum Dashboard" when logged in
  */
