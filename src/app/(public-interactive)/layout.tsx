@@ -1,18 +1,28 @@
-import { InteractiveClerkProvider } from './InteractiveClerkProvider';
+import { auth } from '@clerk/nextjs/server';
+import { AuthProvider } from '@/components/AuthProvider';
 
 /**
  * Layout for interactive public pages (/ and /input-method)
  *
- * Uses InteractiveClerkProvider which loads Clerk after hydration:
- * - SSR: No Clerk (Google sees clean HTML)
- * - After hydration: Clerk loads (users see auth state)
+ * Server-side auth check WITHOUT loading Clerk client-side:
+ * - Uses auth() from Clerk server-side only
+ * - Passes auth status to client components via React Context
+ * - NO Clerk JavaScript loaded on client → Google sees clean HTML
+ * - Users still see correct auth state (profile button when logged in)
  *
- * This provides better UX than static public pages while still being indexable.
+ * This ensures:
+ * ✅ Google can index without ANY Clerk scripts or redirects
+ * ✅ Users see profile button when logged in
+ * ✅ Zero client-side Clerk overhead for public pages
  */
-export default function PublicInteractiveLayout({
+export default async function PublicInteractiveLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <InteractiveClerkProvider>{children}</InteractiveClerkProvider>;
+  // Server-side auth check (NO client-side Clerk needed!)
+  const { userId } = await auth();
+  const isSignedIn = !!userId;
+
+  return <AuthProvider isSignedIn={isSignedIn}>{children}</AuthProvider>;
 }

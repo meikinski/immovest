@@ -1,73 +1,42 @@
 'use client';
 
-import { useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import { Save } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { useIsClerkLoaded } from '@/app/(public-interactive)/InteractiveClerkProvider';
+import { User } from 'lucide-react';
+import { useAuthStatus } from './AuthProvider';
 
 interface AuthUIProps {
   variant?: 'light' | 'dark';
 }
 
 /**
- * Auth UI component for public pages with InteractiveClerkProvider
- * - Bots: See "Anmelden" link (no Clerk, clean HTML)
- * - Real users: See profile button when logged in
+ * Auth UI component for public pages with server-side auth
+ * - Uses auth status from AuthProvider (server-side check)
+ * - NO Clerk client-side JavaScript loaded
+ * - Shows profile link for signed-in users
+ * - Shows "Anmelden" for guests
+ *
+ * This ensures:
+ * ✅ Google sees static HTML (no Clerk scripts)
+ * ✅ Users see correct state (profile link when logged in)
+ * ✅ No client-side Clerk overhead
  */
 export function AuthUI({ variant = 'light' }: AuthUIProps) {
-  const [mounted, setMounted] = useState(false);
-  const isClerkLoaded = useIsClerkLoaded();
+  const { isSignedIn } = useAuthStatus();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // During SSR, show placeholder
-  if (!mounted) {
-    return <div className="w-8 h-8" />;
-  }
-
-  // If Clerk is not loaded (bot), show static link
-  if (!isClerkLoaded) {
+  // Show profile link for signed-in users
+  if (isSignedIn) {
     return (
       <Link
-        href="/sign-in"
-        className={`text-sm font-medium transition-colors ${
+        href="/input-method"
+        className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
           variant === 'dark'
             ? 'text-white/90 hover:text-white'
             : 'text-gray-700 hover:text-[hsl(var(--brand))]'
         }`}
       >
-        Anmelden
+        <User className="h-4 w-4" />
+        <span>Dashboard</span>
       </Link>
-    );
-  }
-
-  // Clerk is loaded, use auth-aware component
-  return <AuthUIClient variant={variant} />;
-}
-
-function AuthUIClient({ variant }: AuthUIProps) {
-  const { isSignedIn, isLoaded } = useAuth();
-
-  // While Clerk is initializing, show placeholder
-  if (!isLoaded) {
-    return <div className="w-8 h-8" />;
-  }
-
-  // Show profile button for signed-in users
-  if (isSignedIn) {
-    return (
-      <UserButton afterSignOutUrl="/">
-        <UserButton.MenuItems>
-          <UserButton.Link
-            label="Profil & Einstellungen"
-            labelIcon={<Save className="h-4 w-4" />}
-            href="/profile"
-          />
-        </UserButton.MenuItems>
-      </UserButton>
     );
   }
 
