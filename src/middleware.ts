@@ -1,16 +1,4 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-// Public routes that should NEVER use Clerk middleware (for Google indexing)
-const publicRoutes = [
-  '/',
-  '/pricing',
-  '/input-method',
-  '/impressum',
-  '/datenschutz',
-  '/agb',
-];
 
 // Routen die Auth benötigen
 const isProtectedRoute = createRouteMatcher([
@@ -18,39 +6,40 @@ const isProtectedRoute = createRouteMatcher([
   '/api/user(.*)',
 ]);
 
+// Public routes - no auth required but Clerk still initializes (for SSR auth checks)
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/pricing',
+  '/input-method',
+  '/impressum',
+  '/datenschutz',
+  '/agb',
+]);
+
 /**
- * Main middleware function
+ * Middleware for authentication
+ *
+ * Strategy for Google indexing:
+ * - Public routes: Clerk initializes (for SSR auth()) but no redirects
+ * - Protected routes: Full Clerk authentication
+ * - Client-side: We prevent Clerk JS loading via layout (AuthProvider)
+ *
+ * This ensures:
+ * ✅ SSR auth() works on public pages
+ * ✅ No Clerk client-side JS on public pages (handled in layout)
+ * ✅ No redirect errors in Google Search Console
  */
-const clerkMiddlewareHandler = clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
+  // Public routes: let them through (no auth required)
+  if (isPublicRoute(req)) {
+    return;
+  }
+
+  // Protected routes: require authentication
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
 });
-
-/**
- * Middleware for authentication and public route handling
- *
- * CRITICAL for Google indexing:
- * - Public routes SKIP clerkMiddleware entirely (no Clerk scripts injected)
- * - Protected routes use full Clerk authentication
- *
- * This ensures:
- * ✅ Google sees NO Clerk JavaScript on public pages
- * ✅ No redirect errors in Google Search Console
- * ✅ Perfect indexing
- */
-export default function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
-
-  // For public routes: bypass Clerk entirely (critical for indexing!)
-  if (publicRoutes.includes(pathname)) {
-    return NextResponse.next();
-  }
-
-  // For all other routes: use Clerk middleware
-  // @ts-expect-error - Clerk middleware expects NextFetchEvent but we don't need it
-  return clerkMiddlewareHandler(req);
-}
 
 export const config = {
   matcher: [
