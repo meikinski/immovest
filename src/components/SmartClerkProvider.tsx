@@ -27,27 +27,18 @@ export function useIsClerkLoaded() {
 export function SmartClerkProvider({ children }: { children: ReactNode }) {
   const [shouldLoadClerk, setShouldLoadClerk] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [clerkIsReady, setClerkIsReady] = useState(false);
 
   useEffect(() => {
-    // Check if this is a bot request via cookie set by middleware
-    const isBot = document.cookie.includes('x-is-bot=1');
+    // First, delete any stale bot cookie
+    document.cookie = 'x-is-bot=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax';
 
-    // Only load Clerk for real users (not bots)
-    const shouldLoad = !isBot;
-    setShouldLoadClerk(shouldLoad);
+    // Check user agent client-side to detect bots
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp/i.test(userAgent);
+
+    // For real users (not bots), always load Clerk
+    setShouldLoadClerk(!isBot);
     setIsReady(true);
-
-    // If we're loading Clerk, wait a bit for it to initialize
-    if (shouldLoad) {
-      const timer = setTimeout(() => {
-        setClerkIsReady(true);
-      }, 150);
-      return () => clearTimeout(timer);
-    } else {
-      // For bots, we're immediately ready
-      setClerkIsReady(false);
-    }
   }, []);
 
   // During SSR, don't load Clerk
@@ -70,7 +61,7 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
 
   // For real users, load full Clerk functionality
   return (
-    <ClerkLoadedContext.Provider value={clerkIsReady}>
+    <ClerkLoadedContext.Provider value={true}>
       <ClerkProvider
         localization={deDE}
         telemetry={false}

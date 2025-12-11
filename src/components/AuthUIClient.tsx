@@ -13,7 +13,23 @@ interface AuthUIProps {
  * Only used when Clerk is loaded (for real users, not bots)
  */
 export function AuthUIClient({ variant = 'light' }: AuthUIProps) {
-  const { isSignedIn } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // Wait for Clerk to fully load before showing auth state
+  if (!isLoaded) {
+    return (
+      <Link
+        href="/sign-in"
+        className={`text-sm font-medium transition-colors ${
+          variant === 'dark'
+            ? 'text-white/90 hover:text-white'
+            : 'text-gray-700 hover:text-[hsl(var(--brand))]'
+        }`}
+      >
+        Anmelden
+      </Link>
+    );
+  }
 
   if (isSignedIn) {
     return (
