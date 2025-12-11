@@ -48,7 +48,8 @@ export default function middleware(req: NextRequest) {
   }
 
   // For all other routes: use Clerk middleware
-  return clerkMiddlewareHandler(req, {} as any);
+  // @ts-expect-error - Clerk middleware expects NextFetchEvent but we don't need it
+  return clerkMiddlewareHandler(req);
 }
 
 export const config = {
