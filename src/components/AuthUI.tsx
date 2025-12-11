@@ -1,47 +1,71 @@
 'use client';
 
+import { useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { useIsClerkLoaded } from './SmartClerkProvider';
+import { Save } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface AuthUIProps {
   variant?: 'light' | 'dark';
 }
 
-// Dynamically import the client component that uses Clerk hooks
-// This prevents Clerk imports during SSR and for bot requests
-const AuthUIClient = dynamic(
-  () => import('./AuthUIClient').then((mod) => ({ default: mod.AuthUIClient })),
-  { ssr: false }
-);
-
 /**
- * Auth UI component for public pages with SmartClerkProvider
- *
- * - During SSR/for bots: Shows "Anmelden" (clean for Google indexing)
- * - For real users after mount: Shows profile button when logged in
- *
- * Professional solution used by major websites.
+ * Auth UI component for public pages
+ * Shows profile button for logged-in users, "Anmelden" for guests
  */
 export function AuthUI({ variant = 'light' }: AuthUIProps) {
-  const isClerkLoaded = useIsClerkLoaded();
+  const [mounted, setMounted] = useState(false);
 
-  // During SSR and for bots: show "Anmelden" link (SEO-friendly, no Clerk)
-  if (!isClerkLoaded) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // During SSR, show nothing to avoid hydration mismatch
+  if (!mounted) {
     return (
-      <Link
-        href="/sign-in"
-        className={`text-sm font-medium transition-colors ${
-          variant === 'dark'
-            ? 'text-white/90 hover:text-white'
-            : 'text-gray-700 hover:text-[hsl(var(--brand))]'
-        }`}
-      >
-        Anmelden
-      </Link>
+      <div className="w-8 h-8" /> // Placeholder to prevent layout shift
     );
   }
 
-  // For real users: dynamically load the auth-aware component
   return <AuthUIClient variant={variant} />;
+}
+
+function AuthUIClient({ variant }: AuthUIProps) {
+  const { isSignedIn, isLoaded } = useAuth();
+
+  // While Clerk is loading, show placeholder
+  if (!isLoaded) {
+    return (
+      <div className="w-8 h-8" /> // Placeholder to prevent layout shift
+    );
+  }
+
+  // Show profile button for signed-in users
+  if (isSignedIn) {
+    return (
+      <UserButton afterSignOutUrl="/">
+        <UserButton.MenuItems>
+          <UserButton.Link
+            label="Profil & Einstellungen"
+            labelIcon={<Save className="h-4 w-4" />}
+            href="/profile"
+          />
+        </UserButton.MenuItems>
+      </UserButton>
+    );
+  }
+
+  // Show "Anmelden" for guests
+  return (
+    <Link
+      href="/sign-in"
+      className={`text-sm font-medium transition-colors ${
+        variant === 'dark'
+          ? 'text-white/90 hover:text-white'
+          : 'text-gray-700 hover:text-[hsl(var(--brand))]'
+      }`}
+    >
+      Anmelden
+    </Link>
+  );
 }
