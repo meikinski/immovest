@@ -4,40 +4,56 @@ import { useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useIsClerkLoaded } from './SmartClerkProvider';
 
 interface AuthUIProps {
   variant?: 'light' | 'dark';
 }
 
 /**
- * Auth UI component for public pages
- * Shows profile button for logged-in users, "Anmelden" for guests
+ * Auth UI component for public pages with SmartClerkProvider
+ * - Bots: See "Anmelden" link (no Clerk, clean HTML)
+ * - Real users: See profile button when logged in
  */
 export function AuthUI({ variant = 'light' }: AuthUIProps) {
   const [mounted, setMounted] = useState(false);
+  const isClerkLoaded = useIsClerkLoaded();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // During SSR, show nothing to avoid hydration mismatch
+  // During SSR, show placeholder
   if (!mounted) {
+    return <div className="w-8 h-8" />;
+  }
+
+  // If Clerk is not loaded (bot), show static link
+  if (!isClerkLoaded) {
     return (
-      <div className="w-8 h-8" /> // Placeholder to prevent layout shift
+      <Link
+        href="/sign-in"
+        className={`text-sm font-medium transition-colors ${
+          variant === 'dark'
+            ? 'text-white/90 hover:text-white'
+            : 'text-gray-700 hover:text-[hsl(var(--brand))]'
+        }`}
+      >
+        Anmelden
+      </Link>
     );
   }
 
+  // Clerk is loaded, use auth-aware component
   return <AuthUIClient variant={variant} />;
 }
 
 function AuthUIClient({ variant }: AuthUIProps) {
   const { isSignedIn, isLoaded } = useAuth();
 
-  // While Clerk is loading, show placeholder
+  // While Clerk is initializing, show placeholder
   if (!isLoaded) {
-    return (
-      <div className="w-8 h-8" /> // Placeholder to prevent layout shift
-    );
+    return <div className="w-8 h-8" />;
   }
 
   // Show profile button for signed-in users
