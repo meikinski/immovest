@@ -268,6 +268,9 @@ export default function InputMethodPage() {
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
+            <p className="text-xl text-gray-700 mb-4">
+              👋 Willkommen zurück!
+            </p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Wie möchtest du starten?
@@ -275,16 +278,6 @@ export default function InputMethodPage() {
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               Wähle deine bevorzugte Methode für den Datenimport
-            </p>
-          </div>
-
-          {/* Section Heading */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-              Deine Eingabemethoden
-            </h2>
-            <p className="text-base text-gray-600">
-              Flexibel, schnell und auf deine Bedürfnisse zugeschnitten
             </p>
           </div>
 
