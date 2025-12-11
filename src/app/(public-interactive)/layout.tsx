@@ -22,10 +22,10 @@ export default async function PublicInteractiveLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side bot detection
+  // Server-side bot detection (comprehensive pattern for ALL crawlers and tools)
   const headersList = await headers();
   const userAgent = headersList.get('user-agent') || '';
-  const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|whatsapp/i.test(userAgent);
+  const isBot = /googlebot|google-inspectiontool|google-pagespeed|chrome-lighthouse|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|whatsapp|bot|crawler|spider|crawling/i.test(userAgent);
 
   // For bots: Skip Clerk entirely
   if (isBot) {
