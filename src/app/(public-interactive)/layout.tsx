@@ -1,27 +1,38 @@
 import { auth } from '@clerk/nextjs/server';
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
+import { headers } from 'next/headers';
 import { AuthProvider } from '@/components/AuthProvider';
 
 /**
- * Layout for interactive public pages (/ and /input-method)
+ * Best Practice Solution for Google Indexing + Full User Experience
  *
- * Hybrid strategy for best of both worlds:
- * - SSR: Detects auth state + wraps with ClerkProvider (for UserButton to work)
- * - Passes isSignedIn to components via AuthProvider
- * - Components conditionally load Clerk features only for signed-in users
+ * Server-side bot detection to completely skip ClerkProvider for bots:
+ * - Bots/Google: NO ClerkProvider → No Clerk JavaScript → Clean indexing
+ * - Real users: Full ClerkProvider → UserButton with all features
  *
- * Why this works for Google indexing:
- * ✅ Google/Bots are NEVER signed in → components show static links only
- * ✅ Real signed-in users get full Clerk (UserButton, profile, subscription)
- * ✅ Clerk JS only loads for authenticated users (not bots)
+ * This is the ONLY reliable solution because:
+ * ✅ Bot detection happens server-side (before ANY JavaScript loads)
+ * ✅ Bots never see ClerkProvider in the component tree
+ * ✅ No Clerk scripts injected for bots (no redirect errors)
+ * ✅ Real users get full functionality (UserButton, profile, subscription)
  */
 export default async function PublicInteractiveLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side auth check
+  // Server-side bot detection
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isBot = /googlebot|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|whatsapp/i.test(userAgent);
+
+  // For bots: Skip Clerk entirely
+  if (isBot) {
+    return <AuthProvider isSignedIn={false}>{children}</AuthProvider>;
+  }
+
+  // For real users: Full Clerk with auth check
   const { userId } = await auth();
   const isSignedIn = !!userId;
 
