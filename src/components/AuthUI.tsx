@@ -4,14 +4,14 @@ import { useAuth, UserButton } from '@clerk/nextjs';
 import Link from 'next/link';
 import { Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { useIsClerkLoaded } from './SmartClerkProvider';
+import { useIsClerkLoaded } from '@/app/(public-interactive)/InteractiveClerkProvider';
 
 interface AuthUIProps {
   variant?: 'light' | 'dark';
 }
 
 /**
- * Auth UI component for public pages with SmartClerkProvider
+ * Auth UI component for public pages with InteractiveClerkProvider
  * - Bots: See "Anmelden" link (no Clerk, clean HTML)
  * - Real users: See profile button when logged in
  */
