@@ -53,6 +53,10 @@ export interface ImmoState {
 
   // Generated content
   generatedComment: string;
+  lageComment: string;
+  mietpreisComment: string;
+  qmPreisComment: string;
+  investComment: string;
 
   // Methods
   updateDerived: () => void;
@@ -83,6 +87,10 @@ export interface ImmoState {
   setZins: (v: number) => void;
   setTilgung: (v: number) => void;
   setGeneratedComment: (v: string) => void;
+  setLageComment: (v: string) => void;
+  setMietpreisComment: (v: string) => void;
+  setQmPreisComment: (v: string) => void;
+  setInvestComment: (v: string) => void;
   setAnzahlWohneinheiten: (v: number) => void;
   setVerwaltungskosten: (v: number) => void;
   importData: (data: Partial<ImmoState>) => void;
@@ -128,6 +136,10 @@ const initialState = {
   score: 0,
   anschaffungskosten: 0,
   generatedComment: '',
+  lageComment: '',
+  mietpreisComment: '',
+  qmPreisComment: '',
+  investComment: '',
 };
 
 export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
@@ -266,6 +278,18 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setGeneratedComment: (v: string) => {
     set({ generatedComment: v });
   },
+  setLageComment: (v: string) => {
+    set({ lageComment: v });
+  },
+  setMietpreisComment: (v: string) => {
+    set({ mietpreisComment: v });
+  },
+  setQmPreisComment: (v: string) => {
+    set({ qmPreisComment: v });
+  },
+  setInvestComment: (v: string) => {
+    set({ investComment: v });
+  },
   setAnzahlWohneinheiten: (v: number) => {
     set({ anzahl_wohneinheiten: v, generatedComment: '' });
     get().updateDerived();
@@ -341,6 +365,10 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       score: state.score,
       anschaffungskosten: state.anschaffungskosten,
       generatedComment: state.generatedComment,
+      lageComment: state.lageComment,
+      mietpreisComment: state.mietpreisComment,
+      qmPreisComment: state.qmPreisComment,
+      investComment: state.investComment,
     };
   },
 }));

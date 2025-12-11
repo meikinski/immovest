@@ -506,10 +506,15 @@ const dscr =
   // Note: Removed the reset effect - we now use fingerprint-based caching
 
   // === Markt & Lage (Tab 2) – Datencontainer/States ===
-  const [lageComment, setLageComment]           = useState<string>('');
-  const [mietpreisComment, setMietpreisComment] = useState<string>('');
-  const [qmPreisComment, setQmPreisComment]     = useState<string>('');
-  const [investComment, setInvestComment]       = useState<string>('');
+  // Use store for persistent comments (instead of local state)
+  const lageComment = useImmoStore(s => s.lageComment);
+  const setLageComment = useImmoStore(s => s.setLageComment);
+  const mietpreisComment = useImmoStore(s => s.mietpreisComment);
+  const setMietpreisComment = useImmoStore(s => s.setMietpreisComment);
+  const qmPreisComment = useImmoStore(s => s.qmPreisComment);
+  const setQmPreisComment = useImmoStore(s => s.setQmPreisComment);
+  const investComment = useImmoStore(s => s.investComment);
+  const setInvestComment = useImmoStore(s => s.setInvestComment);
   const [loadingDetails, setLoadingDetails]     = useState<boolean>(false);
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
@@ -532,8 +537,19 @@ const dscr =
     miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
   });
 
-  // Skip if already fetched with same inputs
-  if (marktFetched.current && lastMarktInputs.current === inputFingerprint) {
+  // Skip if comments already exist with same inputs (from saved analysis or previous load)
+  const hasExistingComments = lageComment && mietpreisComment && qmPreisComment && investComment;
+  const inputsUnchanged = lastMarktInputs.current === inputFingerprint;
+
+  if (hasExistingComments && (inputsUnchanged || !lastMarktInputs.current)) {
+    console.log('[Markt] Skipping reload - comments already loaded from saved analysis');
+    marktFetched.current = true; // Mark as fetched to prevent future reloads
+    lastMarktInputs.current = inputFingerprint; // Store fingerprint for future comparisons
+    return;
+  }
+
+  // Skip if already fetched in this session with same inputs
+  if (marktFetched.current && inputsUnchanged) {
     console.log('[Markt] Skipping reload - inputs unchanged');
     return;
   }
@@ -656,8 +672,18 @@ const shortAddress = React.useMemo(() => {
 }, [adresse]);
 
 // ⬇️ HIER EINSETZEN
+const cancelPdfExport = React.useCallback(() => {
+  if (pdfAbortController.current) {
+    pdfAbortController.current.abort();
+    pdfAbortController.current = null;
+    setPdfBusy(false);
+    toast.info('PDF-Export abgebrochen');
+  }
+}, []);
+
 const exportPdf = React.useCallback(async () => {
   setPdfBusy(true);
+  pdfAbortController.current = new AbortController();
   try {
     // HTML → Plaintext lokal, damit ESLint ruhig bleibt
     const strip = (html: string) =>
@@ -738,7 +764,8 @@ const exportPdf = React.useCallback(async () => {
     const res = await fetch('/api/export/pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: pdfAbortController.current?.signal
     });
     if (!res.ok) {
       const errorText = await res.text();
@@ -756,8 +783,12 @@ const exportPdf = React.useCallback(async () => {
     toast.success('PDF erfolgreich heruntergeladen');
   } catch (err) {
     console.error('PDF export failed', err);
-    toast.error('PDF-Export fehlgeschlagen. Bitte versuche es erneut.');
+    // Don't show error toast if the request was aborted
+    if (err instanceof Error && err.name !== 'AbortError') {
+      toast.error('PDF-Export fehlgeschlagen. Bitte versuche es erneut.');
+    }
   } finally {
+    pdfAbortController.current = null;
     setPdfBusy(false);
   }
 }, [
@@ -791,6 +822,7 @@ const exportPdf = React.useCallback(async () => {
 
   //pdf export
   const [pdfBusy, setPdfBusy] = useState(false);
+  const pdfAbortController = useRef<AbortController | null>(null);
 
   let content: React.ReactNode;
 
@@ -2161,21 +2193,28 @@ const exportPdf = React.useCallback(async () => {
 
     {/* Actions unten – modern, ohne Bullet-Liste */}
     <div className="mt-6 flex flex-col sm:flex-row gap-3">
-      <button
-  className="btn-primary flex items-center gap-2"
-  onClick={exportPdf}
-  disabled={pdfBusy}
->
-  {pdfBusy ? (
-    <>
-      <LoadingSpinner size="sm" />
-      PDF wird erstellt...
-    </>
-  ) : (
-    'PDF exportieren'
-  )}
-</button>
+      {pdfBusy ? (
+        <button
+          className="btn-secondary flex items-center gap-2"
+          onClick={cancelPdfExport}
+        >
+          Abbrechen
+        </button>
+      ) : (
+        <button
+          className="btn-primary flex items-center gap-2"
+          onClick={exportPdf}
+        >
+          PDF exportieren
+        </button>
+      )}
       <SaveAnalysisButton />
+      {pdfBusy && (
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <LoadingSpinner size="sm" />
+          PDF wird erstellt...
+        </div>
+      )}
     </div>
   </>
             </div>
