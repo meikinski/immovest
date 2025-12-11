@@ -20,7 +20,7 @@ export default async function PublicInteractiveLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Server-side auth check (NO client-side Clerk needed!)
+  // Server-side auth check (Clerk middleware initializes, but we prevent client-side JS)
   const { userId } = await auth();
   const isSignedIn = !!userId;
 
