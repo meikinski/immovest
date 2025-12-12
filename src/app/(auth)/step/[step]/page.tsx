@@ -772,14 +772,24 @@ const exportPdf = React.useCallback(async () => {
       throw new Error(errorText || 'PDF-Export fehlgeschlagen');
     }
 
-    const blob = await res.blob();
+    // Force download by converting to octet-stream blob
+    const originalBlob = await res.blob();
+    const blob = new Blob([originalBlob], { type: 'application/octet-stream' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url; a.download = 'immo_analyse.pdf';
+    a.href = url;
+    a.download = 'immo_analyse.pdf';
+    a.style.display = 'none';
+    a.target = '_self';  // Prevent opening in new tab
     document.body.appendChild(a);
     a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+
+    // Clean up after a short delay to ensure download starts
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+
     toast.success('PDF erfolgreich heruntergeladen');
   } catch (err) {
     console.error('PDF export failed', err);
