@@ -9,12 +9,14 @@ import { AuthUI } from '@/components/AuthUI';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
+import { useUser } from '@clerk/nextjs';
 
 export default function InputMethodPage() {
   const router = useRouter();
   const { track } = useAnalytics();
   const importData = useImmoStore(s => s.importData);
   const resetAnalysis = useImmoStore(s => s.resetAnalysis);
+  const { user } = useUser();
 
   // Screenshot State
   const [image, setImage] = useState<File | null>(null);
@@ -268,16 +270,13 @@ export default function InputMethodPage() {
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <p className="text-xl text-gray-700 mb-4">
-              👋 Willkommen zurück!
-            </p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                Wie möchtest du starten?
+                {user?.firstName ? `👋 Willkommen zurück, ${user.firstName}!` : '👋 Willkommen zurück!'}
               </span>
             </h1>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Wähle deine bevorzugte Methode für den Datenimport
+              Wie möchtest du deine Daten eingeben?
             </p>
           </div>
 
