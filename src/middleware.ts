@@ -1,4 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // Routen die Auth benötigen
 const isProtectedRoute = createRouteMatcher([
@@ -6,11 +8,15 @@ const isProtectedRoute = createRouteMatcher([
   '/api/user(.*)',
 ]);
 
-// Public routes - no auth required but Clerk still initializes (for SSR auth checks)
-const isPublicRoute = createRouteMatcher([
+// Static public routes - COMPLETELY skip Clerk middleware (no initialization at all)
+const isStaticPublicRoute = createRouteMatcher([
   '/',
   '/pricing',
   '/input-method',
+]);
+
+// Other public routes - Clerk initializes but no auth required
+const isPublicRoute = createRouteMatcher([
   '/impressum',
   '/datenschutz',
   '/agb',
@@ -19,18 +25,20 @@ const isPublicRoute = createRouteMatcher([
 /**
  * Middleware for authentication
  *
- * Strategy for Google indexing:
- * - Public routes: Clerk initializes (for SSR auth()) but no redirects
+ * Strategy for Google indexing (FIXED):
+ * - Static public routes (/, /pricing, /input-method): SKIP Clerk entirely
+ * - Other public routes: Clerk initializes but no redirects
  * - Protected routes: Full Clerk authentication
- * - Client-side: We prevent Clerk JS loading via layout (AuthProvider)
  *
  * This ensures:
- * ✅ SSR auth() works on public pages
- * ✅ No Clerk client-side JS on public pages (handled in layout)
- * ✅ No redirect errors in Google Search Console
+ * ✅ No Clerk initialization on static public pages → No redirect errors
+ * ✅ Perfect crawlability for Google
+ * ✅ Auth works on protected pages
  */
-export default clerkMiddleware(async (auth, req) => {
-  // Public routes: let them through (no auth required)
+
+// Create Clerk middleware instance
+const clerkMiddlewareInstance = clerkMiddleware(async (auth, req) => {
+  // Other public routes: let them through (no auth required)
   if (isPublicRoute(req)) {
     return;
   }
@@ -40,6 +48,17 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 });
+
+// Main middleware that decides whether to use Clerk or not
+export default function middleware(req: NextRequest) {
+  // Static public routes: Skip Clerk completely (bypass clerkMiddleware entirely)
+  if (isStaticPublicRoute(req)) {
+    return NextResponse.next();
+  }
+
+  // All other routes: Use Clerk middleware
+  return clerkMiddlewareInstance(req);
+}
 
 export const config = {
   matcher: [
