@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest, NextFetchEvent } from 'next/server';
 
 // Routen die Auth benötigen
 const isProtectedRoute = createRouteMatcher([
@@ -50,7 +50,7 @@ const clerkMiddlewareInstance = clerkMiddleware(async (auth, req) => {
 });
 
 // Main middleware that decides whether to use Clerk or not
-export default function middleware(req: NextRequest, event: any) {
+export default function middleware(req: NextRequest, event: NextFetchEvent) {
   // Static public routes: Skip Clerk completely (bypass clerkMiddleware entirely)
   if (isStaticPublicRoute(req)) {
     return NextResponse.next();
