@@ -50,14 +50,14 @@ const clerkMiddlewareInstance = clerkMiddleware(async (auth, req) => {
 });
 
 // Main middleware that decides whether to use Clerk or not
-export default function middleware(req: NextRequest) {
+export default function middleware(req: NextRequest, event: any) {
   // Static public routes: Skip Clerk completely (bypass clerkMiddleware entirely)
   if (isStaticPublicRoute(req)) {
     return NextResponse.next();
   }
 
   // All other routes: Use Clerk middleware
-  return clerkMiddlewareInstance(req);
+  return clerkMiddlewareInstance(req, event);
 }
 
 export const config = {

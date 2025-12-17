@@ -9,7 +9,6 @@ import {
   CheckCircle2,
   FileBarChart,
   LineChart,
-  LogIn,
   MapPin,
   ShieldCheck,
   Sparkles,
