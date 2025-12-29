@@ -519,28 +519,30 @@ const dscr =
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
 
-  // Separate effect to clear comments when inputs change
+  // Track input changes ANYWHERE in the app (not just on markt tab)
+  // This ensures we detect changes made on step pages
   useEffect(() => {
-    if (!(step === 'tabs' && activeTab === 'markt')) return;
-
     const inputFingerprint = JSON.stringify({
       adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
       miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
     });
 
-    // If inputs have changed and we have a previous fingerprint, clear comments
+    // If inputs have changed since last time, invalidate the cache
     if (lastMarktInputs.current && lastMarktInputs.current !== inputFingerprint) {
-      const hasOldComments = lageComment || mietpreisComment || qmPreisComment || investComment;
-      if (hasOldComments) {
-        console.log('[Markt] Inputs changed - clearing old comments');
+      console.log('[Markt] Inputs changed - invalidating comment cache');
+      marktFetched.current = false; // This will trigger reload when user goes to markt tab
+
+      // If we currently have comments loaded, clear them immediately
+      if (lageComment || mietpreisComment || qmPreisComment || investComment) {
         setLageComment('');
         setMietpreisComment('');
         setQmPreisComment('');
         setInvestComment('');
-        marktFetched.current = false;
       }
     }
-  }, [step, activeTab, adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+
+    lastMarktInputs.current = inputFingerprint;
+  }, [adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
       miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
       lageComment, mietpreisComment, qmPreisComment, investComment,
       setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment]);
@@ -558,43 +560,17 @@ const dscr =
     return;
   }
 
-  // Create fingerprint of BASE inputs only (not derived values) to detect real changes
-  const inputFingerprint = JSON.stringify({
-    adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
-    miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
-  });
-
-  // Check if inputs have changed
-  const inputsUnchanged = lastMarktInputs.current === inputFingerprint;
+  // Check if we have existing comments - if so and we haven't fetched yet, skip reload
   const hasExistingComments = lageComment && mietpreisComment && qmPreisComment && investComment;
 
-  // If inputs have changed and we have old comments, clear them and force reload
-  if (lastMarktInputs.current && !inputsUnchanged && hasExistingComments) {
-    console.log('[Markt] Inputs changed - clearing old comments to force reload');
-    setLageComment('');
-    setMietpreisComment('');
-    setQmPreisComment('');
-    setInvestComment('');
-    marktFetched.current = false; // Reset fetch flag to allow reload
-    // Continue to fetch - don't skip any checks below
-  }
-  // If inputs haven't changed and comments exist, skip reload
-  else if (hasExistingComments && inputsUnchanged) {
-    console.log('[Markt] Skipping reload - comments already loaded and inputs unchanged');
-    marktFetched.current = true;
-    lastMarktInputs.current = inputFingerprint;
-    return;
-  }
-  // If this is first load and comments exist (from saved analysis), keep them
-  else if (hasExistingComments && !lastMarktInputs.current) {
-    console.log('[Markt] Skipping reload - comments already loaded from saved analysis');
-    marktFetched.current = true;
-    lastMarktInputs.current = inputFingerprint;
+  // If comments exist and we already fetched them this session, skip reload
+  if (hasExistingComments && marktFetched.current) {
+    console.log('[Markt] Skipping reload - comments already loaded and cache valid');
     return;
   }
 
-  // Skip if already fetched in this session with same inputs
-  if (marktFetched.current && inputsUnchanged) {
+  // If already fetched in this session, skip
+  if (marktFetched.current) {
     console.log('[Markt] Skipping reload - already fetched in this session');
     return;
   }
@@ -605,7 +581,6 @@ const dscr =
     hasIncrementedUsage.current = true;
   }
 
-  lastMarktInputs.current = inputFingerprint;
   // NOTE: marktFetched moved to AFTER successful API call to prevent blocking retries
   setLoadingDetails(true);
 
