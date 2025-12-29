@@ -20,7 +20,7 @@ export default async function StaticPublicLayout({
   children: React.ReactNode;
 }) {
   // Server-side bot detection (comprehensive pattern for ALL crawlers and tools)
-  const headersList = headers();
+  const headersList = await headers();
   const userAgent = headersList.get('user-agent') || '';
   const isBot = /googlebot|google-inspectiontool|google-pagespeed|chrome-lighthouse|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|whatsapp|bot|crawler|spider|crawling/i.test(userAgent);
 
@@ -30,7 +30,7 @@ export default async function StaticPublicLayout({
   }
 
   // For real users: Full Clerk with auth check
-  const { userId } = auth();
+  const { userId } = await auth();
   const isSignedIn = !!userId;
 
   return (
