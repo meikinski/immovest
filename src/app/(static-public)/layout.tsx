@@ -1,21 +1,46 @@
+import { auth } from '@clerk/nextjs/server';
+import { ClerkProvider } from '@clerk/nextjs';
+import { deDE } from '@clerk/localizations';
+import { headers } from 'next/headers';
 import { AuthProvider } from '@/components/AuthProvider';
 
 /**
- * Static Public Layout - NO CLERK AT ALL
+ * Static Public Layout with server-side bot detection
  *
- * This layout is specifically for pages that should NEVER have any Clerk code,
- * even for real users. This ensures Google and other search engines
- * never encounter any authentication-related redirects.
+ * - Bots/Google: NO ClerkProvider → No Clerk JavaScript → Clean indexing
+ * - Real users: Full ClerkProvider → UserButton with all features
  *
  * Perfect for:
  * - Landing pages that need perfect SEO
  * - Pages that must be crawlable without any JavaScript auth logic
  */
-export default function StaticPublicLayout({
+export default async function StaticPublicLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Always render without Clerk - for everyone
-  return <AuthProvider isSignedIn={false}>{children}</AuthProvider>;
+  // Server-side bot detection (comprehensive pattern for ALL crawlers and tools)
+  const headersList = await headers();
+  const userAgent = headersList.get('user-agent') || '';
+  const isBot = /googlebot|google-inspectiontool|google-pagespeed|chrome-lighthouse|bingbot|slurp|duckduckbot|baiduspider|yandexbot|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|showyoubot|outbrain|pinterest|slackbot|whatsapp|bot|crawler|spider|crawling/i.test(userAgent);
+
+  // For bots: Skip Clerk entirely
+  if (isBot) {
+    return <AuthProvider isSignedIn={false}>{children}</AuthProvider>;
+  }
+
+  // For real users: Full Clerk with auth check
+  const { userId } = await auth();
+  const isSignedIn = !!userId;
+
+  return (
+    <ClerkProvider
+      localization={deDE}
+      telemetry={false}
+      signInFallbackRedirectUrl="/input-method"
+      signUpFallbackRedirectUrl="/input-method"
+    >
+      <AuthProvider isSignedIn={isSignedIn}>{children}</AuthProvider>
+    </ClerkProvider>
+  );
 }
