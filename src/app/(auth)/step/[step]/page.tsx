@@ -519,6 +519,33 @@ const dscr =
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
 
+  // Separate effect to clear comments when inputs change
+  useEffect(() => {
+    if (!(step === 'tabs' && activeTab === 'markt')) return;
+
+    const inputFingerprint = JSON.stringify({
+      adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
+    });
+
+    // If inputs have changed and we have a previous fingerprint, clear comments
+    if (lastMarktInputs.current && lastMarktInputs.current !== inputFingerprint) {
+      const hasOldComments = lageComment || mietpreisComment || qmPreisComment || investComment;
+      if (hasOldComments) {
+        console.log('[Markt] Inputs changed - clearing old comments');
+        setLageComment('');
+        setMietpreisComment('');
+        setQmPreisComment('');
+        setInvestComment('');
+        marktFetched.current = false;
+      }
+    }
+  }, [step, activeTab, adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
+      miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
+      lageComment, mietpreisComment, qmPreisComment, investComment,
+      setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment]);
+
+  // Main effect to fetch comments
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
