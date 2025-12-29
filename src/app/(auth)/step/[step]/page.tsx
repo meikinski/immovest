@@ -537,10 +537,21 @@ const dscr =
     miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung
   });
 
-  // Skip if comments already exist with same inputs (from saved analysis or previous load)
-  const hasExistingComments = lageComment && mietpreisComment && qmPreisComment && investComment;
+  // Check if inputs have changed
   const inputsUnchanged = lastMarktInputs.current === inputFingerprint;
+  const hasExistingComments = lageComment && mietpreisComment && qmPreisComment && investComment;
 
+  // If inputs have changed, clear old comments to force reload
+  if (lastMarktInputs.current && !inputsUnchanged && hasExistingComments) {
+    console.log('[Markt] Inputs changed - clearing old comments to force reload');
+    setLageComment('');
+    setMietpreisComment('');
+    setQmPreisComment('');
+    setInvestComment('');
+    marktFetched.current = false; // Reset fetch flag to allow reload
+  }
+
+  // Skip if comments already exist with same inputs (from saved analysis or previous load)
   if (hasExistingComments && (inputsUnchanged || !lastMarktInputs.current)) {
     console.log('[Markt] Skipping reload - comments already loaded from saved analysis');
     marktFetched.current = true; // Mark as fetched to prevent future reloads
@@ -1487,7 +1498,7 @@ const exportPdf = React.useCallback(async () => {
       <>
         {/* Header */}
         <div className="flex items-center mb-4">
-          <button onClick={() => router.back()} className="btn-back">
+          <button onClick={() => router.push('/step/b')} className="btn-back">
             ←
           </button>
           <div className="ml-4">
@@ -2025,7 +2036,7 @@ const exportPdf = React.useCallback(async () => {
       const scEk        = Math.max(0, ek * (1 + ekDeltaPct / 100));
 
       const { nk: scNk }    = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
-      const scAnschaffung   = scKaufpreis + scNk;
+      const scAnschaffung   = scKaufpreis + scNk + sonstigeKosten;
       const scDarlehen      = Math.max(0, scAnschaffung - scEk);
 
       const scWarmmiete     = scMiete + hausgeld_umlegbar;
@@ -2045,12 +2056,28 @@ const exportPdf = React.useCallback(async () => {
 
       const scCashflowVorSt    = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scTilgungMonthly;
 
+      const rateMonat   = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
+      const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
+
+      // Cashflow nach Steuern für Szenario
+      const gebPctN = Number(gebText.replace(',', '.')) || 0;
+      const afaPctN = Number(afaText.replace(',', '.')) || 0;
+      const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
+      const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
+      const afaMonthlyEurSc = afaAnnualEurSc / 12;
+      const taxableCashflowSc = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - afaMonthlyEurSc;
+      const effectiveStz = Number(persText.replace(',', '.')) || 0;
+      const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
+      const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
+
+      // DSCR für Szenario
+      const scDSCR = scRateMonat > 0
+        ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat
+        : 0;
+
       const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
       const scNettoRendite  = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
       const scEkRendite     = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
-
-      const rateMonat   = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-      const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
 
     // --- Szenario: Helpers & Rows (keine weitere IIFE im JSX) ---
       type Unit = "€" | "%" | "" | "pp";
@@ -2112,6 +2139,8 @@ const exportPdf = React.useCallback(async () => {
         { label: "Monatliche Rate",    base: rateMonat,          sc: scRateMonat,       unit: "€", higherIsBetter: false, fractionDigits: 2 },
         { label: "Kaltmiete",          base: miete,              sc: scMiete,           unit: "€", higherIsBetter: true,  fractionDigits: 0 },
         { label: "Cashflow (vor St.)", base: cashflowVorSteuer,  sc: scCashflowVorSt,   unit: "€", higherIsBetter: true,  fractionDigits: 0 },
+        { label: "Cashflow (nach St.)", base: cashflowAfterTax,  sc: scCashflowAfterTax, unit: "€", higherIsBetter: true,  fractionDigits: 0 },
+        { label: "DSCR",               base: dscr,               sc: scDSCR,            unit: "",  higherIsBetter: true,  fractionDigits: 2 },
         { label: "Nettomietrendite",   base: nettoMietrendite,   sc: scNettoRendite,    unit: "%", higherIsBetter: true,  fractionDigits: 1 },
         { label: "Bruttomietrendite",  base: bruttoMietrendite,  sc: scBruttoRendite,   unit: "%", higherIsBetter: true,  fractionDigits: 1 },
         { label: "EK-Rendite",         base: ekRendite,          sc: scEkRendite,       unit: "%", higherIsBetter: true,  fractionDigits: 1 },
@@ -2139,6 +2168,13 @@ const exportPdf = React.useCallback(async () => {
                 {cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
               </div>
 
+
+              <div>Cashflow (nach Steuern)</div>
+              <div className="text-right">
+                {cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
+              </div>
+
+              <div>DSCR</div>                  <div className="text-right">{dscr.toFixed(2)}</div>
               <div>Nettomietrendite</div>      <div className="text-right">{nettoMietrendite.toFixed(1)} %</div>
               <div>Bruttomietrendite</div>     <div className="text-right">{bruttoMietrendite.toFixed(1)} %</div>
               <div>EK-Rendite</div>            <div className="text-right">{ekRendite.toFixed(1)} %</div>
