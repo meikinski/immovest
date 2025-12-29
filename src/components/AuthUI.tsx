@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { UserButton } from '@clerk/nextjs';
+import { UserButton, useAuth } from '@clerk/nextjs';
 import { Save } from 'lucide-react';
-import { useAuthStatus } from './AuthProvider';
 import { useEffect, useState } from 'react';
 
 interface AuthUIProps {
@@ -11,31 +10,22 @@ interface AuthUIProps {
 }
 
 /**
- * Auth UI component with hybrid rendering strategy
+ * Auth UI component with client-side Clerk detection
  *
- * SSR (for Google/Bots):
- * - Always shows static "Anmelden" link
- * - No Clerk JavaScript
- *
- * Client-Side (for real users):
- * - If signed in: Full Clerk UserButton with profile, saved objects, subscription, etc.
- * - If not signed in: Static "Anmelden" link
- *
- * Why this works:
- * ✅ Google/Bots are NEVER signed in → only see static link
- * ✅ Real signed-in users get full Clerk functionality
- * ✅ No Clerk scripts for bots/non-authenticated users
+ * - Uses Clerk's useAuth() hook to check auth status
+ * - Falls back to static link during SSR
+ * - Shows UserButton for signed-in users
  */
 export function AuthUI({ variant = 'light' }: AuthUIProps) {
-  const { isSignedIn } = useAuthStatus();
+  const { isSignedIn, isLoaded } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // During SSR: show static link for Google
-  if (!mounted) {
+  // During SSR or before Clerk loads: show static link
+  if (!mounted || !isLoaded) {
     return (
       <Link
         href="/sign-in"
