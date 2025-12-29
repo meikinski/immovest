@@ -1166,7 +1166,7 @@ const exportPdf = React.useCallback(async () => {
       <>
         {/* Header */}
         <div className="flex items-center mb-4">
-          <button onClick={() => router.back()} className="btn-back rounded-full p-2">←</button>
+          <button onClick={() => router.push('/step/a')} className="btn-back rounded-full p-2">←</button>
           <div className="ml-4">
             <h1 className="text-3xl font-bold flex items-center gap-2">Einnahmen & Kosten <Wallet className="icon icon-primary" /></h1>
             <p className="text-gray-600 mt-1">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
