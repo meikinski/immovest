@@ -541,7 +541,7 @@ const dscr =
   const inputsUnchanged = lastMarktInputs.current === inputFingerprint;
   const hasExistingComments = lageComment && mietpreisComment && qmPreisComment && investComment;
 
-  // If inputs have changed, clear old comments to force reload
+  // If inputs have changed and we have old comments, clear them and force reload
   if (lastMarktInputs.current && !inputsUnchanged && hasExistingComments) {
     console.log('[Markt] Inputs changed - clearing old comments to force reload');
     setLageComment('');
@@ -549,19 +549,26 @@ const dscr =
     setQmPreisComment('');
     setInvestComment('');
     marktFetched.current = false; // Reset fetch flag to allow reload
+    // Continue to fetch - don't skip any checks below
   }
-
-  // Skip if comments already exist with same inputs (from saved analysis or previous load)
-  if (hasExistingComments && (inputsUnchanged || !lastMarktInputs.current)) {
+  // If inputs haven't changed and comments exist, skip reload
+  else if (hasExistingComments && inputsUnchanged) {
+    console.log('[Markt] Skipping reload - comments already loaded and inputs unchanged');
+    marktFetched.current = true;
+    lastMarktInputs.current = inputFingerprint;
+    return;
+  }
+  // If this is first load and comments exist (from saved analysis), keep them
+  else if (hasExistingComments && !lastMarktInputs.current) {
     console.log('[Markt] Skipping reload - comments already loaded from saved analysis');
-    marktFetched.current = true; // Mark as fetched to prevent future reloads
-    lastMarktInputs.current = inputFingerprint; // Store fingerprint for future comparisons
+    marktFetched.current = true;
+    lastMarktInputs.current = inputFingerprint;
     return;
   }
 
   // Skip if already fetched in this session with same inputs
   if (marktFetched.current && inputsUnchanged) {
-    console.log('[Markt] Skipping reload - inputs unchanged');
+    console.log('[Markt] Skipping reload - already fetched in this session');
     return;
   }
 
