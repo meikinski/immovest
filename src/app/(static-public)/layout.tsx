@@ -1,6 +1,7 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
 import { headers } from 'next/headers';
+import { SignupTracker } from '@/components/SignupTracker';
 
 /**
  * Static Public Layout with server-side bot detection
@@ -35,6 +36,7 @@ export default async function StaticPublicLayout({
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"
     >
+      <SignupTracker />
       {children}
     </ClerkProvider>
   );
