@@ -26,16 +26,17 @@ export const trackEvent = (
   window.dataLayer = window.dataLayer || [];
 
   // Push event to dataLayer
-  window.dataLayer.push({
+  const eventData = {
     event: eventName,
     timestamp: new Date().toISOString(),
     ...eventParams,
-  });
+  };
 
-  // Console log in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('📊 Analytics Event:', eventName, eventParams);
-  }
+  window.dataLayer.push(eventData);
+
+  // Console log for debugging
+  console.log('📊 Analytics Event pushed to dataLayer:', eventName, eventData);
+  console.log('📊 Current dataLayer:', window.dataLayer);
 };
 
 /**
