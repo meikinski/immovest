@@ -27,16 +27,6 @@ const nextConfig: NextConfig = {
         destination: '/input-method',
         permanent: false, // 302 redirect
       },
-      {
-        source: '/sign-up',
-        destination: '/input-method',
-        permanent: false, // 302 redirect
-      },
-      {
-        source: '/sign-up/:path*',
-        destination: '/input-method',
-        permanent: false, // 302 redirect for all sign-up sub-paths
-      },
     ];
   },
 };
