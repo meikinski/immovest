@@ -1,6 +1,7 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
 import { PaywallProvider } from '@/contexts/PaywallContext';
+import { SignupTracker } from '@/components/SignupTracker';
 
 /**
  * Auth Layout - WITH CLERK AND PAYWALL!
@@ -26,6 +27,7 @@ export default function AuthLayout({
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"
     >
+      <SignupTracker />
       <PaywallProvider>
         {children}
       </PaywallProvider>

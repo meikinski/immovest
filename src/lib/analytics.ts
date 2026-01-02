@@ -66,6 +66,7 @@ export const AnalyticsEvents = {
   // Conversions
   SIGNUP_INITIATED: 'signup_initiated',
   SIGNUP_COMPLETED: 'signup_completed',
+  ADS_CONVERSION_SIGNUP: 'ads_conversion_signup', // Google Ads Conversion Event
   PRICING_PAGE_VIEWED: 'pricing_page_viewed',
   UPGRADE_CLICKED: 'upgrade_clicked',
   CHECKOUT_STARTED: 'checkout_started',
