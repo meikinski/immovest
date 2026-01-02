@@ -17,23 +17,42 @@ export function SignupTracker() {
 
   useEffect(() => {
     // Only run on client-side
-    if (typeof window === 'undefined') return;
-    if (!isLoaded) return;
-    if (!user) return;
-    if (hasTracked.current) return;
+    if (typeof window === 'undefined') {
+      console.log('🔍 SignupTracker: Server-side, skipping');
+      return;
+    }
+
+    console.log('🔍 SignupTracker: Running check', { isLoaded, hasUser: !!user, hasTracked: hasTracked.current });
+
+    if (!isLoaded) {
+      console.log('🔍 SignupTracker: Clerk not loaded yet');
+      return;
+    }
+
+    if (!user) {
+      console.log('🔍 SignupTracker: No user logged in');
+      return;
+    }
+
+    if (hasTracked.current) {
+      console.log('🔍 SignupTracker: Already tracked in this session');
+      return;
+    }
 
     // Check if we've already tracked this user's signup
     const trackingKey = `ads_conversion_tracked_${user.id}`;
     const alreadyTracked = localStorage.getItem(trackingKey);
 
     if (alreadyTracked) {
+      console.log('🔍 SignupTracker: Already tracked in localStorage for user:', user.id);
       hasTracked.current = true;
       return;
     }
 
-    // Check if user was created recently (within last 30 seconds)
-    // This indicates a fresh signup
+    // Check if user was created recently (within last 5 minutes = 300 seconds)
+    // This gives enough time for email verification and redirects
     if (!user.createdAt) {
+      console.log('⚠️ SignupTracker: No createdAt timestamp on user');
       hasTracked.current = true;
       return;
     }
@@ -42,8 +61,16 @@ export function SignupTracker() {
     const now = new Date();
     const secondsSinceCreation = (now.getTime() - userCreatedAt.getTime()) / 1000;
 
-    // If user was created within the last 30 seconds, track the conversion
-    if (secondsSinceCreation < 30) {
+    console.log('🔍 SignupTracker: User created', {
+      createdAt: userCreatedAt.toISOString(),
+      secondsAgo: Math.round(secondsSinceCreation),
+      userId: user.id,
+    });
+
+    // If user was created within the last 5 minutes, track the conversion
+    if (secondsSinceCreation < 300) {
+      console.log('🎉 SignupTracker: New signup detected! Tracking conversion...');
+
       // Track Google Ads conversion event
       trackEvent(AnalyticsEvents.ADS_CONVERSION_SIGNUP, {
         user_id: user.id,
@@ -61,6 +88,8 @@ export function SignupTracker() {
       hasTracked.current = true;
 
       console.log('✅ Google Ads signup conversion tracked for user:', user.id);
+    } else {
+      console.log('ℹ️ SignupTracker: User created more than 5 minutes ago, skipping tracking');
     }
   }, [user, isLoaded]);
 
