@@ -33,6 +33,11 @@ export function SignupTracker() {
 
     // Check if user was created recently (within last 30 seconds)
     // This indicates a fresh signup
+    if (!user.createdAt) {
+      hasTracked.current = true;
+      return;
+    }
+
     const userCreatedAt = new Date(user.createdAt);
     const now = new Date();
     const secondsSinceCreation = (now.getTime() - userCreatedAt.getTime()) / 1000;
