@@ -44,9 +44,10 @@ npm run dev
 
 ### Setup Guides
 
-1. **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database Setup für Analysen-Speicherung
-2. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Payment Setup für Premium-Abos
-3. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Komplette Anleitung für Vercel Deployment
+1. **[CLERK_PRODUCTION_SETUP.md](./CLERK_PRODUCTION_SETUP.md)** - Clerk Production Setup (Test → Live)
+2. **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Database Setup für Analysen-Speicherung
+3. **[STRIPE_SETUP.md](./STRIPE_SETUP.md)** - Payment Setup für Premium-Abos
+4. **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Komplette Anleitung für Vercel Deployment
 
 ### Minimale Konfiguration (.env.local)
 

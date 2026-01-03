@@ -216,17 +216,26 @@ OPENAI_API_KEY=sk-...
 
 ## Teil 4: Post-Deployment Konfiguration
 
-### 4.1 Clerk Redirect URLs aktualisieren
+### 4.1 Clerk Production Setup
+
+**WICHTIG**: Für eine vollständige Clerk Production-Konfiguration, siehe **[CLERK_PRODUCTION_SETUP.md](./CLERK_PRODUCTION_SETUP.md)**
+
+Kurzfassung:
 
 1. Gehe zu [clerk.com](https://clerk.com) Dashboard
-2. Wähle deine Application
-3. Gehe zu **Settings** → **URLs**
-4. Füge deine Vercel-URLs hinzu:
+2. Wähle deine **Production Application** (nicht Test!)
+3. Hole die Production API Keys:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...`
+   - `CLERK_SECRET_KEY=sk_live_...`
+4. Aktualisiere diese Keys in Vercel Environment Variables
+5. Gehe zu **Settings** → **URLs** und füge deine Vercel-URLs hinzu:
    - **Home URL**: `https://immovest-xxx.vercel.app`
    - **Sign-in URL**: `https://immovest-xxx.vercel.app/sign-in`
    - **Sign-up URL**: `https://immovest-xxx.vercel.app/sign-up`
    - **After sign-in URL**: `https://immovest-xxx.vercel.app/input-method`
    - **After sign-up URL**: `https://immovest-xxx.vercel.app/input-method`
+
+Für Details siehe: **[CLERK_PRODUCTION_SETUP.md](./CLERK_PRODUCTION_SETUP.md)**
 
 ### 4.2 Stripe Webhook URL aktualisieren
 
