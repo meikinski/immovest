@@ -271,9 +271,9 @@ const organizationData = {
 
 | Event | Trigger | Parameter |
 |-------|---------|-----------|
-| `ai_import_started` | User startet AI-Import | `import_method: 'screenshot' \| 'url'` |
-| `ai_import_completed` | Import erfolgreich | `import_method`<br>`has_warnings: boolean` |
-| `ai_import_failed` | Import fehlgeschlagen | `import_method`<br>`error: string` |
+| `ai_import_started` | User startet AI-Import | `import_method: 'screenshot' \| 'url'`<br>`import_url?: string` (nur bei URL-Import) |
+| `ai_import_completed` | Import erfolgreich | `import_method`<br>`import_url?: string` (nur bei URL-Import)<br>`has_warnings: boolean` |
+| `ai_import_failed` | Import fehlgeschlagen | `import_method`<br>`import_url?: string` (nur bei URL-Import)<br>`error: string` |
 
 #### Pre-definierte Events (bereit für Implementierung)
 

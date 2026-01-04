@@ -164,7 +164,10 @@ export default function InputMethodPage() {
     }
 
     // Track AI Import Started
-    track(AnalyticsEvents.AI_IMPORT_STARTED, { import_method: 'url' });
+    track(AnalyticsEvents.AI_IMPORT_STARTED, {
+      import_method: 'url',
+      import_url: url.trim()
+    });
 
     setUrlLoading(true);
     setUrlError('');
@@ -203,6 +206,7 @@ export default function InputMethodPage() {
         // Track successful import
         track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
           import_method: 'url',
+          import_url: url.trim(),
           has_warnings: result.warnings.length > 0,
         });
 
@@ -214,6 +218,7 @@ export default function InputMethodPage() {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
         import_method: 'url',
+        import_url: url.trim(),
         error: err instanceof Error ? err.message : 'Unknown error',
       });
       setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');

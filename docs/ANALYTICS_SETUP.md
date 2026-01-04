@@ -151,9 +151,9 @@ Folgende Events werden automatisch getrackt:
 
 | Event Name | Wann gefeuert | Parameter |
 |------------|---------------|-----------|
-| `ai_import_started` | Import gestartet | `import_method: 'screenshot' \| 'url'` |
-| `ai_import_completed` | Import erfolgreich | `import_method`, `has_warnings: boolean` |
-| `ai_import_failed` | Import fehlgeschlagen | `import_method`, `error: string` |
+| `ai_import_started` | Import gestartet | `import_method: 'screenshot' \| 'url'`<br>`import_url?: string` (nur bei URL-Import) |
+| `ai_import_completed` | Import erfolgreich | `import_method`<br>`import_url?: string` (nur bei URL-Import)<br>`has_warnings: boolean` |
+| `ai_import_failed` | Import fehlgeschlagen | `import_method`<br>`import_url?: string` (nur bei URL-Import)<br>`error: string` |
 
 ### Conversion Events
 
