@@ -255,7 +255,168 @@ response = client.run_report(request)
 
 ---
 
-## 📈 Teil 6: Wichtige Metriken für SaaS
+## 🔗 Teil 6: Custom Dimensions für URL-Tracking einrichten
+
+### Warum Custom Dimensions?
+
+Die Event-Parameter `import_url`, `import_method`, `error` etc. werden standardmäßig NICHT in GA4 Reports angezeigt. Sie müssen als **Custom Dimensions** registriert werden.
+
+### Schritt 1: Custom Dimensions in GA4 erstellen
+
+1. **Öffnen Sie GA4**: https://analytics.google.com
+2. Navigieren Sie zu: **Verwaltung → Benutzerdefinierte Definitionen → Benutzerdefinierte Dimensionen erstellen**
+3. Klicken Sie auf **"Benutzerdefinierte Dimension erstellen"**
+
+**Dimension 1: Import URL**
+```
+Dimensionsname: Import URL
+Umfang: Ereignis
+Beschreibung: URL die beim AI-Import verwendet wurde
+Ereignisparameter: import_url
+```
+
+**Dimension 2: Import Method**
+```
+Dimensionsname: Import Method
+Umfang: Ereignis
+Beschreibung: Methode des AI-Imports (screenshot oder url)
+Ereignisparameter: import_method
+```
+
+**Dimension 3: Import Error**
+```
+Dimensionsname: Import Error
+Umfang: Ereignis
+Beschreibung: Fehlermeldung bei fehlgeschlagenem Import
+Ereignisparameter: error
+```
+
+**Dimension 4: Has Warnings**
+```
+Dimensionsname: Has Warnings
+Umfang: Ereignis
+Beschreibung: Ob Import Warnungen hatte
+Ereignisparameter: has_warnings
+```
+
+4. **Wichtig**: Nach dem Erstellen kann es **24-48 Stunden** dauern, bis Daten gesammelt werden
+
+### Schritt 2: Custom Report für URL-Analyse erstellen
+
+**Option A: Exploration (Empfohlen)**
+
+1. In GA4: **Erkunden → Leere Exploration erstellen**
+2. **Technik auswählen**: Freiform-Tabelle
+3. **Dimensionen hinzufügen**:
+   - `Ereignisname`
+   - `Import URL` (Ihre Custom Dimension)
+   - `Import Method`
+   - `Import Error`
+4. **Messwerte hinzufügen**:
+   - `Ereignisanzahl`
+   - `Ereignisanzahl pro Nutzer`
+5. **Filter hinzufügen**:
+   - `Ereignisname` → `enthält` → `ai_import`
+6. **Exploration benennen**: "AI Import URL-Analyse"
+
+**Option B: Benutzerdefinierte Berichte**
+
+1. **Bibliothek → Berichte-Sammlung bearbeiten**
+2. **Neuer Bericht hinzufügen**
+3. Konfigurieren mit denselben Dimensionen wie oben
+
+### Schritt 3: Nützliche Analysen durchführen
+
+**Analyse 1: Welche Portale werden am häufigsten genutzt?**
+
+```
+Dimensions: Import URL
+Metrics: Event Count
+Filter: Event name = ai_import_started
+Sort: Event Count DESC
+```
+
+**Analyse 2: Erfolgsrate nach Domain**
+
+1. Erstellen Sie eine Segment-Überschneidung:
+   - Segment A: `ai_import_started` mit `import_url` enthält `immobilienscout24.de`
+   - Segment B: `ai_import_completed` mit `import_url` enthält `immobilienscout24.de`
+2. Berechnen Sie: `Completed / Started * 100`
+
+**Analyse 3: Problematische URLs identifizieren**
+
+```
+Dimensions: Import URL, Import Error
+Metrics: Event Count
+Filter: Event name = ai_import_failed
+Sort: Event Count DESC
+```
+
+### Schritt 4: Data Studio Dashboard erstellen (Optional)
+
+1. Gehen Sie zu: https://lookerstudio.google.com
+2. **Erstellen → Bericht**
+3. **Datenquelle hinzufügen**: Ihre GA4 Property
+4. **Widgets hinzufügen**:
+   - **Tabelle**: Top 10 URLs nach Import-Anzahl
+   - **Balkendiagramm**: Erfolgsrate nach Portal
+   - **Zeitreihendiagramm**: URL-Imports über Zeit
+   - **Scorecards**: Gesamt-Imports, Erfolgsrate, Fehlerrate
+
+### Beispiel: Python Analytics Query mit import_url
+
+```python
+from google.analytics.data_v1beta import BetaAnalyticsDataClient
+from google.analytics.data_v1beta.types import RunReportRequest
+
+client = BetaAnalyticsDataClient.from_service_account_json('key.json')
+
+# Top 10 meistgenutzte Import-URLs
+request = RunReportRequest(
+    property=f"properties/YOUR_PROPERTY_ID",
+    date_ranges=[{"start_date": "30daysAgo", "end_date": "today"}],
+    dimensions=[
+        {"name": "eventName"},
+        {"name": "customEvent:import_url"},
+        {"name": "customEvent:import_method"}
+    ],
+    metrics=[{"name": "eventCount"}],
+    dimension_filter={
+        "filter": {
+            "field_name": "eventName",
+            "string_filter": {"value": "ai_import_started"}
+        }
+    },
+    order_bys=[{"metric": {"metric_name": "eventCount"}, "desc": True}],
+    limit=10
+)
+
+response = client.run_report(request)
+
+# Ausgabe
+for row in response.rows:
+    url = row.dimension_values[1].value
+    count = row.metric_values[0].value
+    print(f"{url}: {count} Imports")
+
+# Beispiel Output:
+# https://www.immobilienscout24.de/expose/12345: 47 Imports
+# https://www.immowelt.de/expose/67890: 23 Imports
+# https://www.ebay-kleinanzeigen.de/s-anzeige/98765: 15 Imports
+```
+
+### Wichtige Metriken für URL-Tracking
+
+| Metrik | Berechnung | Bedeutung |
+|--------|------------|-----------|
+| **Top Import-Portale** | `GROUP BY domain(import_url)` | Welche Portale nutzen User? |
+| **Portal-Erfolgsrate** | `(completed / started) * 100 per domain` | Welche Portale funktionieren am besten? |
+| **Fehlerhafte URLs** | `COUNT import_url WHERE event = ai_import_failed` | Problematische URLs finden |
+| **Durchschnitt Imports/User** | `COUNT DISTINCT import_url / COUNT DISTINCT user_id` | User-Engagement |
+
+---
+
+## 📈 Teil 7: Wichtige Metriken für SaaS
 
 ### Key Performance Indicators (KPIs)
 
@@ -276,7 +437,7 @@ response = client.run_report(request)
 
 ---
 
-## 🚨 Troubleshooting
+## 🚨 Teil 8: Troubleshooting
 
 ### GTM lädt nicht
 
