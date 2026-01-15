@@ -12,6 +12,10 @@ import {
   TrendingUp,
   DollarSign,
   AlertCircle,
+  Camera,
+  Link as LinkIcon,
+  Edit3,
+  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
@@ -139,26 +143,26 @@ export default function LandingPage() {
         </header>
 
         <main>
-          {/* 1. Hero Sektion */}
-          <section className="pt-40 pb-20 px-6 bg-white">
+          {/* 1. Hero Sektion - VIEL PROMINENTER */}
+          <section className="pt-40 pb-28 px-6 bg-white">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-16">
-                <span className="inline-block px-4 py-2 bg-orange-50 text-[#ff6b00] font-bold text-xs uppercase tracking-widest rounded-full mb-6 shadow-sm">
+              <div className="text-center mb-20">
+                <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-bold text-sm uppercase tracking-widest rounded-full mb-8 shadow-sm">
                   Dein persönlicher Investment-Copilot
                 </span>
-                <h1 className="text-5xl md:text-8xl font-extrabold mb-8 text-[#1d1d1f] leading-none tracking-tight">
-                  Prüf den Deal, <br /><span className="text-[#ff6b00]">bevor du kaufst.</span>
+                {/* VIEL GRÖSSERE ÜBERSCHRIFT */}
+                <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black mb-10 text-[#001d3d] leading-[0.95] tracking-tighter">
+                  Kauf niemals die <br />
+                  <span className="text-[#ff6b00]">falsche Immobilie.</span>
                 </h1>
-                <p className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto leading-relaxed mb-12">
-                  Immobilien-Analyse für Einsteiger. Link kopieren, Foto machen oder manuell eingeben – wir prüfen deinen Deal gegen echte Marktdaten.
+                <p className="text-2xl md:text-3xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-16 font-medium">
+                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
                 </p>
 
                 {/* Haupt-Interaktion: 3 Wege */}
-                <div className="max-w-4xl mx-auto bg-white p-3 rounded-[40px] shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-3">
-                  <div className="flex-1 flex items-center px-6 py-4 bg-gray-50 rounded-full border border-gray-200 focus-within:border-[#ff6b00] transition-colors">
-                    <svg className="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
+                <div className="max-w-5xl mx-auto bg-white p-4 rounded-[40px] shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-4">
+                  <div className="flex-1 flex items-center px-8 py-5 bg-gray-50 rounded-full border border-gray-200 focus-within:border-[#ff6b00] transition-colors">
+                    <LinkIcon className="w-6 h-6 text-gray-400 mr-4" />
                     <input
                       type="text"
                       placeholder="Link von ImmoScout24 einfügen..."
@@ -167,46 +171,41 @@ export default function LandingPage() {
                   </div>
                   <button
                     onClick={() => handleGetStarted('hero_input')}
-                    className="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-bold text-lg hover:shadow-xl hover:bg-[#ff6b00]/90 transition-all flex items-center justify-center gap-2"
+                    className="bg-[#ff6b00] text-white px-12 py-6 rounded-full font-bold text-xl hover:shadow-2xl hover:bg-[#ff6b00]/90 transition-all flex items-center justify-center gap-3"
                   >
                     <span>Check starten</span>
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-6 h-6" />
                   </button>
                 </div>
 
-                <div className="flex flex-wrap justify-center gap-6 mt-8">
+                <div className="flex flex-wrap justify-center gap-8 mt-10">
                   <button
                     onClick={() => handleGetStarted('hero_photo')}
-                    className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-[#001d3d] transition-colors"
+                    className="flex items-center gap-3 text-base font-bold text-gray-500 hover:text-[#001d3d] transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                    <Camera className="w-6 h-6" />
                     Exposé fotografieren
                   </button>
                   <button
                     onClick={() => handleGetStarted('hero_manual')}
-                    className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-[#001d3d] transition-colors"
+                    className="flex items-center gap-3 text-base font-bold text-gray-500 hover:text-[#001d3d] transition-colors"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <Edit3 className="w-6 h-6" />
                     Manuell eingeben
                   </button>
                 </div>
               </div>
 
               {/* 2. Trust Bar / Social Proof */}
-              <div className="pt-10 border-t border-gray-100">
-                <p className="text-center text-sm font-medium text-gray-400 mb-6">
+              <div className="pt-12 border-t border-gray-100">
+                <p className="text-center text-sm font-medium text-gray-400 mb-8">
                   Bereits über 1.200+ Immobilien-Checks durchgeführt
                 </p>
-                <div className="flex flex-wrap justify-center items-center gap-12 opacity-40 grayscale">
-                  <span className="font-bold text-xl tracking-tighter italic">ImmoScout24</span>
-                  <span className="font-bold text-xl tracking-tighter italic">Immowelt</span>
-                  <span className="font-bold text-xl tracking-tighter italic">Ebay Kleinanzeigen</span>
-                  <span className="font-bold text-xl tracking-tighter italic">Immonet</span>
+                <div className="flex flex-wrap justify-center items-center gap-16 opacity-40 grayscale">
+                  <span className="font-bold text-2xl tracking-tighter italic">ImmoScout24</span>
+                  <span className="font-bold text-2xl tracking-tighter italic">Immowelt</span>
+                  <span className="font-bold text-2xl tracking-tighter italic">Ebay Kleinanzeigen</span>
+                  <span className="font-bold text-2xl tracking-tighter italic">Immonet</span>
                 </div>
               </div>
             </div>
@@ -216,94 +215,95 @@ export default function LandingPage() {
           <section className="py-32 px-6 bg-[#f5f5f7]">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                  Warum die meisten beim ersten Kauf draufzahlen.
+                {/* GRÖSSERE SECTION-ÜBERSCHRIFT */}
+                <h2 className="text-5xl md:text-7xl font-black mb-8 text-[#001d3d] leading-tight">
+                  Warum die meisten beim <br className="hidden md:block" />ersten Kauf draufzahlen.
                 </h2>
-                <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
                   Die häufigsten Fehler, die dich tausende Euro kosten können – und wie imvestr dich davor schützt.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
                 {/* Problem 1 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-8 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-xl transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-6 h-6 text-[#ff6b00]" />
+                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-10 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-2xl transition-all">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-7 h-7 text-[#ff6b00]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-2">Versteckte Kosten übersehen</h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <h3 className="text-2xl font-bold mb-3">Versteckte Kosten übersehen</h3>
+                      <p className="text-gray-600 leading-relaxed text-lg">
                         Makler rechnen oft ohne Instandhaltungsrücklage, Nebenkosten oder realistische Mietausfälle. Das Ergebnis: Negativer Cashflow.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-semibold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                  <div className="mt-8 pt-6 border-t border-orange-200">
+                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
                       imvestr berechnet alle versteckten Kosten automatisch
                     </p>
                   </div>
                 </div>
 
                 {/* Problem 2 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-8 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-xl transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-6 h-6 text-[#ff6b00]" />
+                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-10 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-2xl transition-all">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-7 h-7 text-[#ff6b00]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-2">Zu teuer gekauft</h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <h3 className="text-2xl font-bold mb-3">Zu teuer gekauft</h3>
+                      <p className="text-gray-600 leading-relaxed text-lg">
                         Ohne Marktvergleich zahlst du schnell 10-20% über Wert. Das schmälert deine Rendite für Jahre.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-semibold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                  <div className="mt-8 pt-6 border-t border-orange-200">
+                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
                       Live-Marktdaten zeigen dir den echten Wert
                     </p>
                   </div>
                 </div>
 
                 {/* Problem 3 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-8 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-xl transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-[#ff6b00]" />
+                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-10 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-2xl transition-all">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-7 h-7 text-[#ff6b00]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-2">Schlechte Lage</h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <h3 className="text-2xl font-bold mb-3">Schlechte Lage</h3>
+                      <p className="text-gray-600 leading-relaxed text-lg">
                         Die Wohnung sieht toll aus, aber die Lage? Ohne lokale Nachfrage-Analyse riskierst du Leerstand.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-semibold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                  <div className="mt-8 pt-6 border-t border-orange-200">
+                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
                       KI-Lagebewertung mit Nachfrage-Screening
                     </p>
                   </div>
                 </div>
 
                 {/* Problem 4 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-8 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-xl transition-all">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-6 h-6 text-[#ff6b00]" />
+                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[32px] p-10 border-l-4 border-[#ff6b00] shadow-lg hover:shadow-2xl transition-all">
+                  <div className="flex items-start gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                      <DollarSign className="w-7 h-7 text-[#ff6b00]" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold mb-2">Miete überschätzt</h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <h3 className="text-2xl font-bold mb-3">Miete überschätzt</h3>
+                      <p className="text-gray-600 leading-relaxed text-lg">
                         Makler zeigen optimistische Mietpreise. In Realität liegen sie oft 10-15% darunter. Das killt deine Rendite.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-6 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-semibold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                  <div className="mt-8 pt-6 border-t border-orange-200">
+                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
                       Mietpreis-Vergleich mit echten Portal-Daten
                     </p>
                   </div>
@@ -312,20 +312,136 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 4. Die Lösung (imvestr Workflow) */}
-          <section id="workflow" className="py-32 px-6 bg-white">
+          {/* 3.5 NEU: Wie funktioniert Import? */}
+          <section className="py-32 px-6 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">So funktioniert imvestr.</h2>
-                <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                <span className="inline-block px-4 py-2 bg-[#001d3d]/5 text-[#001d3d] font-bold text-sm uppercase tracking-widest rounded-full mb-6">
+                  <Sparkles className="inline w-4 h-4 mr-2 text-[#ff6b00]" />
+                  KI-gestützte Datenerfassung
+                </span>
+                <h2 className="text-5xl md:text-7xl font-black mb-8 text-[#001d3d] leading-tight">
+                  Wie funktioniert <br className="hidden md:block" />
+                  <span className="text-[#ff6b00]">der Import?</span>
+                </h2>
+                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                  Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen. Unsere KI erledigt den Rest.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Methode 1: URL-Import */}
+                <div className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
+                      <LinkIcon className="w-10 h-10 text-[#ff6b00]" />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
+                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
+                      Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
+                    </p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Alle Objektdaten in Sekunden erfasst</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">KI erkennt Preise, Größe, Lage automatisch</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Unterstützt alle großen Immobilienportale</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Methode 2: Foto-Scan */}
+                <div className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
+                      <Camera className="w-10 h-10 text-[#ff6b00]" />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
+                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
+                      Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen und Details automatisch.
+                    </p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">OCR-Texterkennung mit 98% Genauigkeit</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Funktioniert auch bei handgeschriebenen Notizen</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Perfekt für Besichtigungen vor Ort</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Methode 3: Manuelle Eingabe */}
+                <div className="group relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
+                      <Edit3 className="w-10 h-10 text-[#ff6b00]" />
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">Manuelle Eingabe</h3>
+                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
+                      Trage die Daten selbst ein – mit intelligenten Vorschlägen und Auto-Vervollständigung für Adressen und Kennzahlen.
+                    </p>
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Smartes Formular mit Validierung</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Adress-Autocomplete mit Google Maps</span>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-700">Volle Kontrolle über alle Details</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* KI-Zauber Highlight */}
+              <div className="mt-16 max-w-4xl mx-auto bg-gradient-to-br from-[#001d3d] to-[#002d5d] rounded-[40px] p-12 text-white text-center">
+                <Sparkles className="w-12 h-12 text-[#ff6b00] mx-auto mb-6" />
+                <h3 className="text-3xl font-bold mb-4">Der Zauber dahinter: GPT-4 Vision + OCR</h3>
+                <p className="text-xl text-slate-300 leading-relaxed">
+                  Unsere KI kombiniert die neuesten Computer-Vision-Modelle mit klassischer OCR-Technologie, um selbst komplexe Exposés fehlerfrei zu erfassen. In über 95% der Fälle brauchst du nichts mehr nachzutragen.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* 4. Die Lösung (imvestr Workflow) */}
+          <section id="workflow" className="py-32 px-6 bg-[#f5f5f7]">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-20">
+                <h2 className="text-5xl md:text-7xl font-black mb-8 text-[#001d3d] leading-tight">
+                  So funktioniert imvestr.
+                </h2>
+                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
                   In 3 einfachen Schritten von der Exposé-URL zum vollständigen Investment-Report.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Schritt 1: Import */}
-                <div className="bg-[#f5f5f7] rounded-[40px] p-10 hover:bg-[#ededf0] transition-all hover:shadow-2xl group">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                {/* Schritt 1 */}
+                <div className="bg-white rounded-[40px] p-10 hover:shadow-2xl transition-all group relative overflow-hidden">
+                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
                     <svg className="w-8 h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
@@ -333,94 +449,97 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 1</div>
                   <h3 className="text-2xl font-bold mb-4">Import</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Kopiere den Link von ImmoScout24, fotografiere das Exposé oder gib die Daten manuell ein. Unsere KI extrahiert alle Informationen.
+                    Kopiere den Link, fotografiere das Exposé oder gib die Daten manuell ein. Unsere KI extrahiert alle Informationen.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">URL-Import</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Foto-Scan</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Manuelle Eingabe</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">URL-Import</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Foto-Scan</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Manuelle Eingabe</span>
                   </div>
-                  <div className="absolute bottom-0 right-4 text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
+                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
                 </div>
 
-                {/* Schritt 2: Deep Market Analysis */}
-                <div className="bg-[#f5f5f7] rounded-[40px] p-10 hover:bg-[#ededf0] transition-all hover:shadow-2xl group relative overflow-hidden">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                {/* Schritt 2 */}
+                <div className="bg-white rounded-[40px] p-10 hover:shadow-2xl transition-all group relative overflow-hidden">
+                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
                     <BarChart3 className="w-8 h-8 text-[#ff6b00]" />
                   </div>
                   <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 2</div>
                   <h3 className="text-2xl font-bold mb-4">Deep Market Analysis</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Wir screenen echte Angebots- und Nachfragedaten vor Ort. Keine Schätzwerte, sondern Live-Vergleiche mit dem lokalen Markt.
+                    Wir screenen echte Angebots- und Nachfragedaten vor Ort. Keine Schätzwerte, sondern Live-Vergleiche.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Kauf-Vergleich</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Miet-Vergleich</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Lage-Rating</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Miet-Vergleich</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Lage-Rating</span>
                   </div>
-                  <div className="absolute bottom-0 right-4 text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
+                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
                 </div>
 
-                {/* Schritt 3: Simulation & Report */}
-                <div className="bg-[#f5f5f7] rounded-[40px] p-10 hover:bg-[#ededf0] transition-all hover:shadow-2xl group relative overflow-hidden">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                {/* Schritt 3 */}
+                <div className="bg-white rounded-[40px] p-10 hover:shadow-2xl transition-all group relative overflow-hidden">
+                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
                     <FileBarChart className="w-8 h-8 text-[#ff6b00]" />
                   </div>
                   <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 3</div>
                   <h3 className="text-2xl font-bold mb-4">Simulation & Report</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Teste verschiedene Szenarien (Eigenkapital, Zins, Miete) und erhalte einen bankfähigen PDF-Report mit allen KPIs.
+                    Teste verschiedene Szenarien und erhalte einen bankfähigen PDF-Report mit allen KPIs.
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Szenarien</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">Steuer-Effekt</span>
-                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium">PDF-Export</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Steuer-Effekt</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">PDF-Export</span>
                   </div>
-                  <div className="absolute bottom-0 right-4 text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
+                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* 5. Key Features (Detail-Karten) */}
-          <section id="features" className="py-32 px-6 bg-[#f5f5f7]">
+          {/* 5. Key Features (Detail-Karten) - WEISSE CARDS */}
+          <section id="features" className="py-32 px-6 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">Wie wir dich schützen.</h2>
-                <p className="text-gray-500 text-lg max-w-2xl mx-auto">
+                <h2 className="text-5xl md:text-7xl font-black mb-8 text-[#001d3d] leading-tight">
+                  Wie wir dich schützen.
+                </h2>
+                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
                   imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein Investment zu sagen.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="bg-[#f5f5f7] rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:bg-[#ededf0]">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-[#001d3d] transition-colors">
-                    <BarChart3 className="w-7 h-7 text-[#ff6b00] group-hover:text-white" />
+                {/* WEISSE CARDS statt grau */}
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:border-[#ff6b00]/30 hover:shadow-2xl">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
+                    <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Deep Market Analysis</h3>
-                  <p className="text-gray-500 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     Wir screenen das echte Angebot und die Nachfrage vor Ort. Keine Schätzwerte, sondern reale Portaldaten-Vergleiche.
                   </p>
                   <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
                 </div>
 
-                <div className="bg-[#f5f5f7] rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:bg-[#ededf0]">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-[#001d3d] transition-colors">
-                    <Zap className="w-7 h-7 text-[#ff6b00] group-hover:text-white" />
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:border-[#ff6b00]/30 hover:shadow-2xl">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
+                    <Zap className="w-7 h-7 text-[#ff6b00]" />
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Szenario-Planung</h3>
-                  <p className="text-gray-500 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     Was passiert bei 20% mehr Eigenkapital? Was bei einer Zinsänderung? Simuliere deine Zukunft mit einem Klick.
                   </p>
                   <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
                 </div>
 
-                <div className="bg-[#f5f5f7] rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:bg-[#ededf0]">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-[#001d3d] transition-colors">
-                    <FileBarChart className="w-7 h-7 text-[#ff6b00] group-hover:text-white" />
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] p-10 relative overflow-hidden group hover:-translate-y-2 transition-all hover:border-[#ff6b00]/30 hover:shadow-2xl">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
+                    <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
                   </div>
                   <h3 className="text-2xl font-bold mb-4">Bank-Ready Export</h3>
-                  <p className="text-gray-500 leading-relaxed">
+                  <p className="text-gray-600 leading-relaxed">
                     Erhalte ein professionelles PDF-Exposé mit allen KPIs und Marktdaten für dein Finanzierungsgespräch.
                   </p>
                   <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
@@ -429,25 +548,25 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 6. Zielgruppen Sektion (The Trio) */}
-          <section className="py-32 px-6 bg-white">
+          {/* 6. Zielgruppen Sektion (The Trio) + SOCIAL PROOF */}
+          <section className="py-32 px-6 bg-[#f5f5f7]">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                <h2 className="text-5xl md:text-7xl font-black mb-8 text-[#001d3d] leading-tight">
                   Was ist dein <br />
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
                 </h2>
-                <p className="text-xl text-gray-500 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                   Wir passen unsere Analyse-Tiefe an deine Lebenssituation an.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                 {/* Karte 1: Steuern */}
                 <div className="bg-[#001d3d] rounded-[40px] p-10 text-white group cursor-pointer hover:bg-[#002d5d] transition-all shadow-xl">
-                  <div className="text-[#ff6b00] font-bold mb-10 text-4xl">01</div>
+                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">01</div>
                   <h3 className="text-3xl font-bold mb-4">Steuern sparen</h3>
-                  <p className="text-slate-300 mb-12">
+                  <p className="text-slate-300 mb-12 text-lg leading-relaxed">
                     Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
                   <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
@@ -457,10 +576,10 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 2: Vorsorge */}
-                <div className="bg-[#f5f5f7] rounded-[40px] p-10 group cursor-pointer hover:bg-[#ededf0] transition-all shadow-xl">
-                  <div className="text-[#001d3d] font-bold mb-10 text-4xl opacity-20">02</div>
+                <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-xl transition-all border-2 border-gray-100">
+                  <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">02</div>
                   <h3 className="text-3xl font-bold mb-4">Altersvorsorge</h3>
-                  <p className="text-gray-500 mb-12">
+                  <p className="text-gray-600 mb-12 text-lg leading-relaxed">
                     Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
                   <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
@@ -470,15 +589,85 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 3: Cashflow */}
-                <div className="bg-[#f5f5f7] rounded-[40px] p-10 group cursor-pointer hover:bg-[#ededf0] transition-all shadow-xl">
-                  <div className="text-[#001d3d] font-bold mb-10 text-4xl opacity-20">03</div>
+                <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-xl transition-all border-2 border-gray-100">
+                  <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">03</div>
                   <h3 className="text-3xl font-bold mb-4">Passives Einkommen</h3>
-                  <p className="text-gray-500 mb-12">
+                  <p className="text-gray-600 mb-12 text-lg leading-relaxed">
                     Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
                   <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
                     <span>Details ansehen</span>
                     <span>→</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* SOCIAL PROOF TESTIMONIALS */}
+              <div className="mt-20">
+                <h3 className="text-3xl font-bold text-center mb-12 text-[#001d3d]">Was unsere Nutzer sagen</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {/* Testimonial 1 */}
+                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        M
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Mariam</p>
+                        <p className="text-sm text-gray-500">Ärztin, 34</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Hat mir die Bank-Unterlagen gerettet. PDF fertig in 2 Minuten.&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 2 */}
+                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        D
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Daniel</p>
+                        <p className="text-sm text-gray-500">IT-Consultant, 29</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Szenarien verschieben, sofort neue Rendite sehen – genau mein Ding.&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 3 */}
+                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        T
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Tobias</p>
+                        <p className="text-sm text-gray-500">FIRE-Student, 26</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Cashflow in Sekunden. Endlich weiß ich, ob es sich lohnt.&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 4 */}
+                  <div className="bg-white rounded-3xl p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 transition-all">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        L
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Leandro</p>
+                        <p className="text-sm text-gray-500">Data-Nerd, 31</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Datenquellen transparent, Annahmen editierbar – perfekt.&quot;
+                    </p>
                   </div>
                 </div>
               </div>
@@ -498,7 +687,7 @@ export default function LandingPage() {
                   <div className="inline-block px-4 py-2 bg-orange-500/20 rounded-full text-[#ff6b00] text-sm font-bold mb-6">
                     BANK-READY PDF
                   </div>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+                  <h2 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
                     Von der Analyse zum <span className="text-[#ff6b00]">Bankgespräch</span> in 60 Sekunden.
                   </h2>
                   <p className="text-xl text-slate-300 mb-10 leading-relaxed">
@@ -633,8 +822,8 @@ export default function LandingPage() {
           <section id="faq" className="py-32 px-6 bg-white">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6">Häufig gestellte Fragen</h2>
-                <p className="text-gray-500 text-lg">Alles, was du über imvestr wissen musst.</p>
+                <h2 className="text-5xl md:text-6xl font-black mb-8 text-[#001d3d]">Häufig gestellte Fragen</h2>
+                <p className="text-gray-500 text-xl">Alles, was du über imvestr wissen musst.</p>
               </div>
 
               <div className="space-y-6">
@@ -685,10 +874,10 @@ export default function LandingPage() {
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
 
             <div className="max-w-4xl mx-auto text-center relative z-10">
-              <h2 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+              <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight">
                 Bereit für deinen <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
-              <p className="text-xl md:text-2xl text-slate-300 mb-12 leading-relaxed max-w-2xl mx-auto">
+              <p className="text-2xl md:text-3xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
                 Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
               </p>
 
@@ -711,15 +900,15 @@ export default function LandingPage() {
               {/* Trust Indicators */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-white/20">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-[#ff6b00] mb-2">1.200+</div>
+                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">1.200+</div>
                   <div className="text-sm text-slate-400">Analysierte Immobilien</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-[#ff6b00] mb-2">4.9/5</div>
+                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">4.9/5</div>
                   <div className="text-sm text-slate-400">Durchschnittliche Bewertung</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-[#ff6b00] mb-2">60 Sek.</div>
+                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">60 Sek.</div>
                   <div className="text-sm text-slate-400">Bis zum ersten Ergebnis</div>
                 </div>
               </div>
