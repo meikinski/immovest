@@ -7,39 +7,39 @@
 html, body, #__next, .app-root { background: hsl(var(--bg)); }
 
 :root{
-  /* Motion & Radius */
-  --radius-sm: 10px; --radius: 16px; --radius-lg: 20px;
-  --ease-snap: cubic-bezier(.2,.8,.2,1);
+  /* Motion & Radius - Apple-Style */
+  --radius-sm: 10px; --radius: 32px; --radius-lg: 40px;
+  --ease-snap: cubic-bezier(.4, 0, .2, 1);
   --dur-1: 120ms; --dur-2: 240ms; --dur-3: 360ms;
 
-  /* Neutrals (aus dem Shot) */
-  --bg: 214 0% 99%;          /* sehr helles Sky (Seitenhintergrund)  #DDE8F9~ */
-  --fg: 222 47% 15%;          /* Text                                #0F172A   */
-  --card: 0 0% 100%;          /* klare Cards                         #FFFFFF   */
-  --muted: 214 66% 89%;       /* Pale Sky                            #AEBBD9~  */
-  --muted-foreground: 213 19% 46%; /* ruhiges Slate-Text           #6C7F99   */
+  /* Neutrals - Apple Gray System */
+  --bg: 0 0% 100%;            /* Clean White Background              #FFFFFF   */
+  --fg: 0 0% 11%;             /* Text - Deep Dark                    #1d1d1f   */
+  --card: 0 0% 100%;          /* Card Background - White             #FFFFFF   */
+  --muted: 0 0% 96%;          /* Apple Gray - Light                  #f5f5f7   */
+  --muted-foreground: 0 0% 45%; /* Medium Gray                       #737373   */
 
-  /* Brand */
-  --brand: 214 61% 28%;       /* Navy (Primary)                      #264171   */
+  /* Brand - Navy & Orange (Apple-inspired) */
+  --brand: 210 100% 12%;      /* Deep Navy (Primary)                 #001d3d   */
   --brand-foreground: 0 0% 100%;
 
   /* Accent */
-  --accent: 217 47% 66%;      /* Slate                               #6C7F99   */
+  --accent: 0 0% 60%;         /* Neutral Gray for subtle accents     #999999   */
   --accent-foreground: 0 0% 100%;
 
-  /* Zweite Brand für Gradients & Secondary */
-  --brand-2: 18.3 59% 53.1%;      /* warmes Peach (etwas dunkler)        ~#E6AE63  */
+  /* Secondary Brand - Vibrant Orange */
+  --brand-2: 25 100% 50%;     /* Vibrant Orange (Secondary/CTA)      #ff6b00   */
 
   /* Semantik (neutral gehalten) */
   --success: 152 55% 38%;
   --warning: 38 95% 52%;
   --danger: 0 70% 50%;
 
-  /* Typografie */
+  /* Typografie - Apple System */
   --font-size-h1: 24px;
   --font-size-label: 14px;
   --font-size-placeholder: 16px;
-  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600;
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700; --fw-extrabold: 800;
 
   /* -------- Bridge: alte Variablen → neue Tokens -------- */
   --color-primary:           hsl(var(--brand));
