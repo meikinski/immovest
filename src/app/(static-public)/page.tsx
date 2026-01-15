@@ -2,20 +2,15 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import {
   ArrowRight,
   BarChart3,
   CheckCircle2,
   FileBarChart,
-  LineChart,
   MapPin,
-  ShieldCheck,
-  Sparkles,
   Zap,
   TrendingUp,
   DollarSign,
-  Home,
   AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -479,7 +474,7 @@ export default function LandingPage() {
                   <div className="text-[#001d3d] font-bold mb-10 text-4xl opacity-20">03</div>
                   <h3 className="text-3xl font-bold mb-4">Passives Einkommen</h3>
                   <p className="text-gray-500 mb-12">
-                    Maximiere deinen monatlichen Cashflow. Wir finden die "Haken" in den Mietkalkulationen der Makler.
+                    Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
                   <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
                     <span>Details ansehen</span>
