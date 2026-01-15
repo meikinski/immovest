@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>imvestr | Immobilien-Analyse für smarte Investoren</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-navy: #001d3d;
+            --brand-orange: #ff6b00;
+            --apple-gray: #f5f5f7;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+        .bg-navy { background-color: var(--brand-navy); }
+        .text-orange { color: var(--brand-orange); }
+        .bg-orange { background-color: var(--brand-orange); }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+        }
+
+        .hero-title {
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+        }
+
+        .feature-card {
+            background: var(--apple-gray);
+            border-radius: 32px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: #ededf0;
+        }
+
+        .step-number {
+            font-size: 120px;
+            font-weight: 800;
+            color: rgba(0, 29, 61, 0.03);
+            position: absolute;
+            right: 20px;
+            bottom: -20px;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <!-- Header -->
+    <header class="glass-header fixed top-0 w-full border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-navy rounded-lg flex items-center justify-center shadow-lg">
+                    <span class="text-white font-bold italic">i</span>
+                </div>
+                <span class="text-2xl font-extrabold tracking-tighter bg-navy text-white px-2 rounded">imvestr</span>
+            </div>
+            <nav class="hidden lg:flex gap-10 text-sm font-semibold text-gray-500">
+                <a href="#features" class="hover:text-black transition-colors">Features</a>
+                <a href="#workflow" class="hover:text-black transition-colors">Ablauf</a>
+                <a href="#faq" class="hover:text-black transition-colors">FAQ</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button class="text-sm font-bold text-gray-600 hidden sm:block">Login</button>
+                <button class="bg-navy text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform">
+                    Jetzt kostenlos prüfen
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Sektion -->
+    <section class="pt-40 pb-20 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <span class="inline-block px-4 py-2 bg-orange-50 text-orange font-bold text-xs uppercase tracking-widest rounded-full mb-6">
+                    Dein persönlicher Investment-Copilot
+                </span>
+                <h1 class="hero-title text-5xl md:text-8xl font-extrabold mb-8 text-slate-900">
+                    Prüf den Deal, <br>bevor du <span class="text-orange">kaufst.</span>
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto leading-relaxed mb-12">
+                    Immobilien-Analyse für Einsteiger. Link kopieren, Foto machen oder manuell eingeben.
+                </p>
+
+                <!-- Haupt-Interaktion: 3 Wege -->
+                <div class="max-w-4xl mx-auto bg-white p-3 rounded-[40px] shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 flex items-center px-6 py-4 bg-gray-50 rounded-full border border-gray-100 focus-within:border-orange transition-colors">
+                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        <input type="text" placeholder="Link von ImmoScout24 einfügen..." class="bg-transparent w-full outline-none text-lg">
+                    </div>
+                    <button class="bg-orange text-white px-10 py-5 rounded-full font-bold text-lg hover:shadow-xl hover:bg-orange-600 transition-all flex items-center justify-center gap-2">
+                        <span>Check starten</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                </div>
+                <div class="flex flex-wrap justify-center gap-6 mt-8">
+                    <button class="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-navy transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        Exposé fotografieren
+                    </button>
+                    <button class="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-navy transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Manuell eingeben
+                    </button>
+                </div>
+            </div>
+
+            <!-- Trust Bar -->
+            <div class="text-center pt-16">
+                <p class="text-sm text-gray-400 mb-4">Bereits über 15.000 Immobilien-Checks durchgeführt</p>
+                <div class="flex flex-wrap justify-center items-center gap-12 opacity-40 grayscale">
+                    <span class="font-bold text-xl tracking-tighter italic">ImmoScout24</span>
+                    <span class="font-bold text-xl tracking-tighter italic">Immowelt</span>
+                    <span class="font-bold text-xl tracking-tighter italic">Ebay Kleinanzeigen</span>
+                    <span class="font-bold text-xl tracking-tighter italic">Immonet</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Sektion: Das Problem (The Gap) -->
+    <section class="py-32 px-6 bg-gray-50">
+        <div class="max-w-7xl mx-auto text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Warum die meisten beim ersten Kauf draufzahlen.</h2>
+            <p class="text-gray-500 text-lg max-w-3xl mx-auto mb-20">Der Kaufpreis ist nur die Spitze des Eisbergs. Wir zeigen dir, was wirklich zählt.</p>
+
+            <div class="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-16">
+                <!-- Ohne imvestr -->
+                <div class="bg-white rounded-[32px] p-8 w-full max-w-md">
+                    <h3 class="text-2xl font-bold mb-6">Ohne imvestr</h3>
+                    <div class="space-y-4 text-left">
+                        <div class="flex justify-between items-center">
+                            <span>Kaufpreis</span>
+                            <span class="font-bold">300.000 €</span>
+                        </div>
+                        <div class="flex justify-between items-center text-red-500">
+                            <span>❌ Versteckte Kosten (Sanierung, etc.)</span>
+                            <span class="font-bold">25.000 €</span>
+                        </div>
+                        <div class="flex justify-between items-center text-red-500">
+                            <span>❌ Unrealistische Mieteinnahmen</span>
+                            <span class="font-bold">-200 € / Monat</span>
+                        </div>
+                        <hr class="my-4">
+                        <div class="flex justify-between items-center text-xl font-bold">
+                            <span>Echter Cashflow</span>
+                            <span class="text-red-500">-350 € / Monat</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mit imvestr -->
+                <div class="bg-navy text-white rounded-[32px] p-8 w-full max-w-md shadow-2xl scale-105">
+                    <h3 class="text-2xl font-bold mb-6">Mit imvestr</h3>
+                    <div class="space-y-4 text-left">
+                         <div class="flex justify-between items-center">
+                            <span>Kaufpreis</span>
+                            <span class="font-bold">300.000 €</span>
+                        </div>
+                        <div class="flex justify-between items-center text-green-400">
+                            <span>✅ Sanierungsbedarf erkannt</span>
+                            <span class="font-bold">Preis verhandelt</span>
+                        </div>
+                        <div class="flex justify-between items-center text-green-400">
+                            <span>✅ Realistische Mieteinnahmen</span>
+                            <span class="font-bold">+50 € / Monat</span>
+                        </div>
+                        <hr class="my-4 border-slate-700">
+                        <div class="flex justify-between items-center text-xl font-bold">
+                            <span>Echter Cashflow</span>
+                            <span class="text-green-400">+120 € / Monat</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Die Lösung (imvestr Workflow) -->
+    <section id="workflow" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">In 3 Schritten zur sicheren Entscheidung.</h2>
+                <p class="text-gray-500 text-lg max-w-2xl mx-auto">So einfach analysierst du jedes Immobilien-Angebot – egal von welcher Plattform.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <!-- Schritt 1 -->
+                <div class="p-8">
+                    <div class="flex justify-center items-center w-20 h-20 bg-white rounded-2xl mx-auto mb-6 shadow-md">
+                        <span class="text-3xl font-bold text-orange">1</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Import</h3>
+                    <p class="text-gray-500">Link einfügen, Exposé fotografieren oder die wichtigsten Daten manuell eingeben.</p>
+                </div>
+                <!-- Schritt 2 -->
+                <div class="p-8">
+                    <div class="flex justify-center items-center w-20 h-20 bg-white rounded-2xl mx-auto mb-6 shadow-md">
+                         <span class="text-3xl font-bold text-orange">2</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Deep Market Analysis</h3>
+                    <p class="text-gray-500">Wir vergleichen das Objekt mit tausenden aktiven und verkauften Immobilien in der Umgebung.</p>
+                </div>
+                <!-- Schritt 3 -->
+                <div class="p-8">
+                    <div class="flex justify-center items-center w-20 h-20 bg-white rounded-2xl mx-auto mb-6 shadow-md">
+                         <span class="text-3xl font-bold text-orange">3</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">Simulation</h3>
+                    <p class="text-gray-500">Prüfe verschiedene Szenarien (Zinsen, Eigenkapital) und sieh deinen Cashflow nach Steuern.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features -->
+    <section id="features" class="py-32 px-6 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl md:text-5xl font-bold mb-6">Der Schutz vor teuren Fehlern.</h2>
+                <p class="text-gray-500 text-lg max-w-2xl mx-auto">imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein potentielles Investment zu sagen.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Marktanalyse -->
+                <div class="feature-card p-10 relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-navy transition-colors">
+                        <svg class="w-7 h-7 text-orange group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Marktanalyse</h3>
+                    <p class="text-gray-500 leading-relaxed">Wir screenen das echte Angebot und die Nachfrage vor Ort. Keine Schätzwerte, sondern reale Portaldaten-Vergleiche.</p>
+                    <div class="step-number">01</div>
+                </div>
+
+                <!-- Cashflow-Rechner -->
+                <div class="feature-card p-10 relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-navy transition-colors">
+                        <svg class="w-7 h-7 text-orange group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Cashflow-Rechner</h3>
+                    <p class="text-gray-500 leading-relaxed">Wir berechnen den Netto-Vorteil nach Steuern und zeigen dir, was wirklich übrig bleibt oder was du draufzahlst.</p>
+                    <div class="step-number">02</div>
+                </div>
+
+                <!-- Risiko-Check -->
+                <div class="feature-card p-10 relative overflow-hidden group">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:bg-navy transition-colors">
+                        <svg class="w-7 h-7 text-orange group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4">Risiko-Check</h3>
+                    <p class="text-gray-500 leading-relaxed">Wir decken potentielle Risiken wie Sanierungsstau, Lage-Nachteile und unrealistische Mietpreis-Angaben auf.</p>
+                    <div class="step-number">03</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Zielgruppen-Umschalter (The Trio) -->
+    <section id="zielgruppen" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20">
+                 <h2 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Für jedes <span class="text-orange">Investment-Ziel.</span></h2>
+                 <p class="text-xl text-gray-500 max-w-3xl mx-auto">Egal ob du Steuern sparen, für das Alter vorsorgen oder passives Einkommen aufbauen willst – wir haben die passende Analyse-Tiefe.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Karte 1: Steuern -->
+                <div class="bg-navy rounded-[40px] p-10 text-white group cursor-pointer hover:bg-slate-900 transition-all">
+                    <div class="text-orange font-bold mb-10 text-4xl">01</div>
+                    <h3 class="text-3xl font-bold mb-4">Steuern sparen</h3>
+                    <p class="text-slate-400 mb-12">Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.</p>
+                    <div class="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
+                        <span>Details ansehen</span>
+                        <span>→</span>
+                    </div>
+                </div>
+
+                <!-- Karte 2: Vorsorge -->
+                <div class="bg-gray-100 rounded-[40px] p-10 group cursor-pointer hover:bg-gray-200 transition-all">
+                    <div class="text-navy font-bold mb-10 text-4xl opacity-20">02</div>
+                    <h3 class="text-3xl font-bold mb-4">Altersvorsorge</h3>
+                    <p class="text-gray-500 mb-12">Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.</p>
+                    <div class="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
+                        <span>Details ansehen</span>
+                        <span>→</span>
+                    </div>
+                </div>
+
+                <!-- Karte 3: Cashflow -->
+                <div class="bg-gray-100 rounded-[40px] p-10 group cursor-pointer hover:bg-gray-200 transition-all">
+                    <div class="text-navy font-bold mb-10 text-4xl opacity-20">03</div>
+                    <h3 class="text-3xl font-bold mb-4">Passives Einkommen</h3>
+                    <p class="text-gray-500 mb-12">Maximiere deinen monatlichen Cashflow. Wir finden die "Haken" in den Mietkalkulationen der Makler.</p>
+                    <div class="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
+                        <span>Details ansehen</span>
+                        <span>→</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Output-Highlight -->
+    <section class="py-32 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-navy rounded-[40px] p-12 md:p-20 text-white flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 text-center md:text-left">
+                    <h2 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Bank-Ready in <br><span class="text-orange">60 Sekunden.</span></h2>
+                    <p class="text-slate-300 text-xl mb-10">Erzeuge ein professionelles PDF mit allen wichtigen KPIs, das deine Bank überzeugen wird. Inklusive Marktanalyse und Cashflow-Prognose.</p>
+                    <button class="bg-orange text-white px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform">
+                        Beispiel-Report ansehen
+                    </button>
+                </div>
+                <div class="md:w-1/2">
+                    <img src="https://placehold.co/600x400/f5f5f7/001d3d?text=PDF-Vorschau" alt="PDF Vorschau des imvestr Reports" class="rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="py-32 px-6 bg-gray-50">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16">Häufig gestellte Fragen</h2>
+            <div class="space-y-6">
+                <details class="p-6 bg-white rounded-2xl group cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-xl">
+                        Woher kommen die Daten für die Marktanalyse?
+                        <span class="transform group-open:rotate-180 transition-transform">↓</span>
+                    </summary>
+                    <p class="text-gray-500 mt-4">Unsere Marktdaten stammen direkt von den großen Immobilienportalen. Wir analysieren kontinuierlich tausende von aktuellen und bereits verkauften Objekten, um präzise Vergleichswerte für Miete und Kaufpreis zu ermitteln. So erhältst du eine Einschätzung basierend auf echten, aktuellen Marktdaten, nicht auf veralteten Schätzwerten.</p>
+                </details>
+                <details class="p-6 bg-white rounded-2xl group cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-xl">
+                        Ist imvestr auch für absolute Anfänger geeignet?
+                        <span class="transform group-open:rotate-180 transition-transform">↓</span>
+                    </summary>
+                    <p class="text-gray-500 mt-4">Ja, absolut! imvestr wurde speziell für Einsteiger entwickelt. Wir übersetzen komplexe Berechnungen in verständliche Grafiken und Ampel-Systeme. Du musst kein Finanz-Experte sein, um zu verstehen, ob ein Deal gut oder schlecht ist. Unser Tool führt dich Schritt für Schritt durch die Analyse.</p>
+                </details>
+                <details class="p-6 bg-white rounded-2xl group cursor-pointer">
+                    <summary class="flex justify-between items-center font-bold text-xl">
+                        Was kostet die Nutzung von imvestr?
+                        <span class="transform group-open:rotate-180 transition-transform">↓</span>
+                    </summary>
+                    <p class="text-gray-500 mt-4">Dein erster Immobilien-Check ist komplett kostenlos. Danach bieten wir flexible Pakete an – je nachdem, wie intensiv du auf die Suche gehst. Es gibt keine versteckten Gebühren oder Abonnements. Du zahlst nur für das, was du wirklich brauchst.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-32 px-6 text-center">
+        <div class="max-w-4xl mx-auto">
+             <h2 class="hero-title text-5xl md:text-7xl font-extrabold mb-8 text-slate-900">
+                Bereit, deinen ersten <br>Deal zu <span class="text-orange">durchleuchten?</span>
+            </h2>
+            <p class="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto leading-relaxed mb-12">
+               Starte jetzt deinen kostenlosen Check und triff deine erste Investment-Entscheidung mit der Sicherheit eines Profis.
+            </p>
+            <button class="bg-orange text-white px-12 py-6 rounded-full font-bold text-xl hover:shadow-xl hover:bg-orange-600 transition-all">
+                Jetzt ersten Check kostenlos starten
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-white py-24 px-6">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-2 mb-8">
+                    <div class="w-8 h-8 bg-orange rounded flex items-center justify-center">
+                        <span class="text-white font-bold italic text-sm">i</span>
+                    </div>
+                    <span class="text-2xl font-bold tracking-tighter">imvestr</span>
+                </div>
+                <p class="text-slate-400 max-w-sm">Die intelligenteste Art, Immobilien zu bewerten und Investment-Entscheidungen auf Basis von echten Daten zu treffen.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Produkt</h4>
+                <ul class="space-y-4 text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Marktanalyse</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Szenario-Planer</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Bank-Export</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-6">Rechtliches</h4>
+                <ul class="space-y-4 text-slate-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Impressum</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Datenschutz</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">AGB</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
