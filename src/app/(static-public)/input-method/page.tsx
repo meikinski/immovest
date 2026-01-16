@@ -324,9 +324,9 @@ export default function InputMethodPage() {
 
             {/* URL Import with AI - SECOND - Full Gradient Theme */}
             <div className="relative bg-white rounded-[40px] border-2 border-[hsl(var(--brand-2))]/20 p-8 md:p-10 hover:border-[hsl(var(--brand-2))]/40 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg">
-              {/* KI Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-xl flex items-center gap-1.5">
-                <Sparkles size={16} />
+              {/* KI Badge with Animation */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-xl flex items-center gap-1.5 animate-pulse">
+                <Sparkles size={16} className="animate-spin" style={{ animationDuration: '3s' }} />
                 <span>KI-Power</span>
               </div>
 
@@ -402,6 +402,12 @@ export default function InputMethodPage() {
 
             {/* Foto machen - THIRD - Solid Orange */}
             <div className="relative bg-white rounded-[40px] border-2 border-gray-100 p-8 md:p-10 hover:border-[hsl(var(--brand-2))]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+              {/* KI Badge with Animation */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-xl flex items-center gap-1.5 animate-pulse">
+                <Sparkles size={16} className="animate-spin" style={{ animationDuration: '3s' }} />
+                <span>KI-Power</span>
+              </div>
+
               <div className="text-center mb-8">
                 <div className="w-20 h-20 bg-[hsl(var(--brand-2))] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
                   <Camera className="w-10 h-10 text-white" />
