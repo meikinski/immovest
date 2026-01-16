@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
+  ArrowDown,
   BarChart3,
   Calculator,
   CheckCircle2,
@@ -138,15 +139,9 @@ export default function LandingPage() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <Link href="/sign-in" className="text-sm font-bold text-gray-600 hidden sm:block hover:text-black transition-colors">
+              <Link href="/sign-in" className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
                 Login
               </Link>
-              <button
-                onClick={() => handleGetStarted('header')}
-                className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg"
-              >
-                Jetzt kostenlos prüfen
-              </button>
             </div>
           </div>
         </header>
@@ -158,29 +153,27 @@ export default function LandingPage() {
               {/* Left: Content */}
               <div>
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
-                  NEU: KI-Analyse 2.0
+                  Dein persönlicher Investment-Copilot
                 </span>
                 <h1 className="text-6xl md:text-7xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
                   Investiere <br />
-                  <span className="bg-gradient-to-r from-[#001d3d] to-[#ff6b00] bg-clip-text text-transparent">
-                    ohne Blindflug.
-                  </span>
+                  ohne <span className="text-[#ff6b00]">Blindflug.</span>
                 </h1>
                 <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
-                  Kopiere einen Immobilien-Link und erhalte in 60 Sekunden eine vollständige Rentabilitäts-Prüfung.
+                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => handleGetStarted('hero')}
                     className="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-bold text-lg shadow-lg hover:shadow-[#ff6b00]/20 transition-all hover:scale-105"
                   >
-                    Jetzt Analyse starten
+                    Jetzt kostenlos starten
                   </button>
                   <button
-                    onClick={() => router.push('/input-method')}
+                    onClick={() => router.push('/sign-in')}
                     className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-10 py-5 rounded-full font-bold text-lg hover:bg-[#001d3d] hover:text-white transition-all"
                   >
-                    Demo ansehen
+                    Anmelden / Einloggen
                   </button>
                 </div>
               </div>
@@ -191,7 +184,7 @@ export default function LandingPage() {
                 <div className="absolute top-0 right-0 w-full h-full bg-orange-50 rounded-[60px] -rotate-3"></div>
 
                 {/* Cashflow Card - Animated */}
-                <div className="absolute top-10 left-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-20 border-2 border-gray-100 animate-[bounce_3s_ease-in-out_infinite]">
+                <div className="absolute top-10 left-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-20 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite]">
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Netto-Cashflow</span>
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -202,12 +195,17 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Lage Score Card */}
-                <div className="absolute bottom-20 right-0 bg-white rounded-[32px] p-8 w-56 shadow-2xl z-10 border-2 border-gray-100">
-                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Lage-Rating</div>
-                  <div className="text-5xl font-black text-[#ff6b00]">A+</div>
-                  <div className="h-1.5 w-full bg-gray-100 mt-4 rounded-full overflow-hidden">
-                    <div className="h-full bg-[#ff6b00] w-[95%] rounded-full transition-all duration-1000"></div>
+                {/* Leerstandsrisiko Card - Animated */}
+                <div className="absolute bottom-20 right-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-10 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite_1.5s]">
+                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Leerstandsrisiko</div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-3xl font-black text-green-600">Niedrig</div>
+                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                      <ArrowDown className="w-6 h-6 text-green-600" />
+                    </div>
+                  </div>
+                  <div className="mt-4 text-xs text-gray-500">
+                    Hohe Nachfrage in dieser Lage
                   </div>
                 </div>
               </div>

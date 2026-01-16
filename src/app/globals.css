@@ -483,3 +483,13 @@ tab-btn:hover,
 .animate-slide-up {
   animation: slide-up 0.4s ease-out;
 }
+
+/* Float Animation für Hero Cards */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
