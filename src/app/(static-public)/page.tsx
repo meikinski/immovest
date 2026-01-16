@@ -378,12 +378,12 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 3. Wie wir dich schützen */}
+          {/* 3. Wie imvestr dir hilft */}
           <section id="features" className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                  <span className="text-[#001d3d]">Wie wir</span> <span className="text-[#ff6b00]">dich schützen.</span>
+                  <span className="text-[#001d3d]">Wie imvestr</span> <span className="text-[#ff6b00]">dir hilft.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
                   imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein Investment zu sagen.
@@ -425,20 +425,6 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                {/* Szenarien - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                    <Zap className="w-7 h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Szenarien</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                    Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
-                  </p>
-                  <p className="text-sm text-[#ff6b00] font-semibold">
-                    → Teste dein Investment gegen Risiken ab
-                  </p>
-                </div>
-
                 {/* Investitionsanalyse - Small Box */}
                 <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
                   <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
@@ -453,29 +439,32 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                {/* Bank-Ready PDF - Large Highlighted Box */}
-                <div className="md:col-span-8 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
-                        <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
-                      </div>
-                      <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">Bank-Ready PDF</h3>
-                      <p className="text-gray-500 leading-relaxed mb-4">
-                        Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
-                      </p>
-                      <p className="text-sm text-[#ff6b00] font-semibold">
-                        → Überzeuge deine Bank mit Daten statt Bauchgefühl
-                      </p>
-                    </div>
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-[#ff6b00]">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                      </svg>
-                    </div>
+                {/* Szenarien - Small Box */}
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                    <Zap className="w-7 h-7 text-[#ff6b00]" />
                   </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Szenarien</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                    Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
+                  </p>
+                  <p className="text-sm text-[#ff6b00] font-semibold">
+                    → Teste dein Investment gegen Risiken ab
+                  </p>
+                </div>
+
+                {/* Bank-Ready PDF - Small Highlighted Box */}
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                    <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Bank-Ready PDF</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                    Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
+                  </p>
+                  <p className="text-sm text-[#ff6b00] font-semibold">
+                    → Überzeuge deine Bank mit Daten statt Bauchgefühl
+                  </p>
                 </div>
               </div>
             </div>
@@ -557,8 +546,8 @@ export default function LandingPage() {
           <section className="py-32 bg-white px-6">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#001d3d] leading-tight tracking-tight">
-                  Wie funktioniert der Import?
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
+                  <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
                   Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen.
@@ -907,67 +896,67 @@ export default function LandingPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                {/* Testimonial 1 */}
+                {/* Testimonial 1 - Einsteiger */}
                 <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <div className="flex items-center gap-4 mb-6">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      M
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Mariam</p>
-                      <p className="text-sm text-gray-500">Ärztin, 34</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Hat mir die Bank-Unterlagen gerettet. PDF fertig in 2 Minuten.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 2 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      D
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Daniel</p>
-                      <p className="text-sm text-gray-500">IT-Consultant, 29</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Szenarien verschieben, sofort neue Rendite sehen – genau mein Ding.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 3 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      T
-                    </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Tobias</p>
-                      <p className="text-sm text-gray-500">FIRE-Student, 26</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Cashflow in Sekunden. Endlich weiß ich, ob es sich lohnt.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 4 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                       L
                     </div>
                     <div>
-                      <p className="font-bold text-[#001d3d]">Leandro</p>
-                      <p className="text-sm text-gray-500">Data-Nerd, 31</p>
+                      <p className="font-bold text-[#001d3d]">Lisa</p>
+                      <p className="text-sm text-gray-500">Einsteigerin, 28</p>
                     </div>
                   </div>
                   <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Datenquellen transparent, Annahmen editierbar – perfekt.&quot;
+                    &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten – jetzt verstehe ich mein erstes Investment.&quot;
+                  </p>
+                </div>
+
+                {/* Testimonial 2 - Altersvorsorge */}
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                      M
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#001d3d]">Michael</p>
+                      <p className="text-sm text-gray-500">Ingenieur, 42</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                    &quot;Für meine Altersvorsorge wollte ich keine Fehler machen. Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
+                  </p>
+                </div>
+
+                {/* Testimonial 3 - Passives Einkommen */}
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                      S
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#001d3d]">Sarah</p>
+                      <p className="text-sm text-gray-500">Lehrerin, 35</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                    &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt – ohne versteckte Kosten.&quot;
+                  </p>
+                </div>
+
+                {/* Testimonial 4 - Steuern sparen */}
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                      T
+                    </div>
+                    <div>
+                      <p className="font-bold text-[#001d3d]">Thomas</p>
+                      <p className="text-sm text-gray-500">Selbstständig, 39</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                    &quot;Die Steuer-Berechnung mit meinem persönlichen Satz und AfA zeigt mir, wie viel ich wirklich spare. Genau was ich brauchte.&quot;
                   </p>
                 </div>
               </div>
