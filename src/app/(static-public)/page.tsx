@@ -147,7 +147,7 @@ export default function LandingPage() {
           <section className="pt-40 pb-28 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
-                <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-bold text-sm uppercase tracking-widest rounded-full mb-8 shadow-sm">
+                <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-semibold text-xs uppercase tracking-widest rounded-full mb-8 shadow-sm">
                   Dein persönlicher Investment-Copilot
                 </span>
                 {/* HERO HEADLINE - Apple-Style Typography */}
@@ -155,7 +155,7 @@ export default function LandingPage() {
                   Kauf niemals die <br />
                   <span className="text-[#ff6b00]">falsche Immobilie.</span>
                 </h1>
-                <p className="text-2xl md:text-3xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-16 font-medium">
+                <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-16">
                   Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
                 </p>
 
@@ -382,7 +382,7 @@ export default function LandingPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                   </div>
-                  <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 1</div>
+                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 1</div>
                   <h3 className="text-2xl font-bold mb-4">Import</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
                     Kopiere den Link, fotografiere das Exposé oder gib die Daten manuell ein. Unsere KI extrahiert alle Informationen.
@@ -400,7 +400,7 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
                     <BarChart3 className="w-8 h-8 text-[#ff6b00]" />
                   </div>
-                  <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 2</div>
+                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
                   <h3 className="text-2xl font-bold mb-4">Deep Market Analysis</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
                     Wir screenen echte Angebots- und Nachfragedaten vor Ort. Keine Schätzwerte, sondern Live-Vergleiche.
@@ -418,7 +418,7 @@ export default function LandingPage() {
                   <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
                     <FileBarChart className="w-8 h-8 text-[#ff6b00]" />
                   </div>
-                  <div className="text-[#ff6b00] text-sm font-bold mb-3">SCHRITT 3</div>
+                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 3</div>
                   <h3 className="text-2xl font-bold mb-4">Simulation & Report</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
                     Teste verschiedene Szenarien und erhalte einen bankfähigen PDF-Report mit allen KPIs.
@@ -438,7 +438,7 @@ export default function LandingPage() {
           <section className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
-                <span className="inline-block px-4 py-2 bg-[#001d3d]/5 text-[#001d3d] font-bold text-sm uppercase tracking-widest rounded-full mb-6">
+                <span className="inline-block px-4 py-2 bg-[#001d3d]/5 text-[#001d3d] font-semibold text-xs uppercase tracking-widest rounded-full mb-6">
                   <Sparkles className="inline w-4 h-4 mr-2 text-[#ff6b00]" />
                   KI-gestützte Datenerfassung
                 </span>
@@ -694,8 +694,8 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 {/* Links: Text */}
                 <div>
-                  <div className="inline-block px-4 py-2 bg-orange-500/20 rounded-full text-[#ff6b00] text-sm font-bold mb-6">
-                    BANK-READY PDF
+                  <div className="inline-block px-4 py-2 bg-orange-500/20 rounded-full text-[#ff6b00] text-xs font-semibold uppercase tracking-widest mb-6">
+                    Bank-Ready PDF
                   </div>
                   <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
                     <span className="text-white">Von der Analyse zum</span> <span className="text-[#ff6b00]">Bankgespräch</span> <span className="text-white">in 60 Sekunden.</span>
@@ -889,7 +889,7 @@ export default function LandingPage() {
               <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                 <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
-              <p className="text-2xl md:text-3xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
                 Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
               </p>
 
