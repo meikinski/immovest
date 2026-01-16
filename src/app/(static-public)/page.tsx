@@ -455,116 +455,145 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 5. Wie funktioniert der Import? */}
-          <section className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-20 overflow-visible">
-                <span className="inline-block px-4 py-2 bg-[#001d3d]/5 text-[#001d3d] font-semibold text-xs uppercase tracking-widest rounded-full mb-6">
-                  <Sparkles className="inline w-4 h-4 mr-2 text-[#ff6b00]" />
-                  KI-gestützte Datenerfassung
-                </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                  <span className="text-[#001d3d]">Wie funktioniert</span> <br className="hidden md:block" />
-                  <span className="text-[#ff6b00]">der Import?</span>
+          {/* 5. Wie funktioniert der Import? - Sticky Workflow */}
+          <section className="py-32 bg-white px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-20">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#001d3d] leading-tight tracking-tight">
+                  Wie funktioniert der Import?
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
-                  Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen. Unsere KI erledigt den Rest.
+                  Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {/* Methode 1: URL-Import */}
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
-                      <LinkIcon className="w-10 h-10 text-[#ff6b00]" />
+              <div className="flex flex-col md:flex-row items-start gap-20">
+                {/* Left: Sticky Text */}
+                <div className="md:w-1/2">
+                  <div className="sticky top-40 space-y-12">
+                    {/* Step 1: URL-Import */}
+                    <div className="border-l-4 border-[#ff6b00] pl-8 transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">1. Link einfügen</h4>
+                      </div>
+                      <p className="text-gray-500 text-lg leading-relaxed">
+                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
+                      </p>
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Alle Objektdaten in Sekunden erfasst</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Unterstützt alle großen Portale</span>
+                        </div>
+                      </div>
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
-                      Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                    </p>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Alle Objektdaten in Sekunden erfasst</span>
+
+                    {/* Step 2: Foto-Scan */}
+                    <div className="border-l-4 border-gray-200 pl-8 opacity-40 hover:opacity-100 hover:border-[#ff6b00] transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <Camera className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">2. Foto scannen</h4>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">KI erkennt Preise, Größe, Lage automatisch</span>
+                      <p className="text-gray-500 text-lg leading-relaxed">
+                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
+                      </p>
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Perfekt für Besichtigungen vor Ort</span>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Unterstützt alle großen Immobilienportale</span>
+                    </div>
+
+                    {/* Step 3: Manuelle Eingabe */}
+                    <div className="border-l-4 border-gray-200 pl-8 opacity-40 hover:opacity-100 hover:border-[#ff6b00] transition-all duration-300">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <Edit3 className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">3. Manuell eingeben</h4>
+                      </div>
+                      <p className="text-gray-500 text-lg leading-relaxed">
+                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
+                      </p>
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Smartes Formular mit Validierung</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Volle Kontrolle über alle Details</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Methode 2: Foto-Scan */}
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
-                      <Camera className="w-10 h-10 text-[#ff6b00]" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
-                      Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen und Details automatisch.
-                    </p>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">OCR-Texterkennung mit 98% Genauigkeit</span>
+                {/* Right: Visual Mockup */}
+                <div className="md:w-1/2">
+                  <div className="bg-[#001d3d] rounded-[48px] h-[600px] flex items-center justify-center p-12 shadow-2xl border-4 border-gray-100">
+                    {/* URL Input Mockup */}
+                    <div className="w-full max-w-md">
+                      <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                        <div className="flex items-center gap-4 mb-6">
+                          <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                            <LinkIcon className="w-6 h-6 text-white" />
+                          </div>
+                          <div className="text-white font-bold text-lg">URL einfügen</div>
+                        </div>
+
+                        {/* Input Field Mockup */}
+                        <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
+                          <div className="w-5 h-5 text-gray-400">
+                            <LinkIcon className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
+                        </div>
+
+                        {/* Button Mockup */}
+                        <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                          <span className="text-white font-bold">Analyse starten</span>
+                          <ArrowRight className="w-5 h-5 text-white" />
+                        </div>
+
+                        {/* Feature Pills */}
+                        <div className="mt-8 space-y-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                            <div className="h-3 bg-white/20 rounded flex-1"></div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                            <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                            <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Funktioniert auch bei handgeschriebenen Notizen</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Perfekt für Besichtigungen vor Ort</span>
+
+                      {/* KI Badge */}
+                      <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                        <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                        <span>Powered by GPT-4 Vision + OCR</span>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Methode 3: Manuelle Eingabe */}
-                <div className="group relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                    <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
-                      <Edit3 className="w-10 h-10 text-[#ff6b00]" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Manuelle Eingabe</h3>
-                    <p className="text-gray-600 leading-relaxed text-lg mb-8">
-                      Trage die Daten selbst ein – mit intelligenten Vorschlägen und Auto-Vervollständigung für Adressen und Kennzahlen.
-                    </p>
-                    <div className="space-y-3">
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Smartes Formular mit Validierung</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Adress-Autocomplete mit Google Maps</span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] mt-1 flex-shrink-0" />
-                        <span className="text-sm font-medium text-gray-700">Volle Kontrolle über alle Details</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* KI-Zauber Highlight */}
-              <div className="mt-16 max-w-4xl mx-auto bg-gradient-to-br from-[#001d3d] to-[#002d5d] rounded-[40px] p-12 text-white text-center">
-                <Sparkles className="w-12 h-12 text-[#ff6b00] mx-auto mb-6" />
-                <h3 className="text-2xl font-bold mb-4">Der Zauber dahinter: GPT-4 Vision + OCR</h3>
-                <p className="text-xl text-slate-300 leading-relaxed">
-                  Unsere KI kombiniert die neuesten Computer-Vision-Modelle mit klassischer OCR-Technologie, um selbst komplexe Exposés fehlerfrei zu erfassen. In über 95% der Fälle brauchst du nichts mehr nachzutragen.
-                </p>
               </div>
             </div>
           </section>
