@@ -143,69 +143,63 @@ export default function LandingPage() {
         </header>
 
         <main className="overflow-x-hidden">
-          {/* 1. Hero Sektion - EXTREM GROSSE ÜBERSCHRIFT */}
-          <section className="pt-40 pb-28 px-6 bg-white overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-20 overflow-visible">
-                <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-semibold text-xs uppercase tracking-widest rounded-full mb-8 shadow-sm">
-                  Dein persönlicher Investment-Copilot
+          {/* 1. Hero Sektion - Interaktiver Hero mit Floating UI */}
+          <section className="min-h-screen flex items-center justify-center bg-white px-6 relative overflow-hidden pt-24">
+            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+              {/* Left: Content */}
+              <div>
+                <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
+                  NEU: KI-Analyse 2.0
                 </span>
-                {/* HERO HEADLINE - Apple-Style Typography */}
-                <h1 className="text-6xl md:text-7xl font-extrabold mb-10 text-[#001d3d] leading-tight tracking-tighter px-4">
-                  Kauf niemals die <br />
-                  <span className="text-[#ff6b00]">falsche Immobilie.</span>
+                <h1 className="text-6xl md:text-7xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
+                  Investiere <br />
+                  <span className="bg-gradient-to-r from-[#001d3d] to-[#ff6b00] bg-clip-text text-transparent">
+                    ohne Blindflug.
+                  </span>
                 </h1>
-                <p className="text-lg md:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed mb-16">
-                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
+                <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
+                  Kopiere einen Immobilien-Link und erhalte in 60 Sekunden eine vollständige Rentabilitäts-Prüfung.
                 </p>
-
-                {/* Haupt-Interaktion: 3 Wege */}
-                <div className="max-w-5xl mx-auto bg-white p-4 rounded-[40px] shadow-2xl border border-gray-100 flex flex-col md:flex-row gap-4">
-                  <div className="flex-1 flex items-center px-8 py-5 bg-gray-50 rounded-full border border-gray-200 focus-within:border-[#ff6b00] transition-colors">
-                    <LinkIcon className="w-6 h-6 text-gray-400 mr-4" />
-                    <input
-                      type="text"
-                      placeholder="Link von ImmoScout24 einfügen..."
-                      className="bg-transparent w-full outline-none text-lg"
-                    />
-                  </div>
+                <div className="flex flex-col sm:flex-row gap-4">
                   <button
-                    onClick={() => handleGetStarted('hero_input')}
-                    className="bg-[#ff6b00] text-white px-12 py-6 rounded-full font-bold text-xl hover:shadow-2xl hover:bg-[#ff6b00]/90 transition-all flex items-center justify-center gap-3"
+                    onClick={() => handleGetStarted('hero')}
+                    className="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-bold text-lg shadow-lg hover:shadow-[#ff6b00]/20 transition-all hover:scale-105"
                   >
-                    <span>Check starten</span>
-                    <ArrowRight className="w-6 h-6" />
-                  </button>
-                </div>
-
-                <div className="flex flex-wrap justify-center gap-8 mt-10">
-                  <button
-                    onClick={() => handleGetStarted('hero_photo')}
-                    className="flex items-center gap-3 text-base font-bold text-gray-500 hover:text-[#001d3d] transition-colors"
-                  >
-                    <Camera className="w-6 h-6" />
-                    Exposé fotografieren
+                    Jetzt Analyse starten
                   </button>
                   <button
-                    onClick={() => handleGetStarted('hero_manual')}
-                    className="flex items-center gap-3 text-base font-bold text-gray-500 hover:text-[#001d3d] transition-colors"
+                    onClick={() => router.push('/input-method')}
+                    className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-10 py-5 rounded-full font-bold text-lg hover:bg-[#001d3d] hover:text-white transition-all"
                   >
-                    <Edit3 className="w-6 h-6" />
-                    Manuell eingeben
+                    Demo ansehen
                   </button>
                 </div>
               </div>
 
-              {/* 2. Trust Bar / Social Proof */}
-              <div className="pt-12 border-t border-gray-100">
-                <p className="text-center text-sm font-medium text-gray-400 mb-8">
-                  Bereits über 1.200+ Immobilien-Checks durchgeführt
-                </p>
-                <div className="flex flex-wrap justify-center items-center gap-16 opacity-40 grayscale">
-                  <span className="font-bold text-2xl tracking-tighter italic">ImmoScout24</span>
-                  <span className="font-bold text-2xl tracking-tighter italic">Immowelt</span>
-                  <span className="font-bold text-2xl tracking-tighter italic">Ebay Kleinanzeigen</span>
-                  <span className="font-bold text-2xl tracking-tighter italic">Immonet</span>
+              {/* Right: Floating Dashboard Cards */}
+              <div className="relative h-[500px] hidden md:block">
+                {/* Background Shape */}
+                <div className="absolute top-0 right-0 w-full h-full bg-orange-50 rounded-[60px] -rotate-3"></div>
+
+                {/* Cashflow Card - Animated */}
+                <div className="absolute top-10 left-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-20 border-2 border-gray-100 animate-[bounce_3s_ease-in-out_infinite]">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Netto-Cashflow</span>
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  </div>
+                  <div className="text-3xl font-black text-[#001d3d]">+ 342,50 €</div>
+                  <div className="text-[10px] text-green-600 mt-2 font-bold uppercase tracking-wider">
+                    Monatlich Überschuss
+                  </div>
+                </div>
+
+                {/* Lage Score Card */}
+                <div className="absolute bottom-20 right-0 bg-white rounded-[32px] p-8 w-56 shadow-2xl z-10 border-2 border-gray-100">
+                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Lage-Rating</div>
+                  <div className="text-5xl font-black text-[#ff6b00]">A+</div>
+                  <div className="h-1.5 w-full bg-gray-100 mt-4 rounded-full overflow-hidden">
+                    <div className="h-full bg-[#ff6b00] w-[95%] rounded-full transition-all duration-1000"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -324,39 +318,66 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                {/* WEISSE CARDS statt grau */}
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 relative overflow-hidden group hover:-translate-y-2 hover:border-[#ff6b00]/30 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
-                    <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
+              {/* Bento Box Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 max-w-6xl mx-auto">
+                {/* Marktdaten-Check - Large Box */}
+                <div className="md:col-span-8 bg-white rounded-[32px] p-10 flex flex-col md:flex-row items-center gap-8 min-h-[300px] shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="md:w-1/2">
+                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                      <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Marktdaten-Check</h3>
+                    <p className="text-gray-500 leading-relaxed">
+                      Wir ziehen Live-Daten von allen großen Portalen und sagen dir, ob der Preis wirklich fair ist.
+                    </p>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Deep Market Analysis</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Wir screenen das echte Angebot und die Nachfrage vor Ort. Keine Schätzwerte, sondern reale Portaldaten-Vergleiche.
-                  </p>
-                  <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
+                  <div className="md:w-1/2 h-full bg-orange-50 rounded-2xl flex items-center justify-center p-12">
+                    <BarChart3 className="w-32 h-32 text-orange-200" />
+                  </div>
                 </div>
 
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 relative overflow-hidden group hover:-translate-y-2 hover:border-[#ff6b00]/30 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
+                {/* Steuer-KI - Small Navy Box */}
+                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
+                    <Calculator className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4">Steuer-KI</h3>
+                  <p className="text-blue-100 text-sm opacity-80 leading-relaxed">
+                    Automatische Berechnung deines persönlichen Steuervorteils basierend auf deinem Grenzsteuersatz.
+                  </p>
+                </div>
+
+                {/* Szenarien - Small Box */}
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Zap className="w-7 h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Szenario-Planung</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Was passiert bei 20% mehr Eigenkapital? Was bei einer Zinsänderung? Simuliere deine Zukunft mit einem Klick.
+                  <h3 className="text-2xl font-bold mb-4">Szenarien</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
                   </p>
-                  <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
                 </div>
 
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 relative overflow-hidden group hover:-translate-y-2 hover:border-[#ff6b00]/30 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
-                    <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
+                {/* Bank-Ready PDF - Large Highlighted Box */}
+                <div className="md:col-span-8 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
+                        <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
+                      </div>
+                      <h3 className="text-2xl font-bold mb-2">Bank-Ready PDF</h3>
+                      <p className="text-gray-500 leading-relaxed">
+                        Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
+                      </p>
+                    </div>
+                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-[#ff6b00]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                    </div>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Bank-Ready Export</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Erhalte ein professionelles PDF-Exposé mit allen KPIs und Marktdaten für dein Finanzierungsgespräch.
-                  </p>
-                  <div className="absolute bottom-[-20px] right-[20px] text-[120px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
                 </div>
               </div>
             </div>
