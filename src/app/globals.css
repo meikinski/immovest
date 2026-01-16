@@ -75,9 +75,10 @@ body{
 
 strong{ background:transparent; padding:0; border-radius:0; font-weight:var(--fw-semibold); }
 
-h1,.page-heading{ font-size:24px; line-height:1.25; font-weight:600; margin-bottom:1rem; }
+/* Global headline rules removed to allow Tailwind utility classes to work */
+/* h1,.page-heading{ font-size:24px; line-height:1.25; font-weight:600; margin-bottom:1rem; }
 h2{ font-size:18px; line-height:1.35; font-weight:600; }
-h3{ font-size:16px; line-height:1.35; font-weight:600; }
+h3{ font-size:16px; line-height:1.35; font-weight:600; } */
 .text-subtle{ color:hsl(var(--muted-foreground)); }
 label,.form-label{ font-size:var(--font-size-label); font-weight:var(--fw-medium); margin-bottom:.5rem; }
 
