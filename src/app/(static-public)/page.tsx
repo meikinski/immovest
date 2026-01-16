@@ -142,16 +142,16 @@ export default function LandingPage() {
           </div>
         </header>
 
-        <main>
-          {/* 1. Hero Sektion - MASSIV GRÖSSERE ÜBERSCHRIFT */}
-          <section className="pt-40 pb-28 px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
+        <main className="overflow-x-hidden">
+          {/* 1. Hero Sektion - EXTREM GROSSE ÜBERSCHRIFT */}
+          <section className="pt-40 pb-28 px-6 bg-white overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-20 overflow-visible">
                 <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-bold text-sm uppercase tracking-widest rounded-full mb-8 shadow-sm">
                   Dein persönlicher Investment-Copilot
                 </span>
                 {/* EXTREM GROSSE ÜBERSCHRIFT */}
-                <h1 className="text-[80px] sm:text-[120px] md:text-[180px] lg:text-[240px] xl:text-[300px] font-black mb-10 text-[#001d3d] leading-[0.85] tracking-tighter">
+                <h1 className="text-[80px] sm:text-[120px] md:text-[180px] lg:text-[240px] xl:text-[300px] font-black mb-10 text-[#001d3d] leading-[0.85] tracking-tighter px-4">
                   Kauf niemals die <br />
                   <span className="text-[#ff6b00]">falsche Immobilie.</span>
                 </h1>
@@ -212,11 +212,11 @@ export default function LandingPage() {
           </section>
 
           {/* 2. Warum die meisten beim ersten Kauf draufzahlen */}
-          <section className="py-32 px-6 bg-[#f5f5f7]">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
+          <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-20 overflow-visible">
                 {/* MASSIV GRÖSSERE SECTION-ÜBERSCHRIFT MIT NAVY/ORANGE */}
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Warum die meisten beim</span> <br className="hidden md:block" /><span className="text-[#ff6b00]">ersten Kauf draufzahlen.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -224,7 +224,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
                 {/* Problem 1 */}
                 <div className="bg-gradient-to-br from-orange-50 to-white rounded-[40px] p-10 border-2 border-[#ff6b00]/20 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/40 transition-all duration-300">
                   <div className="flex items-start gap-4 mb-6">
@@ -313,10 +313,10 @@ export default function LandingPage() {
           </section>
 
           {/* 3. Wie wir dich schützen */}
-          <section id="features" className="py-32 px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+          <section id="features" className="py-32 px-6 bg-white overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-20 overflow-visible">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Wie wir</span> <span className="text-[#ff6b00]">dich schützen.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -324,7 +324,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {/* WEISSE CARDS statt grau */}
                 <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 relative overflow-hidden group hover:-translate-y-2 hover:border-[#ff6b00]/30 hover:shadow-2xl transition-all duration-300">
                   <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-8 shadow-sm group-hover:scale-110 transition-transform">
@@ -363,10 +363,10 @@ export default function LandingPage() {
           </section>
 
           {/* 4. So funktioniert imvestr */}
-          <section id="workflow" className="py-32 px-6 bg-[#f5f5f7]">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+          <section id="workflow" className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-20 overflow-visible">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -374,7 +374,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {/* Schritt 1 */}
                 <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 group relative overflow-hidden">
                   <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
@@ -435,14 +435,14 @@ export default function LandingPage() {
           </section>
 
           {/* 5. Wie funktioniert der Import? */}
-          <section className="py-32 px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-20">
+          <section className="py-32 px-6 bg-white overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-20 overflow-visible">
                 <span className="inline-block px-4 py-2 bg-[#001d3d]/5 text-[#001d3d] font-bold text-sm uppercase tracking-widest rounded-full mb-6">
                   <Sparkles className="inline w-4 h-4 mr-2 text-[#ff6b00]" />
                   KI-gestützte Datenerfassung
                 </span>
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <br className="hidden md:block" />
                   <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
@@ -451,7 +451,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {/* Methode 1: URL-Import */}
                 <div className="group relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#ff6b00]/10 to-transparent rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -549,10 +549,10 @@ export default function LandingPage() {
           </section>
 
           {/* 6. Was ist dein Investment-Ziel? */}
-          <section className="py-32 px-6 bg-[#f5f5f7]">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+          <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-16 overflow-visible">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Was ist dein</span> <br />
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
                 </h2>
@@ -561,7 +561,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                 {/* Karte 1: Steuern */}
                 <div className="bg-[#001d3d] border-2 border-[#001d3d] rounded-[40px] p-10 text-white group cursor-pointer hover:bg-[#002d5d] hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-xl">
                   <div className="text-[#ff6b00] font-bold mb-10 text-5xl">01</div>
@@ -605,10 +605,10 @@ export default function LandingPage() {
           </section>
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-32 px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+          <section className="py-32 px-6 bg-white overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-16 overflow-visible">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
                 </h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -616,7 +616,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
                 {/* Testimonial 1 */}
                 <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
                   <div className="flex items-center gap-4 mb-6">
@@ -685,12 +685,12 @@ export default function LandingPage() {
           </section>
 
           {/* 8. PDF Export - Bank-Ready */}
-          <section className="py-32 px-6 bg-[#001d3d] text-white relative overflow-hidden">
+          <section className="py-32 px-6 bg-[#001d3d] text-white relative overflow-x-hidden">
             {/* Decorative Elements */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#ff6b00] opacity-5 rounded-full blur-3xl" />
 
-            <div className="max-w-7xl mx-auto relative z-10">
+            <div className="max-w-[1600px] mx-auto relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 {/* Links: Text */}
                 <div>
@@ -829,16 +829,16 @@ export default function LandingPage() {
           </section>
 
           {/* 9. FAQ */}
-          <section id="faq" className="py-32 px-6 bg-white">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-16">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+          <section id="faq" className="py-32 px-6 bg-white overflow-visible">
+            <div className="max-w-[1600px] mx-auto">
+              <div className="text-center mb-16 overflow-visible">
+                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                   <span className="text-[#001d3d]">Häufig gestellte</span> <span className="text-[#ff6b00]">Fragen</span>
                 </h2>
                 <p className="text-gray-500 text-xl">Alles, was du über imvestr wissen musst.</p>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-6 max-w-4xl mx-auto">
                 {faqs.map((faq, idx) => {
                   const isOpen = activeFaqIndex === idx;
                   return (
@@ -880,13 +880,13 @@ export default function LandingPage() {
           </section>
 
           {/* 10. Final CTA */}
-          <section className="py-32 px-6 bg-gradient-to-br from-[#001d3d] via-[#002d5d] to-[#001d3d] text-white relative overflow-hidden">
+          <section className="py-32 px-6 bg-gradient-to-br from-[#001d3d] via-[#002d5d] to-[#001d3d] text-white relative overflow-x-hidden">
             {/* Decorative Elements */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff6b00] opacity-20 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
 
-            <div className="max-w-4xl mx-auto text-center relative z-10">
-              <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.9] tracking-tighter">
+            <div className="max-w-[1600px] mx-auto text-center relative z-10">
+              <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
                 <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
               <p className="text-2xl md:text-3xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
