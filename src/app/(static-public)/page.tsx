@@ -13,12 +13,15 @@ import {
   MapPin,
   Zap,
   TrendingUp,
+  TrendingDown,
   DollarSign,
   AlertCircle,
+  AlertTriangle,
   Camera,
   Link as LinkIcon,
   Edit3,
   Sparkles,
+  Search,
 } from 'lucide-react';
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
@@ -212,103 +215,169 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 2. Warum die meisten beim ersten Kauf draufzahlen */}
-          <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-20 overflow-visible">
-                {/* SECTION HEADLINE - Apple-Style Typography */}
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                  <span className="text-[#001d3d]">Warum die meisten beim</span> <br className="hidden md:block" /><span className="text-[#ff6b00]">ersten Kauf draufzahlen.</span>
-                </h2>
-                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+          {/* 2. Warum die meisten Immobilien-Investments scheitern */}
+          <section className="py-32 px-6 bg-[#FBFBFD]">
+            <div className="max-w-[1200px] mx-auto">
+              {/* Intro-Bereich */}
+              <div className="max-w-[800px] mb-20">
+                <h2 className="text-[11px] font-bold tracking-[0.25em] text-[#ff6b00] uppercase mb-4">Problem-Identifikation</h2>
+                <h1 className="text-5xl md:text-7xl font-semibold tracking-tight leading-[1.05] mb-8">
+                  Warum die meisten <br />
+                  <span className="text-gray-400 font-light italic">Immobilien-Investments scheitern.</span>
+                </h1>
+                <p className="text-xl text-gray-500 font-light leading-relaxed max-w-xl">
                   Die häufigsten Fehler, die dich tausende Euro kosten können – und wie imvestr dich davor schützt.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-                {/* Problem 1 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[40px] p-10 border-2 border-[#ff6b00]/20 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/40 transition-all duration-300">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-7 h-7 text-[#ff6b00]" />
+              {/* 2x2 Problem Matrix */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                {/* Problem 1: Versteckte Kosten */}
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] group">
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold tracking-[0.2em] text-orange-500 uppercase mb-1">PROBLEM_01</span>
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Finanzplanung</p>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3">Versteckte Kosten übersehen</h3>
-                      <p className="text-gray-600 leading-relaxed text-lg">
-                        Makler rechnen oft ohne Instandhaltungsrücklage, Nebenkosten oder realistische Mietausfälle. Das Ergebnis: Negativer Cashflow.
-                      </p>
+                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-orange-500 group-hover:bg-orange-50 transition-all duration-300">
+                      <AlertCircle size={20} strokeWidth={1.5} />
                     </div>
                   </div>
-                  <div className="mt-8 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      imvestr berechnet alle versteckten Kosten automatisch
+
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">Versteckte Kosten übersehen</h3>
+                    <p className="text-gray-500 leading-relaxed text-base font-light mb-8">
+                      Makler rechnen oft ohne Instandhaltungsrücklage, Nebenkosten oder realistische Mietausfälle. Das Ergebnis: Negativer Cashflow.
                     </p>
+                  </div>
+
+                  <div className="mt-auto pt-6 border-t border-gray-50">
+                    <div className="bg-[#FBFBFD] rounded-2xl p-6 h-32 flex items-center justify-center relative overflow-hidden">
+                      <div className="w-full space-y-3">
+                        <div className="flex justify-between items-end">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase">Mit Maklerrechnung</span>
+                          <div className="h-1.5 w-32 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full w-full bg-emerald-400" />
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-end">
+                          <span className="text-[10px] font-bold text-gray-900 uppercase">Mit allen Kosten</span>
+                          <div className="h-1.5 w-32 bg-gray-100 rounded-full overflow-hidden">
+                            <div className="h-full w-1/3 bg-orange-500" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Problem 2 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[40px] p-10 border-2 border-[#ff6b00]/20 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/40 transition-all duration-300">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-7 h-7 text-[#ff6b00]" />
+                {/* Problem 2: Zu teuer gekauft */}
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] group">
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold tracking-[0.2em] text-orange-500 uppercase mb-1">PROBLEM_02</span>
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Markt-Daten</p>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3">Zu teuer gekauft</h3>
-                      <p className="text-gray-600 leading-relaxed text-lg">
-                        Ohne Marktvergleich zahlst du schnell 10-20% über Wert. Das schmälert deine Rendite für Jahre.
-                      </p>
+                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-orange-500 group-hover:bg-orange-50 transition-all duration-300">
+                      <Search size={20} strokeWidth={1.5} />
                     </div>
                   </div>
-                  <div className="mt-8 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      Live-Marktdaten zeigen dir den echten Wert
+
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">Zu teuer gekauft</h3>
+                    <p className="text-gray-500 leading-relaxed text-base font-light mb-8">
+                      Ohne Marktvergleich zahlst du schnell 10-20% über Wert. Das schmälert deine Rendite für Jahre.
                     </p>
+                  </div>
+
+                  <div className="mt-auto pt-6 border-t border-gray-50">
+                    <div className="bg-[#FBFBFD] rounded-2xl p-6 h-32 flex items-center justify-center relative overflow-hidden">
+                      <div className="flex items-end gap-2 h-16 w-full">
+                        {[40, 70, 50, 90, 60].map((h, i) => (
+                          <div key={i} className={`flex-1 rounded-t-lg transition-all ${i === 3 ? 'bg-orange-500 shadow-lg shadow-orange-100' : 'bg-gray-100'}`} style={{height: `${h}%`}} />
+                        ))}
+                        <div className="absolute right-8 top-8 text-[9px] font-black text-orange-500 uppercase italic">Überteuert</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Problem 3 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[40px] p-10 border-2 border-[#ff6b00]/20 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/40 transition-all duration-300">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-7 h-7 text-[#ff6b00]" />
+                {/* Problem 3: Schlechte Lage */}
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] group">
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold tracking-[0.2em] text-orange-500 uppercase mb-1">PROBLEM_03</span>
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Mikrolage</p>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3">Schlechte Lage</h3>
-                      <p className="text-gray-600 leading-relaxed text-lg">
-                        Die Wohnung sieht toll aus, aber die Lage? Ohne lokale Nachfrage-Analyse riskierst du Leerstand.
-                      </p>
+                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-orange-500 group-hover:bg-orange-50 transition-all duration-300">
+                      <MapPin size={20} strokeWidth={1.5} />
                     </div>
                   </div>
-                  <div className="mt-8 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      KI-Lagebewertung mit Nachfrage-Screening
+
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">Schlechte Lage</h3>
+                    <p className="text-gray-500 leading-relaxed text-base font-light mb-8">
+                      Die Wohnung sieht toll aus, aber die Lage? Ohne lokale Nachfrage-Analyse riskierst du Leerstand.
                     </p>
+                  </div>
+
+                  <div className="mt-auto pt-6 border-t border-gray-50">
+                    <div className="bg-[#FBFBFD] rounded-2xl p-6 h-32 flex items-center justify-center relative overflow-hidden">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full border-4 border-gray-50 border-t-orange-500 animate-[spin_3s_linear_infinite]" />
+                        <div>
+                          <span className="text-xl font-bold text-gray-900 tracking-tighter">Leerstand</span>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase leading-none">Risiko-Analyse</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Problem 4 */}
-                <div className="bg-gradient-to-br from-orange-50 to-white rounded-[40px] p-10 border-2 border-[#ff6b00]/20 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/40 transition-all duration-300">
-                  <div className="flex items-start gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-7 h-7 text-[#ff6b00]" />
+                {/* Problem 4: Miete überschätzt */}
+                <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col h-full transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.05)] group">
+                  <div className="flex justify-between items-start mb-8">
+                    <div className="flex flex-col">
+                      <span className="text-[11px] font-bold tracking-[0.2em] text-orange-500 uppercase mb-1">PROBLEM_04</span>
+                      <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Ertrag</p>
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold mb-3">Miete überschätzt</h3>
-                      <p className="text-gray-600 leading-relaxed text-lg">
-                        Makler zeigen optimistische Mietpreise. In Realität liegen sie oft 10-15% darunter. Das killt deine Rendite.
-                      </p>
+                    <div className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-orange-500 group-hover:bg-orange-50 transition-all duration-300">
+                      <TrendingDown size={20} strokeWidth={1.5} />
                     </div>
                   </div>
-                  <div className="mt-8 pt-6 border-t border-orange-200">
-                    <p className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      Mietpreis-Vergleich mit echten Portal-Daten
+
+                  <div className="flex-grow">
+                    <h3 className="text-2xl font-semibold text-gray-900 mb-4 tracking-tight">Miete überschätzt</h3>
+                    <p className="text-gray-500 leading-relaxed text-base font-light mb-8">
+                      Makler zeigen optimistische Mietpreise. In Realität liegen sie oft 10-15% darunter. Das killt deine Rendite.
                     </p>
                   </div>
+
+                  <div className="mt-auto pt-6 border-t border-gray-50">
+                    <div className="bg-[#FBFBFD] rounded-2xl p-6 h-32 flex items-center justify-center relative overflow-hidden">
+                      <div className="flex flex-col items-center">
+                        <div className="text-3xl font-bold text-gray-900 tracking-tighter italic">-15%</div>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Rendite-Verlust</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
+
+              </div>
+
+              {/* Call to Action Footer */}
+              <div className="mt-20 bg-white rounded-[3rem] p-12 border border-gray-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="max-w-md">
+                  <h4 className="text-2xl font-semibold mb-2">Bereit für die Wahrheit?</h4>
+                  <p className="text-gray-500 font-light">Erhalte eine objektive Analyse zu deinem Investment – basierend auf echten Live-Daten.</p>
+                </div>
+                <button
+                  onClick={() => handleGetStarted('problems_section')}
+                  className="bg-[#001d3d] text-white px-8 py-5 rounded-full font-bold text-sm uppercase tracking-widest flex items-center gap-3 hover:bg-gray-800 transition-all group"
+                >
+                  Check starten <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
             </div>
           </section>
