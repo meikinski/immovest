@@ -26,7 +26,7 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
 
         {/* Progress Line - Offset to align with circles */}
         <div
-          className="absolute top-5 h-0.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] transition-all duration-700 ease-out"
+          className="absolute top-5 h-0.5 bg-[#ff6b00] transition-all duration-700 ease-out"
           style={{
             left: '20px',
             width: `calc(${(currentIndex / (STEPS.length - 1)) * 100}% - 40px)`,
@@ -47,9 +47,9 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
                   className={`
                     w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 border-4 border-white shadow-lg
                     ${isCompleted
-                      ? 'bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white scale-100'
+                      ? 'bg-[#ff6b00] text-white scale-100'
                       : isActive
-                        ? 'bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white scale-110 shadow-2xl shadow-[hsl(var(--brand))]/30'
+                        ? 'bg-[#ff6b00] text-white scale-110 shadow-2xl shadow-[#ff6b00]/30'
                         : 'bg-white text-gray-400 border-gray-300'
                     }
                   `}
@@ -66,7 +66,7 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
                   className={`
                     mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap hidden md:block
                     ${isActive
-                      ? 'text-[hsl(var(--brand))]'
+                      ? 'text-[#ff6b00]'
                       : isCompleted
                         ? 'text-gray-700'
                         : 'text-gray-400'
@@ -80,7 +80,7 @@ export function ProgressIndicator({ currentStep }: ProgressProps) {
                 <span
                   className={`
                     mt-3 text-xs font-medium transition-colors text-center whitespace-nowrap md:hidden
-                    ${isActive ? 'text-[hsl(var(--brand))]' : 'hidden'}
+                    ${isActive ? 'text-[#ff6b00]' : 'hidden'}
                   `}
                 >
                   {step.label}
