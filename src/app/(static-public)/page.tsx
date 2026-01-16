@@ -22,6 +22,7 @@ import {
   Edit3,
   Sparkles,
   Search,
+  Lightbulb,
 } from 'lucide-react';
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
@@ -32,6 +33,7 @@ export default function LandingPage() {
   const { trackCTA } = useAnalytics();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
+  const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -87,7 +89,7 @@ export default function LandingPage() {
     {
       question: 'Was kostet es?',
       answer:
-        'Der erste Check ist komplett kostenlos. Premium-Features wie Deep Market Analysis und PDF-Export sind ab 9,90€ pro Analyse verfügbar.',
+        'Der erste Check ist komplett kostenlos. Premium-Features wie Markt- & Investitionsanalyse und PDF-Export sind ab 9,90€ pro Analyse verfügbar.',
     },
     {
       question: 'Kann ich den Report für die Bank nutzen?',
@@ -397,8 +399,11 @@ export default function LandingPage() {
                       <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
                     </div>
                     <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Marktdaten-Check</h3>
-                    <p className="text-gray-500 leading-relaxed">
-                      Wir ziehen Live-Daten von allen großen Portalen und sagen dir, ob der Preis wirklich fair ist.
+                    <p className="text-gray-500 leading-relaxed mb-4">
+                      Wir prüfen Kauf- und Mietpreise am Standort und checken wie die Nachfrage ist.
+                    </p>
+                    <p className="text-sm text-[#ff6b00] font-semibold">
+                      → Verhindert Fehlkäufe durch objektive Marktdaten
                     </p>
                   </div>
                   <div className="md:w-1/2 h-full bg-orange-50 rounded-2xl flex items-center justify-center p-12">
@@ -406,14 +411,17 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Steuer-KI - Small Navy Box */}
+                {/* KPI-Berechnung - Small Navy Box */}
                 <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
                   <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
                     <Calculator className="w-7 h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Steuer-KI</h3>
-                  <p className="text-blue-100 text-sm opacity-80 leading-relaxed">
-                    Automatische Berechnung deines persönlichen Steuervorteils basierend auf deinem Grenzsteuersatz.
+                  <h3 className="text-2xl font-bold mb-4">KPI-Berechnung</h3>
+                  <p className="text-blue-100 text-sm opacity-80 leading-relaxed mb-4">
+                    Wichtige KPIs inkl. Cashflow unter Berücksichtigung deines persönlichen Steuersatzes, AfA und kalkulatorischer Kosten.
+                  </p>
+                  <p className="text-sm text-[#ff6b00] font-semibold">
+                    → Realistische Rendite statt Schönrechnung
                   </p>
                 </div>
 
@@ -422,9 +430,26 @@ export default function LandingPage() {
                   <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Zap className="w-7 h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">Szenarien</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Szenarien</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
                     Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
+                  </p>
+                  <p className="text-sm text-[#ff6b00] font-semibold">
+                    → Teste dein Investment gegen Risiken ab
+                  </p>
+                </div>
+
+                {/* Investitionsanalyse - Small Box */}
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                    <Lightbulb className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Investitionsanalyse</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                    Unsere KI gibt eine verständliche Erklärung über die Investition in einfachen Worten – auch für Einsteiger.
+                  </p>
+                  <p className="text-sm text-[#ff6b00] font-semibold">
+                    → Verstehe jeden Aspekt deines Deals
                   </p>
                 </div>
 
@@ -435,9 +460,12 @@ export default function LandingPage() {
                       <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
                         <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">Bank-Ready PDF</h3>
-                      <p className="text-gray-500 leading-relaxed">
+                      <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">Bank-Ready PDF</h3>
+                      <p className="text-gray-500 leading-relaxed mb-4">
                         Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
+                      </p>
+                      <p className="text-sm text-[#ff6b00] font-semibold">
+                        → Überzeuge deine Bank mit Daten statt Bauchgefühl
                       </p>
                     </div>
                     <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center text-[#ff6b00]">
@@ -492,7 +520,7 @@ export default function LandingPage() {
                     <BarChart3 className="w-8 h-8 text-[#ff6b00]" />
                   </div>
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
-                  <h3 className="text-2xl font-bold mb-4">Deep Market Analysis</h3>
+                  <h3 className="text-2xl font-bold mb-4">Markt- & Investitionsanalyse</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
                     Wir screenen echte Angebots- und Nachfragedaten vor Ort. Keine Schätzwerte, sondern Live-Vergleiche.
                   </p>
@@ -542,7 +570,14 @@ export default function LandingPage() {
                 <div className="md:w-1/2">
                   <div className="sticky top-40 space-y-12">
                     {/* Step 1: URL-Import */}
-                    <div className="border-l-4 border-[#ff6b00] pl-8 transition-all duration-300">
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'url'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('url')}
+                    >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
                           <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
@@ -565,7 +600,14 @@ export default function LandingPage() {
                     </div>
 
                     {/* Step 2: Foto-Scan */}
-                    <div className="border-l-4 border-gray-200 pl-8 opacity-40 hover:opacity-100 hover:border-[#ff6b00] transition-all duration-300">
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'photo'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('photo')}
+                    >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
                           <Camera className="w-6 h-6 text-[#ff6b00]" />
@@ -588,7 +630,14 @@ export default function LandingPage() {
                     </div>
 
                     {/* Step 3: Manuelle Eingabe */}
-                    <div className="border-l-4 border-gray-200 pl-8 opacity-40 hover:opacity-100 hover:border-[#ff6b00] transition-all duration-300">
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'manual'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('manual')}
+                    >
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
                           <Edit3 className="w-6 h-6 text-[#ff6b00]" />
@@ -615,52 +664,173 @@ export default function LandingPage() {
                 {/* Right: Visual Mockup */}
                 <div className="md:w-1/2">
                   <div className="bg-[#001d3d] rounded-[48px] h-[600px] flex items-center justify-center p-12 shadow-2xl border-4 border-gray-100">
-                    {/* URL Input Mockup */}
                     <div className="w-full max-w-md">
-                      <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                        <div className="flex items-center gap-4 mb-6">
-                          <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                            <LinkIcon className="w-6 h-6 text-white" />
-                          </div>
-                          <div className="text-white font-bold text-lg">URL einfügen</div>
-                        </div>
+                      {/* URL Import Mockup */}
+                      {selectedImportMethod === 'url' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <LinkIcon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">URL einfügen</div>
+                            </div>
 
-                        {/* Input Field Mockup */}
-                        <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
-                          <div className="w-5 h-5 text-gray-400">
-                            <LinkIcon className="w-5 h-5" />
-                          </div>
-                          <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
-                        </div>
+                            {/* Input Field Mockup */}
+                            <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
+                              <div className="w-5 h-5 text-gray-400">
+                                <LinkIcon className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
+                            </div>
 
-                        {/* Button Mockup */}
-                        <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                          <span className="text-white font-bold">Analyse starten</span>
-                          <ArrowRight className="w-5 h-5 text-white" />
-                        </div>
+                            {/* Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Analyse starten</span>
+                              <ArrowRight className="w-5 h-5 text-white" />
+                            </div>
 
-                        {/* Feature Pills */}
-                        <div className="mt-8 space-y-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                            <div className="h-3 bg-white/20 rounded flex-1"></div>
+                            {/* Feature Pills */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1"></div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
+                              </div>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                            <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                            <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>Powered by GPT-4 Vision + OCR</span>
                           </div>
                         </div>
-                      </div>
+                      )}
 
-                      {/* KI Badge */}
-                      <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                        <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                        <span>Powered by GPT-4 Vision + OCR</span>
-                      </div>
+                      {/* Photo Scan Mockup */}
+                      {selectedImportMethod === 'photo' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <Camera className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">Foto scannen</div>
+                            </div>
+
+                            {/* Camera Preview Mockup */}
+                            <div className="bg-white/5 rounded-2xl p-6 mb-6 aspect-[4/3] flex items-center justify-center border-2 border-dashed border-white/30">
+                              <div className="text-center">
+                                <Camera className="w-16 h-16 text-white/40 mx-auto mb-3" />
+                                <div className="text-white/60 text-sm">Exposé fotografieren</div>
+                              </div>
+                            </div>
+
+                            {/* Scan Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Foto aufnehmen</span>
+                              <Camera className="w-5 h-5 text-white" />
+                            </div>
+
+                            {/* OCR Features */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">OCR-Texterkennung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">GPT-4 Vision Analyse</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">98% Genauigkeit</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>KI-gestützte Texterkennung</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Manual Entry Mockup */}
+                      {selectedImportMethod === 'manual' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <Edit3 className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">Manuelle Eingabe</div>
+                            </div>
+
+                            {/* Form Fields Mockup */}
+                            <div className="space-y-4 mb-6">
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Kaufpreis</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/2"></div>
+                                  <div className="text-gray-400 text-sm">€</div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Kaltmiete</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/3"></div>
+                                  <div className="text-gray-400 text-sm">€</div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Wohnfläche</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/4"></div>
+                                  <div className="text-gray-400 text-sm">m²</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Continue Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Weiter</span>
+                              <ArrowRight className="w-5 h-5 text-white" />
+                            </div>
+
+                            {/* Smart Features */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Auto-Vervollständigung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Intelligente Validierung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Smarte Vorschläge</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>KI-gestützte Eingabehilfe</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1000,7 +1170,7 @@ export default function LandingPage() {
           </section>
 
           {/* 10. Final CTA */}
-          <section className="py-32 px-6 bg-gradient-to-br from-[#001d3d] via-[#002d5d] to-[#001d3d] text-white relative overflow-x-hidden">
+          <section className="py-32 px-6 bg-[#001d3d] text-white relative overflow-x-hidden">
             {/* Decorative Elements */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff6b00] opacity-20 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
@@ -1013,7 +1183,7 @@ export default function LandingPage() {
                 Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-16">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <button
                   onClick={() => handleGetStarted('final_cta')}
                   className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
@@ -1027,22 +1197,6 @@ export default function LandingPage() {
                 >
                   Live-Demo ansehen
                 </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12 border-t border-white/20">
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">1.200+</div>
-                  <div className="text-sm text-slate-400">Analysierte Immobilien</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">4.9/5</div>
-                  <div className="text-sm text-slate-400">Durchschnittliche Bewertung</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-5xl font-bold text-[#ff6b00] mb-2">60 Sek.</div>
-                  <div className="text-sm text-slate-400">Bis zum ersten Ergebnis</div>
-                </div>
               </div>
             </div>
           </section>

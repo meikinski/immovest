@@ -493,3 +493,15 @@ tab-btn:hover,
     transform: translateY(-12px);
   }
 }
+
+/* Fade In Animation für Import Section */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
