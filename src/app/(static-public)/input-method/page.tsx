@@ -272,29 +272,30 @@ export default function InputMethodPage() {
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter">
-              <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                👋 Willkommen bei imvestr!
-              </span>
+            <div className="inline-block px-5 py-2 bg-gradient-to-r from-[hsl(var(--brand))]/10 to-[hsl(var(--brand-2))]/10 rounded-full mb-6">
+              <span className="text-[hsl(var(--brand-2))] font-semibold text-xs uppercase tracking-widest">Daten-Import</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter text-[#001d3d]">
+              Willkommen bei <span className="text-[#ff6b00]">imvestr</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Wie möchtest du deine Daten eingeben?
+              Wähle deine bevorzugte Eingabemethode – wir machen den Rest
             </p>
           </div>
 
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {/* Manual Input - FIRST - Solid Navy Blue */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-[hsl(var(--brand))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Keyboard className="w-8 h-8 text-white" />
+            <div className="relative bg-white rounded-[40px] border-2 border-gray-100 p-8 md:p-10 hover:border-[hsl(var(--brand))]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-[hsl(var(--brand))] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <Keyboard className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-[hsl(var(--brand))] mb-2">
+                <h3 className="text-2xl font-bold text-[hsl(var(--brand))] mb-3">
                   Manuelle Eingabe
                 </h3>
-                <p className="text-gray-600">
-                  Gib alle Daten selbst ein – volle Kontrolle
+                <p className="text-gray-600 leading-relaxed">
+                  Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
                 </p>
               </div>
 
@@ -304,9 +305,9 @@ export default function InputMethodPage() {
                   localStorage.removeItem('immovest_kpi_state');
                   router.push('/step/a');
                 }}
-                className="w-full py-4 bg-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-[hsl(var(--brand))] text-white font-bold rounded-full hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/30 hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
-                <span>Jetzt eingeben</span>
+                <span>Jetzt starten</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -322,22 +323,22 @@ export default function InputMethodPage() {
             </div>
 
             {/* URL Import with AI - SECOND - Full Gradient Theme */}
-            <div className="relative bg-gradient-to-br from-[hsl(var(--brand))]/10 via-[hsl(var(--brand-2))]/10 to-white rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
+            <div className="relative bg-white rounded-[40px] border-2 border-[hsl(var(--brand-2))]/20 p-8 md:p-10 hover:border-[hsl(var(--brand-2))]/40 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg">
               {/* KI Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-semibold uppercase tracking-wider rounded-full shadow-lg flex items-center gap-1">
-                <Sparkles size={14} />
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-xl flex items-center gap-1.5">
+                <Sparkles size={16} />
                 <span>KI-Power</span>
               </div>
 
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <LinkIcon className="w-8 h-8 text-white" />
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <LinkIcon className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent mb-2">
+                <h3 className="text-2xl font-bold text-[hsl(var(--brand-2))] mb-3">
                   URL Import
                 </h3>
-                <p className="text-gray-600">
-                  KI analysiert automatisch die Immobilien-Anzeige
+                <p className="text-gray-600 leading-relaxed">
+                  KI analysiert automatisch die Immobilien-Anzeige für dich
                 </p>
               </div>
 
@@ -348,7 +349,7 @@ export default function InputMethodPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.immobilienscout24.de/..."
-                  className="w-full px-4 py-3 border-2 border-[hsl(var(--brand))]/20 rounded-xl focus:border-[hsl(var(--brand))] focus:outline-none transition"
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[hsl(var(--brand-2))] focus:outline-none focus:ring-4 focus:ring-[hsl(var(--brand-2))]/15 transition-all hover:border-gray-300"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
                   }}
@@ -357,7 +358,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-bold rounded-full hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/30 hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -400,16 +401,16 @@ export default function InputMethodPage() {
             </div>
 
             {/* Foto machen - THIRD - Solid Orange */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 p-6 md:p-8 shadow-xl">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Camera className="w-8 h-8 text-white" />
+            <div className="relative bg-white rounded-[40px] border-2 border-gray-100 p-8 md:p-10 hover:border-[hsl(var(--brand-2))]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-[hsl(var(--brand-2))] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+                  <Camera className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-[hsl(var(--brand-2))] mb-2">
+                <h3 className="text-2xl font-bold text-[hsl(var(--brand-2))] mb-3">
                   Foto machen
                 </h3>
-                <p className="text-gray-600">
-                  Mach ein Foto der Anzeige – KI extrahiert automatisch alle Daten
+                <p className="text-gray-600 leading-relaxed">
+                  Fotografiere das Exposé – KI extrahiert alle Daten automatisch
                 </p>
               </div>
 
@@ -418,10 +419,10 @@ export default function InputMethodPage() {
                 <div className="text-center">
                   <button
                     onClick={() => cameraInputRef.current?.click()}
-                    className="w-full py-16 border-2 border-dashed border-[hsl(var(--brand-2))]/40 rounded-2xl bg-white hover:border-[hsl(var(--brand-2))] hover:bg-[hsl(var(--brand-2))]/5 transition-all"
+                    className="w-full py-16 border-2 border-dashed border-[hsl(var(--brand-2))]/40 rounded-3xl bg-white hover:border-[hsl(var(--brand-2))] hover:bg-[hsl(var(--brand-2))]/5 transition-all"
                   >
                     <Camera className="w-16 h-16 text-[hsl(var(--brand-2))] mx-auto mb-4" />
-                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                    <p className="text-lg font-bold text-gray-900 mb-2">
                       Foto aufnehmen
                     </p>
                     <p className="text-sm text-gray-500">
@@ -487,17 +488,17 @@ export default function InputMethodPage() {
                   <button
                     onClick={handleImageSubmit}
                     disabled={imageLoading}
-                    className="w-full py-4 bg-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-[hsl(var(--brand-2))] text-white font-bold rounded-full hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/30 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                   >
                     {imageLoading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>KI analysiert Bild...</span>
+                        <span>KI analysiert...</span>
                       </>
                     ) : (
                       <>
                         <ArrowRight size={20} />
-                        <span>Daten extrahieren</span>
+                        <span>Jetzt analysieren</span>
                       </>
                     )}
                   </button>
@@ -517,9 +518,9 @@ export default function InputMethodPage() {
           </div>
 
           {/* Help Text */}
-          <div className="text-center">
-            <p className="text-sm text-gray-500">
-              💡 <strong>Tipp:</strong> Foto machen oder URL Import mit KI – beide Methoden sind schneller als manuelle Eingabe!
+          <div className="text-center px-6 py-4 bg-gradient-to-r from-[hsl(var(--brand))]/5 to-[hsl(var(--brand-2))]/5 rounded-3xl border border-[hsl(var(--brand-2))]/20">
+            <p className="text-sm text-gray-700 font-medium">
+              <span className="text-[hsl(var(--brand-2))] font-bold">Tipp:</span> URL Import und Foto-Scan sind deutlich schneller als manuelle Eingabe
             </p>
           </div>
         </div>
