@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
@@ -116,8 +117,15 @@ export default function LandingPage() {
               onClick={() => router.push('/')}
               className="flex items-center gap-2 cursor-pointer"
             >
-              <div className="w-10 h-10 bg-[#001d3d] rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold italic text-lg">i</span>
+              <div className="w-12 h-12 relative">
+                <Image
+                  src="/logo.png"
+                  alt="imvestr Logo"
+                  width={48}
+                  height={48}
+                  className="rounded-lg"
+                  priority
+                />
               </div>
               <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
             </button>
