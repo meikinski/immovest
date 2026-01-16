@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   BarChart3,
+  Calculator,
   CheckCircle2,
   FileBarChart,
   MapPin,
