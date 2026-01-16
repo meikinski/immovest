@@ -150,8 +150,8 @@ export default function LandingPage() {
                 <span className="inline-block px-5 py-2.5 bg-orange-50 text-[#ff6b00] font-bold text-sm uppercase tracking-widest rounded-full mb-8 shadow-sm">
                   Dein persönlicher Investment-Copilot
                 </span>
-                {/* EXTREM GROSSE ÜBERSCHRIFT */}
-                <h1 className="text-[80px] sm:text-[120px] md:text-[180px] lg:text-[240px] xl:text-[300px] font-black mb-10 text-[#001d3d] leading-[0.85] tracking-tighter px-4">
+                {/* HERO HEADLINE - Apple-Style Typography */}
+                <h1 className="text-6xl md:text-7xl font-extrabold mb-10 text-[#001d3d] leading-tight tracking-tighter px-4">
                   Kauf niemals die <br />
                   <span className="text-[#ff6b00]">falsche Immobilie.</span>
                 </h1>
@@ -215,8 +215,8 @@ export default function LandingPage() {
           <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
-                {/* MASSIV GRÖSSERE SECTION-ÜBERSCHRIFT MIT NAVY/ORANGE */}
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                {/* SECTION HEADLINE - Apple-Style Typography */}
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Warum die meisten beim</span> <br className="hidden md:block" /><span className="text-[#ff6b00]">ersten Kauf draufzahlen.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -316,7 +316,7 @@ export default function LandingPage() {
           <section id="features" className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Wie wir</span> <span className="text-[#ff6b00]">dich schützen.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -366,7 +366,7 @@ export default function LandingPage() {
           <section id="workflow" className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-20 overflow-visible">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -442,7 +442,7 @@ export default function LandingPage() {
                   <Sparkles className="inline w-4 h-4 mr-2 text-[#ff6b00]" />
                   KI-gestützte Datenerfassung
                 </span>
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <br className="hidden md:block" />
                   <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
@@ -459,7 +459,7 @@ export default function LandingPage() {
                     <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
                       <LinkIcon className="w-10 h-10 text-[#ff6b00]" />
                     </div>
-                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
                     <p className="text-gray-600 leading-relaxed text-lg mb-8">
                       Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
                     </p>
@@ -487,7 +487,7 @@ export default function LandingPage() {
                     <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
                       <Camera className="w-10 h-10 text-[#ff6b00]" />
                     </div>
-                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
                     <p className="text-gray-600 leading-relaxed text-lg mb-8">
                       Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen und Details automatisch.
                     </p>
@@ -515,7 +515,7 @@ export default function LandingPage() {
                     <div className="w-20 h-20 rounded-3xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-xl">
                       <Edit3 className="w-10 h-10 text-[#ff6b00]" />
                     </div>
-                    <h3 className="text-3xl font-bold mb-4 text-[#001d3d]">Manuelle Eingabe</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Manuelle Eingabe</h3>
                     <p className="text-gray-600 leading-relaxed text-lg mb-8">
                       Trage die Daten selbst ein – mit intelligenten Vorschlägen und Auto-Vervollständigung für Adressen und Kennzahlen.
                     </p>
@@ -540,7 +540,7 @@ export default function LandingPage() {
               {/* KI-Zauber Highlight */}
               <div className="mt-16 max-w-4xl mx-auto bg-gradient-to-br from-[#001d3d] to-[#002d5d] rounded-[40px] p-12 text-white text-center">
                 <Sparkles className="w-12 h-12 text-[#ff6b00] mx-auto mb-6" />
-                <h3 className="text-3xl font-bold mb-4">Der Zauber dahinter: GPT-4 Vision + OCR</h3>
+                <h3 className="text-2xl font-bold mb-4">Der Zauber dahinter: GPT-4 Vision + OCR</h3>
                 <p className="text-xl text-slate-300 leading-relaxed">
                   Unsere KI kombiniert die neuesten Computer-Vision-Modelle mit klassischer OCR-Technologie, um selbst komplexe Exposés fehlerfrei zu erfassen. In über 95% der Fälle brauchst du nichts mehr nachzutragen.
                 </p>
@@ -552,7 +552,7 @@ export default function LandingPage() {
           <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Was ist dein</span> <br />
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
                 </h2>
@@ -565,7 +565,7 @@ export default function LandingPage() {
                 {/* Karte 1: Steuern */}
                 <div className="bg-[#001d3d] border-2 border-[#001d3d] rounded-[40px] p-10 text-white group cursor-pointer hover:bg-[#002d5d] hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-xl">
                   <div className="text-[#ff6b00] font-bold mb-10 text-5xl">01</div>
-                  <h3 className="text-3xl font-bold mb-4">Steuern sparen</h3>
+                  <h3 className="text-2xl font-bold mb-4">Steuern sparen</h3>
                   <p className="text-slate-300 mb-12 text-lg leading-relaxed">
                     Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
@@ -578,7 +578,7 @@ export default function LandingPage() {
                 {/* Karte 2: Vorsorge */}
                 <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 border-2 border-gray-100">
                   <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">02</div>
-                  <h3 className="text-3xl font-bold mb-4">Altersvorsorge</h3>
+                  <h3 className="text-2xl font-bold mb-4">Altersvorsorge</h3>
                   <p className="text-gray-600 mb-12 text-lg leading-relaxed">
                     Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
@@ -591,7 +591,7 @@ export default function LandingPage() {
                 {/* Karte 3: Cashflow */}
                 <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 border-2 border-gray-100">
                   <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">03</div>
-                  <h3 className="text-3xl font-bold mb-4">Passives Einkommen</h3>
+                  <h3 className="text-2xl font-bold mb-4">Passives Einkommen</h3>
                   <p className="text-gray-600 mb-12 text-lg leading-relaxed">
                     Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
@@ -608,7 +608,7 @@ export default function LandingPage() {
           <section className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
                 </h2>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
@@ -697,7 +697,7 @@ export default function LandingPage() {
                   <div className="inline-block px-4 py-2 bg-orange-500/20 rounded-full text-[#ff6b00] text-sm font-bold mb-6">
                     BANK-READY PDF
                   </div>
-                  <h2 className="text-[50px] md:text-[90px] lg:text-[120px] font-black mb-6 leading-[0.85] tracking-tighter">
+                  <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
                     <span className="text-white">Von der Analyse zum</span> <span className="text-[#ff6b00]">Bankgespräch</span> <span className="text-white">in 60 Sekunden.</span>
                   </h2>
                   <p className="text-xl text-slate-300 mb-10 leading-relaxed">
@@ -832,7 +832,7 @@ export default function LandingPage() {
           <section id="faq" className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
               <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Häufig gestellte</span> <span className="text-[#ff6b00]">Fragen</span>
                 </h2>
                 <p className="text-gray-500 text-xl">Alles, was du über imvestr wissen musst.</p>
@@ -886,7 +886,7 @@ export default function LandingPage() {
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
 
             <div className="max-w-[1600px] mx-auto text-center relative z-10">
-              <h2 className="text-[60px] md:text-[100px] lg:text-[140px] font-black mb-8 leading-[0.85] tracking-tighter px-4">
+              <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                 <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
               <p className="text-2xl md:text-3xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
