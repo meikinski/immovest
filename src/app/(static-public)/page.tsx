@@ -285,18 +285,14 @@ export default function LandingPage() {
                   </p>
 
                   <div className="mt-auto bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <div className="flex items-end gap-2 h-24">
-                      <div className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-gray-300 h-[90%] rounded-t-lg"></div>
+                    <div className="flex items-end justify-center gap-8 h-32">
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 bg-gray-400 h-28 rounded-t-xl"></div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase">Portal</span>
                       </div>
-                      <div className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-[#ff6b00] h-[75%] rounded-t-lg"></div>
-                      </div>
-                      <div className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-gray-300 h-[85%] rounded-t-lg"></div>
-                      </div>
-                      <div className="flex-1 flex flex-col items-center gap-2">
-                        <div className="w-full bg-[#ff6b00] h-[70%] rounded-t-lg"></div>
+                      <div className="flex flex-col items-center gap-3">
+                        <div className="w-16 bg-[#ff6b00] h-20 rounded-t-xl"></div>
+                        <span className="text-[10px] font-bold text-[#ff6b00] uppercase">Fair</span>
                       </div>
                     </div>
                   </div>
