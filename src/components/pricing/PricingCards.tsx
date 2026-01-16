@@ -136,14 +136,14 @@ export default function PricingCards({}: PricingCardsProps) {
     <div className="w-full max-w-6xl mx-auto px-4 py-8 overflow-x-hidden">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--brand))]/10 rounded-full text-[hsl(var(--brand))] font-medium text-sm mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--brand))]/10 rounded-full text-[hsl(var(--brand))] font-semibold text-xs uppercase tracking-widest mb-4">
           <Sparkles className="w-4 h-4" />
           Premium freischalten
         </div>
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+        <h2 className="text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
           Wähle deinen Plan
         </h2>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+        <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
           Erhalte unbegrenzten Zugang zu allen Premium-Features und KI-gestützten Analysen
         </p>
       </div>

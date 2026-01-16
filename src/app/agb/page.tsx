@@ -35,7 +35,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 1 Geltungsbereich und Anbieterin
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Diese Allgemeinen Geschäftsbedingungen (&bdquo;AGB&ldquo;) gelten für die Nutzung der Plattform
                 &bdquo;imvestr&ldquo; (nachfolgend &bdquo;Plattform&ldquo;) durch registrierte und nicht registrierte Nutzer
@@ -67,7 +67,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 2 Leistungsumfang
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Die Plattform bietet ein digitales, KI-gestütztes Analysetool für Immobilieninvestitionen.
                 Dazu gehören insbesondere:
@@ -110,7 +110,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 3 Registrierung und Nutzerkonto
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Die Nutzung bestimmter Funktionen der Plattform setzt eine Registrierung und das
                 Anlegen eines Nutzerkontos voraus.
@@ -139,7 +139,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 4 Premium-Abonnement und Zahlungsbedingungen
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Der Nutzer kann über die Plattform ein kostenpflichtiges Premium-Abonnement (&bdquo;Premium&ldquo;)
                 abschließen. Die Laufzeiten (z. B. monatlich oder jährlich) sowie die jeweiligen Preise und
@@ -184,7 +184,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 5 Widerrufsrecht für Verbraucher
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Ist der Nutzer Verbraucher im Sinne des § 13 BGB, steht ihm bei Abschluss eines
                 entgeltlichen Vertrags über die Plattform grundsätzlich ein gesetzliches Widerrufsrecht zu.
@@ -207,7 +207,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 6 Keine Anlageberatung, Haftung und Gewährleistung
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Die durch die Plattform bereitgestellten Berechnungen, Analysen und Kommentare dienen
                 ausschließlich Informationszwecken. Sie stellen insbesondere keine Anlageberatung,
@@ -249,7 +249,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 7 Pflichten des Nutzers
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Der Nutzer verpflichtet sich, die Plattform nur im Rahmen der geltenden Gesetze sowie
                 dieser AGB zu nutzen.
@@ -278,7 +278,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 8 Urheberrechte und Nutzungsrechte
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Die Inhalte der Plattform, insbesondere Texte, Konzepte, Grafiken, Logos, Bilder,
                 Videos und Software, sind urheber- und/oder kennzeichenrechtlich geschützt. Rechteinhaberin
@@ -307,7 +307,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 9 Datenschutz
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Die Anbieterin verarbeitet personenbezogene Daten des Nutzers ausschließlich im Rahmen der
                 geltenden Datenschutzgesetze. Einzelheiten zur Verarbeitung personenbezogener Daten, zu
@@ -328,7 +328,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 10 Änderungen der AGB
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Die Anbieterin ist berechtigt, diese AGB mit Wirkung für die Zukunft zu ändern, sofern
                 hierfür ein sachlicher Grund besteht (z. B. Anpassung an gesetzliche Vorgaben, Änderung der
@@ -353,7 +353,7 @@ export default function AGBPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               § 11 Schlussbestimmungen
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts
                 (CISG). Ist der Nutzer Verbraucher und hat seinen gewöhnlichen Aufenthalt in einem anderen

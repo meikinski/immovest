@@ -272,12 +272,12 @@ export default function InputMethodPage() {
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter">
               <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
                 👋 Willkommen bei imvestr!
               </span>
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Wie möchtest du deine Daten eingeben?
             </p>
           </div>
@@ -324,7 +324,7 @@ export default function InputMethodPage() {
             {/* URL Import with AI - SECOND - Full Gradient Theme */}
             <div className="relative bg-gradient-to-br from-[hsl(var(--brand))]/10 via-[hsl(var(--brand-2))]/10 to-white rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
               {/* KI Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-xs font-semibold uppercase tracking-wider rounded-full shadow-lg flex items-center gap-1">
                 <Sparkles size={14} />
                 <span>KI-Power</span>
               </div>
