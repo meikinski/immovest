@@ -974,8 +974,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 3 - Solid */}
-                  <div className="bg-white rounded-[40px] p-4 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0">
+                  {/* Testimonial 3 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         S
@@ -1006,8 +1006,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 5 - Solid */}
-                  <div className="bg-white rounded-[40px] p-4 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0">
+                  {/* Testimonial 5 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         J
@@ -1022,8 +1022,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 6 - Solid */}
-                  <div className="bg-white rounded-[40px] p-4 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0">
+                  {/* Testimonial 6 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         D
