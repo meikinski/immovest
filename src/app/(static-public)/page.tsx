@@ -31,6 +31,7 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
+  const testimonialsRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,16 @@ export default function LandingPage() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Scroll testimonials to center card on mount
+  React.useEffect(() => {
+    if (testimonialsRef.current) {
+      const container = testimonialsRef.current;
+      const cardWidth = 200 + 16; // card width + gap
+      const scrollPosition = cardWidth * 3.5; // Scroll to card 4 (center)
+      container.scrollLeft = scrollPosition;
+    }
   }, []);
 
   const handleGetStarted = (location: string = 'hero') => {
@@ -151,7 +162,7 @@ export default function LandingPage() {
         <main className="overflow-x-hidden">
           {/* 1. Hero Sektion - Interaktiver Hero mit Floating UI */}
           <section className="min-h-screen flex items-center justify-center bg-white px-6 relative overflow-hidden pt-24">
-            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
               {/* Left: Content */}
               <div>
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
@@ -848,7 +859,7 @@ export default function LandingPage() {
 
               <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
-                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                <div className="bg-white rounded-[40px] p-8 min-w-[200px] md:min-w-[220px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
                   <h3 className="text-xl font-bold mb-3 group-hover:text-white">Steuern sparen</h3>
                   <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
@@ -862,7 +873,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 2: Vorsorge */}
-                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                <div className="bg-white rounded-[40px] p-8 min-w-[200px] md:min-w-[220px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
                   <h3 className="text-xl font-bold mb-3 group-hover:text-white">Altersvorsorge</h3>
                   <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
@@ -876,7 +887,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 3: Cashflow */}
-                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                <div className="bg-white rounded-[40px] p-8 min-w-[200px] md:min-w-[220px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
                   <h3 className="text-xl font-bold mb-3 group-hover:text-white">Passives Einkommen</h3>
                   <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
@@ -905,9 +916,9 @@ export default function LandingPage() {
               </div>
 
               <div className="relative max-w-7xl mx-auto">
-                <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                <div ref={testimonialsRef} className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                   {/* Testimonial 1 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-8 border-2 border-gray-200/50 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0 shadow-lg">
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-6 border-2 border-gray-200/50 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         L
@@ -922,8 +933,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 2 - Solid */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  {/* Testimonial 2 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-6 border-2 border-gray-200/50 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         M
@@ -939,7 +950,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 3 - Solid */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  <div className="bg-white rounded-[40px] p-6 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         S
@@ -954,8 +965,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 4 - Solid */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  {/* Testimonial 4 - Solid (Center Start) */}
+                  <div className="bg-white rounded-[40px] p-6 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         T
@@ -970,8 +981,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 5 - Solid (Neu) */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  {/* Testimonial 5 - Solid */}
+                  <div className="bg-white rounded-[40px] p-6 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         J
@@ -986,8 +997,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 6 - Solid (Neu) */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  {/* Testimonial 6 - Solid */}
+                  <div className="bg-white rounded-[40px] p-6 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         D
@@ -1002,8 +1013,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 7 - Solid (Neu) */}
-                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0">
+                  {/* Testimonial 7 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-6 border-2 border-gray-200/50 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         A
@@ -1019,7 +1030,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 8 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-8 border-2 border-gray-200/50 min-w-[240px] md:min-w-[280px] snap-center flex-shrink-0 shadow-lg">
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-6 border-2 border-gray-200/50 min-w-[180px] md:min-w-[200px] snap-center flex-shrink-0 shadow-lg">
                     <div className="flex items-center gap-4 mb-6">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
                         P
