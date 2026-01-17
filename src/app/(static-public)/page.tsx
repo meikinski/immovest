@@ -53,23 +53,26 @@ export default function LandingPage() {
     const handleScroll = () => {
       const cards = container.querySelectorAll('[data-goal-index]');
       const containerRect = container.getBoundingClientRect();
-      const containerCenter = containerRect.left + containerRect.width / 2;
 
-      let closestCard = 0;
-      let closestDistance = Infinity;
+      let mostVisibleCard = 0;
+      let maxVisibleArea = 0;
 
       cards.forEach((card, index) => {
         const cardRect = card.getBoundingClientRect();
-        const cardCenter = cardRect.left + cardRect.width / 2;
-        const distance = Math.abs(cardCenter - containerCenter);
 
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestCard = index;
+        // Berechne wie viel von der Card sichtbar ist
+        const visibleLeft = Math.max(cardRect.left, containerRect.left);
+        const visibleRight = Math.min(cardRect.right, containerRect.right);
+        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
+        const visiblePercentage = visibleWidth / cardRect.width;
+
+        if (visiblePercentage > maxVisibleArea) {
+          maxVisibleArea = visiblePercentage;
+          mostVisibleCard = index;
         }
       });
 
-      setActiveGoalIndex(closestCard);
+      setActiveGoalIndex(mostVisibleCard);
     };
 
     handleScroll(); // Initial call
@@ -886,63 +889,63 @@ export default function LandingPage() {
                 {/* Karte 1: Steuern */}
                 <div
                   data-goal-index="0"
-                  className={`rounded-[40px] p-4 w-[170px] md:w-[190px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 0
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
-                  <div className="text-[#ff6b00] font-bold mb-4 text-3xl">01</div>
-                  <h3 className={`text-lg font-bold mb-2 ${activeGoalIndex === 0 ? 'text-white' : 'text-[#001d3d]'}`}>Steuern sparen</h3>
-                  <p className={`text-xs leading-relaxed mb-3 ${activeGoalIndex === 0 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Wandle Steuerlast in Vermögen um. Netto-Effekt nach AfA und Zinsen.
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
+                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 0 ? 'text-white' : 'text-[#001d3d]'}`}>Steuern sparen</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 0 ? 'text-slate-300' : 'text-gray-600'}`}>
+                    Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
-                  <ul className={`space-y-1.5 text-xs ${activeGoalIndex === 0 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ AfA-Berechnung</li>
-                    <li>✓ Steuerersparnis</li>
-                    <li>✓ Netto-Rendite</li>
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 0 ? 'text-slate-400' : 'text-gray-500'}`}>
+                    <li>✓ AfA-Berechnung mit deinem Steuersatz</li>
+                    <li>✓ Steuerersparnis durch Zinskosten</li>
+                    <li>✓ Netto-Rendite nach Steuern</li>
                   </ul>
                 </div>
 
                 {/* Karte 2: Vorsorge */}
                 <div
                   data-goal-index="1"
-                  className={`rounded-[40px] p-4 w-[170px] md:w-[190px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 1
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
-                  <div className="text-[#ff6b00] font-bold mb-4 text-3xl">02</div>
-                  <h3 className={`text-lg font-bold mb-2 ${activeGoalIndex === 1 ? 'text-white' : 'text-[#001d3d]'}`}>Altersvorsorge</h3>
-                  <p className={`text-xs leading-relaxed mb-3 ${activeGoalIndex === 1 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Portfolio für die Zukunft. Langzeit-Rendite und Sicherheit.
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
+                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 1 ? 'text-white' : 'text-[#001d3d]'}`}>Altersvorsorge</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 1 ? 'text-slate-300' : 'text-gray-600'}`}>
+                    Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
-                  <ul className={`space-y-1.5 text-xs ${activeGoalIndex === 1 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ Wertsteigerung</li>
-                    <li>✓ Inflationsschutz</li>
-                    <li>✓ Altersrente</li>
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 1 ? 'text-slate-400' : 'text-gray-500'}`}>
+                    <li>✓ Langfristige Wertsteigerung</li>
+                    <li>✓ Inflationsschutz durch Sachwerte</li>
+                    <li>✓ Altersrente aus Mieteinnahmen</li>
                   </ul>
                 </div>
 
                 {/* Karte 3: Cashflow */}
                 <div
                   data-goal-index="2"
-                  className={`rounded-[40px] p-4 w-[170px] md:w-[190px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 2
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
-                  <div className="text-[#ff6b00] font-bold mb-4 text-3xl">03</div>
-                  <h3 className={`text-lg font-bold mb-2 ${activeGoalIndex === 2 ? 'text-white' : 'text-[#001d3d]'}`}>Passives Einkommen</h3>
-                  <p className={`text-xs leading-relaxed mb-3 ${activeGoalIndex === 2 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Maximiere Cashflow. Wir finden die Haken in Mietkalkulationen.
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
+                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 2 ? 'text-white' : 'text-[#001d3d]'}`}>Passives Einkommen</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 2 ? 'text-slate-300' : 'text-gray-600'}`}>
+                    Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
-                  <ul className={`space-y-1.5 text-xs ${activeGoalIndex === 2 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ Mieteinnahmen</li>
-                    <li>✓ Alle Nebenkosten</li>
-                    <li>✓ Netto-Cashflow</li>
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 2 ? 'text-slate-400' : 'text-gray-500'}`}>
+                    <li>✓ Realistische Mieteinnahmen-Prognose</li>
+                    <li>✓ Alle Nebenkosten berücksichtigt</li>
+                    <li>✓ Monatlicher Netto-Cashflow</li>
                   </ul>
                 </div>
               </div>
