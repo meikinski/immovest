@@ -202,7 +202,7 @@ export default function LandingPage() {
 
                 {/* Leerstandsrisiko Card - Animated */}
                 <div className="absolute bottom-20 right-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-10 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite_1.5s]">
-                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Leerstandsrisiko</div>
+                  <div className="text-xs font-bold text-[#001d3d] mb-2 uppercase tracking-wider">Leerstandsrisiko</div>
                   <div className="flex items-center gap-3">
                     <div className="text-3xl font-black text-green-600">Niedrig</div>
                     <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
@@ -211,6 +211,15 @@ export default function LandingPage() {
                   </div>
                   <div className="mt-4 text-xs text-gray-500">
                     Hohe Nachfrage in dieser Lage
+                  </div>
+                </div>
+
+                {/* Rendite Card - Animated (delayed) */}
+                <div className="absolute top-1/2 right-12 bg-white rounded-[24px] p-6 w-48 shadow-xl z-15 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite_3s] opacity-0 animate-[fadeIn_0.5s_ease-in_1s_forwards]">
+                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Rendite</div>
+                  <div className="text-2xl font-black text-[#ff6b00]">8,2%</div>
+                  <div className="text-[10px] text-gray-500 mt-2 font-bold uppercase tracking-wider">
+                    EK-Rendite p.a.
                   </div>
                 </div>
               </div>
@@ -381,11 +390,11 @@ export default function LandingPage() {
           {/* 3. Wie imvestr dir hilft */}
           <section id="features" className="py-32 px-6 bg-white overflow-visible">
             <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-20 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+              <div className="mb-20 overflow-visible max-w-6xl">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie imvestr</span> <span className="text-[#ff6b00]">dir hilft.</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                <p className="text-gray-500 text-xl max-w-2xl leading-relaxed">
                   imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein Investment zu sagen.
                 </p>
               </div>
@@ -473,11 +482,11 @@ export default function LandingPage() {
           {/* 4. So funktioniert imvestr */}
           <section id="workflow" className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
             <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-20 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+              <div className="mb-20 overflow-visible max-w-6xl ml-auto text-right">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                <p className="text-gray-500 text-xl max-w-2xl ml-auto leading-relaxed">
                   In 3 einfachen Schritten von der Exposé-URL zum vollständigen Investment-Report.
                 </p>
               </div>
@@ -511,7 +520,7 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
                   <h3 className="text-2xl font-bold mb-4">Markt- & Investitionsanalyse</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Wir screenen echte Angebots- und Nachfragedaten vor Ort. Keine Schätzwerte, sondern Live-Vergleiche.
+                    Wir screenen alle großen Portale um die aktuellen Angebotspreise an dem Standort zu erhalten. Außerdem erstellen wir eine Investitionsanalyse die realistischer ist als Verkaufs-Exposés. Wir geben aber kein "Rating".
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
@@ -533,7 +542,7 @@ export default function LandingPage() {
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Steuer-Effekt</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Rendite-Effekte</span>
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">PDF-Export</span>
                   </div>
                   <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>

@@ -30,12 +30,24 @@ export default function InputMethodPage() {
   const [urlError, setUrlError] = useState('');
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
+  // Scroll State for Header
+  const [isScrolled, setIsScrolled] = useState(false);
+
   // Reset form when component mounts (user starts new input)
   useEffect(() => {
     resetAnalysis();
     // Clear localStorage to prevent persistence hook from reloading old data
     localStorage.removeItem('immovest_kpi_state');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -230,7 +242,11 @@ export default function InputMethodPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header - Clean & Minimal */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm'
+          : 'bg-white border-b border-gray-100'
+      }`}>
         <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <button
@@ -247,7 +263,12 @@ export default function InputMethodPage() {
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
-            <AuthUI variant="light" />
+            <button
+              onClick={() => router.push('/sign-in')}
+              className="px-6 py-2.5 bg-[#001d3d] text-white font-semibold rounded-full hover:bg-[#001d3d]/90 transition-all"
+            >
+              Login
+            </button>
           </div>
         </div>
       </header>
@@ -258,13 +279,13 @@ export default function InputMethodPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <div className="inline-block px-5 py-2 bg-orange-100 rounded-full mb-6">
-              <span className="text-[#ff6b00] font-bold text-xs uppercase tracking-widest">Daten-Import</span>
+              <span className="text-[#ff6b00] font-bold text-xs uppercase tracking-widest">Schritt 1</span>
             </div>
             <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter text-[#001d3d]">
-              Willkommen bei <span className="text-[#ff6b00]">imvestr</span>
+              Wie möchtest du <span className="text-[#ff6b00]">starten?</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Wähle deine bevorzugte Eingabemethode – wir machen den Rest
+              Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen
             </p>
           </div>
 
@@ -308,22 +329,22 @@ export default function InputMethodPage() {
             </div>
 
             {/* URL Import with AI - SECOND */}
-            <div className="relative bg-white rounded-[32px] border-2 border-[#ff6b00] p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
               {/* KI Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                 <Sparkles size={16} />
                 <span>KI-Power</span>
               </div>
 
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <LinkIcon className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
                   URL Import
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  KI analysiert automatisch die Immobilien-Anzeige für dich
+                  Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
                 </p>
               </div>
 
@@ -334,7 +355,7 @@ export default function InputMethodPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.immobilienscout24.de/..."
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#ff6b00] focus:outline-none focus:ring-4 focus:ring-[#ff6b00]/15 transition-all hover:border-gray-300"
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#001d3d] focus:outline-none focus:ring-4 focus:ring-[#001d3d]/15 transition-all hover:border-gray-300"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
                   }}
@@ -343,7 +364,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-[#001d3d] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -388,7 +409,7 @@ export default function InputMethodPage() {
             {/* Foto machen - THIRD */}
             <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
               {/* KI Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                 <Sparkles size={16} />
                 <span>KI-Power</span>
               </div>
@@ -398,10 +419,10 @@ export default function InputMethodPage() {
                   <Camera className="w-8 h-8 text-[#ff6b00]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                  Foto machen
+                  Foto scannen
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Fotografiere das Exposé – KI extrahiert alle Daten automatisch
+                  Fotografiere das Exposé mit deinem Smartphone
                 </p>
               </div>
 
