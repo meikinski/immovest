@@ -8,7 +8,8 @@ import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
  BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar, Crown,
-  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock
+  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
+  TrendingUp, Percent, ShieldCheck, MessageSquare
 } from 'lucide-react';
 import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
@@ -1671,37 +1672,67 @@ const exportPdf = React.useCallback(async () => {
 </div>
 
 
-        {/* Eckdaten-Zeile */}
-        {/* Eckdaten */}
-<div className="card mb-6">
-  <h2 className="text-sm font-semibold text-gray-800 mb-3">Eckdaten</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-700">
-<div>
-      <span className="icon-badge"><MapPin size={16} /></span>{' '}
-      {shortAddress ? (
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline text-[var(--color-primary)]"
-        >
-          {shortAddress}
-        </a>
-      ) : '–'}
-    </div>    <div><span className="font-medium"></span> <span className="text-gray-700 font-medium text-sm"></span></div>
-    <div><span className="icon-badge mr-2"><EuroIcon size={16} /></span><span className="font-medium">Kaufpreis:</span>  <span className="text-gray-700 font-medium text-sm">{kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Ruler size={16} /></span><span className="font-medium">Fläche:</span><span className="text-gray-700 font-medium text-sm">{flaeche ? `${flaeche.toLocaleString('de-DE')} m²` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Wallet size={16} /></span><span className="font-medium">Gesamtinvestition:</span><span className="text-gray-700 font-medium text-sm">{anschaffungskosten ? `${anschaffungskosten.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><BedSingle size={16} /></span><span className="font-medium">Zimmer:</span> <span className="text-gray-700 font-medium text-sm">{zimmer || '–'}</span></div>
-  </div>
-</div>
+        {/* Property Header - Neu gestaltet */}
+        <section className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 mb-8">
+          <div className="flex flex-col md:flex-row justify-between gap-8">
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-[#FF8C00] font-bold text-xs uppercase tracking-widest mb-2">
+                <MapPin size={14} />
+                {shortAddress ? (
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:underline"
+                  >
+                    {cityFromAddress(adresse)}
+                  </a>
+                ) : (
+                  cityFromAddress(adresse)
+                )}
+              </div>
+              <h1 className="text-3xl font-bold mb-4 tracking-tight">{shortAddress || adresse || 'Immobilie'}</h1>
+              <div className="flex flex-wrap gap-6 text-sm text-gray-500 font-medium">
+                <div className="flex items-center gap-2 text-[#001F3F]">
+                  <House size={16} /> {objekttyp || 'Immobilie'}
+                </div>
+                {zimmer && (
+                  <div className="flex items-center gap-2">
+                    <BedSingle size={16} /> {zimmer} Zimmer
+                  </div>
+                )}
+                {flaeche && (
+                  <div className="flex items-center gap-2">
+                    <Ruler size={16} /> {flaeche.toLocaleString('de-DE')} m²
+                  </div>
+                )}
+                {baujahr && (
+                  <div className="flex items-center gap-2 font-bold">
+                    <Calendar size={16} className="text-[#FF8C00]" /> BJ {baujahr}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="text-right flex flex-col justify-center">
+              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Kaufpreis</p>
+              <p className="text-3xl font-black text-[#001F3F] tracking-tight">
+                {kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}
+              </p>
+              {anschaffungskosten && anschaffungskosten !== kaufpreis && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Gesamtinvestition: {anschaffungskosten.toLocaleString('de-DE')} €
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
 
-{/* Tabs */}
-<div className="mt-6 mb-5 flex flex-wrap justify-center gap-2">
+{/* Tabs - Modernisiert */}
+<div className="flex flex-wrap gap-2 mb-8 bg-slate-100/50 p-1.5 rounded-3xl w-fit mx-auto">
   {([
-    { key: 'kpi', label: 'KPIs', premium: false },
-    { key: 'markt', label: 'Marktvergleich & Lage', premium: true },
-    { key: 'szenarien', label: 'Szenarien & Export', premium: true },
+    { key: 'kpi', label: 'KI-Analyse', icon: BarChart3, premium: false },
+    { key: 'markt', label: 'Marktvergleich', icon: ChartBar, premium: true },
+    { key: 'szenarien', label: 'Szenarien', icon: Calculator, premium: true },
   ] as const).map(t => {
     const active = activeTab === t.key;
     const locked = t.premium && (!isSignedIn || !canAccessPremium);
@@ -1709,17 +1740,18 @@ const exportPdf = React.useCallback(async () => {
       <button
         key={t.key}
         onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.key)}
-        className={[
-          'px-4 py-2 rounded-full border text-base transition flex items-center gap-2',
+        className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
           active
-            ? 'font-semibold bg-[hsl(var(--brand))] border-[hsl(var(--brand))] text-white'
-            : locked
-            ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-pointer hover:border-[hsl(var(--brand-2))]'
-            : 'bg-white border-[hsl(var(--accent))] text-gray-700 hover:border-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))] hover:text-white'
-        ].join(' ')}
+            ? 'bg-white text-[#001F3F] shadow-md'
+            : 'text-gray-500 hover:text-[#001F3F]'
+        }`}
         aria-current={active ? 'page' : undefined}
       >
-        {locked && <Lock size={16} />}
+        {locked ? (
+          <Lock size={16} />
+        ) : (
+          <t.icon size={16} className={active ? 'text-[#FF8C00]' : ''} />
+        )}
         {t.label}
       </button>
     );
@@ -1734,55 +1766,63 @@ const exportPdf = React.useCallback(async () => {
             {/* KPI-Karten (Tooltips = Erklärung, keine Pfeile/Icons) */}
 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
   <KpiCard
+    icon={EuroIcon}
     title="Cashflow (vor Steuern)"
     value={`${cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    // kein trend-Prop mehr → kein Pfeil
     help="Monatlicher Überschuss: Mieteinnahmen minus alle laufenden Kosten (Kreditrate, Hausgeld nicht umlegbar, Instandhaltung, Mietausfall). Positiv = Immobilie trägt sich selbst. Negativ = Du musst monatlich zuschießen."
   />
   <KpiCard
+    icon={ReceiptText}
     title="Cashflow (nach Steuern)"
     value={`${cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
     help="Cashflow nach Steuern: Berücksichtigt vereinfacht die Steuerersparnis durch AfA (Abschreibung) und Zinsen. Zeigt dir realistischer, was am Ende bei dir ankommt oder wie viel du monatlich einplanen musst."
   />
   <KpiCard
+    icon={Percent}
     title="Nettomietrendite"
     value={`${nettoMietrendite.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`}
     help="Nettomietrendite: (Jahreskaltmiete - Bewirtschaftungskosten) / Kaufpreis. Berücksichtigt Hausgeld, Instandhaltung, Mietausfall. Richtwerte: < 2% schwach, 2-3% solide, > 3% attraktiv. Stark abhängig von Lage & Objekttyp."
   />
   <KpiCard
+    icon={SquarePercent}
     title="Bruttomietrendite"
     value={`${bruttoMietrendite.toFixed(1)} %`}
     help="Einfache Berechnung: Jahreskaltmiete geteilt durch Kaufpreis. Berücksichtigt KEINE Nebenkosten, Instandhaltung oder Leerstand – daher immer höher als Nettomietrendite. Gut für ersten Überblick."
   />
   <KpiCard
+    icon={Wallet}
     title="EK-Quote"
     value={`${anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'} %`}
     help="Wie viel % der Gesamtkosten du aus eigener Tasche zahlst. Höhere Quote = weniger Kredit nötig, niedrigere Zinslast. Aber: Mehr gebundenes Kapital. Banken mögen oft 20-30%."
   />
   <KpiCard
+    icon={TrendingUp}
     title="EK-Rendite"
     value={`${ekRendite.toFixed(1)} %`}
     help="Eigenkapitalrendite: Der jährliche Cashflow (nach Steuern) geteilt durch dein eingesetztes Eigenkapital. Beispiel: 30.000€ EK, 2.000€ Jahrescashflow = 6,7% EK-Rendite. Durch Fremdfinanzierung (Hebel) kann diese höher sein als die Nettomietrendite – aber nur wenn der Cashflow positiv ist."
   />
-  <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
-  <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>
+  <KpiCard icon={Calendar} title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
+  <KpiCard icon={Calendar} title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>
 <KpiCard
+  icon={ShieldCheck}
   title="DSCR"
   value={`${dscr.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
   help="Schuldendienstdeckungsgrad: Verhältnis von Nettoeinnahmen zu Kreditrate. Werte > 1,2 gelten als solide, < 1,0 kritisch."
 />
 </div>
 
-{/* KI-Kurzkommentar (deutlich beratender Ton) */}
-<div className="card-gradient relative">
+{/* KI-Kurzkommentar - Modernisiert */}
+<div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+  <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-[2.5rem]">
       <div className="text-center p-4 max-w-sm">
         <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
           <Lock className="w-6 h-6 text-white" />
         </div>
-        <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
+        <h3 className="text-lg font-bold mb-2 text-[#001F3F]">KI-Einschätzung freischalten</h3>
         <p className="text-gray-600 mb-3 text-xs">
           Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
         </p>
@@ -1797,10 +1837,12 @@ const exportPdf = React.useCallback(async () => {
   )}
 
   {/* Content (geblurred wenn locked) */}
-  <div className={isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}>
-    <div className="flex items-center mb-2">
-      <span className="font-bold">KI-Einschätzung</span>
-      <Bot className="ml-2" />
+  <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+        <MessageSquare size={20} className="text-white fill-current" />
+      </div>
+      <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
     </div>
     {isLoadingComment ? (
       <LoadingSpinner
@@ -1813,7 +1855,9 @@ const exportPdf = React.useCallback(async () => {
         ]}
       />
     ) : (
-      <HtmlContent className="text-gray-700" html={generatedComment || '<p>–</p>'} />
+      <div className="space-y-6 text-slate-200 leading-relaxed">
+        <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
+      </div>
     )}
   </div>
 </div>
@@ -1882,12 +1926,16 @@ const exportPdf = React.useCallback(async () => {
             {/* Content (blurred when locked) */}
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
-            {/* Block 1: Objekt- & Marktanalyse */}
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-medium font-bold">Objekt- & Marktanalyse</span>
-                <Bot />
-              </div>
+            {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
+            <div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl mb-8">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <MessageSquare size={20} className="text-white fill-current" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Objekt- & Marktanalyse</h3>
+                </div>
 
               {loadingDetails ? (
                 <LoadingSpinner
@@ -1900,71 +1948,79 @@ const exportPdf = React.useCallback(async () => {
                   ]}
                 />
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-6 text-slate-200 leading-relaxed">
                   {/* Lage */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-800 mb-2">Lage & Umgebung</h3>
-                    <HtmlContent className="text-gray-600" html={lageComment || '<p>–</p>'} />
+                    <h3 className="text-sm font-semibold text-white mb-2">Lage & Umgebung</h3>
+                    <HtmlContent className="text-slate-200" html={lageComment || '<p>–</p>'} />
                   </div>
 
                   {/* Mietpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-gray-800">Mietpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-white">Mietpreis-Vergleich</h3>
                       {mietMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          mietMarktDelta > 10 ? 'bg-red-100 text-red-700' :
-                          mietMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
-                          mietMarktDelta > -10 ? 'bg-green-100 text-green-700' :
-                          'bg-blue-100 text-blue-700'
+                          mietMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
+                          mietMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
+                          mietMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
+                          'bg-blue-500/20 text-blue-300'
                         }`}>
                           {mietMarktDelta > 0 ? '+' : ''}{mietMarktDelta.toFixed(1)}%
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-gray-600" html={mietpreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-200" html={mietpreisComment || '<p>–</p>'} />
                   </div>
 
                   {/* Kaufpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-gray-800">Kaufpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-white">Kaufpreis-Vergleich</h3>
                       {kaufMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          kaufMarktDelta > 10 ? 'bg-red-100 text-red-700' :
-                          kaufMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
-                          kaufMarktDelta > -10 ? 'bg-green-100 text-green-700' :
-                          'bg-blue-100 text-blue-700'
+                          kaufMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
+                          kaufMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
+                          kaufMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
+                          'bg-blue-500/20 text-blue-300'
                         }`}>
                           {kaufMarktDelta > 0 ? '+' : ''}{kaufMarktDelta.toFixed(1)}%
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-gray-600" html={qmPreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-200" html={qmPreisComment || '<p>–</p>'} />
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
-            {/* Block 2: Investment-Empfehlung */}
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2">
-                <span className="text-medium font-bold">Investment-Empfehlung</span>
-                <Bot />
+            {/* Block 2: Investment-Empfehlung - Modernisiert */}
+            <div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <MessageSquare size={20} className="text-white fill-current" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Investment-Empfehlung</h3>
+                </div>
+                {loadingDetails ? (
+                  <LoadingSpinner
+                    messages={[
+                      'Konsolidiere alle Daten...',
+                      'Erstelle Investment-Bewertung...',
+                      'Prüfe Optimierungspotenzial...',
+                      'Formuliere Empfehlung...',
+                      'Fast geschafft...'
+                    ]}
+                  />
+                ) : (
+                  <div className="space-y-6 text-slate-200 leading-relaxed">
+                    <HtmlContent className="text-lg" html={investComment || '<p>–</p>'} />
+                  </div>
+                )}
               </div>
-              {loadingDetails ? (
-                <LoadingSpinner
-                  messages={[
-                    'Konsolidiere alle Daten...',
-                    'Erstelle Investment-Bewertung...',
-                    'Prüfe Optimierungspotenzial...',
-                    'Formuliere Empfehlung...',
-                    'Fast geschafft...'
-                  ]}
-                />
-              ) : (
-                <HtmlContent className="text-gray-600" html={investComment || '<p>–</p>'} />
-              )}
             </div>
 <div className="mt-3">
     <button
