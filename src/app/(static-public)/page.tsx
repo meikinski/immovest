@@ -839,54 +839,42 @@ export default function LandingPage() {
           {/* 6. Was ist dein Investment-Ziel? */}
           <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
             <div className="max-w-[1600px] mx-auto">
-              <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+              <div className="mb-16 overflow-visible max-w-6xl ml-auto text-right">
+                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was ist dein</span> <br />
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
                 </h2>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Wir passen unsere Analyse-Tiefe an deine Lebenssituation an.
+                <p className="text-xl text-gray-600 max-w-2xl ml-auto leading-relaxed">
+                  Jeder Anlegertyp kann sich die für ihn wichtigen Infos rausholen.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              <div className="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
-                <div className="bg-[#001d3d] border-2 border-[#001d3d] rounded-[40px] p-10 text-white group cursor-pointer hover:bg-[#002d5d] hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-xl">
+                <div className="bg-white rounded-[40px] p-10 min-w-[350px] md:min-w-[400px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
                   <div className="text-[#ff6b00] font-bold mb-10 text-5xl">01</div>
-                  <h3 className="text-2xl font-bold mb-4">Steuern sparen</h3>
-                  <p className="text-slate-300 mb-12 text-lg leading-relaxed">
+                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Steuern sparen</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
                     Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
-                  <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
-                    <span>Details ansehen</span>
-                    <span>→</span>
-                  </div>
                 </div>
 
                 {/* Karte 2: Vorsorge */}
-                <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 border-2 border-gray-100">
-                  <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">02</div>
-                  <h3 className="text-2xl font-bold mb-4">Altersvorsorge</h3>
-                  <p className="text-gray-600 mb-12 text-lg leading-relaxed">
+                <div className="bg-white rounded-[40px] p-10 min-w-[350px] md:min-w-[400px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
+                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">02</div>
+                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Altersvorsorge</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
                     Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
-                  <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
-                    <span>Details ansehen</span>
-                    <span>→</span>
-                  </div>
                 </div>
 
                 {/* Karte 3: Cashflow */}
-                <div className="bg-white rounded-[40px] p-10 group cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 border-2 border-gray-100">
-                  <div className="text-[#001d3d] font-bold mb-10 text-5xl opacity-20">03</div>
-                  <h3 className="text-2xl font-bold mb-4">Passives Einkommen</h3>
-                  <p className="text-gray-600 mb-12 text-lg leading-relaxed">
+                <div className="bg-white rounded-[40px] p-10 min-w-[350px] md:min-w-[400px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
+                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">03</div>
+                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Passives Einkommen</h3>
+                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
                     Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
-                  <div className="flex items-center gap-2 font-bold group-hover:gap-4 transition-all">
-                    <span>Details ansehen</span>
-                    <span>→</span>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1168,12 +1156,8 @@ export default function LandingPage() {
           </section>
 
           {/* 10. Final CTA */}
-          <section className="py-32 px-6 bg-[#001d3d] text-white relative overflow-x-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#ff6b00] opacity-20 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
-
-            <div className="max-w-[1600px] mx-auto text-center relative z-10">
+          <section className="py-32 px-6 bg-[#001d3d] text-white">
+            <div className="max-w-[1600px] mx-auto text-center">
               <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                 <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
