@@ -942,8 +942,8 @@ export default function LandingPage() {
 
               <div className="relative">
                 <div ref={testimonialsRef} className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                  {/* Testimonial 1 - Blurred */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
+                  {/* Testimonial 1 - Strong Blur (outermost) */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       L
                     </div>
@@ -954,8 +954,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 2 - Blurred */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
+                  {/* Testimonial 2 - Strong Blur (outermost) */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       M
                     </div>
@@ -966,7 +966,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 3 - Blurred */}
+                  {/* Testimonial 3 - Light Blur (next to center) */}
                   <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       S
@@ -990,7 +990,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 5 - Blurred */}
+                  {/* Testimonial 5 - Light Blur (next to center) */}
                   <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       J
@@ -1002,8 +1002,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 6 - Blurred */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
+                  {/* Testimonial 6 - Strong Blur (outermost) */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       D
                     </div>
@@ -1014,8 +1014,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 7 - Blurred */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
+                  {/* Testimonial 7 - Strong Blur (outermost) */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       A
                     </div>
@@ -1026,8 +1026,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 8 - Blurred */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
+                  {/* Testimonial 8 - Strong Blur (outermost) */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       P
                     </div>
