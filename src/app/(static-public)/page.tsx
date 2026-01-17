@@ -225,7 +225,7 @@ export default function LandingPage() {
 
           {/* 2. Warum die meisten Immobilien-Investments scheitern */}
           <section className="py-32 px-6 bg-[#fbfbfd]">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-6xl mx-auto px-6">
               {/* Sektions-Header */}
               <div className="text-center mb-20">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
@@ -386,8 +386,8 @@ export default function LandingPage() {
 
           {/* 3. Wie imvestr dir hilft */}
           <section id="features" className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="mb-20 overflow-visible max-w-6xl px-6">
+            <div className="max-w-[1600px] mx-auto px-6">
+              <div className="mb-20 overflow-visible max-w-6xl">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie imvestr</span> <span className="text-[#ff6b00]">dir hilft.</span>
                 </h2>
@@ -478,8 +478,8 @@ export default function LandingPage() {
 
           {/* 4. So funktioniert imvestr */}
           <section id="workflow" className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="mb-20 overflow-visible max-w-6xl ml-auto text-right px-6">
+            <div className="max-w-[1600px] mx-auto px-6">
+              <div className="mb-20 overflow-visible max-w-6xl ml-auto text-right">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
@@ -517,12 +517,12 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
                   <h3 className="text-2xl font-bold mb-4">Markt- & Investitionsanalyse</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Wir screenen alle großen Portale um die aktuellen Angebotspreise an dem Standort zu erhalten. Außerdem erstellen wir eine Investitionsanalyse die realistischer ist als Verkaufs-Exposés. Wir geben aber kein &quot;Rating&quot;.
+                    Unsere KI analysiert Kaufpreis und Miete gegen echte Angebote in der Nachbarschaft. Du siehst sofort, ob die Zahlen im Exposé realistisch sind oder Wunschdenken. Keine vagen Bewertungen – nur harte Fakten und Marktvergleiche.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Miet-Vergleich</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Lage-Rating</span>
+                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Investitionsanalyse</span>
                   </div>
                   <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
                 </div>
@@ -550,7 +550,7 @@ export default function LandingPage() {
 
           {/* 5. Wie funktioniert der Import? - Sticky Workflow */}
           <section className="py-32 bg-white px-6">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto px-6">
               <div className="text-center mb-20">
                 <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
@@ -835,8 +835,8 @@ export default function LandingPage() {
 
           {/* 6. Was ist dein Investment-Ziel? */}
           <section className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
-              <div className="mb-16 overflow-visible max-w-6xl ml-auto text-right px-6">
+            <div className="max-w-[1600px] mx-auto px-6">
+              <div className="mb-16 overflow-visible max-w-6xl ml-auto text-right">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was ist dein</span> <br />
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
@@ -848,30 +848,45 @@ export default function LandingPage() {
 
               <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
-                <div className="bg-white rounded-[40px] p-10 min-w-[280px] md:min-w-[320px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
-                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">01</div>
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Steuern sparen</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
+                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Steuern sparen</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
                     Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
+                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                    <li>✓ AfA-Berechnung mit deinem Steuersatz</li>
+                    <li>✓ Steuerersparnis durch Zinskosten</li>
+                    <li>✓ Netto-Rendite nach Steuern</li>
+                  </ul>
                 </div>
 
                 {/* Karte 2: Vorsorge */}
-                <div className="bg-white rounded-[40px] p-10 min-w-[280px] md:min-w-[320px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
-                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">02</div>
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Altersvorsorge</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
+                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Altersvorsorge</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
                     Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
+                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                    <li>✓ Langfristige Wertsteigerung</li>
+                    <li>✓ Inflationsschutz durch Sachwerte</li>
+                    <li>✓ Altersrente aus Mieteinnahmen</li>
+                  </ul>
                 </div>
 
                 {/* Karte 3: Cashflow */}
-                <div className="bg-white rounded-[40px] p-10 min-w-[280px] md:min-w-[320px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0">
-                  <div className="text-[#ff6b00] font-bold mb-10 text-5xl">03</div>
-                  <h3 className="text-2xl font-bold mb-4 group-hover:text-white">Passives Einkommen</h3>
-                  <p className="text-gray-600 text-lg leading-relaxed group-hover:text-slate-300">
+                <div className="bg-white rounded-[40px] p-8 min-w-[240px] md:min-w-[260px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0">
+                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
+                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Passives Einkommen</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
                     Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
+                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                    <li>✓ Realistische Mieteinnahmen-Prognose</li>
+                    <li>✓ Alle Nebenkosten berücksichtigt</li>
+                    <li>✓ Monatlicher Netto-Cashflow</li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -879,7 +894,7 @@ export default function LandingPage() {
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
           <section className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
+            <div className="max-w-[1600px] mx-auto px-6">
               <div className="text-center mb-16 overflow-visible">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
@@ -1029,7 +1044,7 @@ export default function LandingPage() {
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#ff6b00] opacity-5 rounded-full blur-3xl" />
 
-            <div className="max-w-[1600px] mx-auto relative z-10">
+            <div className="max-w-[1600px] mx-auto px-6 relative z-10">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 {/* Links: Text */}
                 <div>
@@ -1169,7 +1184,7 @@ export default function LandingPage() {
 
           {/* 9. FAQ */}
           <section id="faq" className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-[1600px] mx-auto">
+            <div className="max-w-[1600px] mx-auto px-6">
               <div className="text-center mb-16 overflow-visible">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                   <span className="text-[#001d3d]">Häufig gestellte</span> <span className="text-[#ff6b00]">Fragen</span>
@@ -1220,7 +1235,7 @@ export default function LandingPage() {
 
           {/* 10. Final CTA */}
           <section className="py-32 px-6 bg-[#001d3d] text-white">
-            <div className="max-w-[1600px] mx-auto text-center">
+            <div className="max-w-[1600px] mx-auto px-6 text-center">
               <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
                 <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
               </h2>
@@ -1240,7 +1255,7 @@ export default function LandingPage() {
                   href="/sign-in"
                   className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
                 >
-                  Live-Demo ansehen
+                  Anmelden / Einloggen
                 </Link>
               </div>
             </div>
@@ -1291,11 +1306,6 @@ export default function LandingPage() {
               <h4 className="font-bold mb-6">Produkt</h4>
               <ul className="space-y-4 text-slate-400">
                 <li>
-                  <a href="#features" className="hover:text-white transition-colors">
-                    Features
-                  </a>
-                </li>
-                <li>
                   <a href="#workflow" className="hover:text-white transition-colors">
                     So funktioniert&apos;s
                   </a>
@@ -1304,6 +1314,11 @@ export default function LandingPage() {
                   <button onClick={() => handleGetStarted('footer')} className="hover:text-white transition-colors text-left">
                     Jetzt starten
                   </button>
+                </li>
+                <li>
+                  <a href="#pricing" className="hover:text-white transition-colors">
+                    Preise
+                  </a>
                 </li>
               </ul>
             </div>
