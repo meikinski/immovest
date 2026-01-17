@@ -49,7 +49,7 @@ export default function LandingPage() {
   React.useEffect(() => {
     if (testimonialsRef.current) {
       const container = testimonialsRef.current;
-      const cardWidth = 160 + 12; // card width + gap
+      const cardWidth = 240 + 16; // card width + gap
       const scrollPosition = cardWidth * 3; // Scroll to card 4 (index 3)
       container.scrollLeft = scrollPosition;
     }
@@ -941,9 +941,9 @@ export default function LandingPage() {
               </div>
 
               <div className="relative">
-                <div ref={testimonialsRef} className="flex gap-3 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                <div ref={testimonialsRef} className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                   {/* Testimonial 1 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       L
                     </div>
@@ -955,7 +955,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 2 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       M
                     </div>
@@ -967,7 +967,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 3 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       S
                     </div>
@@ -979,7 +979,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 4 - Solid (Center Start) */}
-                  <div className="bg-white rounded-[32px] p-4 border-2 border-gray-100 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white rounded-[32px] p-5 border-2 border-gray-100 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       T
                     </div>
@@ -991,7 +991,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 5 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       J
                     </div>
@@ -1003,7 +1003,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 6 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       D
                     </div>
@@ -1015,7 +1015,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 7 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       A
                     </div>
@@ -1027,7 +1027,7 @@ export default function LandingPage() {
                   </div>
 
                   {/* Testimonial 8 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                  <div className="bg-white/40 backdrop-blur-md rounded-[32px] p-5 border-2 border-white/30 min-w-[240px] max-w-[240px] snap-center flex-shrink-0 shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
                       P
                     </div>
