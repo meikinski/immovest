@@ -860,8 +860,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="relative">
-                <div className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex gap-4 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
                 <div className="bg-white rounded-[40px] p-6 min-w-[160px] md:min-w-[180px] snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl transition-all duration-300 shadow-lg flex-shrink-0 overflow-hidden">
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
