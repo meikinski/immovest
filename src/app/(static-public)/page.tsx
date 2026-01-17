@@ -538,7 +538,7 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 1</div>
                   <h3 className="text-2xl font-bold mb-4">Import</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Kopiere den Link, fotografiere das Exposé oder gib die Daten manuell ein. Unsere KI extrahiert alle Informationen.
+                    Kopiere einfach den Link von ImmoScout24 oder einem anderen Portal, fotografiere das Exposé mit deinem Smartphone oder gib die Daten manuell ein. Unsere KI extrahiert automatisch alle relevanten Informationen – von Kaufpreis über Wohnfläche bis zur Miete. In Sekunden startklar.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">URL-Import</span>
@@ -574,7 +574,7 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 3</div>
                   <h3 className="text-2xl font-bold mb-4">Simulation & Report</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Teste verschiedene Szenarien und erhalte einen bankfähigen PDF-Report mit allen KPIs.
+                    Spiele verschiedene Finanzierungsszenarien durch und sieh sofort, wie sich Zinsänderungen auf deine Rendite auswirken. Mit einem Klick exportierst du einen professionellen PDF-Report – perfekt vorbereitet für deine Bank. Alle Zahlen, alle Fakten, auf den Punkt gebracht.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
