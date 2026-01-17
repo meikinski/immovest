@@ -976,7 +976,7 @@ export default function LandingPage() {
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
           <section className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-6xl mx-auto px-6">
               <div className="text-center mb-16 overflow-visible">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
@@ -989,7 +989,7 @@ export default function LandingPage() {
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
               <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-xl flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -1001,7 +1001,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-xl flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -1013,7 +1013,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-xl flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -1025,7 +1025,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-xl flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
