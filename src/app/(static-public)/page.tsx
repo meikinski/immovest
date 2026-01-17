@@ -929,13 +929,8 @@ export default function LandingPage() {
           </section>
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-32 px-6 bg-gradient-to-br from-[#f5f5f7] via-gray-100 to-white relative overflow-visible">
-            {/* Decorative Background Elements for Glassmorphism */}
-            <div className="absolute top-20 left-10 w-96 h-96 bg-[#ff6b00] opacity-20 rounded-full blur-3xl" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#001d3d] opacity-15 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-br from-[#ff6b00]/10 to-[#001d3d]/10 rounded-full blur-3xl" />
-
-            <div className="max-w-6xl mx-auto px-6 relative z-10">
+          <section className="py-32 px-6 bg-white overflow-visible">
+            <div className="max-w-6xl mx-auto px-6">
               <div className="text-center mb-16 overflow-visible">
                 <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
@@ -947,8 +942,8 @@ export default function LandingPage() {
 
               <div className="relative">
                 <div ref={testimonialsRef} className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                  {/* Testimonial 1 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 1 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       L
                     </div>
@@ -959,8 +954,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 2 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 2 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       M
                     </div>
@@ -971,8 +966,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 3 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 3 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       S
                     </div>
@@ -983,7 +978,7 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 4 - Solid (Center Start) */}
+                  {/* Testimonial 4 - Focused (Center - No Blur) */}
                   <div className="bg-white rounded-[32px] p-6 border-2 border-gray-200 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       T
@@ -995,8 +990,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 5 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 5 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       J
                     </div>
@@ -1007,8 +1002,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 6 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 6 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       D
                     </div>
@@ -1019,8 +1014,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 7 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 7 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       A
                     </div>
@@ -1031,8 +1026,8 @@ export default function LandingPage() {
                     </p>
                   </div>
 
-                  {/* Testimonial 8 - Glassmorphism */}
-                  <div className="bg-white/30 backdrop-blur-xl rounded-[32px] p-6 border-2 border-white/40 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
+                  {/* Testimonial 8 - Blurred */}
+                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                       P
                     </div>
