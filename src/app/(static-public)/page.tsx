@@ -34,7 +34,6 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
-  const testimonialsRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -43,16 +42,6 @@ export default function LandingPage() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Scroll testimonials to center card on mount
-  React.useEffect(() => {
-    if (testimonialsRef.current) {
-      const container = testimonialsRef.current;
-      const cardWidth = 300 + 24; // card width + gap (gap-6 = 24px)
-      const scrollPosition = cardWidth * 3; // Scroll to card 4 (index 3)
-      container.scrollLeft = scrollPosition;
-    }
   }, []);
 
   const handleGetStarted = (location: string = 'hero') => {
@@ -940,103 +929,65 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="relative">
-                <div ref={testimonialsRef} className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                  {/* Testimonial 1 - Strong Blur (outermost) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      L
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Lisa</p>
-                    <p className="text-sm text-gray-500 mb-5">Einsteigerin, 28</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten.&quot;
-                    </p>
+              <div className="flex justify-center gap-6 flex-wrap">
+                {/* Testimonial 1 */}
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
+                    L
                   </div>
+                  <p className="font-bold text-[#001d3d] text-base mb-2">Lisa</p>
+                  <p className="text-sm text-gray-500 mb-5">Einsteigerin, 28</p>
+                  <p className="text-gray-700 leading-relaxed italic text-sm">
+                    &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten.&quot;
+                  </p>
+                </div>
 
-                  {/* Testimonial 2 - Strong Blur (outermost) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      M
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Michael</p>
-                    <p className="text-sm text-gray-500 mb-5">Ingenieur, 42</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
-                    </p>
+                {/* Testimonial 2 */}
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
+                    M
                   </div>
+                  <p className="font-bold text-[#001d3d] text-base mb-2">Michael</p>
+                  <p className="text-sm text-gray-500 mb-5">Ingenieur, 42</p>
+                  <p className="text-gray-700 leading-relaxed italic text-sm">
+                    &quot;Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
+                  </p>
+                </div>
 
-                  {/* Testimonial 3 - Light Blur (next to center) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      S
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Sarah</p>
-                    <p className="text-sm text-gray-500 mb-5">Lehrerin, 35</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt.&quot;
-                    </p>
+                {/* Testimonial 3 */}
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
+                    S
                   </div>
+                  <p className="font-bold text-[#001d3d] text-base mb-2">Sarah</p>
+                  <p className="text-sm text-gray-500 mb-5">Lehrerin, 35</p>
+                  <p className="text-gray-700 leading-relaxed italic text-sm">
+                    &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt.&quot;
+                  </p>
+                </div>
 
-                  {/* Testimonial 4 - Focused (Center - No Blur) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-200 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      T
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Thomas</p>
-                    <p className="text-sm text-gray-500 mb-5">Selbstständig, 39</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Die Steuer-Berechnung zeigt mir, wie viel ich wirklich spare.&quot;
-                    </p>
+                {/* Testimonial 4 */}
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
+                    T
                   </div>
+                  <p className="font-bold text-[#001d3d] text-base mb-2">Thomas</p>
+                  <p className="text-sm text-gray-500 mb-5">Selbstständig, 39</p>
+                  <p className="text-gray-700 leading-relaxed italic text-sm">
+                    &quot;Die Steuer-Berechnung zeigt mir, wie viel ich wirklich spare.&quot;
+                  </p>
+                </div>
 
-                  {/* Testimonial 5 - Light Blur (next to center) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-sm">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      J
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Julia</p>
-                    <p className="text-sm text-gray-500 mb-5">Marketingmanagerin, 31</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Die KI-Analyse hat mir in 2 Minuten gezeigt, dass der Deal zu teuer ist.&quot;
-                    </p>
+                {/* Testimonial 5 */}
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
+                    J
                   </div>
-
-                  {/* Testimonial 6 - Strong Blur (outermost) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      D
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Daniel</p>
-                    <p className="text-sm text-gray-500 mb-5">Arzt, 45</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Perfekt für meine Steueroptimierung. Die AfA-Berechnung ist exakt.&quot;
-                    </p>
-                  </div>
-
-                  {/* Testimonial 7 - Strong Blur (outermost) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      A
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Anna</p>
-                    <p className="text-sm text-gray-500 mb-5">IT-Beraterin, 29</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Der Foto-Scan ist genial! Spart so viel Zeit.&quot;
-                    </p>
-                  </div>
-
-                  {/* Testimonial 8 - Strong Blur (outermost) */}
-                  <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 min-w-[300px] max-w-[300px] snap-center flex-shrink-0 shadow-2xl flex flex-col items-center text-center blur-md">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                      P
-                    </div>
-                    <p className="font-bold text-[#001d3d] text-base mb-2">Peter</p>
-                    <p className="text-sm text-gray-500 mb-5">Unternehmer, 38</p>
-                    <p className="text-gray-700 leading-relaxed italic text-sm">
-                      &quot;Die Szenarien-Funktion ist Gold wert.&quot;
-                    </p>
-                  </div>
+                  <p className="font-bold text-[#001d3d] text-base mb-2">Julia</p>
+                  <p className="text-sm text-gray-500 mb-5">Marketingmanagerin, 31</p>
+                  <p className="text-gray-700 leading-relaxed italic text-sm">
+                    &quot;Die KI-Analyse hat mir in 2 Minuten gezeigt, dass der Deal zu teuer ist.&quot;
+                  </p>
                 </div>
               </div>
             </div>
