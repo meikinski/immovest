@@ -50,7 +50,7 @@ export default function LandingPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.3) {
             const index = parseInt(entry.target.getAttribute('data-goal-index') || '0');
             setActiveGoalIndex(index);
           }
@@ -58,7 +58,7 @@ export default function LandingPage() {
       },
       {
         root: document.querySelector('#investment-goals-scroll'),
-        threshold: [0.5, 0.75, 1.0],
+        threshold: [0.3, 0.5, 0.7],
       }
     );
 
@@ -877,10 +877,10 @@ export default function LandingPage() {
                 {/* Karte 1: Steuern */}
                 <div
                   data-goal-index="0"
-                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-5 min-w-[90px] md:min-w-[110px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 0
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
@@ -898,10 +898,10 @@ export default function LandingPage() {
                 {/* Karte 2: Vorsorge */}
                 <div
                   data-goal-index="1"
-                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-5 min-w-[90px] md:min-w-[110px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 1
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
@@ -919,10 +919,10 @@ export default function LandingPage() {
                 {/* Karte 3: Cashflow */}
                 <div
                   data-goal-index="2"
-                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-5 min-w-[90px] md:min-w-[110px] h-auto snap-center border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 2
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
                   }`}
                 >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
