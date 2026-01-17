@@ -49,7 +49,7 @@ export default function LandingPage() {
   React.useEffect(() => {
     if (testimonialsRef.current) {
       const container = testimonialsRef.current;
-      const cardWidth = 120 + 12; // card width (md) + gap
+      const cardWidth = 160 + 12; // card width + gap
       const scrollPosition = cardWidth * 3; // Scroll to card 4 (index 3)
       container.scrollLeft = scrollPosition;
     }
@@ -943,130 +943,98 @@ export default function LandingPage() {
               <div className="relative">
                 <div ref={testimonialsRef} className="flex gap-3 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                   {/* Testimonial 1 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        L
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Lisa</p>
-                        <p className="text-sm text-gray-500">Einsteigerin, 28</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      L
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten – jetzt verstehe ich mein erstes Investment.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Lisa</p>
+                    <p className="text-xs text-gray-500 mb-4">Einsteigerin, 28</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 2 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        M
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Michael</p>
-                        <p className="text-sm text-gray-500">Ingenieur, 42</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      M
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Für meine Altersvorsorge wollte ich keine Fehler machen. Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Michael</p>
+                    <p className="text-xs text-gray-500 mb-4">Ingenieur, 42</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 3 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        S
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Sarah</p>
-                        <p className="text-sm text-gray-500">Lehrerin, 35</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      S
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt – ohne versteckte Kosten.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Sarah</p>
+                    <p className="text-xs text-gray-500 mb-4">Lehrerin, 35</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 4 - Solid (Center Start) */}
-                  <div className="bg-white rounded-[40px] p-4 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        T
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Thomas</p>
-                        <p className="text-sm text-gray-500">Selbstständig, 39</p>
-                      </div>
+                  <div className="bg-white rounded-[32px] p-4 border-2 border-gray-100 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      T
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Die Steuer-Berechnung mit meinem persönlichen Satz und AfA zeigt mir, wie viel ich wirklich spare. Genau was ich brauchte.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Thomas</p>
+                    <p className="text-xs text-gray-500 mb-4">Selbstständig, 39</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Die Steuer-Berechnung zeigt mir, wie viel ich wirklich spare.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 5 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        J
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Julia</p>
-                        <p className="text-sm text-gray-500">Marketingmanagerin, 31</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      J
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Die KI-Analyse hat mir in 2 Minuten gezeigt, dass der Deal zu teuer ist. Hat mir 15.000€ gespart!&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Julia</p>
+                    <p className="text-xs text-gray-500 mb-4">Marketingmanagerin, 31</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Die KI-Analyse hat mir in 2 Minuten gezeigt, dass der Deal zu teuer ist.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 6 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        D
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Daniel</p>
-                        <p className="text-sm text-gray-500">Arzt, 45</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      D
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Perfekt für meine Steueroptimierung. Die AfA-Berechnung ist exakt und spart mir Stunden beim Steuerberater.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Daniel</p>
+                    <p className="text-xs text-gray-500 mb-4">Arzt, 45</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Perfekt für meine Steueroptimierung. Die AfA-Berechnung ist exakt.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 7 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        A
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Anna</p>
-                        <p className="text-sm text-gray-500">IT-Beraterin, 29</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      A
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Der Foto-Scan ist genial! Einfach Exposé fotografieren und alle Daten sind drin. Spart so viel Zeit.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Anna</p>
+                    <p className="text-xs text-gray-500 mb-4">IT-Beraterin, 29</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Der Foto-Scan ist genial! Spart so viel Zeit.&quot;
                     </p>
                   </div>
 
                   {/* Testimonial 8 - Glassmorphism */}
-                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-4 border-2 border-gray-200/50 min-w-[100px] md:min-w-[120px] snap-center flex-shrink-0 shadow-lg">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                        P
-                      </div>
-                      <div>
-                        <p className="font-bold text-[#001d3d]">Peter</p>
-                        <p className="text-sm text-gray-500">Unternehmer, 38</p>
-                      </div>
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[32px] p-4 border-2 border-gray-200/50 min-w-[160px] max-w-[160px] snap-center flex-shrink-0 shadow-lg flex flex-col items-center text-center">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-lg shadow-lg mb-3">
+                      P
                     </div>
-                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                      &quot;Die Szenarien-Funktion ist Gold wert. Ich kann sofort sehen, was bei steigenden Zinsen passiert.&quot;
+                    <p className="font-bold text-[#001d3d] text-sm mb-1">Peter</p>
+                    <p className="text-xs text-gray-500 mb-4">Unternehmer, 38</p>
+                    <p className="text-gray-700 leading-snug italic text-xs">
+                      &quot;Die Szenarien-Funktion ist Gold wert.&quot;
                     </p>
                   </div>
                 </div>
