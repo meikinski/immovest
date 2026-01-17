@@ -885,11 +885,11 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div id="investment-goals-scroll" className="flex gap-4 overflow-x-auto pb-16 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div id="investment-goals-scroll" className="flex gap-6 overflow-x-auto pb-16 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-16" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
                 <div
                   data-goal-index="0"
-                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-8 w-[calc(100vw-120px)] md:w-[500px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 0
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -910,7 +910,7 @@ export default function LandingPage() {
                 {/* Karte 2: Vorsorge */}
                 <div
                   data-goal-index="1"
-                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-8 w-[calc(100vw-120px)] md:w-[500px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 1
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -931,7 +931,7 @@ export default function LandingPage() {
                 {/* Karte 3: Cashflow */}
                 <div
                   data-goal-index="2"
-                  className={`rounded-[40px] p-6 w-[280px] md:w-[320px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-8 w-[calc(100vw-120px)] md:w-[500px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 2
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
