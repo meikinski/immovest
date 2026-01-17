@@ -1317,9 +1317,9 @@ export default function LandingPage() {
                   </button>
                 </li>
                 <li>
-                  <a href="#pricing" className="hover:text-white transition-colors">
+                  <Link href="/pricing" className="hover:text-white transition-colors">
                     Preise
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
