@@ -12,11 +12,8 @@ import {
   FileBarChart,
   MapPin,
   Zap,
-  TrendingUp,
   TrendingDown,
-  DollarSign,
   AlertCircle,
-  AlertTriangle,
   Camera,
   Link as LinkIcon,
   Edit3,
@@ -520,7 +517,7 @@ export default function LandingPage() {
                   <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
                   <h3 className="text-2xl font-bold mb-4">Markt- & Investitionsanalyse</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    Wir screenen alle großen Portale um die aktuellen Angebotspreise an dem Standort zu erhalten. Außerdem erstellen wir eine Investitionsanalyse die realistischer ist als Verkaufs-Exposés. Wir geben aber kein "Rating".
+                    Wir screenen alle großen Portale um die aktuellen Angebotspreise an dem Standort zu erhalten. Außerdem erstellen wir eine Investitionsanalyse die realistischer ist als Verkaufs-Exposés. Wir geben aber kein &quot;Rating&quot;.
                   </p>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
@@ -892,69 +889,135 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                {/* Testimonial 1 - Einsteiger */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      L
+              <div className="relative max-w-7xl mx-auto">
+                <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide px-4" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+                  {/* Testimonial 1 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-8 border-2 border-gray-200/50 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0 shadow-lg">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        L
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Lisa</p>
+                        <p className="text-sm text-gray-500">Einsteigerin, 28</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Lisa</p>
-                      <p className="text-sm text-gray-500">Einsteigerin, 28</p>
-                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten – jetzt verstehe ich mein erstes Investment.&quot;
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten – jetzt verstehe ich mein erstes Investment.&quot;
-                  </p>
-                </div>
 
-                {/* Testimonial 2 - Altersvorsorge */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      M
+                  {/* Testimonial 2 - Solid */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        M
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Michael</p>
+                        <p className="text-sm text-gray-500">Ingenieur, 42</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Michael</p>
-                      <p className="text-sm text-gray-500">Ingenieur, 42</p>
-                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Für meine Altersvorsorge wollte ich keine Fehler machen. Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Für meine Altersvorsorge wollte ich keine Fehler machen. Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
-                  </p>
-                </div>
 
-                {/* Testimonial 3 - Passives Einkommen */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      S
+                  {/* Testimonial 3 - Solid */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        S
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Sarah</p>
+                        <p className="text-sm text-gray-500">Lehrerin, 35</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Sarah</p>
-                      <p className="text-sm text-gray-500">Lehrerin, 35</p>
-                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt – ohne versteckte Kosten.&quot;
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt – ohne versteckte Kosten.&quot;
-                  </p>
-                </div>
 
-                {/* Testimonial 4 - Steuern sparen */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                      T
+                  {/* Testimonial 4 - Solid */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        T
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Thomas</p>
+                        <p className="text-sm text-gray-500">Selbstständig, 39</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-bold text-[#001d3d]">Thomas</p>
-                      <p className="text-sm text-gray-500">Selbstständig, 39</p>
-                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Die Steuer-Berechnung mit meinem persönlichen Satz und AfA zeigt mir, wie viel ich wirklich spare. Genau was ich brauchte.&quot;
+                    </p>
                   </div>
-                  <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
-                    &quot;Die Steuer-Berechnung mit meinem persönlichen Satz und AfA zeigt mir, wie viel ich wirklich spare. Genau was ich brauchte.&quot;
-                  </p>
+
+                  {/* Testimonial 5 - Solid (Neu) */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        J
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Julia</p>
+                        <p className="text-sm text-gray-500">Marketingmanagerin, 31</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Die KI-Analyse hat mir in 2 Minuten gezeigt, dass der Deal zu teuer ist. Hat mir 15.000€ gespart!&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 6 - Solid (Neu) */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        D
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Daniel</p>
+                        <p className="text-sm text-gray-500">Arzt, 45</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Perfekt für meine Steueroptimierung. Die AfA-Berechnung ist exakt und spart mir Stunden beim Steuerberater.&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 7 - Solid (Neu) */}
+                  <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 hover:border-[#ff6b00]/30 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        A
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Anna</p>
+                        <p className="text-sm text-gray-500">IT-Beraterin, 29</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Der Foto-Scan ist genial! Einfach Exposé fotografieren und alle Daten sind drin. Spart so viel Zeit.&quot;
+                    </p>
+                  </div>
+
+                  {/* Testimonial 8 - Glassmorphism */}
+                  <div className="bg-white/60 backdrop-blur-sm rounded-[40px] p-8 border-2 border-gray-200/50 min-w-[320px] md:min-w-[380px] snap-center flex-shrink-0 shadow-lg">
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        P
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001d3d]">Peter</p>
+                        <p className="text-sm text-gray-500">Unternehmer, 38</p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed italic text-sm border-l-4 border-[#ff6b00]/30 pl-4">
+                      &quot;Die Szenarien-Funktion ist Gold wert. Ich kann sofort sehen, was bei steigenden Zinsen passiert.&quot;
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1189,8 +1252,8 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-2 mb-8">
-                <div className="w-8 h-8 bg-[#ff6b00] rounded flex items-center justify-center">
-                  <span className="text-white font-bold italic text-sm">i</span>
+                <div className="w-10 h-10 bg-[#ff6b00] rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">i</span>
                 </div>
                 <span className="text-2xl font-bold tracking-tighter">imvestr</span>
               </div>
@@ -1225,18 +1288,18 @@ export default function LandingPage() {
               <ul className="space-y-4 text-slate-400">
                 <li>
                   <a href="#features" className="hover:text-white transition-colors">
-                    Marktanalyse
+                    Features
                   </a>
                 </li>
                 <li>
                   <a href="#workflow" className="hover:text-white transition-colors">
-                    Szenario-Planer
+                    So funktioniert's
                   </a>
                 </li>
                 <li>
-                  <Link href="/pricing" className="hover:text-white transition-colors">
-                    Preise
-                  </Link>
+                  <button onClick={() => handleGetStarted('footer')} className="hover:text-white transition-colors text-left">
+                    Jetzt starten
+                  </button>
                 </li>
               </ul>
             </div>
