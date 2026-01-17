@@ -988,7 +988,7 @@ export default function LandingPage() {
 
               <div className="flex justify-center gap-6 flex-wrap">
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[260px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -1000,7 +1000,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[260px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -1012,7 +1012,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[260px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -1024,7 +1024,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[260px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
