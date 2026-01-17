@@ -1293,7 +1293,7 @@ export default function LandingPage() {
                 </li>
                 <li>
                   <a href="#workflow" className="hover:text-white transition-colors">
-                    So funktioniert's
+                    So funktioniert&apos;s
                   </a>
                 </li>
                 <li>
