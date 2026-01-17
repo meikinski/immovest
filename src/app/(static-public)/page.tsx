@@ -34,6 +34,7 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
+  const [activeGoalIndex, setActiveGoalIndex] = React.useState<number>(1); // Default middle card active
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -42,6 +43,29 @@ export default function LandingPage() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Intersection Observer for Investment Goal cards
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const index = parseInt(entry.target.getAttribute('data-goal-index') || '0');
+            setActiveGoalIndex(index);
+          }
+        });
+      },
+      {
+        root: document.querySelector('#investment-goals-scroll'),
+        threshold: [0.5, 0.75, 1.0],
+      }
+    );
+
+    const cards = document.querySelectorAll('[data-goal-index]');
+    cards.forEach((card) => observer.observe(card));
+
+    return () => observer.disconnect();
   }, []);
 
   const handleGetStarted = (location: string = 'hero') => {
@@ -851,13 +875,20 @@ export default function LandingPage() {
 
               <div id="investment-goals-scroll" className="flex gap-4 overflow-x-auto pb-16 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-32" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
-                <div className="bg-white rounded-[40px] p-5 min-w-[130px] md:min-w-[150px] h-auto snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0 flex flex-col">
+                <div
+                  data-goal-index="0"
+                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                    activeGoalIndex === 0
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                  }`}
+                >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Steuern sparen</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
+                  <h3 className={`text-xl font-bold mb-3 ${activeGoalIndex === 0 ? 'text-white' : 'text-[#001d3d]'}`}>Steuern sparen</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 0 ? 'text-slate-300' : 'text-gray-600'}`}>
                     Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
                   </p>
-                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 0 ? 'text-slate-400' : 'text-gray-500'}`}>
                     <li>✓ AfA-Berechnung mit deinem Steuersatz</li>
                     <li>✓ Steuerersparnis durch Zinskosten</li>
                     <li>✓ Netto-Rendite nach Steuern</li>
@@ -865,13 +896,20 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 2: Vorsorge */}
-                <div className="bg-white rounded-[40px] p-5 min-w-[130px] md:min-w-[150px] h-auto snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0 flex flex-col">
+                <div
+                  data-goal-index="1"
+                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                    activeGoalIndex === 1
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                  }`}
+                >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Altersvorsorge</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
+                  <h3 className={`text-xl font-bold mb-3 ${activeGoalIndex === 1 ? 'text-white' : 'text-[#001d3d]'}`}>Altersvorsorge</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 1 ? 'text-slate-300' : 'text-gray-600'}`}>
                     Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
                   </p>
-                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 1 ? 'text-slate-400' : 'text-gray-500'}`}>
                     <li>✓ Langfristige Wertsteigerung</li>
                     <li>✓ Inflationsschutz durch Sachwerte</li>
                     <li>✓ Altersrente aus Mieteinnahmen</li>
@@ -879,13 +917,20 @@ export default function LandingPage() {
                 </div>
 
                 {/* Karte 3: Cashflow */}
-                <div className="bg-white rounded-[40px] p-5 min-w-[130px] md:min-w-[150px] h-auto snap-center border-2 border-gray-100 group cursor-pointer hover:bg-[#001d3d] hover:border-[#001d3d] hover:text-white hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 shadow-lg flex-shrink-0 flex flex-col">
+                <div
+                  data-goal-index="2"
+                  className={`rounded-[40px] p-5 min-w-[110px] md:min-w-[130px] h-auto snap-center border-2 cursor-pointer shadow-2xl -translate-y-2 transition-all duration-300 flex-shrink-0 flex flex-col ${
+                    activeGoalIndex === 2
+                      ? 'bg-[#001d3d] border-[#001d3d] text-white'
+                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg translate-y-0'
+                  }`}
+                >
                   <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-white">Passives Einkommen</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed group-hover:text-slate-300 mb-4">
+                  <h3 className={`text-xl font-bold mb-3 ${activeGoalIndex === 2 ? 'text-white' : 'text-[#001d3d]'}`}>Passives Einkommen</h3>
+                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 2 ? 'text-slate-300' : 'text-gray-600'}`}>
                     Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
                   </p>
-                  <ul className="space-y-2 text-xs text-gray-500 group-hover:text-slate-400">
+                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 2 ? 'text-slate-400' : 'text-gray-500'}`}>
                     <li>✓ Realistische Mieteinnahmen-Prognose</li>
                     <li>✓ Alle Nebenkosten berücksichtigt</li>
                     <li>✓ Monatlicher Netto-Cashflow</li>
@@ -931,7 +976,7 @@ export default function LandingPage() {
 
               <div className="flex justify-center gap-6 flex-wrap">
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -943,7 +988,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -955,7 +1000,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -967,7 +1012,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
@@ -979,7 +1024,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 5 */}
-                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[280px] shadow-xl flex flex-col items-center text-center">
+                <div className="bg-white rounded-[32px] p-6 border-2 border-gray-100 w-[210px] shadow-xl flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     J
                   </div>
