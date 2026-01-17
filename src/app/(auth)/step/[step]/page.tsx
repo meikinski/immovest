@@ -1779,7 +1779,7 @@ const exportPdf = React.useCallback(async () => {
   {isCommentLocked && !isLoadingComment && (
     <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
       <div className="text-center p-4 max-w-sm">
-        <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+        <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
           <Lock className="w-6 h-6 text-white" />
         </div>
         <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
@@ -1845,7 +1845,7 @@ const exportPdf = React.useCallback(async () => {
             {(!isSignedIn || !canAccessPremium) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
                 <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
                     <Lock className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
@@ -1985,7 +1985,7 @@ const exportPdf = React.useCallback(async () => {
             {(!isSignedIn || !canAccessPremium) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
                 <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
                     <Lock className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
