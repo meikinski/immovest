@@ -1,15 +1,15 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 
-type Step = 'input-method' | 'a' | 'b' | 'c' | 'tabs';
+type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
 
 interface ProgressProps {
   currentStep: Step;
 }
 
 const STEPS: Array<{ key: Step; label: string }> = [
-  { key: 'input-method', label: 'Schritt 1' },
-  { key: 'a', label: 'Schritt 2' },
+  { key: 'a', label: 'Schritt 1' },
+  { key: 'a2', label: 'Schritt 2' },
   { key: 'b', label: 'Schritt 3' },
   { key: 'c', label: 'Schritt 4' },
   { key: 'tabs', label: 'Schritt 5' },

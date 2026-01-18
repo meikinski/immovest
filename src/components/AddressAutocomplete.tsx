@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { InputField } from "@/components/InputField";
 
 // Typ richtig angepasst: formatted liegt in properties
 type Suggestion = {
@@ -67,20 +66,23 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
 
   return (
     <div className="relative">
-      <InputField
-        label=""
-        className="input-uniform input-editable"
+      <input
+        type="text"
         value={value}
-        onValueChange={onChange} // ✅ das war vorher `onChange`
-        onFocus={() => setShowSuggestions(true)}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={(e) => {
+          e.target.select();
+          setShowSuggestions(true);
+        }}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-        placeholder="z. B. 10115 Berlin oder Mainzer Str. 10"
+        placeholder="z. B. 10115 Berlin oder Mainzer Str. 10"
+        className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
       />
 
       {showSuggestions && value.length >= 2 && (
-        <div className="absolute z-10 bg-white border border-gray-200 rounded-md mt-1 w-full shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-20 bg-white border-2 border-slate-200 rounded-2xl mt-2 w-full shadow-xl max-h-60 overflow-y-auto">
           {isSearching ? (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="p-4 text-center text-sm text-slate-500 font-semibold">
               Suche läuft...
             </div>
           ) : suggestions.length > 0 ? (
@@ -88,7 +90,7 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
               {suggestions.map((sug, idx) => (
                 <li
                   key={idx}
-                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                  className="p-3 hover:bg-slate-50 cursor-pointer text-sm font-semibold text-slate-700 border-b border-slate-100 last:border-b-0 transition-colors"
                   onClick={() => handleSelect(sug)}
                 >
                   {sug.properties.formatted}
@@ -96,7 +98,7 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
               ))}
             </ul>
           ) : (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="p-4 text-center text-sm text-slate-500 font-semibold">
               Keine Ergebnisse gefunden. Versuche eine andere Adresse.
             </div>
           )}

@@ -26,8 +26,8 @@ import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 
 
 
-type Step = 'input-method' | 'a' | 'b' | 'c' | 'tabs';
-const steps = ['a', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
+type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
+const steps = ['a', 'a2', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
 
 function cityFromAddress(addr: string): string {
   // erwartet Formate wie "Straße 1, 12345 Stadt" oder "... , Stadt"
@@ -314,8 +314,10 @@ const dscr =
     const missing: string[] = [];
 
     if (currentStep === 'a') {
-      // Step A validation
+      // Step A validation - only Kaufpreis
       if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
+    } else if (currentStep === 'a2') {
+      // Step A2 validation - Objektdaten
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
@@ -862,11 +864,10 @@ const exportPdf = React.useCallback(async () => {
       <>
         {/* Badge & Title */}
         <div className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Datenerhebung</span>
+          <div className="inline-block px-4 py-1.5 bg-orange-100 rounded-full mb-4">
+            <span className="text-[10px] font-black text-[#ff6b00] uppercase tracking-[0.15em]">Schritt 1</span>
           </div>
-          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Kaufpreis & Objektdaten.</h1>
-          <p className="text-slate-600">Gib die grundlegenden Informationen zu deinem Objekt ein.</p>
+          <h1 className="text-5xl md:text-6xl font-black text-[#001d3d]">Kaufpreis & Nebenkosten.</h1>
         </div>
 
         {/* Input Container */}
@@ -881,9 +882,9 @@ const exportPdf = React.useCallback(async () => {
                 type="text"
                 value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
                 onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
-              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
           </div>
 
@@ -912,9 +913,9 @@ const exportPdf = React.useCallback(async () => {
                           type="text"
                           value={item.text}
                           onChange={(e) => item.setText(e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                          onFocus={(e) => e.target.select()}
+                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                         />
-                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                       </div>
                     </div>
                   </div>
@@ -954,9 +955,9 @@ const exportPdf = React.useCallback(async () => {
                       type="text"
                       value={sonstigeKostenText}
                       onChange={(e) => setSonstigeKostenText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
                 </div>
               </div>
@@ -991,9 +992,45 @@ const exportPdf = React.useCallback(async () => {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-8">
+          <button
+            onClick={handleNavigateToNextStep}
+            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+          >
+            Weiter
+          </button>
+        </div>
+      </>
+    );
+
+  } else if (step === 'a2') {
+    content = (
+      <>
+        {/* Back Button, Badge & Title */}
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+        </div>
+
+        <div className="text-center mb-8">
+          <div className="inline-block px-4 py-1.5 bg-orange-100 rounded-full mb-4">
+            <span className="text-[10px] font-black text-[#ff6b00] uppercase tracking-[0.15em]">Schritt 2</span>
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black text-[#001d3d]">Objektdaten.</h1>
+        </div>
+
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
 
           {/* Objekttyp */}
-          <div className="space-y-1.5 pt-4">
+          <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
             <div className="flex justify-center gap-2 p-1.5 bg-slate-200 rounded-full">
               <button
@@ -1001,8 +1038,8 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('wohnung')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'wohnung'
-                    ? 'bg-white shadow-md text-[#ff6b00]'
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-[#ff6b00] text-white'
+                    : 'bg-white text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 <span className="hidden sm:inline">Eigentumswohnung</span>
@@ -1013,8 +1050,8 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('haus')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'haus'
-                    ? 'bg-white shadow-md text-[#ff6b00]'
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-[#ff6b00] text-white'
+                    : 'bg-white text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 Haus
@@ -1024,8 +1061,8 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('mfh')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'mfh'
-                    ? 'bg-white shadow-md text-[#ff6b00]'
-                    : 'text-slate-600 hover:text-slate-800'
+                    ? 'bg-[#ff6b00] text-white'
+                    : 'bg-white text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 <span className="hidden sm:inline">Mehrfamilienhaus</span>
@@ -1038,13 +1075,11 @@ const exportPdf = React.useCallback(async () => {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Adresse</label>
             <div className="relative group">
-              <MapPin className="absolute left-4 top-4 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
-              <div className="pl-8">
-                <AddressAutocomplete
-                  value={adresse}
-                  onChange={(val: string) => setAdresse(val)}
-                />
-              </div>
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
+              <AddressAutocomplete
+                value={adresse}
+                onChange={(val: string) => setAdresse(val)}
+              />
             </div>
           </div>
 
@@ -1064,6 +1099,7 @@ const exportPdf = React.useCallback(async () => {
                   type="text"
                   value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
                   onChange={(e) => objekttyp === 'mfh' ? setAnzahlWohneinheiten(Number(e.target.value)) : setZimmer(Number(e.target.value))}
+                  onFocus={(e) => e.target.select()}
                   className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
               </div>
@@ -1088,9 +1124,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={mounted ? flaecheText : flaecheText}
                     onChange={(e) => setFlaecheText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">m²</span>
                 </div>
               </div>
               {objekttyp === 'mfh' && (
@@ -1108,6 +1144,7 @@ const exportPdf = React.useCallback(async () => {
                 type="text"
                 value={baujahr.toString()}
                 onChange={(e) => setBaujahr(Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
             </div>
@@ -1118,10 +1155,9 @@ const exportPdf = React.useCallback(async () => {
         <div className="mt-8">
           <button
             onClick={handleNavigateToNextStep}
-            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
-            <span>Weiter</span>
-            <SkipForward size={20} />
+            Weiter
           </button>
         </div>
       </>
@@ -1133,7 +1169,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Back Button, Badge & Title */}
         <div className="flex items-center mb-6">
           <button
-            onClick={() => router.push('/step/a')}
+            onClick={() => router.push('/step/a2')}
             className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
@@ -1172,9 +1208,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={miete.toString()}
                     onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
               </div>
 
@@ -1234,9 +1270,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={hausUmlegText}
                     onChange={(e) => setHausUmlegText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
               </div>
 
@@ -1263,9 +1299,9 @@ const exportPdf = React.useCallback(async () => {
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
                 </div>
               )}
@@ -1293,9 +1329,9 @@ const exportPdf = React.useCallback(async () => {
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
-                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
                 </div>
               )}
@@ -1381,7 +1417,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Kalk. Mietausfall
                   <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1393,9 +1429,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={mietausfallText}
                     onChange={(e) => setMietausfallText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
               </div>
 
@@ -1404,7 +1440,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Instandhaltungskosten /qm
                   <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1416,9 +1452,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={instandText}
                     onChange={(e) => setInstandText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
               </div>
             </div>
@@ -1434,7 +1470,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   AfA Satz (% p.a.)
                   <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1446,9 +1482,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={afaText}
                     onChange={(e) => setAfaText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
               </div>
 
@@ -1457,7 +1493,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Anteil Gebäude am Kaufpreis (%)
                   <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1469,9 +1505,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={gebText}
                     onChange={(e) => setGebText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
               </div>
 
@@ -1480,7 +1516,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
                 className="space-y-1.5 col-span-full"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Pers. Steuersatz (%)
                   <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1492,9 +1528,9 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     value={persText}
                     onChange={(e) => setPersText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
-                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
               </div>
             </div>
@@ -1504,17 +1540,16 @@ const exportPdf = React.useCallback(async () => {
         {/* Buttons */}
         <div className="mt-8 flex gap-4">
           <button
-            onClick={() => router.push('/step/a')}
+            onClick={() => router.push('/step/a2')}
             className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
             onClick={handleNavigateToNextStep}
-            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
-            <span>Weiter</span>
-            <SkipForward size={20} />
+            Weiter
           </button>
         </div>
       </>
@@ -1553,9 +1588,8 @@ const exportPdf = React.useCallback(async () => {
                 value={mounted ? ek.toLocaleString('de-DE') : '0'}
                 onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
                 onFocus={(e) => e.target.select()}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
-              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
           </div>
 
@@ -1611,9 +1645,9 @@ const exportPdf = React.useCallback(async () => {
                   type="text"
                   value={zinsText}
                   onChange={(e) => setZinsText(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
-                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
               </div>
             </div>
 
@@ -1632,9 +1666,9 @@ const exportPdf = React.useCallback(async () => {
                   type="text"
                   value={tilgungText}
                   onChange={(e) => setTilgungText(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
-                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
               </div>
             </div>
           </div>
@@ -1672,10 +1706,9 @@ const exportPdf = React.useCallback(async () => {
           </button>
           <button
             onClick={handleNavigateToNextStep}
-            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
-            <span>Berechnen</span>
-            <Calculator size={20} />
+            Investment analysieren
           </button>
         </div>
       </>
