@@ -25,11 +25,12 @@ export default function PricingCards({}: PricingCardsProps) {
 
   // Swipe handlers for mobile carousel
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
+    setTouchStart(e.touches[0].clientX);
+    setTouchEnd(0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    setTouchEnd(e.touches[0].clientX);
   };
 
   const handleTouchEnd = () => {
@@ -44,10 +45,6 @@ export default function PricingCards({}: PricingCardsProps) {
     } else if (isRightSwipe && activeIndex > 0) {
       setActiveIndex((prev) => prev - 1);
     }
-
-    // Reset values
-    setTouchStart(0);
-    setTouchEnd(0);
   };
 
   // Beide Abos haben die gleichen Features, nur unterschiedlicher Preis
@@ -239,12 +236,13 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden w-full pt-6">
+      <div className="md:hidden w-full pt-6 -mx-4">
         <div
-          className="relative overflow-hidden"
+          className="relative overflow-hidden touch-pan-x"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          style={{ touchAction: 'pan-x' }}
         >
           <div
             className="flex transition-transform duration-500 ease-out"
