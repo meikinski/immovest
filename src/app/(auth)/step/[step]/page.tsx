@@ -889,7 +889,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="pt-4">
             <h3 className="text-sm font-bold text-slate-700 mb-4">Kaufnebenkosten</h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               {[
                 { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur },
                 { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
@@ -1776,7 +1776,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
-            <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* KPI Card 1 - Bruttomietrendite */}
               <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-1 mb-1.5">
@@ -1988,18 +1988,18 @@ const exportPdf = React.useCallback(async () => {
 
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-[2.5rem]">
-      <div className="text-center p-4 max-w-sm">
-        <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-          <Lock className="w-6 h-6 text-white" />
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[2.5rem] p-6">
+      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+        <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+          <Lock className="w-7 h-7 text-white" />
         </div>
-        <h3 className="text-lg font-black mb-2 text-[#001d3d]">KI-Einschätzung freischalten</h3>
-        <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+        <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
+        <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
           Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
         </p>
         <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-          <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-            <Lock size={16} />
+          <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+            <Lock size={18} />
             Kostenlos anmelden
           </button>
         </SignInButton>
@@ -2058,19 +2058,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-black mb-2 text-[#001d3d]">Premium Feature</h3>
-                  <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                     Schalte Marktvergleich & Lageanalyse frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2078,12 +2078,12 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-[10px] text-slate-500 mt-2">
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                           : 'Nur 13,99 €/Monat'}
@@ -2210,19 +2210,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-black mb-2 text-[#001d3d]">Premium Feature</h3>
-                  <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                     Schalte Szenarien & PDF Export frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2230,12 +2230,12 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-[10px] text-slate-500 mt-2">
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                           : 'Nur 13,99 €/Monat'}
