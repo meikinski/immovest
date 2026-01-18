@@ -66,24 +66,24 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-white rounded-[2.5rem] max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border-2 border-slate-100">
         {/* Header */}
-        <div className="relative bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white p-8 rounded-t-2xl">
+        <div className="relative bg-gradient-to-br from-[#001d3d] to-[#001d3d]/90 text-white p-10 rounded-t-[2.5rem]">
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/20 transition"
+            className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/20 transition-all"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
 
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Crown className="w-7 h-7 text-yellow-300" />
+          <div className="flex items-center gap-4 mb-3">
+            <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center shadow-lg">
+              <Crown className="w-9 h-9 text-white" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold">Premium freischalten</h2>
-              <p className="text-white/80 text-sm">
+              <h2 className="text-3xl font-black tracking-tight">Premium freischalten</h2>
+              <p className="text-white/70 text-sm font-semibold mt-1">
                 {remainingFreeUses > 0
                   ? `Noch ${remainingFreeUses} kostenlose Premium-Analyse${remainingFreeUses > 1 ? 'n' : ''} verfügbar`
                   : 'Deine kostenlosen Premium-Analysen sind aufgebraucht'
@@ -94,11 +94,11 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
         </div>
 
         {/* Content */}
-        <div className="p-8">
-          {/* Features - Beide Abos haben die gleichen Features */}
-          <div className="mb-6">
-            <h3 className="font-semibold text-lg mb-4">Premium Features:</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="p-10">
+          {/* Features */}
+          <div className="mb-8">
+            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-5">Premium Features</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
                 'Unbegrenzte Markt- & Lageanalysen',
                 'KI-gestützte Investitionsempfehlungen',
@@ -107,59 +107,59 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
                 'Premium-Support',
                 'Gespeicherte Analysen ohne Limit',
               ].map((feature, idx) => (
-                <div key={idx} className="flex items-start gap-2">
-                  <div className="w-5 h-5 bg-[hsl(var(--success))]/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check size={12} className="text-[hsl(var(--success))]" />
+                <div key={idx} className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check size={14} className="text-green-600 font-bold" />
                   </div>
-                  <span className="text-sm text-gray-700">{feature}</span>
+                  <span className="text-sm font-semibold text-slate-700">{feature}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-2xl text-red-700 text-sm font-semibold">
               {error}
             </div>
           )}
 
           {/* Pricing Options */}
-          <div className="space-y-4 mb-6">
-            {/* Yearly Plan */}
-            <div className="relative border-2 border-[hsl(var(--brand))] rounded-xl p-5 bg-gradient-to-br from-[hsl(var(--brand))]/5 to-white">
-              <div className="absolute -top-3 left-4 px-3 py-1 bg-[hsl(var(--brand))] text-white text-xs font-semibold rounded-full">
+          <div className="space-y-5 mb-6">
+            {/* Yearly Plan - Recommended */}
+            <div className="relative border-2 border-[#ff6b00] rounded-[2rem] p-6 bg-gradient-to-br from-orange-50/50 to-white shadow-lg">
+              <div className="absolute -top-3 left-6 px-4 py-1.5 bg-[#ff6b00] text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-lg">
                 Spare 59%
               </div>
 
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[hsl(var(--brand))]/10 rounded-lg flex items-center justify-center">
-                    <Crown className="w-5 h-5 text-[hsl(var(--brand))]" />
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#ff6b00]/10 rounded-xl flex items-center justify-center">
+                    <Crown className="w-6 h-6 text-[#ff6b00]" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg">Jahresabo</h4>
-                    <p className="text-xs text-gray-600">Nur 5,75 € pro Monat</p>
+                    <h4 className="font-black text-xl text-[#001d3d]">Jahresabo</h4>
+                    <p className="text-sm text-slate-600 font-semibold">Nur 5,75 € pro Monat</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-[hsl(var(--brand))]">69 €</div>
-                  <div className="text-xs text-gray-500 line-through">167,88 €</div>
+                  <div className="text-3xl font-black text-[#ff6b00]">69 €</div>
+                  <div className="text-xs text-slate-500 line-through font-semibold">167,88 €</div>
                 </div>
               </div>
 
               <button
                 onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!, 'yearly')}
                 disabled={isLoading}
-                className="w-full bg-[hsl(var(--brand))] text-white py-3 rounded-lg font-semibold hover:bg-[hsl(var(--brand-2))] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-[#ff6b00] text-white py-4 rounded-2xl font-bold text-base hover:bg-[#ff6b00]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 size={18} className="animate-spin" />
+                    <Loader2 size={20} className="animate-spin" />
                     Wird geladen...
                   </>
                 ) : (
                   <>
-                    <Sparkles size={18} />
+                    <Sparkles size={20} />
                     Jahresabo wählen
                   </>
                 )}
@@ -167,27 +167,27 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
             </div>
 
             {/* Monthly Plan */}
-            <div className="border-2 border-gray-200 rounded-xl p-5 hover:border-gray-300 transition-colors">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-gray-600" />
+            <div className="border-2 border-slate-200 rounded-[2rem] p-6 hover:border-slate-300 transition-all bg-white">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-slate-600" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-lg">Monatsabo</h4>
-                    <p className="text-xs text-gray-600">Jederzeit kündbar</p>
+                    <h4 className="font-black text-xl text-[#001d3d]">Monatsabo</h4>
+                    <p className="text-sm text-slate-600 font-semibold">Jederzeit kündbar</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold">13,99 €</div>
-                  <div className="text-xs text-gray-500">pro Monat</div>
+                  <div className="text-3xl font-black text-[#001d3d]">13,99 €</div>
+                  <div className="text-xs text-slate-500 font-semibold">pro Monat</div>
                 </div>
               </div>
 
               <button
                 onClick={() => handleSelectPlan(process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!, 'monthly')}
                 disabled={isLoading}
-                className="w-full bg-gray-100 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#001d3d] text-white py-4 rounded-2xl font-bold text-base hover:bg-[#001d3d]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 Monatsabo wählen
               </button>
@@ -195,7 +195,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
           </div>
 
           {/* Trust indicators */}
-          <div className="text-center text-xs text-gray-500 mb-4">
+          <div className="text-center text-sm text-slate-500 mb-6 font-semibold">
             🔒 Sichere Zahlung via Stripe • 14 Tage Geld-zurück-Garantie
           </div>
 
@@ -204,7 +204,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
             <div className="text-center">
               <button
                 onClick={onClose}
-                className="text-sm text-gray-600 hover:text-gray-800 transition"
+                className="text-sm text-slate-600 hover:text-slate-800 transition font-semibold"
               >
                 Später • Ich nutze meine {remainingFreeUses} kostenlosen Analyse{remainingFreeUses > 1 ? 'n' : ''}
               </button>
