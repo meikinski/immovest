@@ -863,16 +863,16 @@ const exportPdf = React.useCallback(async () => {
     content = (
       <>
         {/* Title */}
-        <div className="mb-10">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Kaufpreis & Nebenkosten.</h1>
+        <div className="text-center mb-12">
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Kaufpreis & Nebenkosten.</h1>
         </div>
 
         {/* Input Container */}
-        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
           {/* Kaufpreis */}
           <div className="space-y-1.5 w-full">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kaufpreis</label>
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Kaufpreis</label>
             <div className="relative group">
               <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
@@ -897,7 +897,7 @@ const exportPdf = React.useCallback(async () => {
               ].map((item, i) => (
                 <div key={i} className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
                     <div
                       onBlur={() => {
                         const num = Number(item.text.replace(',', '.'));
@@ -918,7 +918,7 @@ const exportPdf = React.useCallback(async () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Betrag</label>
+                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Betrag</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -934,7 +934,7 @@ const exportPdf = React.useCallback(async () => {
 
               {/* Sonstige Kosten */}
               <div className="space-y-1.5 col-span-full">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
                   Sonstige Kosten
                   <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -963,7 +963,7 @@ const exportPdf = React.useCallback(async () => {
             {/* Gesamtinvestition */}
             <div className="mt-6 pt-6 border-t border-slate-200">
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Gesamtinvestition</label>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Gesamtinvestition</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -1007,22 +1007,22 @@ const exportPdf = React.useCallback(async () => {
     content = (
       <>
         {/* Back Button & Title */}
-        <div className="flex items-center gap-6 mb-10">
+        <div className="flex items-center gap-6 mb-12">
           <button
             onClick={() => router.push('/step/a')}
             className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Objektdaten.</h1>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Objektdaten.</h1>
         </div>
 
         {/* Input Container */}
-        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
           {/* Objekttyp */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
             <div className="flex gap-3">
               <button
                 type="button"
@@ -1064,7 +1064,7 @@ const exportPdf = React.useCallback(async () => {
 
           {/* Adresse */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Adresse</label>
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Adresse</label>
             <div className="relative group">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
               <AddressAutocomplete
@@ -1077,7 +1077,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Zimmer/Wohneinheiten & Fläche */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">
                 {objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}
               </label>
               <div className="relative group">
@@ -1100,7 +1100,7 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">
                 {objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}
               </label>
               <div
@@ -1128,7 +1128,7 @@ const exportPdf = React.useCallback(async () => {
 
           {/* Baujahr */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Baujahr</label>
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Baujahr</label>
             <div className="relative group">
               <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
@@ -1164,18 +1164,18 @@ const exportPdf = React.useCallback(async () => {
     content = (
       <>
         {/* Back Button & Title */}
-        <div className="flex items-center gap-6 mb-10">
+        <div className="flex items-center gap-6 mb-12">
           <button
             onClick={() => router.push('/step/a2')}
             className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Ertrag & Hausgeld.</h1>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Ertrag & Hausgeld.</h1>
         </div>
 
         {/* Input Container */}
-        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
           {/* Mieteinnahmen Section */}
           <div>
@@ -1184,7 +1184,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Kaltmiete gesamt */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
                   {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
                   <Tooltip text={objekttyp === 'mfh'
                     ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
@@ -1206,7 +1206,7 @@ const exportPdf = React.useCallback(async () => {
 
               {/* Kaltmiete pro qm */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kaltmiete pro qm</label>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Kaltmiete pro qm</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -1246,7 +1246,7 @@ const exportPdf = React.useCallback(async () => {
                 }}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
                   {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
                   <Tooltip text={objekttyp === 'wohnung'
                     ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
@@ -1277,7 +1277,7 @@ const exportPdf = React.useCallback(async () => {
                   }}
                   className="space-y-1.5"
                 >
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
                     Hausgeld nicht umlagefähig
                     <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1305,7 +1305,7 @@ const exportPdf = React.useCallback(async () => {
                   }}
                   className="space-y-1.5"
                 >
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
                     Verwaltungskosten
                     <Tooltip text={objekttyp === 'mfh'
                       ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
@@ -1407,7 +1407,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Kalk. Mietausfall
                   <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1430,7 +1430,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Instandhaltungskosten /qm
                   <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1460,7 +1460,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   AfA Satz (% p.a.)
                   <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1483,7 +1483,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Anteil Gebäude am Kaufpreis (%)
                   <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1506,7 +1506,7 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
                 className="space-y-1.5 col-span-full"
               >
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
                   Pers. Steuersatz (%)
                   <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
                     <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
@@ -1548,22 +1548,22 @@ const exportPdf = React.useCallback(async () => {
     content = (
       <>
         {/* Back Button & Title */}
-        <div className="flex items-center gap-6 mb-10">
+        <div className="flex items-center gap-6 mb-12">
           <button
             onClick={() => router.push('/step/b')}
             className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Eigenkapital & Kredit.</h1>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Eigenkapital & Kredit.</h1>
         </div>
 
         {/* Input Container */}
-        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
           {/* Eigenkapital */}
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Eigenkapital</label>
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Eigenkapital</label>
             <div className="relative group">
               <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
@@ -1580,7 +1580,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Eigenkapitalquote */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Eigenkapitalquote</label>
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Eigenkapitalquote</label>
               <div className="relative">
                 <input
                   type="text"
@@ -1598,7 +1598,7 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Darlehenssumme */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Darlehenssumme</label>
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Darlehenssumme</label>
               <div className="relative">
                 <input
                   type="text"
@@ -1621,7 +1621,7 @@ const exportPdf = React.useCallback(async () => {
               }}
               className="space-y-1.5"
             >
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Zinssatz</label>
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Zinssatz</label>
               <div className="relative group">
                 <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
@@ -1642,7 +1642,7 @@ const exportPdf = React.useCallback(async () => {
               }}
               className="space-y-1.5"
             >
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Tilgung</label>
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Tilgung</label>
               <div className="relative group">
                 <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
@@ -1659,7 +1659,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Monatliche Rate */}
           <div className="pt-6 border-t border-slate-200">
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Monatliche Rate</label>
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Monatliche Rate</label>
               <div className="relative">
                 <input
                   type="text"
@@ -1701,34 +1701,36 @@ const exportPdf = React.useCallback(async () => {
       <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
         {/* Sticky Header */}
         <div className="bg-white border-b border-slate-200 z-40 shadow-sm flex-shrink-0">
-          <div className="px-6 lg:px-10 py-7 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-            <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-slate-50 text-[#001d3d] rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm">
-                <House size={28} />
+          <div className="px-6 lg:px-10 py-6">
+            <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-[#ff6b00] rounded-2xl flex items-center justify-center shadow-md">
+                  <House size={28} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-white">
+                    {shortAddress || adresse || 'Immobilie'}
+                  </h2>
+                  <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mt-1">
+                    {flaeche}m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-                  {shortAddress || adresse || 'Immobilie'}
-                </h2>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
-                  {flaeche}m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
-                </p>
-              </div>
-            </div>
 
-            <div className="flex gap-2">
-              <button
-                onClick={() => router.push('/step/c')}
-                className="px-3 py-2 text-[10px] font-semibold text-slate-500 hover:text-slate-700 transition-all"
-              >
-                Bearbeiten
-              </button>
-              <button
-                onClick={() => router.push('/step/a')}
-                className="px-3 py-2 text-[10px] font-semibold text-[#ff6b00] hover:text-[#ff6b00]/80 transition-all"
-              >
-                Neue Analyse
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => router.push('/step/c')}
+                  className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition-all backdrop-blur-sm border border-white/20"
+                >
+                  Bearbeiten
+                </button>
+                <button
+                  onClick={() => router.push('/step/a')}
+                  className="px-5 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
+                >
+                  Neue Analyse
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1767,97 +1769,97 @@ const exportPdf = React.useCallback(async () => {
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* KPI Card 1 - Bruttomietrendite */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <SquarePercent size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <SquarePercent size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bruttomietrendite</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Bruttomietrendite</span>
                 </div>
-                <div className="text-4xl font-black text-[#001d3d]">
+                <div className="text-3xl font-black text-[#001d3d]">
                   {bruttoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   Vereinfachte Berechnung ohne Nebenkosten
                 </p>
               </div>
 
               {/* KPI Card 2 - Nettomietrendite */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Percent size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Percent size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nettomietrendite</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Nettomietrendite</span>
                 </div>
-                <div className="text-4xl font-black text-[#001d3d]">
+                <div className="text-3xl font-black text-[#001d3d]">
                   {nettoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   {nettoMietrendite < 2 ? 'Schwach' : nettoMietrendite < 3 ? 'Solide' : 'Attraktiv'}
                 </p>
               </div>
 
               {/* KPI Card 3 - Cashflow vor Steuern */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Wallet size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Wallet size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashflow (vor St.)</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cashflow (vor St.)</span>
                 </div>
-                <div className={`text-4xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowVorSteuer.toFixed(0)}€
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst' : 'Monatlicher Zuschuss erforderlich'}
                 </p>
               </div>
 
               {/* KPI Card 4 - Cashflow nach Steuern */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ReceiptText size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ReceiptText size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashflow (nach St.)</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cashflow (nach St.)</span>
                 </div>
-                <div className={`text-4xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowAfterTax.toFixed(0)}€
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   Mit Steuerersparnis (AfA + Zinsen)
                 </p>
               </div>
 
               {/* KPI Card 5 - EK-Rendite */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <TrendingUp size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <TrendingUp size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">EK-Rendite</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">EK-Rendite</span>
                 </div>
-                <div className="text-4xl font-black text-[#001d3d]">
+                <div className="text-3xl font-black text-[#001d3d]">
                   {ekRendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   Der Hebeleffekt Ihres Kapitals
                 </p>
               </div>
 
               {/* KPI Card 6 - DSCR */}
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ShieldCheck size={20} className="text-[#ff6b00]" />
+              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ShieldCheck size={18} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">DSCR</span>
+                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">DSCR</span>
                 </div>
-                <div className={`text-4xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {dscr.toFixed(2)}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-3">
+                <p className="text-[10px] text-slate-400 mt-2">
                   {dscr >= 1.2 ? 'Solide' : dscr >= 1.0 ? 'Grenzwertig' : 'Kritisch'}
                 </p>
               </div>
@@ -1977,18 +1979,18 @@ const exportPdf = React.useCallback(async () => {
 
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-[2.5rem]">
-      <div className="text-center p-4 max-w-sm">
-        <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-          <Lock className="w-6 h-6 text-white" />
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-[2.5rem]">
+      <div className="text-center p-6 max-w-md">
+        <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <Lock className="w-8 h-8 text-white" />
         </div>
-        <h3 className="text-lg font-bold mb-2 text-[#001d3d]">KI-Einschätzung freischalten</h3>
-        <p className="text-gray-600 mb-3 text-xs">
+        <h3 className="text-2xl font-black mb-3 text-[#001d3d]">KI-Einschätzung freischalten</h3>
+        <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
           Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
         </p>
         <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-          <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-            <Lock size={16} />
+          <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
+            <Lock size={18} />
             Kostenlos anmelden
           </button>
         </SignInButton>
@@ -2047,19 +2049,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl">
+                <div className="text-center p-6 max-w-md">
+                  <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Lock className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-3 text-xs">
+                  <h3 className="text-2xl font-black mb-3 text-[#001d3d]">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
                     Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2067,15 +2069,15 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-slate-500 mt-3 font-semibold">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 19,90 €/Monat'}
+                          : 'Nur 13,99 €/Monat'}
                       </p>
                     </>
                   )}
@@ -2199,19 +2201,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl">
+                <div className="text-center p-6 max-w-md">
+                  <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Lock className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-3 text-xs">
+                  <h3 className="text-2xl font-black mb-3 text-[#001d3d]">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
                     Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2219,15 +2221,15 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-slate-500 mt-3 font-semibold">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 19,90 €/Monat'}
+                          : 'Nur 13,99 €/Monat'}
                       </p>
                     </>
                   )}
