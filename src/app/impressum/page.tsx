@@ -129,7 +129,7 @@ export default function ImpressumPage() {
               Haftung für Inhalte
             </h2>
             <div className="space-y-2 text-gray-700">
-              <p className="text-sm leading-relaxed">
+              <p className="leading-relaxed">
                 Wir sind als Diensteanbieterin für eigene Inhalte auf diesen Seiten nach den allgemeinen
                 Gesetzen verantwortlich. Wir sind jedoch nicht verpflichtet, übermittelte oder gespeicherte
                 fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige
@@ -145,7 +145,7 @@ export default function ImpressumPage() {
               Haftung für Links
             </h2>
             <div className="space-y-2 text-gray-700">
-              <p className="text-sm leading-relaxed">
+              <p className="leading-relaxed">
                 Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen
                 Einfluss haben. Deshalb können wir für diese fremden Inhalte keine Gewähr übernehmen.
                 Für die Inhalte der verlinkten Seiten ist stets die jeweilige Anbieterin oder Betreiberin
@@ -161,7 +161,7 @@ export default function ImpressumPage() {
               Urheberrecht
             </h2>
             <div className="space-y-2 text-gray-700">
-              <p className="text-sm leading-relaxed">
+              <p className="leading-relaxed">
                 Die auf dieser Website veröffentlichten Inhalte und Werke unterliegen dem deutschen
                 Urheberrecht. Jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedarf
                 der vorherigen schriftlichen Zustimmung der Rechteinhaberin. Downloads und Kopien dieser

@@ -7,39 +7,39 @@
 html, body, #__next, .app-root { background: hsl(var(--bg)); }
 
 :root{
-  /* Motion & Radius */
-  --radius-sm: 10px; --radius: 16px; --radius-lg: 20px;
-  --ease-snap: cubic-bezier(.2,.8,.2,1);
+  /* Motion & Radius - Apple-Style */
+  --radius-sm: 10px; --radius: 32px; --radius-lg: 40px;
+  --ease-snap: cubic-bezier(.4, 0, .2, 1);
   --dur-1: 120ms; --dur-2: 240ms; --dur-3: 360ms;
 
-  /* Neutrals (aus dem Shot) */
-  --bg: 214 0% 99%;          /* sehr helles Sky (Seitenhintergrund)  #DDE8F9~ */
-  --fg: 222 47% 15%;          /* Text                                #0F172A   */
-  --card: 0 0% 100%;          /* klare Cards                         #FFFFFF   */
-  --muted: 214 66% 89%;       /* Pale Sky                            #AEBBD9~  */
-  --muted-foreground: 213 19% 46%; /* ruhiges Slate-Text           #6C7F99   */
+  /* Neutrals - Apple Gray System */
+  --bg: 0 0% 100%;            /* Clean White Background              #FFFFFF   */
+  --fg: 0 0% 11%;             /* Text - Deep Dark                    #1d1d1f   */
+  --card: 0 0% 100%;          /* Card Background - White             #FFFFFF   */
+  --muted: 0 0% 96%;          /* Apple Gray - Light                  #f5f5f7   */
+  --muted-foreground: 0 0% 45%; /* Medium Gray                       #737373   */
 
-  /* Brand */
-  --brand: 214 61% 28%;       /* Navy (Primary)                      #264171   */
+  /* Brand - Navy & Orange (Apple-inspired) */
+  --brand: 210 100% 12%;      /* Deep Navy (Primary)                 #001d3d   */
   --brand-foreground: 0 0% 100%;
 
   /* Accent */
-  --accent: 217 47% 66%;      /* Slate                               #6C7F99   */
+  --accent: 0 0% 60%;         /* Neutral Gray for subtle accents     #999999   */
   --accent-foreground: 0 0% 100%;
 
-  /* Zweite Brand für Gradients & Secondary */
-  --brand-2: 18.3 59% 53.1%;      /* warmes Peach (etwas dunkler)        ~#E6AE63  */
+  /* Secondary Brand - Vibrant Orange */
+  --brand-2: 25 100% 50%;     /* Vibrant Orange (Secondary/CTA)      #ff6b00   */
 
   /* Semantik (neutral gehalten) */
   --success: 152 55% 38%;
   --warning: 38 95% 52%;
   --danger: 0 70% 50%;
 
-  /* Typografie */
+  /* Typografie - Apple System */
   --font-size-h1: 24px;
   --font-size-label: 14px;
   --font-size-placeholder: 16px;
-  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600;
+  --fw-regular: 400; --fw-medium: 500; --fw-semibold: 600; --fw-bold: 700; --fw-extrabold: 800;
 
   /* -------- Bridge: alte Variablen → neue Tokens -------- */
   --color-primary:           hsl(var(--brand));
@@ -75,9 +75,10 @@ body{
 
 strong{ background:transparent; padding:0; border-radius:0; font-weight:var(--fw-semibold); }
 
-h1,.page-heading{ font-size:24px; line-height:1.25; font-weight:600; margin-bottom:1rem; }
+/* Global headline rules removed to allow Tailwind utility classes to work */
+/* h1,.page-heading{ font-size:24px; line-height:1.25; font-weight:600; margin-bottom:1rem; }
 h2{ font-size:18px; line-height:1.35; font-weight:600; }
-h3{ font-size:16px; line-height:1.35; font-weight:600; }
+h3{ font-size:16px; line-height:1.35; font-weight:600; } */
 .text-subtle{ color:hsl(var(--muted-foreground)); }
 label,.form-label{ font-size:var(--font-size-label); font-weight:var(--fw-medium); margin-bottom:.5rem; }
 
@@ -86,88 +87,160 @@ input::placeholder,textarea::placeholder{
 }
 
 /* ==============================================
-   Cards & Container
+   Cards & Container - Apple-Style Design System
    ============================================== */
 
 .card{
-  background:hsl(var(--card));
-  border-radius:.75rem;
-  border:1px solid hsl(var(--muted-foreground)/.14);
-  box-shadow:
-    0 1px 2px hsl(0 0% 0%/.05),
-    0 10px 24px hsl(0 0% 0%/.06);
-  padding:1.5rem;
+  background:white;
+  border-radius:2.5rem; /* 40px rounded-[40px] */
+  border:2px solid hsl(0 0% 93%); /* border-gray-100 */
+  box-shadow: 0 1px 3px hsl(0 0% 0%/.08);
+  padding:2.5rem; /* 40px */
   margin-bottom:1.5rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dezentes Card-Overlay (optional) */
+.card:hover{
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px hsl(0 0% 0%/.15);
+  border-color: hsl(var(--brand-2) / .30); /* orange border on hover */
+}
+
+/* Gradient Card Variant - Navy/Orange Theme */
 .card-gradient{
-  background-image:linear-gradient(135deg,
-    hsl(var(--muted)/.5) 0%,
-    hsl(var(--accent)/.06) 55%,
-    hsl(var(--brand-2)/.08) 100%
+  background:linear-gradient(135deg,
+    hsl(var(--brand) / .03) 0%,
+    white 50%,
+    hsl(var(--brand-2) / .03) 100%
   );
-  border-radius:.75rem;
-  border:1px solid hsl(var(--muted-foreground)/.12);
-  box-shadow:
-    0 1px 2px hsl(0 0% 0%/.04),
-    0 10px 28px hsl(0 0% 0%/.06);
-  padding:1.5rem;
+  border-radius:2.5rem;
+  border:2px solid hsl(0 0% 93%);
+  box-shadow: 0 1px 3px hsl(0 0% 0%/.08);
+  padding:2.5rem;
   margin-bottom:1.5rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-gradient:hover{
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px hsl(var(--brand-2) / .15);
+  border-color: hsl(var(--brand-2) / .30);
 }
 
 .card-scenario{
-  background-image: linear-gradient(135deg,
-    hsl(var(--muted)/.5) 0%,
-    hsl(var(--accent) / .06) 55%,
-    hsl(var(--brand-2) / .08) 100%
+  background: linear-gradient(to-br,
+    hsl(var(--brand-2) / .05),
+    white
   );
-  border:1px solid hsl(var(--accent)/.25);
-  border-radius:.75rem;
-  box-shadow:
-    0 2px 6px hsl(0 0% 0%/.05),
-    0 12px 28px hsl(0 0% 0%/.06);
-  padding:1.5rem;
+  border:2px solid hsl(var(--brand-2) / .20);
+  border-radius:2.5rem;
+  box-shadow: 0 4px 12px hsl(var(--brand-2) / .08);
+  padding:2.5rem;
   margin-bottom:1.5rem;
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-scenario:hover{
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px hsl(var(--brand-2) / .15);
+  border-color: hsl(var(--brand-2) / .40);
 }
 
 /* ==============================================
-   Buttons
+   Buttons - Apple-Style Design System
    ============================================== */
 
-/* Primary (Navy) */
+/* Primary Button (Navy #001d3d) */
 .btn-primary{
-  @apply px-8 h-12 rounded-full font-semibold text-white;
-  background:hsl(var(--brand));
-  box-shadow:0 2px 4px hsl(var(--brand)/.20);
-  transition:opacity var(--dur-1) var(--ease-snap), box-shadow var(--dur-1) var(--ease-snap), transform var(--dur-1) var(--ease-snap);
-  display:inline-flex; align-items:center; justify-content:center; /* Text immer mittig */
+  @apply px-10 py-4 rounded-full font-bold text-white;
+  background:hsl(var(--brand)); /* Navy */
+  box-shadow: 0 4px 14px hsl(var(--brand)/.25);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 1rem; /* 16px */
+  letter-spacing: -0.01em;
 }
-.btn-primary:hover{ opacity:.96; box-shadow:0 6px 20px hsl(var(--brand)/.28); transform:translateY(-1px); }
-.btn-primary:focus-visible{ outline:none; box-shadow:0 0 0 3px hsl(var(--brand)/.22); }
+.btn-primary:hover{
+  background:hsl(var(--brand) / .92);
+  box-shadow: 0 10px 30px hsl(var(--brand)/.35);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-primary:active{
+  transform: translateY(0) scale(0.98);
+}
+.btn-primary:focus-visible{
+  outline:none;
+  box-shadow: 0 0 0 4px hsl(var(--brand)/.25);
+}
 
-/* Secondary (Outline in Peach) */
+/* Secondary Button (Orange #ff6b00) */
 .btn-secondary{
-  @apply px-6 h-12 rounded-full font-semibold;
-  color:hsl(var(--brand-2));
-  background:white;
-  border:2px solid hsl(var(--brand-2));
-  transition:background-color var(--dur-1) var(--ease-snap), box-shadow var(--dur-1) var(--ease-snap);
+  @apply px-10 py-4 rounded-full font-bold;
+  color:white;
+  background: hsl(var(--brand-2)); /* Orange */
+  box-shadow: 0 4px 14px hsl(var(--brand-2)/.25);
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
 }
-.btn-secondary:hover{ background:hsl(var(--brand-2)/.12); box-shadow:0 2px 8px hsl(var(--brand-2)/.20); transform:translateY(-1px); }
-.btn-secondary:focus-visible{ outline:none; box-shadow:0 0 0 3px hsl(var(--brand-2)/.22); }
+.btn-secondary:hover{
+  background: hsl(var(--brand-2) / .92);
+  box-shadow: 0 10px 30px hsl(var(--brand-2)/.35);
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-secondary:active{
+  transform: translateY(0) scale(0.98);
+}
+.btn-secondary:focus-visible{
+  outline:none;
+  box-shadow: 0 0 0 4px hsl(var(--brand-2)/.25);
+}
 
-/* Back / Ghost-CTA (Navy→Slate) */
-.btn-back{
-  @apply px-4 h-12 rounded-full font-semibold text-white;
-  background: hsl(var(--brand));
-  box-shadow:0 2px 4px hsl(var(--brand)/.20);
-  transition:opacity var(--dur-1) var(--ease-snap); 
+/* Outline Button (Navy Outline) */
+.btn-outline{
+  @apply px-10 py-4 rounded-full font-bold;
+  color: hsl(var(--brand));
+  background: white;
+  border: 2px solid hsl(var(--brand));
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
 }
-.btn-back:hover{ opacity:.85;box-shadow:0 6px 20px hsl(var(--brand)/.28); transform:translateY(-1px); }
+.btn-outline:hover{
+  background: hsl(var(--brand) / .05);
+  border-color: hsl(var(--brand) / .80);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px hsl(var(--brand)/.15);
+}
+.btn-outline:active{
+  transform: translateY(0) scale(0.98);
+}
+
+/* Back Button */
+.btn-back{
+  @apply px-6 py-3 rounded-full font-semibold;
+  background: hsl(0 0% 95%);
+  color: hsl(var(--brand));
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.btn-back:hover{
+  background: hsl(0 0% 90%);
+  transform: translateY(-1px);
+}
 
 /* ==============================================
-   Inputs & Utilities
+   Inputs & Utilities - Apple-Style Design System
    ============================================== */
 
 @layer utilities{
@@ -176,60 +249,94 @@ input::placeholder,textarea::placeholder{
     @apply bg-white/70 backdrop-blur supports-[backdrop-filter]:bg-white/50;
   }
 
+  /* Editable Input - Rounded with subtle border */
   .input-editable{
-    @apply px-4 py-3 text-base bg-white;
-    border:1px solid hsl(215 16% 80%);
-    border-radius:.375rem;
-    transition:box-shadow var(--dur-1) var(--ease-snap), border-color var(--dur-1) var(--ease-snap);
+    @apply px-5 py-4 text-base bg-white;
+    border: 2px solid hsl(0 0% 90%); /* Subtle gray border */
+    border-radius: 1rem; /* rounded-2xl */
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 16px; /* Body Base */
+    line-height: 1.5;
+  }
+  .input-editable:hover{
+    border-color: hsl(0 0% 80%);
   }
   .input-editable:focus{
     outline:none;
-    border-color:hsl(var(--brand-2));               /* Orange-Fokus */
-    box-shadow:0 0 0 3px hsl(var(--brand-2)/.20);   /* softer Glow */
-   }
-
-.input-total{
-    @apply px-4 py-3 text-base text-center font-semibold;
-    background: hsl(var(--brand-2) / .10);
-    border: 1px solid hsl(var(--brand-2) / .35);
-    border-radius: .75rem;
-    cursor:not-allowed;
+    border-color: hsl(var(--brand-2)); /* Orange focus */
+    box-shadow: 0 0 0 4px hsl(var(--brand-2)/.15);
+    transform: translateY(-1px);
   }
 
+  /* Total/Result Input - Orange Highlight */
+  .input-total{
+    @apply px-5 py-4 text-base text-center font-bold;
+    background: linear-gradient(135deg, hsl(var(--brand-2) / .08), hsl(var(--brand-2) / .12));
+    border: 2px solid hsl(var(--brand-2) / .30);
+    border-radius: 1rem;
+    cursor: not-allowed;
+    font-size: 16px;
+  }
   .input-total:focus {
-    outline:none; box-shadow:none;
+    outline:none;
+    box-shadow:none;
   }
 
+  /* Computed/Disabled Input */
   .input-computed{
-    @apply px-4 py-3 text-base;
-    background:var(--color-input-bg-disabled);
-    border:1px solid #E2E8F0;
-    border-radius:.375rem;
-    color:var(--color-text-default)!important;
-    font-style:italic;
-    cursor:not-allowed;
+    @apply px-5 py-4 text-base;
+    background: hsl(0 0% 97%);
+    border: 2px solid hsl(0 0% 92%);
+    border-radius: 1rem;
+    color: hsl(0 0% 45%)!important;
+    font-style: italic;
+    cursor: not-allowed;
+    font-size: 16px;
   }
-  .input-computed:focus{ outline:none; box-shadow:none; }
+  .input-computed:focus{
+    outline:none;
+    box-shadow:none;
+  }
 
+  /* Gradient Total - Navy/Orange Gradient */
   .gradient-total{
-    @apply px-4 py-3 text-base;
-    background:linear-gradient(90deg, hsl(var(--brand)/.30), hsl(var(--brand-2)/.30));
-    color:var(--color-text-default)!important;
-    font-weight:600;
-    border-radius:.375rem;
+    @apply px-5 py-4 text-base;
+    background: linear-gradient(90deg,
+      hsl(var(--brand)/.15),
+      hsl(var(--brand-2)/.15)
+    );
+    border: 2px solid hsl(var(--brand-2) / .25);
+    color: hsl(var(--brand))!important;
+    font-weight: 700;
+    border-radius: 1rem;
+    font-size: 16px;
   }
-  .gradient-total:focus{ outline:none; border-color:hsl(var(--brand)); }
+  .gradient-total:focus{
+    outline:none;
+    border-color: hsl(var(--brand-2));
+    box-shadow: 0 0 0 4px hsl(var(--brand-2)/.15);
+  }
 
+  /* Select Dropdown */
   .select-underline{
-    @apply px-4 py-3 text-base;
-    background:white;
-    border:1px solid var(--color-input-border);
+    @apply px-5 py-4 text-base;
+    background: white;
+    border: 2px solid hsl(0 0% 90%);
     appearance: none;
     background-image: none;
-    border-radius:.375rem;
-    transition:border-color var(--dur-1) var(--ease-snap);
+    border-radius: 1rem;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 16px;
   }
-  .select-underline:focus{ outline:none; border-color:hsl(var(--brand-2)); box-shadow:0 0 0 3px hsl(var(--brand-2)/.18); }
+  .select-underline:hover{
+    border-color: hsl(0 0% 80%);
+  }
+  .select-underline:focus{
+    outline:none;
+    border-color: hsl(var(--brand-2));
+    box-shadow: 0 0 0 4px hsl(var(--brand-2)/.15);
+    transform: translateY(-1px);
+  }
 }
 
 /* ==============================================
@@ -375,4 +482,26 @@ tab-btn:hover,
 
 .animate-slide-up {
   animation: slide-up 0.4s ease-out;
+}
+
+/* Float Animation für Hero Cards */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* Fade In Animation für Import Section */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -17,14 +17,14 @@ export function KpiCard({
   className?: string;
 }) {
   return (
-    <div className={`card p-4 ${className ?? ''}`}>
-      <div className="flex items-center justify-between mb-1">
-        <div className="text-sm font-medium text-gray-700 flex items-center">
+    <div className={`card p-6 ${className ?? ''}`}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm font-semibold text-gray-600 flex items-center uppercase tracking-wider">
           {title}
           {help ? (
-            <span className="ml-1">
+            <span className="ml-2">
               <Tooltip text={help}>
-                <span className="inline-flex items-center justify-center w-4 h-4 rounded-full border border-gray-300 text-gray-500 text-[10px] leading-4 cursor-pointer">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-100 border-2 border-gray-200 text-gray-500 text-xs font-bold cursor-pointer hover:bg-gray-200 transition-colors">
                   ?
                 </span>
               </Tooltip>
@@ -33,7 +33,7 @@ export function KpiCard({
         </div>
         {trend ? (
           <span
-            className={`text-xs ${
+            className={`text-sm font-bold ${
               trend === 'up'
                 ? 'text-green-600'
                 : trend === 'down'
@@ -46,7 +46,7 @@ export function KpiCard({
           </span>
         ) : null}
       </div>
-      <div className="text-xl font-semibold">{value}</div>
+      <div className="text-3xl font-bold text-gray-900">{value}</div>
     </div>
   );
 }

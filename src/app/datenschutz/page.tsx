@@ -44,7 +44,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               1. Verantwortliche
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
               <div className="pl-4 space-y-1">
                 <p>Meike Hüttl</p>
@@ -261,7 +261,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               3. Empfänger und Kategorien von Empfängern
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Wir geben personenbezogene Daten nur an Dritte weiter, wenn dies gesetzlich erlaubt ist oder
                 Sie eingewilligt haben. Empfänger können insbesondere sein:
@@ -285,7 +285,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               4. Datenübermittlung in Drittländer
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Einige der oben genannten Dienstleister (z. B. OpenAI, Stripe, Clerk, Google) haben ihren
                 Sitz in den USA oder verarbeiten Daten dort.
@@ -310,7 +310,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               5. Speicherdauer
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Wir speichern personenbezogene Daten nur so lange, wie es für die genannten Zwecke
                 erforderlich ist oder gesetzliche Aufbewahrungsfristen bestehen.
@@ -342,7 +342,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               6. Ihre Rechte
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Sie haben hinsichtlich der Sie betreffenden personenbezogenen Daten folgende Rechte:
               </p>
@@ -378,7 +378,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               7. Widerruf von Einwilligungen & Widerspruchsrecht
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Sie können uns gegenüber erteilte Einwilligungen (z. B. für Analytics) jederzeit mit Wirkung
                 für die Zukunft widerrufen, u. a. durch Anpassung Ihrer Cookie-Einstellungen.
@@ -399,7 +399,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               8. Datensicherheit
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Wir verwenden übliche technische und organisatorische Sicherheitsmaßnahmen, um Ihre Daten vor
                 Verlust, Zerstörung, unbefugtem Zugriff oder Manipulation zu schützen. Dazu gehört
@@ -414,7 +414,7 @@ export default function DatenschutzPage() {
             <h2 className="text-2xl font-bold text-[hsl(var(--brand))] mb-4">
               9. Aktualität und Änderung dieser Datenschutzerklärung
             </h2>
-            <div className="space-y-2 text-gray-700 text-sm leading-relaxed">
+            <div className="space-y-2 text-gray-700 leading-relaxed">
               <p>
                 Diese Datenschutzerklärung ist aktuell gültig und hat den Stand November 2025.
               </p>

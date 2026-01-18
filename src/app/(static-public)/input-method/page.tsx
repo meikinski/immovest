@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
 import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { AuthUI } from '@/components/AuthUI';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
@@ -30,12 +28,24 @@ export default function InputMethodPage() {
   const [urlError, setUrlError] = useState('');
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
+  // Scroll State for Header
+  const [isScrolled, setIsScrolled] = useState(false);
+
   // Reset form when component mounts (user starts new input)
   useEffect(() => {
     resetAnalysis();
     // Clear localStorage to prevent persistence hook from reloading old data
     localStorage.removeItem('immovest_kpi_state');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll handler
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -229,72 +239,67 @@ export default function InputMethodPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Clean & Minimal with gradient background */}
-      <header className="fixed top-0 left-0 right-0 z-50">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-[hsl(var(--brand-2))]/5 to-transparent backdrop-blur-lg"></div>
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--brand))]/20 to-transparent"></div>
-
+      {/* Header - Clean & Minimal */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm'
+          : 'bg-white border-b border-gray-100'
+      }`}>
         <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           {/* Logo */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-1"
+            className="flex items-center gap-2"
           >
-            <div className="w-12 h-12 relative">
-              <Image
-                src="/logo.png"
-                alt="imvestr Logo"
-                width={48}
-                height={48}
-                className="rounded-lg"
-                priority
-              />
+            <div className="w-10 h-10 bg-[#ff6b00] rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">i</span>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+            <span className="text-2xl font-bold text-[#001d3d] tracking-tighter">
               imvestr
             </span>
           </button>
 
           {/* Right Side */}
           <div className="flex items-center gap-4">
-            <AuthUI variant="light" />
+            <button
+              onClick={() => router.push('/sign-in')}
+              className="px-6 py-2.5 bg-[#001d3d] text-white font-semibold rounded-full hover:bg-[#001d3d]/90 transition-all"
+            >
+              Login
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content with gradient background */}
-      <div className="relative pt-32 pb-20 px-6 overflow-hidden">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--brand))]/5 via-white to-[hsl(var(--brand-2))]/5"></div>
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[hsl(var(--brand))]/10 to-transparent rounded-full blur-3xl"></div>
-
+      {/* Main Content */}
+      <div className="relative pt-32 pb-20 px-6 bg-[#f5f5f7]">
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 bg-clip-text text-transparent">
-                👋 Willkommen bei imvestr!
-              </span>
+            <div className="inline-block px-5 py-2 bg-orange-100 rounded-full mb-6">
+              <span className="text-[#ff6b00] font-bold text-xs uppercase tracking-widest">Schritt 1</span>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter text-[#001d3d]">
+              Wie möchtest du <span className="text-[#ff6b00]">starten?</span>
             </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Wie möchtest du deine Daten eingeben?
+            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+              Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen
             </p>
           </div>
 
           {/* Method Cards - 3 Column Grid */}
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Manual Input - FIRST - Solid Navy Blue */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand))]/10 rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 hover:border-[hsl(var(--brand))]/30 hover:shadow-xl transition-all">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-[hsl(var(--brand))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Keyboard className="w-8 h-8 text-white" />
+            {/* Manual Input - FIRST */}
+            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <Keyboard className="w-8 h-8 text-[#ff6b00]" />
                 </div>
-                <h3 className="text-2xl font-bold text-[hsl(var(--brand))] mb-2">
+                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
                   Manuelle Eingabe
                 </h3>
-                <p className="text-gray-600">
-                  Gib alle Daten selbst ein – volle Kontrolle
+                <p className="text-gray-600 leading-relaxed">
+                  Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
                 </p>
               </div>
 
@@ -304,9 +309,9 @@ export default function InputMethodPage() {
                   localStorage.removeItem('immovest_kpi_state');
                   router.push('/step/a');
                 }}
-                className="w-full py-4 bg-[hsl(var(--brand))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-[#001d3d] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
-                <span>Jetzt eingeben</span>
+                <span>Jetzt starten</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -314,30 +319,30 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand))]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* URL Import with AI - SECOND - Full Gradient Theme */}
-            <div className="relative bg-gradient-to-br from-[hsl(var(--brand))]/10 via-[hsl(var(--brand-2))]/10 to-white rounded-3xl border-2 border-[hsl(var(--brand))]/20 p-6 md:p-8 shadow-xl">
+            {/* URL Import with AI - SECOND */}
+            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
               {/* KI Badge */}
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg flex items-center gap-1">
-                <Sparkles size={14} />
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
+                <Sparkles size={16} />
                 <span>KI-Power</span>
               </div>
 
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <LinkIcon className="w-8 h-8 text-white" />
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
                 </div>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent mb-2">
+                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
                   URL Import
                 </h3>
-                <p className="text-gray-600">
-                  KI analysiert automatisch die Immobilien-Anzeige
+                <p className="text-gray-600 leading-relaxed">
+                  Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
                 </p>
               </div>
 
@@ -348,7 +353,7 @@ export default function InputMethodPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.immobilienscout24.de/..."
-                  className="w-full px-4 py-3 border-2 border-[hsl(var(--brand))]/20 rounded-xl focus:border-[hsl(var(--brand))] focus:outline-none transition"
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#001d3d] focus:outline-none focus:ring-4 focus:ring-[#001d3d]/15 transition-all hover:border-gray-300"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
                   }}
@@ -357,7 +362,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand))]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-[#001d3d] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -392,24 +397,30 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand))]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Foto machen - THIRD - Solid Orange */}
-            <div className="relative bg-gradient-to-br from-white to-[hsl(var(--brand-2))]/10 rounded-3xl border-2 border-[hsl(var(--brand-2))]/30 p-6 md:p-8 shadow-xl">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-[hsl(var(--brand-2))] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Camera className="w-8 h-8 text-white" />
+            {/* Foto machen - THIRD */}
+            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+              {/* KI Badge */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
+                <Sparkles size={16} />
+                <span>KI-Power</span>
+              </div>
+
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <Camera className="w-8 h-8 text-[#ff6b00]" />
                 </div>
-                <h3 className="text-2xl font-bold text-[hsl(var(--brand-2))] mb-2">
-                  Foto machen
+                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
+                  Foto scannen
                 </h3>
-                <p className="text-gray-600">
-                  Mach ein Foto der Anzeige – KI extrahiert automatisch alle Daten
+                <p className="text-gray-600 leading-relaxed">
+                  Fotografiere das Exposé mit deinem Smartphone
                 </p>
               </div>
 
@@ -418,10 +429,10 @@ export default function InputMethodPage() {
                 <div className="text-center">
                   <button
                     onClick={() => cameraInputRef.current?.click()}
-                    className="w-full py-16 border-2 border-dashed border-[hsl(var(--brand-2))]/40 rounded-2xl bg-white hover:border-[hsl(var(--brand-2))] hover:bg-[hsl(var(--brand-2))]/5 transition-all"
+                    className="w-full py-16 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white hover:border-[#ff6b00] hover:bg-orange-50 transition-all"
                   >
-                    <Camera className="w-16 h-16 text-[hsl(var(--brand-2))] mx-auto mb-4" />
-                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                    <Camera className="w-16 h-16 text-[#ff6b00] mx-auto mb-4" />
+                    <p className="text-lg font-bold text-gray-900 mb-2">
                       Foto aufnehmen
                     </p>
                     <p className="text-sm text-gray-500">
@@ -487,17 +498,17 @@ export default function InputMethodPage() {
                   <button
                     onClick={handleImageSubmit}
                     disabled={imageLoading}
-                    className="w-full py-4 bg-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-[hsl(var(--brand-2))]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
                   >
                     {imageLoading ? (
                       <>
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>KI analysiert Bild...</span>
+                        <span>KI analysiert...</span>
                       </>
                     ) : (
                       <>
                         <ArrowRight size={20} />
-                        <span>Daten extrahieren</span>
+                        <span>Jetzt analysieren</span>
                       </>
                     )}
                   </button>
@@ -508,7 +519,7 @@ export default function InputMethodPage() {
               <div className="mt-6 space-y-2">
                 {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand-2))]" />
+                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
@@ -517,9 +528,9 @@ export default function InputMethodPage() {
           </div>
 
           {/* Help Text */}
-          <div className="text-center">
-            <p className="text-sm text-gray-500">
-              💡 <strong>Tipp:</strong> Foto machen oder URL Import mit KI – beide Methoden sind schneller als manuelle Eingabe!
+          <div className="text-center px-6 py-4 bg-orange-50 rounded-3xl border border-orange-100">
+            <p className="text-sm text-gray-700 font-medium">
+              <span className="text-[#ff6b00] font-bold">Tipp:</span> URL Import und Foto-Scan sind deutlich schneller als manuelle Eingabe
             </p>
           </div>
         </div>
