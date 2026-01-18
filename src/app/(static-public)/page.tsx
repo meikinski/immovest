@@ -279,10 +279,10 @@ export default function LandingPage() {
               </div>
 
               {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 2: Zu teuer gekauft */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -348,7 +348,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 3: Schlechte Lage */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -382,7 +382,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 4: Miete überschätzt */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -686,12 +686,6 @@ export default function LandingPage() {
                   {/* URL Import Content */}
                   {selectedImportMethod === 'url' && (
                     <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
-                          <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-2xl md:text-3xl font-bold text-[#001d3d]">Link einfügen</h4>
-                      </div>
                       <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                         Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
                       </p>
@@ -711,12 +705,6 @@ export default function LandingPage() {
                   {/* Photo Scan Content */}
                   {selectedImportMethod === 'photo' && (
                     <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
-                          <Camera className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-2xl md:text-3xl font-bold text-[#001d3d]">Foto scannen</h4>
-                      </div>
                       <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                         Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
                       </p>
@@ -736,12 +724,6 @@ export default function LandingPage() {
                   {/* Manual Input Content */}
                   {selectedImportMethod === 'manual' && (
                     <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
-                          <Edit3 className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-2xl md:text-3xl font-bold text-[#001d3d]">Manuell eingeben</h4>
-                      </div>
                       <p className="text-gray-600 text-base md:text-lg leading-relaxed">
                         Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
                       </p>
@@ -937,23 +919,23 @@ export default function LandingPage() {
           </section>
 
           {/* 6. Was ist dein Investment-Ziel? */}
-          <section className="py-32 px-6 bg-[#f5f5f7]">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="mb-20 overflow-visible text-right">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
+          <section className="py-16 md:py-32 px-4 md:px-6 bg-[#f5f5f7]">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="mb-8 md:mb-20 overflow-visible text-center md:text-right">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was ist dein </span>
                   <span className="text-[#ff6b00]">Investment-Ziel?</span>
                 </h2>
-                <p className="text-xl text-gray-600 max-w-2xl ml-auto leading-relaxed">
+                <p className="text-sm md:text-xl text-gray-600 max-w-2xl mx-auto md:ml-auto leading-relaxed px-2">
                   Jeder Anlegertyp kann sich die für ihn wichtigen Infos rausholen.
                 </p>
               </div>
 
-              <div id="investment-goals-scroll" className="flex gap-4 overflow-x-auto pb-16 snap-x snap-mandatory scrollbar-hide pl-6 md:pl-16 pr-6 md:pr-16" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div id="investment-goals-scroll" className="flex gap-4 overflow-x-auto pb-8 md:pb-16 snap-x snap-mandatory scrollbar-hide pl-2 md:pl-16 pr-2 md:pr-16" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Karte 1: Steuern */}
                 <div
                   data-goal-index="0"
-                  className={`rounded-[40px] p-8 w-[calc(100vw-60px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 0
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -974,7 +956,7 @@ export default function LandingPage() {
                 {/* Karte 2: Vorsorge */}
                 <div
                   data-goal-index="1"
-                  className={`rounded-[40px] p-8 w-[calc(100vw-60px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 1
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -995,7 +977,7 @@ export default function LandingPage() {
                 {/* Karte 3: Cashflow */}
                 <div
                   data-goal-index="2"
-                  className={`rounded-[40px] p-8 w-[calc(100vw-60px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 2
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -1039,21 +1021,21 @@ export default function LandingPage() {
           </section>
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
+          <section className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="text-center mb-8 md:mb-16 overflow-visible">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
                 </h2>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                <p className="text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">
                   Echte Erfahrungen von Immobilien-Investoren, die imvestr erfolgreich nutzen.
                 </p>
               </div>
 
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
-              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -1065,7 +1047,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -1077,7 +1059,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -1089,7 +1071,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[40px] p-8 border-2 border-gray-100 min-w-[280px] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
