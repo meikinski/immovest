@@ -8,7 +8,7 @@ import HtmlContent from '@/components/HtmlContent';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
-  TrendingUp, Percent, ShieldCheck, MessageSquare
+  TrendingUp, Percent, ShieldCheck, MessageSquare, Sparkles
 } from 'lucide-react';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
@@ -20,6 +20,7 @@ import { UpgradeModal } from '@/components/UpgradeModal';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { SignInButton, useAuth } from '@clerk/nextjs';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
@@ -864,7 +865,7 @@ const exportPdf = React.useCallback(async () => {
       <>
         {/* Title */}
         <div className="text-center mb-12">
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Kaufpreis & Nebenkosten.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Kaufpreis & Nebenkosten.</h1>
         </div>
 
         {/* Input Container */}
@@ -1013,7 +1014,7 @@ const exportPdf = React.useCallback(async () => {
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Objektdaten.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Objektdaten.</h1>
         </div>
 
         {/* Input Container */}
@@ -1170,7 +1171,7 @@ const exportPdf = React.useCallback(async () => {
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Ertrag & Hausgeld.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Ertrag & Hausgeld.</h1>
         </div>
 
         {/* Input Container */}
@@ -1564,7 +1565,7 @@ const exportPdf = React.useCallback(async () => {
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Eigenkapital & Kredit.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Eigenkapital & Kredit.</h1>
         </div>
 
         {/* Input Container */}
@@ -1785,6 +1786,9 @@ const exportPdf = React.useCallback(async () => {
                       <SquarePercent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
+                    <Tooltip text="Jahresmiete geteilt durch Kaufpreis. Zeigt die Rendite ohne Berücksichtigung von Nebenkosten.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className="text-3xl font-black text-[#001d3d]">
                     {bruttoMietrendite.toFixed(1)}%
@@ -1798,6 +1802,9 @@ const exportPdf = React.useCallback(async () => {
                       <Percent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
+                    <Tooltip text="Jahresmiete minus laufende Kosten (Hausgeld, Instandhaltung) geteilt durch Gesamtinvestition inkl. Nebenkosten.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className="text-3xl font-black text-[#001d3d]">
                     {nettoMietrendite.toFixed(1)}%
@@ -1811,6 +1818,9 @@ const exportPdf = React.useCallback(async () => {
                       <Wallet size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
+                    <Tooltip text="Monatlicher Überschuss nach Abzug aller Kosten (Kredit, Hausgeld, Instandhaltung) von der Miete, vor Steuern.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {cashflowVorSteuer.toFixed(0)}€
@@ -1824,6 +1834,9 @@ const exportPdf = React.useCallback(async () => {
                       <ReceiptText size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
+                    <Tooltip text="Monatlicher Überschuss nach allen Kosten und Steuern. Dein tatsächlicher Gewinn oder Verlust pro Monat.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {cashflowAfterTax.toFixed(0)}€
@@ -1837,6 +1850,9 @@ const exportPdf = React.useCallback(async () => {
                       <TrendingUp size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
+                    <Tooltip text="Jahrescashflow (nach Steuern) geteilt durch eingesetztes Eigenkapital. Zeigt die Rendite auf dein investiertes Geld.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className="text-3xl font-black text-[#001d3d]">
                     {ekRendite.toFixed(1)}%
@@ -1850,6 +1866,9 @@ const exportPdf = React.useCallback(async () => {
                       <ShieldCheck size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
+                    <Tooltip text="Debt Service Coverage Ratio. Einkommen geteilt durch Kreditkosten. >1,2 ist ideal, <1,0 kritisch.">
+                      <Info size={12} className="text-slate-400 cursor-help" />
+                    </Tooltip>
                   </div>
                   <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {dscr.toFixed(2)}
@@ -1885,8 +1904,8 @@ const exportPdf = React.useCallback(async () => {
                 {/* Content (geblurred wenn locked) */}
                 <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                      <MessageSquare size={20} className="text-white fill-current" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                      <Sparkles size={20} className="text-white" />
                     </div>
                     <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
                   </div>
@@ -1928,20 +1947,20 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Sidebar with Details */}
             <div className="lg:col-span-4 space-y-6 sticky top-4 self-start">
-              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg">
-                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
-                  <BarChart3 size={16} /> Finanzierungsübersicht
+              <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
+                <h4 className="text-[10px] font-black uppercase text-slate-600 mb-8 tracking-widest flex items-center gap-2">
+                  <BarChart3 size={16} className="text-[#ff6b00]" /> Finanzierungsübersicht
                 </h4>
                 <div className="space-y-6">
                   {/* Gesamtinvestition */}
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Gesamtinvestition</span>
                       <span className="text-xl font-black text-[#001d3d]">
                         {anschaffungskosten.toLocaleString('de-DE')}€
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">
+                    <p className="text-[9px] text-slate-500">
                       Inkl. Nebenkosten
                     </p>
                   </div>
@@ -1949,12 +1968,12 @@ const exportPdf = React.useCallback(async () => {
                   {/* Darlehenssumme */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Darlehenssumme</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Darlehenssumme</span>
                       <span className="text-xl font-black text-[#001d3d]">
                         {darlehensSumme.toLocaleString('de-DE')}€
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">
+                    <p className="text-[9px] text-slate-500">
                       Finanzierungsbetrag
                     </p>
                   </div>
@@ -1962,12 +1981,12 @@ const exportPdf = React.useCallback(async () => {
                   {/* Eigenkapital */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Eigenkapital</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Eigenkapital</span>
                       <span className="text-xl font-black text-[#001d3d]">
                         {ek.toLocaleString('de-DE')}€
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">
+                    <p className="text-[9px] text-slate-500">
                       Eingesetztes Kapital
                     </p>
                   </div>
@@ -1975,7 +1994,7 @@ const exportPdf = React.useCallback(async () => {
                   {/* EK-Quote */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">EK-Quote</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Quote</span>
                       <span className="text-xl font-black text-[#001d3d]">
                         {anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'}%
                       </span>
@@ -1991,12 +2010,12 @@ const exportPdf = React.useCallback(async () => {
                   {/* Break-Even */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Break-Even</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Break-Even</span>
                       <span className="text-lg font-black text-[#001d3d]">
                         {isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : '–'}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">
+                    <p className="text-[9px] text-slate-500">
                       Jahr der EK-Rückgewinnung
                     </p>
                   </div>
@@ -2004,12 +2023,12 @@ const exportPdf = React.useCallback(async () => {
                   {/* Abzahlungsjahr */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlungsjahr</span>
+                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Abzahlungsjahr</span>
                       <span className="text-lg font-black text-[#001d3d]">
                         {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">
+                    <p className="text-[9px] text-slate-500">
                       Voraussichtliche Entschuldung
                     </p>
                   </div>
@@ -2516,6 +2535,8 @@ const exportPdf = React.useCallback(async () => {
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
         {content}
       </div>
+
+      <Footer />
     </div>
   );
 }
