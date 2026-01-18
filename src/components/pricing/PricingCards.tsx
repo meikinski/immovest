@@ -133,17 +133,17 @@ export default function PricingCards({}: PricingCardsProps) {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-8 overflow-x-hidden">
+    <div className="w-full max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[hsl(var(--brand))]/10 rounded-full text-[hsl(var(--brand))] font-semibold text-xs uppercase tracking-widest mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b00]/10 rounded-full text-[#ff6b00] font-semibold text-xs uppercase tracking-widest mb-4">
           <Sparkles className="w-4 h-4" />
           Premium freischalten
         </div>
-        <h2 className="text-4xl md:text-5xl font-bold mb-4 leading-tight tracking-tight">
-          Wähle deinen Plan
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight tracking-tight">
+          <span className="text-[#001d3d]">Wähle deinen</span> <span className="text-[#ff6b00]">Plan</span>
         </h2>
-        <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+        <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
           Erhalte unbegrenzten Zugang zu allen Premium-Features und KI-gestützten Analysen
         </p>
       </div>
@@ -160,16 +160,16 @@ export default function PricingCards({}: PricingCardsProps) {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`relative rounded-2xl border-2 p-8 transition-all hover:shadow-2xl ${
+            className={`relative rounded-[40px] border-2 p-8 md:p-10 transition-all hover:shadow-2xl hover:-translate-y-2 duration-300 bg-white ${
               plan.popular
-                ? 'border-[hsl(var(--brand))] shadow-xl scale-105'
-                : 'border-gray-200 hover:border-[hsl(var(--brand))]/50'
+                ? 'border-[#ff6b00] shadow-xl'
+                : 'border-gray-200 hover:border-[#ff6b00]/50'
             }`}
           >
             {/* Popular Badge */}
             {plan.popular && (
               <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-                <div className="px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
+                <div className="px-4 py-1.5 bg-[#ff6b00] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
                   Empfohlen
                 </div>
               </div>
@@ -177,21 +177,21 @@ export default function PricingCards({}: PricingCardsProps) {
 
             {/* Plan Header */}
             <div className="mb-6">
-              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
+              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-sm ${
                 plan.popular
-                  ? 'bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white'
+                  ? 'bg-[#001d3d] text-[#ff6b00]'
                   : 'bg-gray-100 text-gray-600'
               }`}>
                 {plan.icon}
               </div>
 
-              <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+              <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">{plan.name}</h3>
               <p className="text-gray-600 text-sm">{plan.description}</p>
 
               {/* Price */}
               <div className="mt-4">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">{plan.price} €</span>
+                  <span className="text-4xl font-bold text-[#001d3d]">{plan.price} €</span>
                   <span className="text-gray-600">/ {plan.period}</span>
                 </div>
 
@@ -200,7 +200,7 @@ export default function PricingCards({}: PricingCardsProps) {
                     <span className="text-gray-500 line-through text-sm">
                       {plan.originalPrice} €
                     </span>
-                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                    <span className="px-2 py-0.5 bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-semibold rounded-full">
                       Spare {plan.savings}
                     </span>
                   </div>
@@ -212,7 +212,7 @@ export default function PricingCards({}: PricingCardsProps) {
             <ul className="space-y-3 mb-8">
               {plan.features.map((feature, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[hsl(var(--success))] flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-[#ff6b00] flex-shrink-0 mt-0.5" />
                   <span className="text-gray-700">{feature}</span>
                 </li>
               ))}
@@ -225,9 +225,9 @@ export default function PricingCards({}: PricingCardsProps) {
                 plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
               )}
               disabled={isLoading}
-              className={`w-full py-4 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full py-4 px-6 rounded-full font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                 plan.popular
-                  ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-lg hover:scale-105'
+                  ? 'bg-[#ff6b00] text-white hover:shadow-xl hover:scale-105 shadow-lg'
                   : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}
             >
@@ -239,33 +239,37 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden w-full max-w-md mx-auto pt-6 overflow-hidden">
+      <div className="md:hidden w-full pt-6">
         <div
-          className="relative overflow-hidden"
+          className="relative"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="flex transition-transform duration-500 ease-out"
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            className="flex transition-transform duration-500 ease-out overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4"
+            style={{
+              transform: `translateX(-${activeIndex * 100}%)`,
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
           >
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className="w-full flex-shrink-0 px-2"
+                className="w-[calc(100vw-32px)] flex-shrink-0 snap-start"
               >
                 <div
-                  className={`relative rounded-2xl border-2 p-8 ${
+                  className={`relative rounded-[40px] border-2 p-6 bg-white ${
                     plan.popular
-                      ? 'border-[hsl(var(--brand))] shadow-xl'
+                      ? 'border-[#ff6b00] shadow-xl'
                       : 'border-gray-200'
                   }`}
                 >
                   {/* Popular Badge */}
                   {plan.popular && (
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-                      <div className="px-4 py-1.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
+                      <div className="px-4 py-1.5 bg-[#ff6b00] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
                         Empfohlen
                       </div>
                     </div>
@@ -273,21 +277,21 @@ export default function PricingCards({}: PricingCardsProps) {
 
                   {/* Plan Header */}
                   <div className="mb-6">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${
+                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-sm ${
                       plan.popular
-                        ? 'bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white'
+                        ? 'bg-[#001d3d] text-[#ff6b00]'
                         : 'bg-gray-100 text-gray-600'
                     }`}>
                       {plan.icon}
                     </div>
 
-                    <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+                    <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">{plan.name}</h3>
                     <p className="text-gray-600 text-sm">{plan.description}</p>
 
                     {/* Price */}
                     <div className="mt-4">
                       <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-bold">{plan.price} €</span>
+                        <span className="text-4xl font-bold text-[#001d3d]">{plan.price} €</span>
                         <span className="text-gray-600">/ {plan.period}</span>
                       </div>
 
@@ -296,7 +300,7 @@ export default function PricingCards({}: PricingCardsProps) {
                           <span className="text-gray-500 line-through text-sm">
                             {plan.originalPrice} €
                           </span>
-                          <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                          <span className="px-2 py-0.5 bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-semibold rounded-full">
                             Spare {plan.savings}
                           </span>
                         </div>
@@ -308,7 +312,7 @@ export default function PricingCards({}: PricingCardsProps) {
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[hsl(var(--success))] flex-shrink-0 mt-0.5" />
+                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] flex-shrink-0 mt-0.5" />
                         <span className="text-gray-700">{feature}</span>
                       </li>
                     ))}
@@ -321,9 +325,9 @@ export default function PricingCards({}: PricingCardsProps) {
                       plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
                     )}
                     disabled={isLoading}
-                    className={`w-full py-4 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`w-full py-4 px-6 rounded-full font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
                       plan.popular
-                        ? 'bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white hover:shadow-lg'
+                        ? 'bg-[#ff6b00] text-white hover:shadow-xl hover:scale-105 shadow-lg'
                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
@@ -342,7 +346,7 @@ export default function PricingCards({}: PricingCardsProps) {
               key={idx}
               onClick={() => setActiveIndex(idx)}
               className={`h-2 rounded-full transition-all duration-300 ${
-                idx === activeIndex ? 'w-8 bg-[hsl(var(--brand))]' : 'w-2 bg-gray-300'
+                idx === activeIndex ? 'w-8 bg-[#ff6b00]' : 'w-2 bg-gray-300'
               }`}
               aria-label={`Zu Plan ${idx + 1}`}
             />
