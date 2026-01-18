@@ -1797,35 +1797,23 @@ const exportPdf = React.useCallback(async () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Feature Card 1 - EK-Rendite */}
-              <div className="bg-white p-10 rounded-[40px] border-2 border-gray-100 shadow-lg relative group overflow-hidden">
-                <div className="relative z-10">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">EK-Rendite</span>
-                  <div className="text-6xl font-black text-[#001d3d] mt-3 group-hover:text-[#ff6b00] transition-colors">
-                    {ekRendite.toFixed(1)}%
+              {/* KPI Card 1 - Bruttomietrendite */}
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <SquarePercent size={20} className="text-[#ff6b00]" />
                   </div>
-                  <p className="text-[11px] font-bold text-slate-400 mt-6 leading-relaxed">
-                    Der Hebeleffekt Ihres Kapitals. Durch Fremdfinanzierung kann diese höher sein als die Nettomietrendite.
-                  </p>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bruttomietrendite</span>
                 </div>
-                <TrendingUp className="absolute -right-8 -bottom-8 text-slate-50 group-hover:text-orange-50 transition-all duration-500" size={180} />
+                <div className="text-4xl font-black text-[#001d3d]">
+                  {bruttoMietrendite.toFixed(1)}%
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  Vereinfachte Berechnung ohne Nebenkosten
+                </p>
               </div>
 
-              {/* Feature Card 2 - Cashflow vor Steuern */}
-              <div className="bg-white p-10 rounded-[40px] border-2 border-gray-100 shadow-lg relative group overflow-hidden">
-                <div className="relative z-10">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Cashflow (vor Steuern)</span>
-                  <div className={`text-6xl font-black mt-3 transition-colors ${cashflowVorSteuer >= 0 ? 'text-green-600 group-hover:text-green-700' : 'text-red-600 group-hover:text-red-700'}`}>
-                    {cashflowVorSteuer.toFixed(0)}€
-                  </div>
-                  <p className="text-[11px] font-bold text-slate-400 mt-6 leading-relaxed">
-                    {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst.' : 'Monatlicher Zuschuss erforderlich.'}
-                  </p>
-                </div>
-                <EuroIcon className={`absolute -right-8 -bottom-8 transition-all duration-500 ${cashflowVorSteuer >= 0 ? 'text-green-50' : 'text-red-50'}`} size={180} />
-              </div>
-
-              {/* Standard KPI Card 1 - Nettomietrendite */}
+              {/* KPI Card 2 - Nettomietrendite */}
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
@@ -1841,7 +1829,23 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
 
-              {/* Standard KPI Card 2 - Cashflow nach Steuern */}
+              {/* KPI Card 3 - Cashflow vor Steuern */}
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Wallet size={20} className="text-[#ff6b00]" />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashflow (vor St.)</span>
+                </div>
+                <div className={`text-4xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {cashflowVorSteuer.toFixed(0)}€
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst' : 'Monatlicher Zuschuss erforderlich'}
+                </p>
+              </div>
+
+              {/* KPI Card 4 - Cashflow nach Steuern */}
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
@@ -1857,23 +1861,23 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
 
-              {/* Standard KPI Card 3 - Bruttomietrendite */}
+              {/* KPI Card 5 - EK-Rendite */}
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <SquarePercent size={20} className="text-[#ff6b00]" />
+                    <TrendingUp size={20} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bruttomietrendite</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">EK-Rendite</span>
                 </div>
                 <div className="text-4xl font-black text-[#001d3d]">
-                  {bruttoMietrendite.toFixed(1)}%
+                  {ekRendite.toFixed(1)}%
                 </div>
                 <p className="text-[10px] text-slate-400 mt-3">
-                  Vereinfachte Berechnung
+                  Der Hebeleffekt Ihres Kapitals
                 </p>
               </div>
 
-              {/* Standard KPI Card 4 - DSCR */}
+              {/* KPI Card 6 - DSCR */}
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
