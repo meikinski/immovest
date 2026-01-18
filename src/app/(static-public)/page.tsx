@@ -282,7 +282,7 @@ export default function LandingPage() {
               <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide px-4 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-full md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -632,18 +632,127 @@ export default function LandingPage() {
           </section>
 
           {/* 5. Wie funktioniert der Import? - Sticky Workflow */}
-          <section className="py-32 bg-white px-6">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
+          <section className="py-16 md:py-32 bg-white px-4 md:px-6">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="text-center mb-12 md:mb-20">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                <p className="text-gray-500 text-base md:text-xl max-w-3xl mx-auto leading-relaxed">
                   Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen.
                 </p>
               </div>
 
-              <div className="flex flex-col md:flex-row items-start gap-20">
+              {/* Mobile: Tabs */}
+              <div className="md:hidden">
+                {/* Tabs Navigation */}
+                <div className="flex flex-wrap justify-center gap-3 mb-8">
+                  <button
+                    onClick={() => setSelectedImportMethod('url')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'url'
+                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <LinkIcon size={18} className={selectedImportMethod === 'url' ? 'text-[#ff6b00]' : ''} />
+                    URL-Import
+                  </button>
+                  <button
+                    onClick={() => setSelectedImportMethod('photo')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'photo'
+                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Camera size={18} className={selectedImportMethod === 'photo' ? 'text-[#ff6b00]' : ''} />
+                    Foto-Scan
+                  </button>
+                  <button
+                    onClick={() => setSelectedImportMethod('manual')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'manual'
+                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Edit3 size={18} className={selectedImportMethod === 'manual' ? 'text-[#ff6b00]' : ''} />
+                    Manuell
+                  </button>
+                </div>
+
+                {/* Content + Mockup */}
+                <div className="space-y-6">
+                  {/* Text Content */}
+                  {selectedImportMethod === 'url' && (
+                    <div className="text-center px-4">
+                      <p className="text-gray-600 text-base leading-relaxed mb-4">
+                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Alle Objektdaten in Sekunden erfasst</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Unterstützt alle großen Portale</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {selectedImportMethod === 'photo' && (
+                    <div className="text-center px-4">
+                      <p className="text-gray-600 text-base leading-relaxed mb-4">
+                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Perfekt für Besichtigungen vor Ort</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {selectedImportMethod === 'manual' && (
+                    <div className="text-center px-4">
+                      <p className="text-gray-600 text-base leading-relaxed mb-4">
+                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Smartes Formular mit Validierung</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                          <span>Volle Kontrolle über alle Details</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Mockup Image Placeholder */}
+                  <div className="bg-[#001d3d] rounded-[32px] min-h-[300px] flex items-center justify-center p-8 mx-4">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-2xl bg-[#ff6b00] flex items-center justify-center mx-auto mb-4">
+                        {selectedImportMethod === 'url' && <LinkIcon className="w-8 h-8 text-white" />}
+                        {selectedImportMethod === 'photo' && <Camera className="w-8 h-8 text-white" />}
+                        {selectedImportMethod === 'manual' && <Edit3 className="w-8 h-8 text-white" />}
+                      </div>
+                      <p className="text-white/60 text-sm">Mockup Preview</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: Sticky Border-Left Design */}
+              <div className="hidden md:flex flex-col md:flex-row items-start gap-20">
                 {/* Left: Sticky Text */}
                 <div className="md:w-1/2">
                   <div className="sticky top-40 space-y-12">
@@ -1018,9 +1127,9 @@ export default function LandingPage() {
           </section>
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-16 md:py-32 px-0 md:px-6 bg-white overflow-visible">
+          <section className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
             <div className="max-w-6xl mx-auto px-0 md:px-6">
-              <div className="text-center mb-8 md:mb-16 overflow-visible px-4">
+              <div className="text-center mb-8 md:mb-16 overflow-visible">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
                 </h2>
@@ -1032,7 +1141,7 @@ export default function LandingPage() {
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
               <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide px-4 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-full md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
