@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
@@ -20,31 +20,34 @@ export default function PricingCards({}: PricingCardsProps) {
 
   // Carousel state for mobile
   const [activeIndex, setActiveIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Swipe handlers for mobile carousel
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.touches[0].clientX);
-    setTouchEnd(0);
-  };
+  // Update active index based on scroll position
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.touches[0].clientX);
-  };
+    const handleScroll = () => {
+      const scrollLeft = container.scrollLeft;
+      const cardWidth = container.offsetWidth - 32; // 100vw - 32px (padding)
+      const newIndex = Math.round(scrollLeft / cardWidth);
+      setActiveIndex(newIndex);
+    };
 
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
+  // Scroll to specific card when dot is clicked
+  const scrollToCard = (index: number) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
-    if (isLeftSwipe && activeIndex < plans.length - 1) {
-      setActiveIndex((prev) => prev + 1);
-    } else if (isRightSwipe && activeIndex > 0) {
-      setActiveIndex((prev) => prev - 1);
-    }
+    const cardWidth = container.offsetWidth - 32;
+    container.scrollTo({
+      left: index * cardWidth,
+      behavior: 'smooth'
+    });
   };
 
   // Beide Abos haben die gleichen Features, nur unterschiedlicher Preis
@@ -236,25 +239,16 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden w-full pt-6 -mx-4">
+      <div className="md:hidden w-full pt-6">
         <div
-          className="relative overflow-hidden touch-pan-x"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{ touchAction: 'pan-x' }}
+          ref={scrollContainerRef}
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pl-4 pr-4 pb-4"
         >
-          <div
-            className="flex transition-transform duration-500 ease-out"
-            style={{
-              transform: `translateX(calc(-${activeIndex} * 100vw))`
-            }}
-          >
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                className="w-screen flex-shrink-0 px-4"
-              >
+          {plans.map((plan) => (
+            <div
+              key={plan.name}
+              className="w-[calc(100vw-32px)] flex-shrink-0 snap-start"
+            >
                 <div
                   className={`relative rounded-[40px] border-2 p-6 bg-white ${
                     plan.popular
@@ -329,10 +323,9 @@ export default function PricingCards({}: PricingCardsProps) {
                   >
                     {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
                   </button>
-                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         {/* Dots Indicator */}
@@ -340,7 +333,7 @@ export default function PricingCards({}: PricingCardsProps) {
           {plans.map((_, idx) => (
             <button
               key={idx}
-              onClick={() => setActiveIndex(idx)}
+              onClick={() => scrollToCard(idx)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 idx === activeIndex ? 'w-8 bg-[#ff6b00]' : 'w-2 bg-gray-300'
               }`}
