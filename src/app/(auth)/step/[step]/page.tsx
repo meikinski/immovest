@@ -1733,16 +1733,32 @@ const exportPdf = React.useCallback(async () => {
               </div>
             </div>
 
-            <div className="flex gap-3 w-full lg:w-auto">
-              <div className="flex-1 lg:flex-none bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 text-center">
-                <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Netto-Rendite</span>
-                <span className="text-xl font-black text-[#ff6b00]">{nettoMietrendite.toFixed(1)}%</span>
+            <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
+              <div className="flex gap-3">
+                <div className="flex-1 lg:flex-none bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 text-center">
+                  <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Netto-Rendite</span>
+                  <span className="text-xl font-black text-[#ff6b00]">{nettoMietrendite.toFixed(1)}%</span>
+                </div>
+                <div className="flex-1 lg:flex-none bg-[#001d3d] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
+                  <span className="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1 italic">Monatl. Cashflow</span>
+                  <span className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {cashflowVorSteuer.toFixed(0)} €
+                  </span>
+                </div>
               </div>
-              <div className="flex-1 lg:flex-none bg-[#001d3d] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
-                <span className="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1 italic">Monatl. Cashflow</span>
-                <span className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {cashflowVorSteuer.toFixed(0)} €
-                </span>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => router.push('/step/c')}
+                  className="flex-1 lg:flex-none px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition-all"
+                >
+                  Daten bearbeiten
+                </button>
+                <button
+                  onClick={() => router.push('/step/a')}
+                  className="flex-1 lg:flex-none px-4 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
+                >
+                  Neue Analyse
+                </button>
               </div>
             </div>
           </div>
@@ -1750,9 +1766,9 @@ const exportPdf = React.useCallback(async () => {
           {/* TABS */}
           <div className="px-6 lg:px-10 border-t border-slate-50 flex gap-10 overflow-x-auto no-scrollbar bg-white">
             {([
-              { id: 'kpi', label: 'KI-Analyse', icon: BarChart3 },
-              { id: 'markt', label: 'Marktvergleich', icon: ChartBar },
-              { id: 'szenarien', label: 'Szenarien', icon: Calculator }
+              { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
+              { id: 'markt', label: 'Marktvergleich & Investitionsanalyse', icon: ChartBar },
+              { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
             ] as const).map(t => {
               const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
               return (
