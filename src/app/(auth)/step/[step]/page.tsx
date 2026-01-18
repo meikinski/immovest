@@ -1786,7 +1786,7 @@ const exportPdf = React.useCallback(async () => {
                       <SquarePercent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
-                    <Tooltip content="Jahresmiete geteilt durch Kaufpreis. Zeigt die Rendite ohne Berücksichtigung von Nebenkosten.">
+                    <Tooltip text="Jahresmiete geteilt durch Kaufpreis. Zeigt die Rendite ohne Berücksichtigung von Nebenkosten.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1802,7 +1802,7 @@ const exportPdf = React.useCallback(async () => {
                       <Percent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
-                    <Tooltip content="Jahresmiete minus laufende Kosten (Hausgeld, Instandhaltung) geteilt durch Gesamtinvestition inkl. Nebenkosten.">
+                    <Tooltip text="Jahresmiete minus laufende Kosten (Hausgeld, Instandhaltung) geteilt durch Gesamtinvestition inkl. Nebenkosten.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1818,7 +1818,7 @@ const exportPdf = React.useCallback(async () => {
                       <Wallet size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
-                    <Tooltip content="Monatlicher Überschuss nach Abzug aller Kosten (Kredit, Hausgeld, Instandhaltung) von der Miete, vor Steuern.">
+                    <Tooltip text="Monatlicher Überschuss nach Abzug aller Kosten (Kredit, Hausgeld, Instandhaltung) von der Miete, vor Steuern.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1834,7 +1834,7 @@ const exportPdf = React.useCallback(async () => {
                       <ReceiptText size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
-                    <Tooltip content="Monatlicher Überschuss nach allen Kosten und Steuern. Dein tatsächlicher Gewinn oder Verlust pro Monat.">
+                    <Tooltip text="Monatlicher Überschuss nach allen Kosten und Steuern. Dein tatsächlicher Gewinn oder Verlust pro Monat.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1850,7 +1850,7 @@ const exportPdf = React.useCallback(async () => {
                       <TrendingUp size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
-                    <Tooltip content="Jahrescashflow (nach Steuern) geteilt durch eingesetztes Eigenkapital. Zeigt die Rendite auf dein investiertes Geld.">
+                    <Tooltip text="Jahrescashflow (nach Steuern) geteilt durch eingesetztes Eigenkapital. Zeigt die Rendite auf dein investiertes Geld.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1866,7 +1866,7 @@ const exportPdf = React.useCallback(async () => {
                       <ShieldCheck size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
-                    <Tooltip content="Debt Service Coverage Ratio. Einkommen geteilt durch Kreditkosten. >1,2 ist ideal, <1,0 kritisch.">
+                    <Tooltip text="Debt Service Coverage Ratio. Einkommen geteilt durch Kreditkosten. >1,2 ist ideal, <1,0 kritisch.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
