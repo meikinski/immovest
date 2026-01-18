@@ -282,7 +282,7 @@ export default function LandingPage() {
               <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 2: Zu teuer gekauft */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -348,7 +348,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 3: Schlechte Lage */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -382,7 +382,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 4: Miete überschätzt */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-16px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -643,8 +643,8 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Tabs Navigation */}
-              <div className="flex flex-wrap justify-center gap-3 mb-12">
+              {/* Tabs Navigation - Mobile Only */}
+              <div className="flex md:hidden flex-wrap justify-center gap-3 mb-12">
                 <button
                   onClick={() => setSelectedImportMethod('url')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
@@ -680,9 +680,10 @@ export default function LandingPage() {
                 </button>
               </div>
 
-              <div className="flex flex-col md:flex-row items-start gap-8 md:gap-12">
+              {/* Mobile: Tab-based view */}
+              <div className="md:hidden flex flex-col items-start gap-8">
                 {/* Content */}
-                <div className="w-full md:w-1/2">
+                <div className="w-full">
                   {/* URL Import Content */}
                   {selectedImportMethod === 'url' && (
                     <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
@@ -741,8 +742,8 @@ export default function LandingPage() {
                   )}
                 </div>
 
-                {/* Visual Mockup - Below content on Mobile, Right on Desktop */}
-                <div className="w-full md:w-1/2">
+                {/* Visual Mockup - Mobile */}
+                <div className="w-full">
                   <div className="bg-[#001d3d] rounded-[32px] md:rounded-[48px] min-h-[400px] md:min-h-[500px] flex items-center justify-center p-8 md:p-12 shadow-2xl border-4 border-gray-100">
                     <div className="w-full max-w-md">
                       {/* URL Import Mockup */}
@@ -915,6 +916,72 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Desktop: All three cards */}
+              <div className="hidden md:grid md:grid-cols-3 gap-8">
+                {/* URL Import Card */}
+                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                    <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
+                  <p className="text-gray-600 text-base leading-relaxed mb-6">
+                    Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>Alle Objektdaten in Sekunden erfasst</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>Unterstützt alle großen Portale</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Photo Scan Card */}
+                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                    <Camera className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
+                  <p className="text-gray-600 text-base leading-relaxed mb-6">
+                    Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>Perfekt für Besichtigungen vor Ort</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Manual Input Card */}
+                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
+                    <Edit3 className="w-7 h-7 text-[#ff6b00]" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Manuell</h3>
+                  <p className="text-gray-600 text-base leading-relaxed mb-6">
+                    Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>Smartes Formular mit Validierung</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-sm text-gray-600">
+                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <span>Volle Kontrolle über alle Details</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -935,7 +1002,7 @@ export default function LandingPage() {
                 {/* Karte 1: Steuern */}
                 <div
                   data-goal-index="0"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 0
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -956,7 +1023,7 @@ export default function LandingPage() {
                 {/* Karte 2: Vorsorge */}
                 <div
                   data-goal-index="1"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 1
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -977,7 +1044,7 @@ export default function LandingPage() {
                 {/* Karte 3: Cashflow */}
                 <div
                   data-goal-index="2"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-16px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
+                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
                     activeGoalIndex === 2
                       ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
                       : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
@@ -1035,7 +1102,7 @@ export default function LandingPage() {
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
               <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -1047,7 +1114,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -1059,7 +1126,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -1071,7 +1138,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-16px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
