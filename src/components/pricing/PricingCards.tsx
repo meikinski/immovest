@@ -241,17 +241,16 @@ export default function PricingCards({}: PricingCardsProps) {
       {/* Pricing Cards - Mobile Carousel */}
       <div className="md:hidden w-full pt-6">
         <div
-          className="relative"
+          className="relative overflow-hidden"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="flex transition-transform duration-500 ease-out overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4"
+            className="flex transition-transform duration-500 ease-out px-4"
             style={{
               transform: `translateX(-${activeIndex * 100}%)`,
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none'
+              touchAction: 'pan-x'
             }}
           >
             {plans.map((plan) => (
