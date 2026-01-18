@@ -2,15 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { InputField } from '@/components/InputField';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
- BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar, Crown,
-  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock
+ BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
+  EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
+  TrendingUp, Percent, ShieldCheck, MessageSquare
 } from 'lucide-react';
-import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
@@ -27,8 +26,8 @@ import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 
 
 
-type Step = 'input-method' | 'a' | 'b' | 'c' | 'tabs';
-const steps = ['a', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
+type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
+const steps = ['a', 'a2', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
 
 function cityFromAddress(addr: string): string {
   // erwartet Formate wie "Straße 1, 12345 Stadt" oder "... , Stadt"
@@ -315,8 +314,10 @@ const dscr =
     const missing: string[] = [];
 
     if (currentStep === 'a') {
-      // Step A validation
+      // Step A validation - only Kaufpreis
       if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
+    } else if (currentStep === 'a2') {
+      // Step A2 validation - Objektdaten
       if (!adresse || adresse.trim() === '') missing.push('Adresse');
       if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
       if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
@@ -666,6 +667,7 @@ const dscr =
       setLoadingDetails(false);
     }
   })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [
   step, activeTab,
   adresse, objekttyp,
@@ -674,6 +676,7 @@ const dscr =
   ek, zins, tilgung,
   // Paywall context dependencies
   canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
+  // Note: Setters and comment states are intentionally excluded to prevent infinite loops
 ]);
 
 
@@ -859,313 +862,299 @@ const exportPdf = React.useCallback(async () => {
   if (step === 'a') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => router.back()}
-            className="btn-back"
-          >
-            ←
-          </button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-               Objektdaten <House className="icon icon-primary" />
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Gib die grundlegenden Informationen zu deinem Objekt ein.
-            </p>
-          </div>
+        {/* Title */}
+        <div className="text-center mb-12">
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Kaufpreis & Nebenkosten.</h1>
         </div>
 
-        {/* Kaufpreis */}
-        <div className="card">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Kaufpreis</span>
-            <span className="ml-2"><EuroIcon /></span>
-          </div>
-          <InputField
-            className="input-uniform input-editable"
-            label=""
-            type="text"
-            value={
-              mounted
-                ? kaufpreis.toLocaleString('de-DE')
-                : kaufpreis.toString()
-            }
-            onValueChange={v =>
-              setKaufpreis(
-                Number(
-                  v.replace(/\./g, '').replace(',', '.')
-                )
-              )
-            }
-            unit=" €"
-          />
-        </div>
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
-        {/* Kaufnebenkosten */}
-        <div className="card bg-white p-4 rounded-2xl shadow-md">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Kaufnebenkosten</span>
-            <span className="ml-2"><ReceiptText /></span>
+          {/* Kaufpreis */}
+          <div className="space-y-1.5 w-full">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Kaufpreis</label>
+            <div className="relative group">
+              <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+              <input
+                type="text"
+                value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
+                onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+              />
+            </div>
           </div>
 
-          {[
-            {
-              label: 'Grunderwerbsteuer',
-              text: grunderwerbText,
-              setText: setGrunderwerbText,
-              setter: setGrunderwerbsteuerPct,
-              amount: grunderwerbsteuer_eur,
-            },
-            {
-              label: 'Notar & Grundbuch',
-              text: notarText,
-              setText: setNotarText,
-              setter: setNotarPct,
-              amount: notar_eur,
-            },
-            {
-              label: 'Maklergebühr',
-              text: maklerText,
-              setText: setMaklerText,
-              setter: setMaklerPct,
-              amount: makler_eur,
-            },
-          ].map((item, i) => (
-            <div key={i} className="grid grid-cols-2 gap-4 mb-4 items-end">
-              {/* Prozent-Feld */}
-              <div className="flex flex-col">
-                <label className="block text-xs text-gray-600 mb-1">{item.label}</label>
+          {/* Kaufnebenkosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Kaufnebenkosten</h3>
+
+            <div className="grid grid-cols-1 gap-6">
+              {[
+                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur },
+                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
+                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur },
+              ].map((item, i) => (
+                <div key={i} className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Prozent Input */}
+                    <div
+                      onBlur={() => {
+                        const num = Number(item.text.replace(',', '.'));
+                        item.setter(isNaN(num) ? 0 : num);
+                      }}
+                    >
+                      <div className="relative group">
+                        <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                        <input
+                          type="text"
+                          value={item.text}
+                          onChange={(e) => item.setText(e.target.value)}
+                          onFocus={(e) => e.target.select()}
+                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Betrag */}
+                    <div className="relative">
+                      <input
+                        type="text"
+                        readOnly
+                        value={mounted ? item.amount.toLocaleString('de-DE') : item.amount.toString()}
+                        className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Sonstige Kosten */}
+              <div className="space-y-1.5 col-span-full">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Sonstige Kosten
+                  <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
                 <div
                   onBlur={() => {
-                    const num = Number(item.text.replace(',', '.'));
-                    item.setter(isNaN(num) ? 0 : num);
+                    const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+                    setSonstigeKosten(isNaN(num) ? 0 : num);
                   }}
                 >
-                  <InputField
-                    value={item.text}
-                    onValueChange={item.setText}
-                    unit=" %"
-                    className="w-full input-uniform input-editable"
-                  />
+                  <div className="relative group">
+                    <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={sonstigeKostenText}
+                      onChange={(e) => setSonstigeKostenText(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    />
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Betrag-Feld */}
-              <div className="flex flex-col">
-                <label className="block text-xs text-gray-600 mb-1">Betrag</label>
+            {/* Gesamtinvestition */}
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Gesamtinvestition</label>
                 <div className="relative">
                   <input
                     type="text"
                     readOnly
-                    value={
-                      mounted
-                        ? item.amount.toLocaleString('de-DE')
-                        : item.amount.toString()
-                    }
-                    className="w-full input-uniform input-computed pr-8 rounded"
+                    value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
+                    className="w-full bg-gradient-to-br from-[#ff6b00] to-[#ff6b00]/90 border-2 border-[#ff6b00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg"
                   />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">
-                    €
-                  </span>
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/90 font-black text-sm">€</span>
                 </div>
               </div>
             </div>
-          ))}
 
-          {/* Sonstige Kosten */}
-          <div className="mt-4">
-            <label className="block text-xs text-gray-600 mb-1 flex items-center">
-              Sonstige Kosten
-              <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
-                <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-              </Tooltip>
-            </label>
-            <div
-              onBlur={() => {
-                const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
-                setSonstigeKosten(isNaN(num) ? 0 : num);
-              }}
-            >
-              <InputField
-                value={sonstigeKostenText}
-                onValueChange={setSonstigeKostenText}
-                unit=" €"
-                className="w-full input-uniform input-editable"
-              />
-            </div>
-          </div>
-
-          {/* Total-Zeile */}
-          <div className="mt-6">
-   <label className="block text-xs text-gray-600 mb-1">Gesamtinvestition</label>
-   <div className="relative">
-     <input
-       type="text"
-       readOnly
-       value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
-       className="w-full input-total pr-8"
-     />
-     <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">€</span>
-   </div>
- </div>
-
-          {/* Warnung bei hoher Maklergebühr */}
-          {maklerPct > 5 && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-              <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Hohe Maklergebühr</p>
-                <p className="text-xs mt-1">
-                  Die Maklergebühr von {maklerPct.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 2})}% liegt über dem üblichen Rahmen von 2-4%. Bitte prüfe, ob dieser Wert korrekt ist.
-                </p>
+            {/* Warnung bei hoher Maklergebühr */}
+            {maklerPct > 5 && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Hohe Maklergebühr</p>
+                  <p className="text-xs mt-1">
+                    Die Maklergebühr von {maklerPct.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 2})}% liegt über dem üblichen Rahmen von 2-4%. Bitte prüfe, ob dieser Wert korrekt ist.
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
-        {/* Objekttyp */}
-        <div className="card">
-  <div className="mb-3 text-lg font-semibold flex items-center">
-    <span>Objekttyp</span>
-    <span className="ml-2"><House /></span>
-  </div>
-  <div className="flex justify-center gap-2 p-1.5 bg-gray-100 rounded-full">
-    <button
-      type="button"
-      onClick={() => setObjekttyp('wohnung')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'wohnung'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'wohnung' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      <span className="hidden sm:inline">Eigentumswohnung</span>
-      <span className="sm:hidden">ETW</span>
-    </button>
-    <button
-      type="button"
-      onClick={() => setObjekttyp('haus')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'haus'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'haus' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      Haus
-    </button>
-    <button
-      type="button"
-      onClick={() => setObjekttyp('mfh')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'mfh'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'mfh' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      <span className="hidden sm:inline">Mehrfamilienhaus</span>
-      <span className="sm:hidden">MFH</span>
-    </button>
-  </div>
-</div>
+        {/* Buttons */}
+        <div className="mt-8">
+          <button
+            onClick={handleNavigateToNextStep}
+            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+          >
+            Weiter
+          </button>
+        </div>
+      </>
+    );
 
-        {/* Adresse */}
-        <div className="card">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Adresse</span>
-            <span className="ml-2"><MapPin /></span>
-          </div>
-          <AddressAutocomplete
-            value={adresse}
-            onChange={(val: string) => setAdresse(val)}
-          />
+  } else if (step === 'a2') {
+    content = (
+      <>
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-12">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Objektdaten.</h1>
         </div>
 
-        {/* Zimmer (ETW/Haus) oder Wohneinheiten (MFH) & Fläche */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div>
-            <div className='card'>
-              <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>{objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}</span>
-                <span className="ml-2">{objekttyp === 'mfh' ? <House /> : <BedSingle />}</span>
-              </div>
-              <InputField
-                label=""
-                type="text"
-                value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
-                onValueChange={v => objekttyp === 'mfh'
-                  ? setAnzahlWohneinheiten(Number(v))
-                  : setZimmer(Number(v))
-                }
-                className="input-uniform input-editable"
-              />
-              {objekttyp === 'mfh' && (
-                <p className="text-xs text-gray-500 mt-1">Anzahl vermietbarer Wohnungen</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className='card'>
-              <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>{objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}</span>
-                <span className="ml-2"><Ruler /></span>
-              </div>
-              <div
-                onBlur={() => {
-                  const num = Number(
-                    flaecheText.replace(/\./g, '').replace(',', '.')
-                  );
-                  setFlaeche(isNaN(num) ? 0 : num);
-                }}
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
+
+          {/* Objekttyp */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setObjekttyp('wohnung')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'wohnung'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
+                }`}
               >
-                <InputField
-                  label=""
+                <span className="hidden sm:inline">Eigentumswohnung</span>
+                <span className="sm:hidden">ETW</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setObjekttyp('haus')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'haus'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
+                }`}
+              >
+                Haus
+              </button>
+              <button
+                type="button"
+                onClick={() => setObjekttyp('mfh')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'mfh'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
+                }`}
+              >
+                <span className="hidden sm:inline">Mehrfamilienhaus</span>
+                <span className="sm:hidden">MFH</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Adresse */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Adresse</label>
+            <div className="relative group">
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
+              <AddressAutocomplete
+                value={adresse}
+                onChange={(val: string) => setAdresse(val)}
+              />
+            </div>
+          </div>
+
+          {/* Zimmer/Wohneinheiten & Fläche */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">
+                {objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}
+              </label>
+              <div className="relative group">
+                {objekttyp === 'mfh' ? (
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                ) : (
+                  <BedSingle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                )}
+                <input
                   type="text"
-                  value={mounted ? flaecheText : flaecheText}
-                  onValueChange={setFlaecheText}
-                  unit="m²"
-                  className="input-uniform input-editable"
+                  value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
+                  onChange={(e) => objekttyp === 'mfh' ? setAnzahlWohneinheiten(Number(e.target.value)) : setZimmer(Number(e.target.value))}
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
               </div>
               {objekttyp === 'mfh' && (
-                <p className="text-xs text-gray-500 mt-1">Gesamte Wohnfläche aller Einheiten</p>
+                <p className="text-xs text-slate-500 ml-1">Anzahl vermietbarer Wohnungen</p>
               )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">
+                {objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}
+              </label>
+              <div
+                onBlur={() => {
+                  const num = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
+                  setFlaeche(isNaN(num) ? 0 : num);
+                }}
+              >
+                <div className="relative group">
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={mounted ? flaecheText : flaecheText}
+                    onChange={(e) => setFlaecheText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+              {objekttyp === 'mfh' && (
+                <p className="text-xs text-slate-500 ml-1">Gesamte Wohnfläche aller Einheiten</p>
+              )}
+            </div>
+          </div>
+
+          {/* Baujahr */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Baujahr</label>
+            <div className="relative group">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+              <input
+                type="text"
+                value={baujahr.toString()}
+                onChange={(e) => setBaujahr(Number(e.target.value))}
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+              />
             </div>
           </div>
         </div>
 
-        {/* Baujahr */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Baujahr</span>
-            <span className="ml-2"><Calendar /></span>
-          </div>
-          <InputField
-            className="input-editable input-uniform"
-            label=""
-            type="text"
-            value={baujahr.toString()}
-            onValueChange={v => setBaujahr(Number(v))}
-          />
-        </div>
-
-        {/* Weiter Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full btn-primary flex justify-center space-x-2"
-        >
-          Weiter <SkipForward className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <button
+            onClick={handleNavigateToNextStep}
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+          >
+            Weiter
+          </button>
         </div>
       </>
     );
@@ -1173,669 +1162,875 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'b') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button onClick={() => router.push('/step/a')} className="btn-back rounded-full p-2">←</button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">Einnahmen & Kosten <Wallet className="icon icon-primary" /></h1>
-            <p className="text-gray-600 mt-1">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
-          </div>
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-12">
+          <button
+            onClick={() => router.push('/step/a2')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Ertrag & Hausgeld.</h1>
         </div>
 
-        {/* Mieteinnahmen */}
-        <div className="card bg-white p-4 rounded-2xl shadow-md">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Mieteinnahmen</span>
-            <span className="ml-2"><Wallet /></span>
-          </div>
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Kaltmiete gesamt */}
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
-                <Tooltip text={objekttyp === 'mfh'
-                  ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
-                  : 'Die monatliche Nettokaltmiete ohne Nebenkosten.'}>
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={miete.toString()}
-                onValueChange={v => setMiete(
-                  Number(v.replace(/\./g, '').replace(',', '.'))
-                )}
-                unit="€"
-                className="input-uniform input-editable pr-8"
-              />
-            </div>
+          {/* Mieteinnahmen Section */}
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Mieteinnahmen</h3>
 
-            {/* Kaltmiete pro qm */}
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1">Kaltmiete pro qm</label>
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  readOnly
-                  value={
-                    mounted && flaeche > 0
-                      ? (miete / flaeche).toLocaleString('de-DE', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                      : ''
-                  }
-                  className="input-computed input-uniform w-full pr-8 rounded-2xl"
-                />
-                <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">
-                  €
-                </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Kaltmiete gesamt */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
+                  <Tooltip text={objekttyp === 'mfh'
+                    ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
+                    : 'Die monatliche Nettokaltmiete ohne Nebenkosten.'}>
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={miete.toString()}
+                    onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Kaltmiete pro qm */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Kaltmiete pro qm</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      mounted && flaeche > 0
+                        ? (miete / flaeche).toLocaleString('de-DE', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : ''
+                    }
+                    className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Mietnebenkosten / Betriebskosten */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            {objekttyp === 'wohnung' ? 'Mietnebenkosten' : 'Betriebskosten'}
-            &nbsp;<span><ChartBar /></span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Umlagefähig - für alle Objekttypen */}
-            <div
-              onBlur={() => {
-                const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                if (objekttyp === 'wohnung') {
-                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                  setHausgeld(isNaN(um) ? non : um + non);
-                }
-              }}
-              className="flex flex-col"
-            >
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
-                <Tooltip text={objekttyp === 'wohnung'
-                  ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
-                  : 'Monatliche Nebenkosten, die auf Mieter umgelegt werden (Wasser, Müll, Grundsteuer, etc.).'}>
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={hausUmlegText}
-                onValueChange={setHausUmlegText}
-                unit="€"
-                className="input-uniform input-editable"
-              />
-            </div>
+          {/* Mietnebenkosten / Betriebskosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">
+              {objekttyp === 'wohnung' ? 'Mietnebenkosten' : 'Betriebskosten'}
+            </h3>
 
-            {/* Für ETW: Nicht umlagefähiges Hausgeld */}
-            {objekttyp === 'wohnung' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Umlagefähig - für alle Objekttypen */}
               <div
                 onBlur={() => {
                   const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
                   setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                  setHausgeld(isNaN(non) ? um : um + non);
+                  if (objekttyp === 'wohnung') {
+                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setHausgeld(isNaN(um) ? non : um + non);
+                  }
                 }}
-                className="flex flex-col"
+                className="space-y-1.5"
               >
-                <label className="text-xs text-gray-600 mb-1 flex items-center">
-                  Hausgeld nicht umlagefähig
-                  <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
+                  <Tooltip text={objekttyp === 'wohnung'
+                    ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
+                    : 'Monatliche Nebenkosten, die auf Mieter umgelegt werden (Wasser, Müll, Grundsteuer, etc.).'}>
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                   </Tooltip>
                 </label>
-                <InputField
-                  value={hausNichtText}
-                  onValueChange={setHausNichtText}
-                  unit="€"
-                  className="input-uniform input-editable"
-                />
+                <div className="relative group">
+                  <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={hausUmlegText}
+                    onChange={(e) => setHausUmlegText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
+                </div>
               </div>
-            )}
 
-            {/* Für Haus/MFH: Verwaltungskosten */}
-            {(objekttyp === 'haus' || objekttyp === 'mfh') && (
+              {/* Für ETW: Nicht umlagefähiges Hausgeld */}
+              {objekttyp === 'wohnung' && (
+                <div
+                  onBlur={() => {
+                    const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
+                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setHausgeldUmlegbar(isNaN(um) ? 0 : um);
+                    setHausgeld(isNaN(non) ? um : um + non);
+                  }}
+                  className="space-y-1.5"
+                >
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
+                    Hausgeld nicht umlagefähig
+                    <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </label>
+                  <div className="relative group">
+                    <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={hausNichtText}
+                      onChange={(e) => setHausNichtText(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Für Haus/MFH: Verwaltungskosten */}
+              {(objekttyp === 'haus' || objekttyp === 'mfh') && (
+                <div
+                  onBlur={() => {
+                    const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setVerwaltungskosten(isNaN(verw) ? 0 : verw);
+                  }}
+                  className="space-y-1.5"
+                >
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
+                    Verwaltungskosten
+                    <Tooltip text={objekttyp === 'mfh'
+                      ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
+                      : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </label>
+                  <div className="relative group">
+                    <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={hausNichtText}
+                      onChange={(e) => setHausNichtText(e.target.value)}
+                      onFocus={(e) => e.target.select()}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hinweise zu Hausgeld-Verteilung */}
+            {objekttyp === 'wohnung' && (() => {
+              const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
+              const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
+              const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
+
+              // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
+              const isAutoDistribution = hausgeld > 0 && hausgeld_umlegbar > 0 &&
+                Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
+                Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5;
+
+              // Fall 2: Nur umlagefähig eingetragen, nicht-umlagefähig fehlt
+              const onlyUmlegbarFilled = umlegbarNum > 0 && nichtUmlegbarNum === 0;
+
+              // Fall 3: Nur nicht-umlagefähig eingetragen, umlagefähig fehlt
+              const onlyNichtUmlegbarFilled = nichtUmlegbarNum > 0 && umlegbarNum === 0;
+
+              if (isAutoDistribution) {
+                return (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-2xl text-blue-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
+                      <p className="text-xs mt-1">
+                        Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
+                      </p>
+                    </div>
+                  </div>
+                );
+              } else if (onlyUmlegbarFilled) {
+                const recommendedUmlegbar = totalHausgeld * 0.6;
+                const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+                return (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                      <p className="text-xs mt-1">
+                        Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                      </p>
+                      <p className="text-xs mt-1">
+                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                      </p>
+                    </div>
+                  </div>
+                );
+              } else if (onlyNichtUmlegbarFilled) {
+                const recommendedUmlegbar = totalHausgeld * 0.6;
+                const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+                return (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                      <p className="text-xs mt-1">
+                        Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                      </p>
+                      <p className="text-xs mt-1">
+                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
+
+          {/* Kalkulatorische Kosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Kalkulatorische Kosten</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Mietausfall */}
               <div
-                onBlur={() => {
-                  const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                  setVerwaltungskosten(isNaN(verw) ? 0 : verw);
-                }}
-                className="flex flex-col"
+                onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
+                className="space-y-1.5"
               >
-                <label className="text-xs text-gray-600 mb-1 flex items-center">
-                  Verwaltungskosten
-                  <Tooltip text={objekttyp === 'mfh'
-                    ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
-                    : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Kalk. Mietausfall
+                    <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
-                <InputField
-                  value={hausNichtText}
-                  onValueChange={setHausNichtText}
-                  unit="€"
-                  className="input-uniform input-editable"
-                />
+                <div className="relative group">
+                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={mietausfallText}
+                    onChange={(e) => setMietausfallText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
+                </div>
               </div>
-            )}
+
+              {/* Instandhaltung */}
+              <div
+                onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Instandhaltungskosten /qm
+                    <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
+                </label>
+                <div className="relative group">
+                  <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={instandText}
+                    onChange={(e) => setInstandText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Hinweise zu Hausgeld-Verteilung */}
-          {objekttyp === 'wohnung' && (() => {
-            const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
-            const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
-            const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
+          {/* Steuern Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Steuern</h3>
 
-            // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
-            const isAutoDistribution = hausgeld > 0 && hausgeld_umlegbar > 0 &&
-              Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
-              Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5;
-
-            // Fall 2: Nur umlagefähig eingetragen, nicht-umlagefähig fehlt
-            const onlyUmlegbarFilled = umlegbarNum > 0 && nichtUmlegbarNum === 0;
-
-            // Fall 3: Nur nicht-umlagefähig eingetragen, umlagefähig fehlt
-            const onlyNichtUmlegbarFilled = nichtUmlegbarNum > 0 && umlegbarNum === 0;
-
-            if (isAutoDistribution) {
-              return (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
-                    <p className="text-xs mt-1">
-                      Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* AfA Satz */}
+              <div
+                onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    AfA Satz (% p.a.)
+                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
+                </label>
+                <div className="relative group">
+                  <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={afaText}
+                    onChange={(e) => setAfaText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
                 </div>
-              );
-            } else if (onlyUmlegbarFilled) {
-              const recommendedUmlegbar = totalHausgeld * 0.6;
-              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
-              return (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
-                    <p className="text-xs mt-1">
-                      Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
-                    </p>
-                    <p className="text-xs mt-1">
-                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
-                    </p>
-                  </div>
+              </div>
+
+              {/* Anteil Gebäude */}
+              <div
+                onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Anteil Gebäude am Kaufpreis (%)
+                    <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
+                </label>
+                <div className="relative group">
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={gebText}
+                    onChange={(e) => setGebText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
                 </div>
-              );
-            } else if (onlyNichtUmlegbarFilled) {
-              const recommendedUmlegbar = totalHausgeld * 0.6;
-              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
-              return (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
-                    <p className="text-xs mt-1">
-                      Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
-                    </p>
-                    <p className="text-xs mt-1">
-                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
-                    </p>
-                  </div>
+              </div>
+
+              {/* Persönlicher Steuersatz */}
+              <div
+                onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
+                className="space-y-1.5 col-span-full"
+              >
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Pers. Steuersatz (%)
+                    <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
+                </label>
+                <div className="relative group">
+                  <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={persText}
+                    onChange={(e) => setPersText(e.target.value)}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  />
                 </div>
-              );
-            }
-            return null;
-          })()}
-        </div>
-
-        {/* Kalkulatorische Kosten */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">Kalkulatorische Kosten&nbsp;<span><WrenchIcon /></span></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Mietausfall */}
-            <div onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Kalk. Mietausfall
-                <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={mietausfallText}
-                onValueChange={setMietausfallText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-            {/* Instandhaltung */}
-            <div onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Instandhaltungskosten /qm
-                <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={instandText}
-                onValueChange={setInstandText}
-                unit="€"
-                className="input-uniform input-editable"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Steuern (optional) */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            Steuern&nbsp;<span><SquarePercent /></span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            {/* AfA Satz */}
-            <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                AfA Satz (% p.a.)
-                <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={afaText}
-                onValueChange={setAfaText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-
-            {/* Anteil Gebäude */}
-            <div onBlur={() => setSteuer(Number(gebText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Anteil Gebäude am Kaufpreis (%)
-                <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={gebText}
-                onValueChange={setGebText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-
-            {/* Persönlicher Steuersatz */}
-            <div onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))} className="flex flex-col col-span-2">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Pers. Steuersatz (%)
-                <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={persText}
-                onValueChange={setPersText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Weiter Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full btn-primary flex items-center justify-center space-x-2"
-        >
-          Weiter <SkipForward className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/a2')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <button
+            onClick={handleNavigateToNextStep}
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+          >
+            Weiter
+          </button>
         </div>
       </>
     );
   } else if (step === 'c') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button onClick={() => router.push('/step/b')} className="btn-back">
-            ←
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-12">
+          <button
+            onClick={() => router.push('/step/b')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">Finanzierung <Calculator className="icon icon-primary" /></h1>
-            <p className="text-gray-600 mt-1">
-              Gib die Details zur Finanzierung deiner Immobilie an.
-            </p>
-          </div>
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black text-[#001d3d] tracking-tight leading-none">Eigenkapital & Kredit.</h1>
         </div>
 
-        {/* Finanzierungskarte */}
-        <div className='card'>
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
+
           {/* Eigenkapital */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Eigenkapital</label>
-            <div className="relative">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Eigenkapital</label>
+            <div className="relative group">
+              <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
                 type="text"
-                value={mounted ? ek.toLocaleString('de-DE') : + ' 0'}
-                onChange={e => setEk(
-                  Number(
-                    e.target.value
-                    .replace(/\./g, '')
-                    .replace(',', '.')
-                  ) || 0
-                )}
-                onFocus={e => e.target.select()}
-                className="w-full input-uniform input-editable"
+                value={mounted ? ek.toLocaleString('de-DE') : '0'}
+                onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">€</span>
             </div>
           </div>
 
-          {/* Eigenkapitalquote */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Eigenkapitalquote</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted && anschaffungskosten > 0
-                    ? ((ek / anschaffungskosten) * 100).toFixed(2)
-                    : '0,0'
-                }
-                className="w-full input-uniform input-computed"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
+          {/* Eigenkapitalquote & Darlehenssumme */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Eigenkapitalquote */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Eigenkapitalquote</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    mounted && anschaffungskosten > 0
+                      ? ((ek / anschaffungskosten) * 100).toFixed(2)
+                      : '0,0'
+                  }
+                  className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+              </div>
+            </div>
+
+            {/* Darlehenssumme */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Darlehenssumme</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={mounted ? darlehensSumme.toLocaleString('de-DE') : '0'}
+                  className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+              </div>
             </div>
           </div>
 
-          {/* Darlehenssumme */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Darlehenssumme</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted
-                    ? darlehensSumme.toLocaleString('de-DE') 
-                    : '0'
-                }
-                className="w-full input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">€</span>
+          {/* Zinssatz & Tilgung */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Zinssatz */}
+            <div
+              onBlur={() => {
+                const num = Number(zinsText.replace(',', '.'));
+                setZins(isNaN(num) ? 0 : num);
+              }}
+              className="space-y-1.5"
+            >
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Zinssatz</label>
+              <div className="relative group">
+                <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={zinsText}
+                  onChange={(e) => setZinsText(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Zinssatz */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Zinssatz</label>
-            <div className="relative" onBlur={() => {
-              const num = Number(zinsText.replace(',', '.'));
-              setZins(isNaN(num) ? 0 : num);
-            }}>
-              <InputField
-                value={zinsText}
-                onValueChange={setZinsText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
-            </div>
-          </div>
-
-          {/* Tilgung */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Tilgung</label>
-            <div className="relative" onBlur={() => {
-              const num = Number(tilgungText.replace(',', '.'));
-              setTilgung(isNaN(num) ? 0 : num);
-            }}>
-              <InputField
-                value={tilgungText}
-                onValueChange={setTilgungText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
+            {/* Tilgung */}
+            <div
+              onBlur={() => {
+                const num = Number(tilgungText.replace(',', '.'));
+                setTilgung(isNaN(num) ? 0 : num);
+              }}
+              className="space-y-1.5"
+            >
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Tilgung</label>
+              <div className="relative group">
+                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={tilgungText}
+                  onChange={(e) => setTilgungText(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                />
+              </div>
             </div>
           </div>
 
           {/* Monatliche Rate */}
-          <div className="mt-4">
-            <label className="text-xs text-gray-600 mb-1 block">Monatliche Rate</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted
-                    ? (
-                        darlehensSumme *
-                        ((zins + tilgung) / 100) /
-                        12
-                      ).toLocaleString('de-DE', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      }) + ' €/Monat'
-                    : ''
-                }
-                className="w-full input-total text-center"
-              />
+          <div className="pt-6 border-t border-slate-200">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Monatliche Rate</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    mounted
+                      ? (darlehensSumme * ((zins + tilgung) / 100) / 12).toLocaleString('de-DE', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }) + ' €/Monat'
+                      : ''
+                  }
+                  className="w-full bg-gradient-to-br from-[#ff6b00] to-[#ff6b00]/90 border-2 border-[#ff6b00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg text-center"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Berechnen-Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full w-full btn-primary flex items-center justify-center space-x-2"
-        >
-          Berechnen
-          <Calculator className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/b')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <button
+            onClick={handleNavigateToNextStep}
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+          >
+            Investment analysieren
+          </button>
         </div>
       </>
     );
   } else if (step === 'tabs') {
     content = (
-      <>
-        {/* Progress Indicator */}
-        <div className="mb-6">
-          <ProgressIndicator currentStep="tabs" />
+      <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
+        {/* Sticky Header */}
+        <div className="bg-white border-b border-slate-200 z-40 shadow-sm flex-shrink-0">
+          <div className="px-6 lg:px-10 py-6">
+            <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div className="flex items-center gap-5">
+                <div className="w-14 h-14 bg-[#ff6b00] rounded-2xl flex items-center justify-center shadow-md">
+                  <House size={28} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black tracking-tight flex items-center gap-2 text-white">
+                    {shortAddress || adresse || 'Immobilie'}
+                  </h2>
+                  <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mt-1">
+                    {flaeche}m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => router.push('/step/c')}
+                  className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition-all backdrop-blur-sm border border-white/20"
+                >
+                  Bearbeiten
+                </button>
+                <button
+                  onClick={() => router.push('/step/a')}
+                  className="px-5 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
+                >
+                  Neue Analyse
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* TABS */}
+          <div className="px-6 lg:px-10 border-t border-slate-50 flex gap-10 overflow-x-auto no-scrollbar bg-white">
+            {([
+              { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
+              { id: 'markt', label: 'Marktvergleich & Investitionsanalyse', icon: ChartBar },
+              { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
+            ] as const).map(t => {
+              const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id)}
+                  className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
+                >
+                  {locked ? (
+                    <Lock size={14} />
+                  ) : (
+                    <t.icon size={14} className={activeTab === t.id ? 'text-[#ff6b00]' : ''} />
+                  )}
+                  {t.label}
+                  {activeTab === t.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#ff6b00] rounded-t-full shadow-[0_-2px_8px_rgba(255,140,0,0.3)]" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Header */}
-        <div className="flex items-center mb-4">
-  <button onClick={() => router.push('/step/c')} className="btn-back">←</button>
-  <div className="ml-4 flex items-center gap-3">
-    <h1 className="text-3xl font-bold">Analyse</h1>
-    <BarChart3 size={32} className="text-[var(--color-primary)]" />
-  </div>
-</div>
-
-
-        {/* Eckdaten-Zeile */}
-        {/* Eckdaten */}
-<div className="card mb-6">
-  <h2 className="text-sm font-semibold text-gray-800 mb-3">Eckdaten</h2>
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-6 text-sm text-gray-700">
-<div>
-      <span className="icon-badge"><MapPin size={16} /></span>{' '}
-      {shortAddress ? (
-        <a
-          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline text-[var(--color-primary)]"
-        >
-          {shortAddress}
-        </a>
-      ) : '–'}
-    </div>    <div><span className="font-medium"></span> <span className="text-gray-700 font-medium text-sm"></span></div>
-    <div><span className="icon-badge mr-2"><EuroIcon size={16} /></span><span className="font-medium">Kaufpreis:</span>  <span className="text-gray-700 font-medium text-sm">{kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Ruler size={16} /></span><span className="font-medium">Fläche:</span><span className="text-gray-700 font-medium text-sm">{flaeche ? `${flaeche.toLocaleString('de-DE')} m²` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><Wallet size={16} /></span><span className="font-medium">Gesamtinvestition:</span><span className="text-gray-700 font-medium text-sm">{anschaffungskosten ? `${anschaffungskosten.toLocaleString('de-DE')} €` : '–'}</span></div>
-    <div><span className="icon-badge mr-2"><BedSingle size={16} /></span><span className="font-medium">Zimmer:</span> <span className="text-gray-700 font-medium text-sm">{zimmer || '–'}</span></div>
-  </div>
-</div>
-
-{/* Tabs */}
-<div className="mt-6 mb-5 flex flex-wrap justify-center gap-2">
-  {([
-    { key: 'kpi', label: 'KPIs', premium: false },
-    { key: 'markt', label: 'Marktvergleich & Lage', premium: true },
-    { key: 'szenarien', label: 'Szenarien & Export', premium: true },
-  ] as const).map(t => {
-    const active = activeTab === t.key;
-    const locked = t.premium && (!isSignedIn || !canAccessPremium);
-    return (
-      <button
-        key={t.key}
-        onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.key)}
-        className={[
-          'px-4 py-2 rounded-full border text-base transition flex items-center gap-2',
-          active
-            ? 'font-semibold bg-[hsl(var(--brand))] border-[hsl(var(--brand))] text-white'
-            : locked
-            ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-pointer hover:border-[hsl(var(--brand-2))]'
-            : 'bg-white border-[hsl(var(--accent))] text-gray-700 hover:border-[hsl(var(--accent))] hover:bg-[hsl(var(--accent))] hover:text-white'
-        ].join(' ')}
-        aria-current={active ? 'page' : undefined}
-      >
-        {locked && <Lock size={16} />}
-        {t.label}
-      </button>
-    );
-  })}
-</div>
-
-
-
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto px-6 lg:px-10 py-10 space-y-10">
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
-          <>
-            {/* KPI-Karten (Tooltips = Erklärung, keine Pfeile/Icons) */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-  <KpiCard
-    title="Cashflow (vor Steuern)"
-    value={`${cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    // kein trend-Prop mehr → kein Pfeil
-    help="Monatlicher Überschuss: Mieteinnahmen minus alle laufenden Kosten (Kreditrate, Hausgeld nicht umlegbar, Instandhaltung, Mietausfall). Positiv = Immobilie trägt sich selbst. Negativ = Du musst monatlich zuschießen."
-  />
-  <KpiCard
-    title="Cashflow (nach Steuern)"
-    value={`${cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    help="Cashflow nach Steuern: Berücksichtigt vereinfacht die Steuerersparnis durch AfA (Abschreibung) und Zinsen. Zeigt dir realistischer, was am Ende bei dir ankommt oder wie viel du monatlich einplanen musst."
-  />
-  <KpiCard
-    title="Nettomietrendite"
-    value={`${nettoMietrendite.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`}
-    help="Nettomietrendite: (Jahreskaltmiete - Bewirtschaftungskosten) / Kaufpreis. Berücksichtigt Hausgeld, Instandhaltung, Mietausfall. Richtwerte: < 2% schwach, 2-3% solide, > 3% attraktiv. Stark abhängig von Lage & Objekttyp."
-  />
-  <KpiCard
-    title="Bruttomietrendite"
-    value={`${bruttoMietrendite.toFixed(1)} %`}
-    help="Einfache Berechnung: Jahreskaltmiete geteilt durch Kaufpreis. Berücksichtigt KEINE Nebenkosten, Instandhaltung oder Leerstand – daher immer höher als Nettomietrendite. Gut für ersten Überblick."
-  />
-  <KpiCard
-    title="EK-Quote"
-    value={`${anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'} %`}
-    help="Wie viel % der Gesamtkosten du aus eigener Tasche zahlst. Höhere Quote = weniger Kredit nötig, niedrigere Zinslast. Aber: Mehr gebundenes Kapital. Banken mögen oft 20-30%."
-  />
-  <KpiCard
-    title="EK-Rendite"
-    value={`${ekRendite.toFixed(1)} %`}
-    help="Eigenkapitalrendite: Der jährliche Cashflow (nach Steuern) geteilt durch dein eingesetztes Eigenkapital. Beispiel: 30.000€ EK, 2.000€ Jahrescashflow = 6,7% EK-Rendite. Durch Fremdfinanzierung (Hebel) kann diese höher sein als die Nettomietrendite – aber nur wenn der Cashflow positiv ist."
-  />
-  <KpiCard title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
-  <KpiCard title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>
-<KpiCard
-  title="DSCR"
-  value={`${dscr.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-  help="Schuldendienstdeckungsgrad: Verhältnis von Nettoeinnahmen zu Kreditrate. Werte > 1,2 gelten als solide, < 1,0 kritisch."
-/>
-</div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main KPI Cards */}
+            <div className="lg:col-span-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* KPI Card 1 - Bruttomietrendite */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <SquarePercent size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
+                  </div>
+                  <div className="text-3xl font-black text-[#001d3d]">
+                    {bruttoMietrendite.toFixed(1)}%
+                  </div>
+                </div>
 
-{/* KI-Kurzkommentar (deutlich beratender Ton) */}
-<div className="card-gradient relative">
-  {/* Blur Overlay wenn nicht angemeldet */}
-  {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-      <div className="text-center p-4 max-w-sm">
-        <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-          <Lock className="w-6 h-6 text-white" />
-        </div>
-        <h3 className="text-lg font-bold mb-2">KI-Einschätzung freischalten</h3>
-        <p className="text-gray-600 mb-3 text-xs">
-          Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
-        </p>
-        <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-          <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-            <Lock size={16} />
-            Kostenlos anmelden
-          </button>
-        </SignInButton>
-      </div>
-    </div>
-  )}
+                {/* KPI Card 2 - Nettomietrendite */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <Percent size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
+                  </div>
+                  <div className="text-3xl font-black text-[#001d3d]">
+                    {nettoMietrendite.toFixed(1)}%
+                  </div>
+                </div>
 
-  {/* Content (geblurred wenn locked) */}
-  <div className={isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}>
-    <div className="flex items-center mb-2">
-      <span className="font-bold">KI-Einschätzung</span>
-      <Bot className="ml-2" />
-    </div>
-    {isLoadingComment ? (
-      <LoadingSpinner
-        size="sm"
-        messages={[
-          'Analysiere Cashflow und Rendite...',
-          'Bewerte Eigenkapitalquote...',
-          'Prüfe Schuldendienstdeckung...',
-          'Erstelle Investment-Einschätzung...',
-        ]}
-      />
-    ) : (
-      <HtmlContent className="text-gray-700" html={generatedComment || '<p>–</p>'} />
-    )}
-  </div>
-</div>
+                {/* KPI Card 3 - Cashflow vor Steuern */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <Wallet size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
+                  </div>
+                  <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {cashflowVorSteuer.toFixed(0)}€
+                  </div>
+                </div>
 
-{/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
-<div className={`mt-3 relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
-    <button
-      onClick={() => {
-        if (!isSignedIn || !canAccessPremium) {
-          setShowUpgradeModal(true);
-        } else {
-          setActiveTab('markt');
-        }
-      }}
-      className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
-    >
-      {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
-      Weiter zu Marktvergleich & Lage →
-    </button>
-  </div>
+                {/* KPI Card 4 - Cashflow nach Steuern */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <ReceiptText size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
+                  </div>
+                  <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {cashflowAfterTax.toFixed(0)}€
+                  </div>
+                </div>
 
-          </>
+                {/* KPI Card 5 - EK-Rendite */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <TrendingUp size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
+                  </div>
+                  <div className="text-3xl font-black text-[#001d3d]">
+                    {ekRendite.toFixed(1)}%
+                  </div>
+                </div>
+
+                {/* KPI Card 6 - DSCR */}
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <ShieldCheck size={14} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
+                  </div>
+                  <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {dscr.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+
+              {/* KI-Kurzkommentar - Modernisiert */}
+              <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl min-h-[480px] flex flex-col justify-center">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+
+                {/* Blur Overlay wenn nicht angemeldet */}
+                {isCommentLocked && !isLoadingComment && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[2.5rem] p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                      <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                        <Lock className="w-7 h-7 text-white" />
+                      </div>
+                      <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
+                      <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                        Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
+                      </p>
+                      <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                        <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                          <Lock size={18} />
+                          Kostenlos anmelden
+                        </button>
+                      </SignInButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* Content (geblurred wenn locked) */}
+                <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                      <MessageSquare size={20} className="text-white fill-current" />
+                    </div>
+                    <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
+                  </div>
+                  {isLoadingComment ? (
+                    <LoadingSpinner
+                      size="sm"
+                      messages={[
+                        'Analysiere Cashflow und Rendite...',
+                        'Bewerte Eigenkapitalquote...',
+                        'Prüfe Schuldendienstdeckung...',
+                        'Erstelle Investment-Einschätzung...',
+                      ]}
+                    />
+                  ) : (
+                    <div className="space-y-6 text-slate-200 leading-relaxed">
+                      <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
+              <div className={`relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                <button
+                  onClick={() => {
+                    if (!isSignedIn || !canAccessPremium) {
+                      setShowUpgradeModal(true);
+                    } else {
+                      setActiveTab('markt');
+                    }
+                  }}
+                  className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
+                >
+                  {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
+                  Weiter zu Marktvergleich & Lage →
+                </button>
+              </div>
+            </div>
+
+            {/* Sidebar with Details */}
+            <div className="lg:col-span-4 space-y-6 sticky top-4 self-start">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg">
+                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
+                  <BarChart3 size={16} /> Finanzierungsübersicht
+                </h4>
+                <div className="space-y-6">
+                  {/* Gesamtinvestition */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {anschaffungskosten.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Inkl. Nebenkosten
+                    </p>
+                  </div>
+
+                  {/* Darlehenssumme */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Darlehenssumme</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {darlehensSumme.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Finanzierungsbetrag
+                    </p>
+                  </div>
+
+                  {/* Eigenkapital */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Eigenkapital</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {ek.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Eingesetztes Kapital
+                    </p>
+                  </div>
+
+                  {/* EK-Quote */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">EK-Quote</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-[#ff6b00] to-[#001d3d] h-full rounded-full transition-all"
+                        style={{ width: `${Math.min(100, anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100) : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Break-Even */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Break-Even</span>
+                      <span className="text-lg font-black text-[#001d3d]">
+                        {isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Jahr der EK-Rückgewinnung
+                    </p>
+                  </div>
+
+                  {/* Abzahlungsjahr */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlungsjahr</span>
+                      <span className="text-lg font-black text-[#001d3d]">
+                        {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Voraussichtliche Entschuldung
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Info Card */}
+              <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info size={16} className="text-[#ff6b00]" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">Hinweis</span>
+                </div>
+                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
+                  Alle Berechnungen beziehen sich auf das erste Jahr nach Anschaffung der Immobilie.
+                </p>
+                <p className="text-[10px] leading-relaxed opacity-90">
+                  Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Tab 2 – Marktvergleich & Lage */}
@@ -1843,19 +2038,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-3 text-xs">
-                    Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                    Schalte Marktvergleich & Lageanalyse frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -1863,15 +2058,15 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 19,90 €/Monat'}
+                          : 'Nur 13,99 €/Monat'}
                       </p>
                     </>
                   )}
@@ -1882,12 +2077,16 @@ const exportPdf = React.useCallback(async () => {
             {/* Content (blurred when locked) */}
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
-            {/* Block 1: Objekt- & Marktanalyse */}
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="text-medium font-bold">Objekt- & Marktanalyse</span>
-                <Bot />
-              </div>
+            {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
+            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl mb-8">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <MessageSquare size={20} className="text-white fill-current" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Objekt- & Marktanalyse</h3>
+                </div>
 
               {loadingDetails ? (
                 <LoadingSpinner
@@ -1900,71 +2099,79 @@ const exportPdf = React.useCallback(async () => {
                   ]}
                 />
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-6 text-slate-200 leading-relaxed">
                   {/* Lage */}
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-800 mb-2">Lage & Umgebung</h3>
-                    <HtmlContent className="text-gray-600" html={lageComment || '<p>–</p>'} />
+                    <h3 className="text-sm font-semibold text-white mb-2">Lage & Umgebung</h3>
+                    <HtmlContent className="text-slate-200" html={lageComment || '<p>–</p>'} />
                   </div>
 
                   {/* Mietpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-gray-800">Mietpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-white">Mietpreis-Vergleich</h3>
                       {mietMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          mietMarktDelta > 10 ? 'bg-red-100 text-red-700' :
-                          mietMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
-                          mietMarktDelta > -10 ? 'bg-green-100 text-green-700' :
-                          'bg-blue-100 text-blue-700'
+                          mietMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
+                          mietMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
+                          mietMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
+                          'bg-blue-500/20 text-blue-300'
                         }`}>
                           {mietMarktDelta > 0 ? '+' : ''}{mietMarktDelta.toFixed(1)}%
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-gray-600" html={mietpreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-200" html={mietpreisComment || '<p>–</p>'} />
                   </div>
 
                   {/* Kaufpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-gray-800">Kaufpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-white">Kaufpreis-Vergleich</h3>
                       {kaufMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          kaufMarktDelta > 10 ? 'bg-red-100 text-red-700' :
-                          kaufMarktDelta > 0 ? 'bg-yellow-100 text-yellow-700' :
-                          kaufMarktDelta > -10 ? 'bg-green-100 text-green-700' :
-                          'bg-blue-100 text-blue-700'
+                          kaufMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
+                          kaufMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
+                          kaufMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
+                          'bg-blue-500/20 text-blue-300'
                         }`}>
                           {kaufMarktDelta > 0 ? '+' : ''}{kaufMarktDelta.toFixed(1)}%
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-gray-600" html={qmPreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-200" html={qmPreisComment || '<p>–</p>'} />
                   </div>
                 </div>
               )}
+              </div>
             </div>
 
-            {/* Block 2: Investment-Empfehlung */}
-            <div className="card-gradient">
-              <div className="flex items-center space-x-2">
-                <span className="text-medium font-bold">Investment-Empfehlung</span>
-                <Bot />
+            {/* Block 2: Investment-Empfehlung - Modernisiert */}
+            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <MessageSquare size={20} className="text-white fill-current" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight">Investment-Empfehlung</h3>
+                </div>
+                {loadingDetails ? (
+                  <LoadingSpinner
+                    messages={[
+                      'Konsolidiere alle Daten...',
+                      'Erstelle Investment-Bewertung...',
+                      'Prüfe Optimierungspotenzial...',
+                      'Formuliere Empfehlung...',
+                      'Fast geschafft...'
+                    ]}
+                  />
+                ) : (
+                  <div className="space-y-6 text-slate-200 leading-relaxed">
+                    <HtmlContent className="text-lg" html={investComment || '<p>–</p>'} />
+                  </div>
+                )}
               </div>
-              {loadingDetails ? (
-                <LoadingSpinner
-                  messages={[
-                    'Konsolidiere alle Daten...',
-                    'Erstelle Investment-Bewertung...',
-                    'Prüfe Optimierungspotenzial...',
-                    'Formuliere Empfehlung...',
-                    'Fast geschafft...'
-                  ]}
-                />
-              ) : (
-                <HtmlContent className="text-gray-600" html={investComment || '<p>–</p>'} />
-              )}
             </div>
 <div className="mt-3">
     <button
@@ -1983,19 +2190,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm rounded-2xl">
-                <div className="text-center p-4 max-w-sm">
-                  <div className="w-12 h-12 bg-[#001d3d] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-                    <Lock className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Premium Feature</h3>
-                  <p className="text-gray-600 mb-3 text-xs">
-                    Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                    Schalte Szenarien & PDF Export frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
-                        <Lock size={16} />
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2003,15 +2210,15 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-5 py-2.5 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white font-semibold rounded-xl hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
-                        <Crown size={16} />
+                        <Crown size={18} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-gray-500 mt-3">
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 19,90 €/Monat'}
+                          : 'Nur 13,99 €/Monat'}
                       </p>
                     </>
                   )}
@@ -2275,8 +2482,8 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
-
-      </>
+        </div>
+      </div>
     );
   } else {
     content = <p>Seite existiert nicht</p>;
