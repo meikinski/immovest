@@ -265,21 +265,21 @@ export default function LandingPage() {
           </section>
 
           {/* 2. Warum die meisten Immobilien-Investments scheitern */}
-          <section className="py-16 md:py-32 px-4 md:px-6 bg-[#fbfbfd]">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
+          <section className="py-16 md:py-32 px-0 md:px-6 bg-[#fbfbfd]">
+            <div className="max-w-6xl mx-auto px-0 md:px-6">
               {/* Sektions-Header */}
-              <div className="text-center mb-8 md:mb-20">
+              <div className="text-center mb-8 md:mb-20 px-4">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Warum die meisten</span> <br className="hidden md:block" />
                   <span className="text-[#ff6b00]">Immobilien-Investments scheitern.</span>
                 </h2>
-                <p className="text-gray-500 text-sm md:text-xl max-w-3xl mx-auto leading-relaxed px-4">
+                <p className="text-gray-500 text-sm md:text-xl max-w-3xl mx-auto leading-relaxed">
                   Die häufigsten Fehler, die dich tausende Euro kosten können – und wie imvestr dich davor schützt.
                 </p>
               </div>
 
               {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-6 md:mx-0 px-6 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide px-4 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
@@ -631,11 +631,11 @@ export default function LandingPage() {
             </div>
           </section>
 
-          {/* 5. Wie funktioniert der Import? - Tabs */}
-          <section className="py-16 md:py-32 bg-white px-4 md:px-6">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="text-center mb-8 md:mb-12">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight tracking-tight">
+          {/* 5. Wie funktioniert der Import? - Sticky Workflow */}
+          <section className="py-32 bg-white px-6">
+            <div className="max-w-6xl mx-auto px-6">
+              <div className="text-center mb-20">
+                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -643,345 +643,105 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Tabs Navigation */}
-              <div className="flex flex-wrap justify-center gap-3 mb-12">
-                <button
-                  onClick={() => setSelectedImportMethod('url')}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                    selectedImportMethod === 'url'
-                      ? 'bg-[#001d3d] text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <LinkIcon size={18} className={selectedImportMethod === 'url' ? 'text-[#ff6b00]' : ''} />
-                  URL-Import
-                </button>
-                <button
-                  onClick={() => setSelectedImportMethod('photo')}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                    selectedImportMethod === 'photo'
-                      ? 'bg-[#001d3d] text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Camera size={18} className={selectedImportMethod === 'photo' ? 'text-[#ff6b00]' : ''} />
-                  Foto-Scan
-                </button>
-                <button
-                  onClick={() => setSelectedImportMethod('manual')}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                    selectedImportMethod === 'manual'
-                      ? 'bg-[#001d3d] text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  <Edit3 size={18} className={selectedImportMethod === 'manual' ? 'text-[#ff6b00]' : ''} />
-                  Manuell
-                </button>
-              </div>
-
-              {/* Mobile: Tab-based view */}
-              <div className="md:hidden flex flex-col items-start gap-8">
-                {/* Content */}
-                <div className="w-full">
-                  {/* URL Import Content */}
-                  {selectedImportMethod === 'url' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+              <div className="flex flex-col md:flex-row items-start gap-20">
+                {/* Left: Sticky Text */}
+                <div className="md:w-1/2">
+                  <div className="sticky top-40 space-y-12">
+                    {/* Step 1: URL-Import */}
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'url'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('url')}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">1. Link einfügen</h4>
+                      </div>
+                      <p className="text-gray-500 text-lg leading-relaxed">
                         Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
                       </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>Alle Objektdaten in Sekunden erfasst</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>Unterstützt alle großen Portale</span>
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Photo Scan Content */}
-                  {selectedImportMethod === 'photo' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                    {/* Step 2: Foto-Scan */}
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'photo'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('photo')}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <Camera className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">2. Foto scannen</h4>
+                      </div>
+                      <p className="text-gray-500 text-lg leading-relaxed">
                         Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
                       </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>Perfekt für Besichtigungen vor Ort</span>
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* Manual Input Content */}
-                  {selectedImportMethod === 'manual' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                    {/* Step 3: Manuelle Eingabe */}
+                    <div
+                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
+                        selectedImportMethod === 'manual'
+                          ? 'border-[#ff6b00] opacity-100'
+                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
+                      }`}
+                      onClick={() => setSelectedImportMethod('manual')}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                          <Edit3 className="w-6 h-6 text-[#ff6b00]" />
+                        </div>
+                        <h4 className="text-3xl font-bold text-[#001d3d]">3. Manuell eingeben</h4>
+                      </div>
+                      <p className="text-gray-500 text-lg leading-relaxed">
                         Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
                       </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                      <div className="mt-6 space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>Smartes Formular mit Validierung</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                           <span>Volle Kontrolle über alle Details</span>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Visual Mockup - Mobile */}
-                <div className="w-full">
-                  <div className="bg-[#001d3d] rounded-[32px] md:rounded-[48px] min-h-[400px] md:min-h-[500px] flex items-center justify-center p-8 md:p-12 shadow-2xl border-4 border-gray-100">
-                    <div className="w-full max-w-md">
-                      {/* URL Import Mockup */}
-                      {selectedImportMethod === 'url' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <LinkIcon className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">URL einfügen</div>
-                            </div>
-
-                            {/* Input Field Mockup */}
-                            <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
-                              <div className="w-5 h-5 text-gray-400">
-                                <LinkIcon className="w-5 h-5" />
-                              </div>
-                              <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
-                            </div>
-
-                            {/* Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Analyse starten</span>
-                              <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* Feature Pills */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1"></div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>Powered by GPT-4 Vision + OCR</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Photo Scan Mockup */}
-                      {selectedImportMethod === 'photo' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <Camera className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">Foto scannen</div>
-                            </div>
-
-                            {/* Camera Preview Mockup */}
-                            <div className="bg-white/5 rounded-2xl p-6 mb-6 aspect-[4/3] flex items-center justify-center border-2 border-dashed border-white/30">
-                              <div className="text-center">
-                                <Camera className="w-16 h-16 text-white/40 mx-auto mb-3" />
-                                <div className="text-white/60 text-sm">Exposé fotografieren</div>
-                              </div>
-                            </div>
-
-                            {/* Scan Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Foto aufnehmen</span>
-                              <Camera className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* OCR Features */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">OCR-Texterkennung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">GPT-4 Vision Analyse</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">98% Genauigkeit</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>KI-gestützte Texterkennung</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Manual Entry Mockup */}
-                      {selectedImportMethod === 'manual' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <Edit3 className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">Manuelle Eingabe</div>
-                            </div>
-
-                            {/* Form Fields Mockup */}
-                            <div className="space-y-4 mb-6">
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Kaufpreis</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/2"></div>
-                                  <div className="text-gray-400 text-sm">€</div>
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Kaltmiete</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/3"></div>
-                                  <div className="text-gray-400 text-sm">€</div>
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Wohnfläche</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/4"></div>
-                                  <div className="text-gray-400 text-sm">m²</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Continue Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Weiter</span>
-                              <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* Smart Features */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Auto-Vervollständigung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Intelligente Validierung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Smarte Vorschläge</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>KI-gestützte Eingabehilfe</span>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Desktop: Tab content on left, mockup on right */}
-              <div className="hidden md:flex md:flex-row items-start gap-8 md:gap-12">
-                {/* Content */}
-                <div className="w-full md:w-1/2">
-                  {/* URL Import Content */}
-                  {selectedImportMethod === 'url' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                      </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>Alle Objektdaten in Sekunden erfasst</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>Unterstützt alle großen Portale</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Photo Scan Content */}
-                  {selectedImportMethod === 'photo' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
-                      </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>Perfekt für Besichtigungen vor Ort</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Manual Input Content */}
-                  {selectedImportMethod === 'manual' && (
-                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
-                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
-                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
-                      </p>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>Smartes Formular mit Validierung</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-gray-600">
-                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                          <span>Volle Kontrolle über alle Details</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Visual Mockup - Desktop */}
-                <div className="w-full md:w-1/2">
-                  <div className="bg-[#001d3d] rounded-[32px] md:rounded-[48px] min-h-[400px] md:min-h-[500px] flex items-center justify-center p-8 md:p-12 shadow-2xl border-4 border-gray-100">
+                {/* Right: Visual Mockup */}
+                <div className="md:w-1/2">
+                  <div className="bg-[#001d3d] rounded-[48px] h-[600px] flex items-center justify-center p-12 shadow-2xl border-4 border-gray-100">
                     <div className="w-full max-w-md">
                       {/* URL Import Mockup */}
                       {selectedImportMethod === 'url' && (
@@ -1155,7 +915,6 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-
           {/* 6. Was ist dein Investment-Ziel? */}
           <section className="py-16 md:py-32 px-4 md:px-6 bg-[#f5f5f7]">
             <div className="max-w-6xl mx-auto px-2 md:px-6">
@@ -1259,19 +1018,19 @@ export default function LandingPage() {
           </section>
 
           {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="text-center mb-8 md:mb-16 overflow-visible">
+          <section className="py-16 md:py-32 px-0 md:px-6 bg-white overflow-visible">
+            <div className="max-w-6xl mx-auto px-0 md:px-6">
+              <div className="text-center mb-8 md:mb-16 overflow-visible px-4">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
                 </h2>
-                <p className="text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed px-2">
+                <p className="text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                   Echte Erfahrungen von Immobilien-Investoren, die imvestr erfolgreich nutzen.
                 </p>
               </div>
 
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
-              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-6 md:mx-0 px-6 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide px-4 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
                 <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
