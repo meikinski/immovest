@@ -862,12 +862,9 @@ const exportPdf = React.useCallback(async () => {
   if (step === 'a') {
     content = (
       <>
-        {/* Badge & Title */}
-        <div className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 bg-orange-100 rounded-full mb-4">
-            <span className="text-[10px] font-black text-[#ff6b00] uppercase tracking-[0.15em]">Schritt 1</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-[#001d3d]">Kaufpreis & Nebenkosten.</h1>
+        {/* Title */}
+        <div className="mb-10">
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Kaufpreis & Nebenkosten.</h1>
         </div>
 
         {/* Input Container */}
@@ -900,7 +897,7 @@ const exportPdf = React.useCallback(async () => {
               ].map((item, i) => (
                 <div key={i} className="space-y-3">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">{item.label} (%)</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">{item.label}</label>
                     <div
                       onBlur={() => {
                         const num = Number(item.text.replace(',', '.'));
@@ -1009,21 +1006,15 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'a2') {
     content = (
       <>
-        {/* Back Button, Badge & Title */}
-        <div className="flex items-center mb-6">
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-10">
           <button
             onClick={() => router.push('/step/a')}
-            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-        </div>
-
-        <div className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 bg-orange-100 rounded-full mb-4">
-            <span className="text-[10px] font-black text-[#ff6b00] uppercase tracking-[0.15em]">Schritt 2</span>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-black text-[#001d3d]">Objektdaten.</h1>
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Objektdaten.</h1>
         </div>
 
         {/* Input Container */}
@@ -1032,14 +1023,14 @@ const exportPdf = React.useCallback(async () => {
           {/* Objekttyp */}
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
-            <div className="flex justify-center gap-2 p-1.5 bg-slate-200 rounded-full">
+            <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setObjekttyp('wohnung')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'wohnung'
-                    ? 'bg-[#ff6b00] text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
                 }`}
               >
                 <span className="hidden sm:inline">Eigentumswohnung</span>
@@ -1050,8 +1041,8 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('haus')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'haus'
-                    ? 'bg-[#ff6b00] text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
                 }`}
               >
                 Haus
@@ -1061,8 +1052,8 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('mfh')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'mfh'
-                    ? 'bg-[#ff6b00] text-white'
-                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'bg-[#ff6b00] text-white shadow-lg'
+                    : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
                 }`}
               >
                 <span className="hidden sm:inline">Mehrfamilienhaus</span>
@@ -1152,10 +1143,16 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Buttons */}
-        <div className="mt-8">
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
           <button
             onClick={handleNavigateToNextStep}
-            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
             Weiter
           </button>
@@ -1166,22 +1163,15 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'b') {
     content = (
       <>
-        {/* Back Button, Badge & Title */}
-        <div className="flex items-center mb-6">
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-10">
           <button
             onClick={() => router.push('/step/a2')}
-            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-        </div>
-
-        <div className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Ertragslage</span>
-          </div>
-          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Einnahmen & Kosten.</h1>
-          <p className="text-slate-600">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Ertrag & Hausgeld.</h1>
         </div>
 
         {/* Input Container */}
@@ -1557,22 +1547,15 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'c') {
     content = (
       <>
-        {/* Back Button, Badge & Title */}
-        <div className="flex items-center mb-6">
+        {/* Back Button & Title */}
+        <div className="flex items-center gap-6 mb-10">
           <button
             onClick={() => router.push('/step/b')}
-            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors flex-shrink-0"
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-        </div>
-
-        <div className="text-center mb-8">
-          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
-            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Finanzierung</span>
-          </div>
-          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Eigenkapital & Kredit.</h1>
-          <p className="text-slate-600">Gib die Details zur Finanzierung deiner Immobilie an.</p>
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-black text-[#001d3d] tracking-tight">Eigenkapital & Kredit.</h1>
         </div>
 
         {/* Input Container */}
@@ -1733,33 +1716,19 @@ const exportPdf = React.useCallback(async () => {
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto">
-              <div className="flex gap-3">
-                <div className="flex-1 lg:flex-none bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 text-center">
-                  <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Netto-Rendite</span>
-                  <span className="text-xl font-black text-[#ff6b00]">{nettoMietrendite.toFixed(1)}%</span>
-                </div>
-                <div className="flex-1 lg:flex-none bg-[#001d3d] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
-                  <span className="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1 italic">Monatl. Cashflow</span>
-                  <span className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {cashflowVorSteuer.toFixed(0)} €
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => router.push('/step/c')}
-                  className="flex-1 lg:flex-none px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition-all"
-                >
-                  Daten bearbeiten
-                </button>
-                <button
-                  onClick={() => router.push('/step/a')}
-                  className="flex-1 lg:flex-none px-4 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
-                >
-                  Neue Analyse
-                </button>
-              </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => router.push('/step/c')}
+                className="px-3 py-2 text-[10px] font-semibold text-slate-500 hover:text-slate-700 transition-all"
+              >
+                Bearbeiten
+              </button>
+              <button
+                onClick={() => router.push('/step/a')}
+                className="px-3 py-2 text-[10px] font-semibold text-[#ff6b00] hover:text-[#ff6b00]/80 transition-all"
+              >
+                Neue Analyse
+              </button>
             </div>
           </div>
 
@@ -1898,10 +1867,50 @@ const exportPdf = React.useCallback(async () => {
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg">
                 <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
-                  <BarChart3 size={16} /> Asset Performance
+                  <BarChart3 size={16} /> Finanzierungsübersicht
                 </h4>
                 <div className="space-y-6">
+                  {/* Gesamtinvestition */}
                   <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {anschaffungskosten.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Inkl. Nebenkosten
+                    </p>
+                  </div>
+
+                  {/* Darlehenssumme */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Darlehenssumme</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {darlehensSumme.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Finanzierungsbetrag
+                    </p>
+                  </div>
+
+                  {/* Eigenkapital */}
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Eigenkapital</span>
+                      <span className="text-xl font-black text-[#001d3d]">
+                        {ek.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Eingesetztes Kapital
+                    </p>
+                  </div>
+
+                  {/* EK-Quote */}
+                  <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">EK-Quote</span>
                       <span className="text-xl font-black text-[#001d3d]">
@@ -1916,6 +1925,7 @@ const exportPdf = React.useCallback(async () => {
                     </div>
                   </div>
 
+                  {/* Break-Even */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Break-Even</span>
@@ -1928,27 +1938,16 @@ const exportPdf = React.useCallback(async () => {
                     </p>
                   </div>
 
+                  {/* Abzahlungsjahr */}
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlung</span>
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlungsjahr</span>
                       <span className="text-lg font-black text-[#001d3d]">
                         {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
                       </span>
                     </div>
                     <p className="text-[9px] text-slate-400">
                       Voraussichtliche Entschuldung
-                    </p>
-                  </div>
-
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
-                      <span className="text-lg font-black text-[#001d3d]">
-                        {anschaffungskosten.toLocaleString('de-DE')}€
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">
-                      Inkl. Nebenkosten
                     </p>
                   </div>
                 </div>
@@ -1960,6 +1959,9 @@ const exportPdf = React.useCallback(async () => {
                   <Info size={16} className="text-[#ff6b00]" />
                   <span className="text-[8px] font-black uppercase tracking-widest">Hinweis</span>
                 </div>
+                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
+                  Alle Berechnungen beziehen sich auf das erste Jahr nach Anschaffung der Immobilie.
+                </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
                   Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
                 </p>
