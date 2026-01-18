@@ -23,6 +23,7 @@ import {
   Lightbulb,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
@@ -33,6 +34,7 @@ export default function LandingPage() {
   const { trackCTA } = useAnalytics();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
+  const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open
   const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
   const [activeGoalIndex, setActiveGoalIndex] = React.useState<number>(1); // Default middle card active
 
@@ -263,31 +265,31 @@ export default function LandingPage() {
           </section>
 
           {/* 2. Warum die meisten Immobilien-Investments scheitern */}
-          <section className="py-32 px-6 bg-[#fbfbfd]">
-            <div className="max-w-6xl mx-auto px-6">
+          <section className="py-16 md:py-32 px-4 md:px-6 bg-[#fbfbfd]">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
               {/* Sektions-Header */}
-              <div className="text-center mb-20">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+              <div className="text-center mb-8 md:mb-20">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Warum die meisten</span> <br className="hidden md:block" />
                   <span className="text-[#ff6b00]">Immobilien-Investments scheitern.</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                <p className="text-gray-500 text-sm md:text-xl max-w-3xl mx-auto leading-relaxed px-4">
                   Die häufigsten Fehler, die dich tausende Euro kosten können – und wie imvestr dich davor schützt.
                 </p>
               </div>
 
               {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div className="flex md:grid md:grid-cols-2 gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm">
-                      <AlertCircle className="w-7 h-7 text-[#ff6b00]" />
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                  <div className="flex justify-between items-start mb-4 md:mb-6">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                      <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
                     Versteckte Kosten übersehen
                   </h3>
 
@@ -316,14 +318,14 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 2: Zu teuer gekauft */}
-                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm">
-                      <Search className="w-7 h-7 text-[#ff6b00]" />
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                  <div className="flex justify-between items-start mb-4 md:mb-6">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                      <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
                     Zu teuer gekauft
                   </h3>
 
@@ -346,14 +348,14 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 3: Schlechte Lage */}
-                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm">
-                      <MapPin className="w-7 h-7 text-[#ff6b00]" />
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                  <div className="flex justify-between items-start mb-4 md:mb-6">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                      <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
                     Schlechte Lage
                   </h3>
 
@@ -380,14 +382,14 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 4: Miete überschätzt */}
-                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm">
-                      <TrendingDown className="w-7 h-7 text-[#ff6b00]" />
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[92vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                  <div className="flex justify-between items-start mb-4 md:mb-6">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                      <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
 
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
                     Miete überschätzt
                   </h3>
 
@@ -424,45 +426,45 @@ export default function LandingPage() {
           </section>
 
           {/* 3. Wie imvestr dir hilft */}
-          <section id="features" className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="mb-20 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
+          <section id="features" className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="mb-8 md:mb-20 overflow-visible">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie imvestr</span> <span className="text-[#ff6b00]">dir hilft.</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-2xl leading-relaxed">
+                <p className="text-gray-500 text-sm md:text-xl max-w-2xl leading-relaxed px-2">
                   imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein Investment zu sagen.
                 </p>
               </div>
 
-              {/* Bento Box Grid: Mobile Carousel, Desktop Grid */}
-              <div className="flex md:grid md:grid-cols-12 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              {/* Bento Box Grid: Mobile Stack, Desktop Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
                 {/* Marktdaten-Check - Large Box */}
-                <div className="md:col-span-8 bg-white rounded-[32px] p-10 flex flex-col md:flex-row items-center gap-8 min-h-[300px] shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="md:w-1/2">
-                    <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                      <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
+                <div className="md:col-span-8 bg-white rounded-[32px] p-6 md:p-10 flex flex-col md:flex-row items-center gap-4 md:gap-8 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-full md:w-1/2">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                      <BarChart3 className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Marktdaten-Check</h3>
-                    <p className="text-gray-500 leading-relaxed mb-4">
+                    <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-[#001d3d]">Marktdaten-Check</h3>
+                    <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-3 md:mb-4">
                       Wir prüfen Kauf- und Mietpreise am Standort und checken wie die Nachfrage ist.
                     </p>
-                    <p className="text-sm text-[#ff6b00] font-semibold">
+                    <p className="text-xs md:text-sm text-[#ff6b00] font-semibold">
                       → Verhindert Fehlkäufe durch objektive Marktdaten
                     </p>
                   </div>
-                  <div className="md:w-1/2 h-full bg-orange-50 rounded-2xl flex items-center justify-center p-12">
+                  <div className="hidden md:flex md:w-1/2 h-full bg-orange-50 rounded-2xl items-center justify-center p-12">
                     <BarChart3 className="w-32 h-32 text-orange-200" />
                   </div>
                 </div>
 
                 {/* KPI-Berechnung - Small Navy Box */}
-                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
-                    <Calculator className="w-7 h-7 text-[#ff6b00]" />
+                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-6 md:p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                    <Calculator className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4">KPI-Berechnung</h3>
-                  <p className="text-blue-100 text-sm opacity-80 leading-relaxed mb-4">
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">KPI-Berechnung</h3>
+                  <p className="text-blue-100 text-xs md:text-sm opacity-80 leading-relaxed mb-3 md:mb-4">
                     Wichtige KPIs inkl. Cashflow unter Berücksichtigung deines persönlichen Steuersatzes, AfA und kalkulatorischer Kosten.
                   </p>
                   <p className="text-sm text-[#ff6b00] font-semibold">
@@ -471,11 +473,11 @@ export default function LandingPage() {
                 </div>
 
                 {/* Investitionsanalyse - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                    <Lightbulb className="w-7 h-7 text-[#ff6b00]" />
+                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                    <Lightbulb className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Investitionsanalyse</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Investitionsanalyse</h3>
                   <p className="text-gray-500 text-sm leading-relaxed mb-4">
                     Unsere KI gibt eine verständliche Erklärung über die Investition in einfachen Worten – auch für Einsteiger.
                   </p>
@@ -485,11 +487,11 @@ export default function LandingPage() {
                 </div>
 
                 {/* Szenarien - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
-                    <Zap className="w-7 h-7 text-[#ff6b00]" />
+                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                    <Zap className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Szenarien</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Szenarien</h3>
                   <p className="text-gray-500 text-sm leading-relaxed mb-4">
                     Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
                   </p>
@@ -499,11 +501,11 @@ export default function LandingPage() {
                 </div>
 
                 {/* Bank-Ready PDF - Small Highlighted Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
-                    <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
+                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-orange-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                    <FileBarChart className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Bank-Ready PDF</h3>
+                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Bank-Ready PDF</h3>
                   <p className="text-gray-500 text-sm leading-relaxed mb-4">
                     Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
                   </p>
