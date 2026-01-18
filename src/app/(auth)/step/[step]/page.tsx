@@ -1407,11 +1407,13 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
-                  Kalk. Mietausfall
-                  <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
-                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Kalk. Mietausfall
+                    <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
                 <div className="relative group">
                   <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
@@ -1430,11 +1432,13 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
-                  Instandhaltungskosten /qm
-                  <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
-                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Instandhaltungskosten /qm
+                    <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
                 <div className="relative group">
                   <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
@@ -1460,11 +1464,13 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
-                  AfA Satz (% p.a.)
-                  <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
-                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    AfA Satz (% p.a.)
+                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
                 <div className="relative group">
                   <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
@@ -1483,11 +1489,13 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
                 className="space-y-1.5"
               >
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
-                  Anteil Gebäude am Kaufpreis (%)
-                  <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
-                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Anteil Gebäude am Kaufpreis (%)
+                    <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
                 <div className="relative group">
                   <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
@@ -1506,11 +1514,13 @@ const exportPdf = React.useCallback(async () => {
                 onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
                 className="space-y-1.5 col-span-full"
               >
-                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center min-h-[20px]">
-                  Pers. Steuersatz (%)
-                  <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
-                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
-                  </Tooltip>
+                <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
+                  <span className="flex items-center">
+                    Pers. Steuersatz (%)
+                    <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </span>
                 </label>
                 <div className="relative group">
                   <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
@@ -1767,99 +1777,99 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* KPI Card 1 - Bruttomietrendite */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <SquarePercent size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <SquarePercent size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Bruttomietrendite</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Bruttomietrendite</span>
                 </div>
-                <div className="text-3xl font-black text-[#001d3d]">
+                <div className="text-2xl font-black text-[#001d3d]">
                   {bruttoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   Vereinfachte Berechnung ohne Nebenkosten
                 </p>
               </div>
 
               {/* KPI Card 2 - Nettomietrendite */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Percent size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Percent size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Nettomietrendite</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Nettomietrendite</span>
                 </div>
-                <div className="text-3xl font-black text-[#001d3d]">
+                <div className="text-2xl font-black text-[#001d3d]">
                   {nettoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   {nettoMietrendite < 2 ? 'Schwach' : nettoMietrendite < 3 ? 'Solide' : 'Attraktiv'}
                 </p>
               </div>
 
               {/* KPI Card 3 - Cashflow vor Steuern */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Wallet size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Wallet size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cashflow (vor St.)</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cashflow (vor St.)</span>
                 </div>
-                <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-2xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowVorSteuer.toFixed(0)}€
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst' : 'Monatlicher Zuschuss erforderlich'}
                 </p>
               </div>
 
               {/* KPI Card 4 - Cashflow nach Steuern */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ReceiptText size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ReceiptText size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Cashflow (nach St.)</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cashflow (nach St.)</span>
                 </div>
-                <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-2xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowAfterTax.toFixed(0)}€
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   Mit Steuerersparnis (AfA + Zinsen)
                 </p>
               </div>
 
               {/* KPI Card 5 - EK-Rendite */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <TrendingUp size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <TrendingUp size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">EK-Rendite</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">EK-Rendite</span>
                 </div>
-                <div className="text-3xl font-black text-[#001d3d]">
+                <div className="text-2xl font-black text-[#001d3d]">
                   {ekRendite.toFixed(1)}%
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   Der Hebeleffekt Ihres Kapitals
                 </p>
               </div>
 
               {/* KPI Card 6 - DSCR */}
-              <div className="bg-white p-6 rounded-3xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ShieldCheck size={18} className="text-[#ff6b00]" />
+              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ShieldCheck size={16} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">DSCR</span>
+                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">DSCR</span>
                 </div>
-                <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                <div className={`text-2xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {dscr.toFixed(2)}
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
+                <p className="text-[9px] text-slate-400 mt-1.5">
                   {dscr >= 1.2 ? 'Solide' : dscr >= 1.0 ? 'Grenzwertig' : 'Kritisch'}
                 </p>
               </div>
@@ -1979,8 +1989,8 @@ const exportPdf = React.useCallback(async () => {
 
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-[2.5rem]">
-      <div className="text-center p-6 max-w-md">
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-[2.5rem] overflow-y-auto p-4">
+      <div className="text-center p-6 max-w-md my-auto">
         <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
           <Lock className="w-8 h-8 text-white" />
         </div>
@@ -2049,8 +2059,8 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl">
-                <div className="text-center p-6 max-w-md">
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl overflow-y-auto p-4">
+                <div className="text-center p-6 max-w-md my-auto">
                   <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Lock className="w-8 h-8 text-white" />
                   </div>
@@ -2201,8 +2211,8 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl">
-                <div className="text-center p-6 max-w-md">
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl overflow-y-auto p-4">
+                <div className="text-center p-6 max-w-md my-auto">
                   <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
                     <Lock className="w-8 h-8 text-white" />
                   </div>
