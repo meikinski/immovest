@@ -518,83 +518,124 @@ export default function LandingPage() {
           </section>
 
           {/* 4. So funktioniert imvestr */}
-          <section id="workflow" className="py-32 px-6 bg-[#f5f5f7] overflow-visible">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="mb-20 overflow-visible text-right">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight">
+          <section id="workflow" className="py-16 md:py-32 px-4 md:px-6 bg-[#f5f5f7] overflow-visible">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="mb-8 md:mb-20 overflow-visible text-center md:text-right">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
-                <p className="text-gray-500 text-xl max-w-2xl ml-auto leading-relaxed">
+                <p className="text-gray-500 text-sm md:text-xl max-w-2xl mx-auto md:ml-auto leading-relaxed px-2">
                   In 3 einfachen Schritten von der Exposé-URL zum vollständigen Investment-Report.
                 </p>
               </div>
 
-              {/* Mobile: Carousel, Desktop: 3-Col Grid */}
-              <div className="flex md:grid md:grid-cols-3 gap-8 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              {/* Mobile: Accordion, Desktop: 3-Col Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
                 {/* Schritt 1 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 group relative overflow-hidden min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
-                    <svg className="w-8 h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                    </svg>
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
+                  {/* Mobile: Clickable Header */}
+                  <button
+                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 0 ? null : 0)}
+                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                        <svg className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 1</div>
+                        <h3 className="text-lg md:text-2xl font-bold">Import</h3>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 0 ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Mobile: Collapsible Content, Desktop: Always Visible */}
+                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 0 ? 'block' : 'hidden md:block'}`}>
+                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
+                      Kopiere einfach den Link von ImmoScout24 oder einem anderen Portal, fotografiere das Exposé mit deinem Smartphone oder gib die Daten manuell ein. Unsere KI extrahiert automatisch alle relevanten Informationen – von Kaufpreis über Wohnfläche bis zur Miete. In Sekunden startklar.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">URL-Import</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Foto-Scan</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Manuelle Eingabe</span>
+                    </div>
                   </div>
-                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 1</div>
-                  <h3 className="text-2xl font-bold mb-4">Import</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
-                    Kopiere einfach den Link von ImmoScout24 oder einem anderen Portal, fotografiere das Exposé mit deinem Smartphone oder gib die Daten manuell ein. Unsere KI extrahiert automatisch alle relevanten Informationen – von Kaufpreis über Wohnfläche bis zur Miete. In Sekunden startklar.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">URL-Import</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Foto-Scan</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Manuelle Eingabe</span>
-                  </div>
-                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
+                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
                 </div>
 
                 {/* Schritt 2 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 group relative overflow-hidden min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
-                    <BarChart3 className="w-8 h-8 text-[#ff6b00]" />
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
+                  <button
+                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 1 ? null : 1)}
+                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                        <BarChart3 className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
+                      </div>
+                      <div>
+                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 2</div>
+                        <h3 className="text-lg md:text-2xl font-bold">Markt- & Investitionsanalyse</h3>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 1 ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 1 ? 'block' : 'hidden md:block'}`}>
+                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
+                      Unsere KI analysiert Kaufpreis und Miete gegen echte Angebote in der Nachbarschaft. Du siehst sofort, ob die Zahlen im Exposé realistisch sind oder Wunschdenken. Keine vagen Bewertungen – nur harte Fakten und Marktvergleiche.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Miet-Vergleich</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Investitionsanalyse</span>
+                    </div>
                   </div>
-                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 2</div>
-                  <h3 className="text-2xl font-bold mb-4">Markt- & Investitionsanalyse</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
-                    Unsere KI analysiert Kaufpreis und Miete gegen echte Angebote in der Nachbarschaft. Du siehst sofort, ob die Zahlen im Exposé realistisch sind oder Wunschdenken. Keine vagen Bewertungen – nur harte Fakten und Marktvergleiche.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Miet-Vergleich</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Investitionsanalyse</span>
-                  </div>
-                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
+                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
                 </div>
 
                 {/* Schritt 3 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[40px] p-10 hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 group relative overflow-hidden min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
-                  <div className="w-16 h-16 rounded-2xl bg-[#001d3d] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform shadow-lg">
-                    <FileBarChart className="w-8 h-8 text-[#ff6b00]" />
+                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
+                  <button
+                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 2 ? null : 2)}
+                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                        <FileBarChart className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
+                      </div>
+                      <div>
+                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 3</div>
+                        <h3 className="text-lg md:text-2xl font-bold">Simulation & Report</h3>
+                      </div>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 2 ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 2 ? 'block' : 'hidden md:block'}`}>
+                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
+                      Spiele verschiedene Finanzierungsszenarien durch und sieh sofort, wie sich Zinsänderungen auf deine Rendite auswirken. Mit einem Klick exportierst du einen professionellen PDF-Report – perfekt vorbereitet für deine Bank. Alle Zahlen, alle Fakten, auf den Punkt gebracht.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Rendite-Effekte</span>
+                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">PDF-Export</span>
+                    </div>
                   </div>
-                  <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-3">Schritt 3</div>
-                  <h3 className="text-2xl font-bold mb-4">Simulation & Report</h3>
-                  <p className="text-gray-600 leading-relaxed mb-6">
-                    Spiele verschiedene Finanzierungsszenarien durch und sieh sofort, wie sich Zinsänderungen auf deine Rendite auswirken. Mit einem Klick exportierst du einen professionellen PDF-Report – perfekt vorbereitet für deine Bank. Alle Zahlen, alle Fakten, auf den Punkt gebracht.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Rendite-Effekte</span>
-                    <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">PDF-Export</span>
-                  </div>
-                  <div className="absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
+                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
                 </div>
               </div>
             </div>
           </section>
 
           {/* 5. Wie funktioniert der Import? - Tabs */}
-          <section className="py-32 bg-white px-6">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="text-center mb-12">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
+          <section className="py-16 md:py-32 bg-white px-4 md:px-6">
+            <div className="max-w-6xl mx-auto px-2 md:px-6">
+              <div className="text-center mb-8 md:mb-12">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
                 </h2>
                 <p className="text-gray-500 text-xl max-w-3xl mx-auto leading-relaxed">
@@ -639,9 +680,9 @@ export default function LandingPage() {
                 </button>
               </div>
 
-              <div className="flex flex-col md:flex-row items-start gap-12">
+              <div className="flex flex-col md:flex-row items-start gap-8 md:gap-12">
                 {/* Content */}
-                <div className="md:w-1/2">
+                <div className="w-full md:w-1/2">
                   {/* URL Import Content */}
                   {selectedImportMethod === 'url' && (
                     <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
@@ -718,9 +759,9 @@ export default function LandingPage() {
                   )}
                 </div>
 
-                {/* Right: Visual Mockup - Hidden on Mobile */}
-                <div className="hidden md:block md:w-1/2">
-                  <div className="bg-[#001d3d] rounded-[48px] min-h-[500px] flex items-center justify-center p-12 shadow-2xl border-4 border-gray-100">
+                {/* Visual Mockup - Below content on Mobile, Right on Desktop */}
+                <div className="w-full md:w-1/2">
+                  <div className="bg-[#001d3d] rounded-[32px] md:rounded-[48px] min-h-[400px] md:min-h-[500px] flex items-center justify-center p-8 md:p-12 shadow-2xl border-4 border-gray-100">
                     <div className="w-full max-w-md">
                       {/* URL Import Mockup */}
                       {selectedImportMethod === 'url' && (
