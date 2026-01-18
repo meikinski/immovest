@@ -247,16 +247,15 @@ export default function PricingCards({}: PricingCardsProps) {
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="flex transition-transform duration-500 ease-out px-4"
+            className="flex transition-transform duration-500 ease-out"
             style={{
-              transform: `translateX(-${activeIndex * 100}%)`,
-              touchAction: 'pan-x'
+              transform: `translateX(calc(-${activeIndex} * 100vw))`
             }}
           >
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className="w-[calc(100vw-32px)] flex-shrink-0 snap-start"
+                className="w-screen flex-shrink-0 px-4"
               >
                 <div
                   className={`relative rounded-[40px] border-2 p-6 bg-white ${
