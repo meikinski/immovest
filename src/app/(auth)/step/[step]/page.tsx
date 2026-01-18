@@ -1912,7 +1912,6 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
             </div>
-            </div>
 
             {/* KI-Kommentar - Full Width */}
             <div className="lg:col-span-12">
