@@ -1777,88 +1777,88 @@ const exportPdf = React.useCallback(async () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* KPI Card 1 - Bruttomietrendite */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <SquarePercent size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <SquarePercent size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
                   </div>
-                  <div className="text-lg font-black text-[#001d3d]">
+                  <div className="text-3xl font-black text-[#001d3d]">
                     {bruttoMietrendite.toFixed(1)}%
                   </div>
                 </div>
 
                 {/* KPI Card 2 - Nettomietrendite */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <Percent size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <Percent size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
                   </div>
-                  <div className="text-lg font-black text-[#001d3d]">
+                  <div className="text-3xl font-black text-[#001d3d]">
                     {nettoMietrendite.toFixed(1)}%
                   </div>
                 </div>
 
                 {/* KPI Card 3 - Cashflow vor Steuern */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <Wallet size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <Wallet size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
                   </div>
-                  <div className={`text-lg font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {cashflowVorSteuer.toFixed(0)}€
                   </div>
                 </div>
 
                 {/* KPI Card 4 - Cashflow nach Steuern */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <ReceiptText size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <ReceiptText size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
                   </div>
-                  <div className={`text-lg font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {cashflowAfterTax.toFixed(0)}€
                   </div>
                 </div>
 
                 {/* KPI Card 5 - EK-Rendite */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <TrendingUp size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <TrendingUp size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
                   </div>
-                  <div className="text-lg font-black text-[#001d3d]">
+                  <div className="text-3xl font-black text-[#001d3d]">
                     {ekRendite.toFixed(1)}%
                   </div>
                 </div>
 
                 {/* KPI Card 6 - DSCR */}
-                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
-                  <div className="flex items-center gap-0.5 mb-1">
-                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
-                      <ShieldCheck size={12} className="text-[#ff6b00]" />
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                  <div className="flex items-center gap-1 mb-3">
+                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                      <ShieldCheck size={14} className="text-[#ff6b00]" />
                     </div>
-                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
+                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
                   </div>
-                  <div className={`text-lg font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
                     {dscr.toFixed(2)}
                   </div>
                 </div>
               </div>
 
               {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+              <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl min-h-[480px] flex flex-col justify-center">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
 
                 {/* Blur Overlay wenn nicht angemeldet */}
