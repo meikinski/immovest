@@ -895,9 +895,10 @@ const exportPdf = React.useCallback(async () => {
                 { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
                 { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur },
               ].map((item, i) => (
-                <div key={i} className="space-y-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                <div key={i} className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Prozent Input */}
                     <div
                       onBlur={() => {
                         const num = Number(item.text.replace(',', '.'));
@@ -915,10 +916,8 @@ const exportPdf = React.useCallback(async () => {
                         />
                       </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Betrag</label>
+                    {/* Betrag */}
                     <div className="relative">
                       <input
                         type="text"
@@ -1777,99 +1776,99 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-3">
               {/* KPI Card 1 - Bruttomietrendite */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <SquarePercent size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <SquarePercent size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Bruttomietrendite</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Bruttomietrendite</span>
                 </div>
-                <div className="text-2xl font-black text-[#001d3d]">
+                <div className="text-xl font-black text-[#001d3d]">
                   {bruttoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
-                  Vereinfachte Berechnung ohne Nebenkosten
+                <p className="text-[8px] text-slate-400 mt-1">
+                  Ohne Nebenkosten
                 </p>
               </div>
 
               {/* KPI Card 2 - Nettomietrendite */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Percent size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <Percent size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Nettomietrendite</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Nettomietrendite</span>
                 </div>
-                <div className="text-2xl font-black text-[#001d3d]">
+                <div className="text-xl font-black text-[#001d3d]">
                   {nettoMietrendite.toFixed(1)}%
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
+                <p className="text-[8px] text-slate-400 mt-1">
                   {nettoMietrendite < 2 ? 'Schwach' : nettoMietrendite < 3 ? 'Solide' : 'Attraktiv'}
                 </p>
               </div>
 
               {/* KPI Card 3 - Cashflow vor Steuern */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Wallet size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <Wallet size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cashflow (vor St.)</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Cashflow (vor St.)</span>
                 </div>
-                <div className={`text-2xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowVorSteuer.toFixed(0)}€
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
-                  {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst' : 'Monatlicher Zuschuss erforderlich'}
+                <p className="text-[8px] text-slate-400 mt-1">
+                  {cashflowVorSteuer >= 0 ? 'Selbsttragend' : 'Zuschuss nötig'}
                 </p>
               </div>
 
               {/* KPI Card 4 - Cashflow nach Steuern */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ReceiptText size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <ReceiptText size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Cashflow (nach St.)</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Cashflow (nach St.)</span>
                 </div>
-                <div className={`text-2xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {cashflowAfterTax.toFixed(0)}€
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
-                  Mit Steuerersparnis (AfA + Zinsen)
+                <p className="text-[8px] text-slate-400 mt-1">
+                  Mit Steuerersparnis
                 </p>
               </div>
 
               {/* KPI Card 5 - EK-Rendite */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <TrendingUp size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <TrendingUp size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">EK-Rendite</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
                 </div>
-                <div className="text-2xl font-black text-[#001d3d]">
+                <div className="text-xl font-black text-[#001d3d]">
                   {ekRendite.toFixed(1)}%
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
-                  Der Hebeleffekt Ihres Kapitals
+                <p className="text-[8px] text-slate-400 mt-1">
+                  Hebeleffekt
                 </p>
               </div>
 
               {/* KPI Card 6 - DSCR */}
-              <div className="bg-white p-4 rounded-2xl border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <div className="w-7 h-7 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ShieldCheck size={16} className="text-[#ff6b00]" />
+              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
+                    <ShieldCheck size={14} className="text-[#ff6b00]" />
                   </div>
-                  <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">DSCR</span>
+                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
                 </div>
-                <div className={`text-2xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                <div className={`text-xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
                   {dscr.toFixed(2)}
                 </div>
-                <p className="text-[9px] text-slate-400 mt-1.5">
+                <p className="text-[8px] text-slate-400 mt-1">
                   {dscr >= 1.2 ? 'Solide' : dscr >= 1.0 ? 'Grenzwertig' : 'Kritisch'}
                 </p>
               </div>
@@ -1989,18 +1988,18 @@ const exportPdf = React.useCallback(async () => {
 
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-[2.5rem] overflow-y-auto p-4">
-      <div className="text-center p-6 max-w-md my-auto">
-        <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-          <Lock className="w-8 h-8 text-white" />
+    <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-[2.5rem]">
+      <div className="text-center p-4 max-w-sm">
+        <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+          <Lock className="w-6 h-6 text-white" />
         </div>
-        <h3 className="text-2xl font-black mb-3 text-[#001d3d]">KI-Einschätzung freischalten</h3>
-        <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
-          Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
+        <h3 className="text-lg font-black mb-2 text-[#001d3d]">KI-Einschätzung freischalten</h3>
+        <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+          Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
         </p>
         <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-          <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
-            <Lock size={18} />
+          <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+            <Lock size={16} />
             Kostenlos anmelden
           </button>
         </SignInButton>
@@ -2059,19 +2058,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl overflow-y-auto p-4">
-                <div className="text-center p-6 max-w-md my-auto">
-                  <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Lock className="w-8 h-8 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-2xl">
+                <div className="text-center p-4 max-w-sm">
+                  <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Lock className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-black mb-3 text-[#001d3d]">Premium Feature</h3>
-                  <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
-                    Schalte Marktvergleich & Lageanalyse frei, um detaillierte Einblicke zu erhalten.
+                  <h3 className="text-lg font-black mb-2 text-[#001d3d]">Premium Feature</h3>
+                  <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+                    Schalte Marktvergleich & Lageanalyse frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
-                        <Lock size={18} />
+                      <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+                        <Lock size={16} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2079,12 +2078,12 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base"
+                        className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
                       >
-                        <Crown size={18} />
+                        <Crown size={16} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-slate-500 mt-3 font-semibold">
+                      <p className="text-[10px] text-slate-500 mt-2">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                           : 'Nur 13,99 €/Monat'}
@@ -2211,19 +2210,19 @@ const exportPdf = React.useCallback(async () => {
           <div className="relative">
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !canAccessPremium) && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80 backdrop-blur-md rounded-2xl overflow-y-auto p-4">
-                <div className="text-center p-6 max-w-md my-auto">
-                  <div className="w-16 h-16 bg-[#ff6b00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <Lock className="w-8 h-8 text-white" />
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/85 backdrop-blur-md rounded-2xl">
+                <div className="text-center p-4 max-w-sm">
+                  <div className="w-12 h-12 bg-[#ff6b00] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <Lock className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-2xl font-black mb-3 text-[#001d3d]">Premium Feature</h3>
-                  <p className="text-slate-600 mb-5 text-sm font-semibold leading-relaxed">
-                    Schalte Szenarien & Export frei, um verschiedene Szenarien zu testen und PDFs zu erstellen.
+                  <h3 className="text-lg font-black mb-2 text-[#001d3d]">Premium Feature</h3>
+                  <p className="text-slate-600 mb-4 text-xs leading-relaxed">
+                    Schalte Szenarien & PDF Export frei.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base">
-                        <Lock size={18} />
+                      <button className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm">
+                        <Lock size={16} />
                         Kostenlos anmelden
                       </button>
                     </SignInButton>
@@ -2231,12 +2230,12 @@ const exportPdf = React.useCallback(async () => {
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true)}
-                        className="px-6 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-base"
+                        className="px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 mx-auto text-sm"
                       >
-                        <Crown size={18} />
+                        <Crown size={16} />
                         Jetzt freischalten
                       </button>
-                      <p className="text-xs text-slate-500 mt-3 font-semibold">
+                      <p className="text-[10px] text-slate-500 mt-2">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
                           : 'Nur 13,99 €/Monat'}
