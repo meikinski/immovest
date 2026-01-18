@@ -20,7 +20,7 @@ html, body, #__next, .app-root { background: hsl(var(--bg)); }
   --muted-foreground: 213 19% 46%; /* ruhiges Slate-Text           #6C7F99   */
 
   /* Brand */
-  --brand: 214 61% 28%;       /* Navy (Primary)                      #264171   */
+  --brand: 210 100% 12%;       /* Deep Navy (Primary)                #001d3d   */
   --brand-foreground: 0 0% 100%;
 
   /* Accent */
@@ -28,7 +28,7 @@ html, body, #__next, .app-root { background: hsl(var(--bg)); }
   --accent-foreground: 0 0% 100%;
 
   /* Zweite Brand für Gradients & Secondary */
-  --brand-2: 18.3 59% 53.1%;      /* warmes Peach (etwas dunkler)        ~#E6AE63  */
+  --brand-2: 25 100% 50%;      /* Vibrant Orange (Secondary/CTA)      #ff6b00  */
 
   /* Semantik (neutral gehalten) */
   --success: 152 55% 38%;

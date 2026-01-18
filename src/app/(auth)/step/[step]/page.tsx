@@ -865,7 +865,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Datenerhebung</span>
           </div>
-          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Kaufpreis & Objektdaten.</h1>
+          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Kaufpreis & Objektdaten.</h1>
           <p className="text-slate-600">Gib die grundlegenden Informationen zu deinem Objekt ein.</p>
         </div>
 
@@ -876,12 +876,12 @@ const exportPdf = React.useCallback(async () => {
           <div className="space-y-1.5 w-full">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kaufpreis</label>
             <div className="relative group">
-              <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+              <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
                 type="text"
                 value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
                 onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
               <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
@@ -907,12 +907,12 @@ const exportPdf = React.useCallback(async () => {
                       }}
                     >
                       <div className="relative group">
-                        <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                        <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                         <input
                           type="text"
                           value={item.text}
                           onChange={(e) => item.setText(e.target.value)}
-                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                         />
                         <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                       </div>
@@ -949,12 +949,12 @@ const exportPdf = React.useCallback(async () => {
                   }}
                 >
                   <div className="relative group">
-                    <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
                       type="text"
                       value={sonstigeKostenText}
                       onChange={(e) => setSonstigeKostenText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
                     <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
@@ -971,7 +971,7 @@ const exportPdf = React.useCallback(async () => {
                     type="text"
                     readOnly
                     value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
-                    className="w-full bg-gradient-to-br from-[#FF8C00] to-[#FF8C00]/90 border-2 border-[#FF8C00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg"
+                    className="w-full bg-gradient-to-br from-[#ff6b00] to-[#ff6b00]/90 border-2 border-[#ff6b00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/90 font-black text-sm">€</span>
                 </div>
@@ -1001,7 +1001,7 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('wohnung')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'wohnung'
-                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    ? 'bg-white shadow-md text-[#ff6b00]'
                     : 'text-slate-600 hover:text-slate-800'
                 }`}
               >
@@ -1013,7 +1013,7 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('haus')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'haus'
-                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    ? 'bg-white shadow-md text-[#ff6b00]'
                     : 'text-slate-600 hover:text-slate-800'
                 }`}
               >
@@ -1024,7 +1024,7 @@ const exportPdf = React.useCallback(async () => {
                 onClick={() => setObjekttyp('mfh')}
                 className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
                   objekttyp === 'mfh'
-                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    ? 'bg-white shadow-md text-[#ff6b00]'
                     : 'text-slate-600 hover:text-slate-800'
                 }`}
               >
@@ -1038,7 +1038,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Adresse</label>
             <div className="relative group">
-              <MapPin className="absolute left-4 top-4 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors z-10" size={18} />
+              <MapPin className="absolute left-4 top-4 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
               <div className="pl-8">
                 <AddressAutocomplete
                   value={adresse}
@@ -1056,15 +1056,15 @@ const exportPdf = React.useCallback(async () => {
               </label>
               <div className="relative group">
                 {objekttyp === 'mfh' ? (
-                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 ) : (
-                  <BedSingle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <BedSingle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 )}
                 <input
                   type="text"
                   value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
                   onChange={(e) => objekttyp === 'mfh' ? setAnzahlWohneinheiten(Number(e.target.value)) : setZimmer(Number(e.target.value))}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
               </div>
               {objekttyp === 'mfh' && (
@@ -1083,12 +1083,12 @@ const exportPdf = React.useCallback(async () => {
                 }}
               >
                 <div className="relative group">
-                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={mounted ? flaecheText : flaecheText}
                     onChange={(e) => setFlaecheText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">m²</span>
                 </div>
@@ -1103,12 +1103,12 @@ const exportPdf = React.useCallback(async () => {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Baujahr</label>
             <div className="relative group">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
                 type="text"
                 value={baujahr.toString()}
                 onChange={(e) => setBaujahr(Number(e.target.value))}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
             </div>
           </div>
@@ -1118,7 +1118,7 @@ const exportPdf = React.useCallback(async () => {
         <div className="mt-8">
           <button
             onClick={handleNavigateToNextStep}
-            className="w-full bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
           >
             <span>Weiter</span>
             <SkipForward size={20} />
@@ -1144,7 +1144,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Ertragslage</span>
           </div>
-          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Einnahmen & Kosten.</h1>
+          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Einnahmen & Kosten.</h1>
           <p className="text-slate-600">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
         </div>
 
@@ -1167,12 +1167,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={miete.toString()}
                     onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
@@ -1229,12 +1229,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={hausUmlegText}
                     onChange={(e) => setHausUmlegText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
@@ -1258,12 +1258,12 @@ const exportPdf = React.useCallback(async () => {
                     </Tooltip>
                   </label>
                   <div className="relative group">
-                    <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
                     <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
@@ -1288,12 +1288,12 @@ const exportPdf = React.useCallback(async () => {
                     </Tooltip>
                   </label>
                   <div className="relative group">
-                    <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
                     <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                   </div>
@@ -1388,12 +1388,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={mietausfallText}
                     onChange={(e) => setMietausfallText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
@@ -1411,12 +1411,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={instandText}
                     onChange={(e) => setInstandText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                 </div>
@@ -1441,12 +1441,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={afaText}
                     onChange={(e) => setAfaText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
@@ -1464,12 +1464,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={gebText}
                     onChange={(e) => setGebText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
@@ -1487,12 +1487,12 @@ const exportPdf = React.useCallback(async () => {
                   </Tooltip>
                 </label>
                 <div className="relative group">
-                  <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
                     type="text"
                     value={persText}
                     onChange={(e) => setPersText(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
@@ -1511,7 +1511,7 @@ const exportPdf = React.useCallback(async () => {
           </button>
           <button
             onClick={handleNavigateToNextStep}
-            className="flex-1 bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
           >
             <span>Weiter</span>
             <SkipForward size={20} />
@@ -1536,7 +1536,7 @@ const exportPdf = React.useCallback(async () => {
           <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
             <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Finanzierung</span>
           </div>
-          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Eigenkapital & Kredit.</h1>
+          <h1 className="text-4xl font-bold text-[#001d3d] mb-2">Eigenkapital & Kredit.</h1>
           <p className="text-slate-600">Gib die Details zur Finanzierung deiner Immobilie an.</p>
         </div>
 
@@ -1547,13 +1547,13 @@ const exportPdf = React.useCallback(async () => {
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Eigenkapital</label>
             <div className="relative group">
-              <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+              <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
                 type="text"
                 value={mounted ? ek.toLocaleString('de-DE') : '0'}
                 onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
                 onFocus={(e) => e.target.select()}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
               <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
@@ -1606,12 +1606,12 @@ const exportPdf = React.useCallback(async () => {
             >
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Zinssatz</label>
               <div className="relative group">
-                <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
                   type="text"
                   value={zinsText}
                   onChange={(e) => setZinsText(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
                 <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
               </div>
@@ -1627,12 +1627,12 @@ const exportPdf = React.useCallback(async () => {
             >
               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Tilgung</label>
               <div className="relative group">
-                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
                   type="text"
                   value={tilgungText}
                   onChange={(e) => setTilgungText(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                 />
                 <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
               </div>
@@ -1655,7 +1655,7 @@ const exportPdf = React.useCallback(async () => {
                         }) + ' €/Monat'
                       : ''
                   }
-                  className="w-full bg-gradient-to-br from-[#FF8C00] to-[#FF8C00]/90 border-2 border-[#FF8C00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg text-center"
+                  className="w-full bg-gradient-to-br from-[#ff6b00] to-[#ff6b00]/90 border-2 border-[#ff6b00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg text-center"
                 />
               </div>
             </div>
@@ -1672,7 +1672,7 @@ const exportPdf = React.useCallback(async () => {
           </button>
           <button
             onClick={handleNavigateToNextStep}
-            className="flex-1 bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+            className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg flex items-center justify-center gap-2"
           >
             <span>Berechnen</span>
             <Calculator size={20} />
@@ -1687,7 +1687,7 @@ const exportPdf = React.useCallback(async () => {
         <div className="bg-white border-b border-slate-200 z-40 shadow-sm flex-shrink-0">
           <div className="px-6 lg:px-10 py-7 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 bg-slate-50 text-[#001F3F] rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm">
+              <div className="w-14 h-14 bg-slate-50 text-[#001d3d] rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm">
                 <House size={28} />
               </div>
               <div>
@@ -1703,9 +1703,9 @@ const exportPdf = React.useCallback(async () => {
             <div className="flex gap-3 w-full lg:w-auto">
               <div className="flex-1 lg:flex-none bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 text-center">
                 <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Netto-Rendite</span>
-                <span className="text-xl font-black text-[#FF8C00]">{nettoMietrendite.toFixed(1)}%</span>
+                <span className="text-xl font-black text-[#ff6b00]">{nettoMietrendite.toFixed(1)}%</span>
               </div>
-              <div className="flex-1 lg:flex-none bg-[#001F3F] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
+              <div className="flex-1 lg:flex-none bg-[#001d3d] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
                 <span className="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1 italic">Monatl. Cashflow</span>
                 <span className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {cashflowVorSteuer.toFixed(0)} €
@@ -1726,15 +1726,15 @@ const exportPdf = React.useCallback(async () => {
                 <button
                   key={t.id}
                   onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id as any)}
-                  className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001F3F]' : 'text-slate-300 hover:text-slate-500'}`}
+                  className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
                 >
                   {locked ? (
                     <Lock size={14} />
                   ) : (
-                    <t.icon size={14} className={activeTab === t.id ? 'text-[#FF8C00]' : ''} />
+                    <t.icon size={14} className={activeTab === t.id ? 'text-[#ff6b00]' : ''} />
                   )}
                   {t.label}
-                  {activeTab === t.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF8C00] rounded-t-full shadow-[0_-2px_8px_rgba(255,140,0,0.3)]" />}
+                  {activeTab === t.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#ff6b00] rounded-t-full shadow-[0_-2px_8px_rgba(255,140,0,0.3)]" />}
                 </button>
               );
             })}
@@ -1749,10 +1749,10 @@ const exportPdf = React.useCallback(async () => {
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Feature Card 1 - EK-Rendite */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative group overflow-hidden">
+              <div className="bg-white p-10 rounded-[40px] border-2 border-gray-100 shadow-lg relative group overflow-hidden">
                 <div className="relative z-10">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">EK-Rendite</span>
-                  <div className="text-6xl font-black text-[#001F3F] mt-3 group-hover:text-[#FF8C00] transition-colors">
+                  <div className="text-6xl font-black text-[#001d3d] mt-3 group-hover:text-[#ff6b00] transition-colors">
                     {ekRendite.toFixed(1)}%
                   </div>
                   <p className="text-[11px] font-bold text-slate-400 mt-6 leading-relaxed">
@@ -1763,7 +1763,7 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Feature Card 2 - Cashflow vor Steuern */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative group overflow-hidden">
+              <div className="bg-white p-10 rounded-[40px] border-2 border-gray-100 shadow-lg relative group overflow-hidden">
                 <div className="relative z-10">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Cashflow (vor Steuern)</span>
                   <div className={`text-6xl font-black mt-3 transition-colors ${cashflowVorSteuer >= 0 ? 'text-green-600 group-hover:text-green-700' : 'text-red-600 group-hover:text-red-700'}`}>
@@ -1777,14 +1777,14 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Standard KPI Card 1 - Nettomietrendite */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <Percent size={20} className="text-[#FF8C00]" />
+                    <Percent size={20} className="text-[#ff6b00]" />
                   </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nettomietrendite</span>
                 </div>
-                <div className="text-4xl font-black text-[#001F3F]">
+                <div className="text-4xl font-black text-[#001d3d]">
                   {nettoMietrendite.toFixed(1)}%
                 </div>
                 <p className="text-[10px] text-slate-400 mt-3">
@@ -1793,10 +1793,10 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Standard KPI Card 2 - Cashflow nach Steuern */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ReceiptText size={20} className="text-[#FF8C00]" />
+                    <ReceiptText size={20} className="text-[#ff6b00]" />
                   </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashflow (nach St.)</span>
                 </div>
@@ -1809,14 +1809,14 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Standard KPI Card 3 - Bruttomietrendite */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <SquarePercent size={20} className="text-[#FF8C00]" />
+                    <SquarePercent size={20} className="text-[#ff6b00]" />
                   </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bruttomietrendite</span>
                 </div>
-                <div className="text-4xl font-black text-[#001F3F]">
+                <div className="text-4xl font-black text-[#001d3d]">
                   {bruttoMietrendite.toFixed(1)}%
                 </div>
                 <p className="text-[10px] text-slate-400 mt-3">
@@ -1825,10 +1825,10 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Standard KPI Card 4 - DSCR */}
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
-                    <ShieldCheck size={20} className="text-[#FF8C00]" />
+                    <ShieldCheck size={20} className="text-[#ff6b00]" />
                   </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">DSCR</span>
                 </div>
@@ -1840,11 +1840,10 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
             </div>
-            </div>
 
             {/* Sidebar with Details */}
             <div className="lg:col-span-4 space-y-6">
-              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+              <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg">
                 <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
                   <BarChart3 size={16} /> Asset Performance
                 </h4>
@@ -1852,13 +1851,13 @@ const exportPdf = React.useCallback(async () => {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">EK-Quote</span>
-                      <span className="text-xl font-black text-[#001F3F]">
+                      <span className="text-xl font-black text-[#001d3d]">
                         {anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'}%
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-[#FF8C00] to-[#001F3F] h-full rounded-full transition-all"
+                        className="bg-gradient-to-r from-[#ff6b00] to-[#001d3d] h-full rounded-full transition-all"
                         style={{ width: `${Math.min(100, anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100) : 0)}%` }}
                       />
                     </div>
@@ -1867,7 +1866,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Break-Even</span>
-                      <span className="text-lg font-black text-[#001F3F]">
+                      <span className="text-lg font-black text-[#001d3d]">
                         {isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : '–'}
                       </span>
                     </div>
@@ -1879,7 +1878,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlung</span>
-                      <span className="text-lg font-black text-[#001F3F]">
+                      <span className="text-lg font-black text-[#001d3d]">
                         {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
                       </span>
                     </div>
@@ -1891,7 +1890,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="border-t border-slate-100 pt-6">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
-                      <span className="text-lg font-black text-[#001F3F]">
+                      <span className="text-lg font-black text-[#001d3d]">
                         {anschaffungskosten.toLocaleString('de-DE')}€
                       </span>
                     </div>
@@ -1903,9 +1902,9 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Compact Info Card */}
-              <div className="bg-gradient-to-br from-[#001F3F] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
+              <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
                 <div className="flex items-center gap-2 mb-3">
-                  <Info size={16} className="text-[#FF8C00]" />
+                  <Info size={16} className="text-[#ff6b00]" />
                   <span className="text-[8px] font-black uppercase tracking-widest">Hinweis</span>
                 </div>
                 <p className="text-[10px] leading-relaxed opacity-90">
@@ -1919,8 +1918,8 @@ const exportPdf = React.useCallback(async () => {
             <div className="lg:col-span-12">
 
 {/* KI-Kurzkommentar - Modernisiert */}
-<div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
-  <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+<div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+  <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
 
   {/* Blur Overlay wenn nicht angemeldet */}
   {isCommentLocked && !isLoadingComment && (
@@ -1929,7 +1928,7 @@ const exportPdf = React.useCallback(async () => {
         <div className="w-12 h-12 bg-gradient-to-br from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
           <Lock className="w-6 h-6 text-white" />
         </div>
-        <h3 className="text-lg font-bold mb-2 text-[#001F3F]">KI-Einschätzung freischalten</h3>
+        <h3 className="text-lg font-bold mb-2 text-[#001d3d]">KI-Einschätzung freischalten</h3>
         <p className="text-gray-600 mb-3 text-xs">
           Nach deiner Anmeldung erhältst du eine erste Investitionsanalyse basierend auf deinen KPIs. Außerdem bekommst du zusätzlich zwei Premium-Analysen mit Marktvergleichen und detaillierter Analyse.
         </p>
@@ -1946,7 +1945,7 @@ const exportPdf = React.useCallback(async () => {
   {/* Content (geblurred wenn locked) */}
   <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
     <div className="flex items-center gap-3 mb-6">
-      <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+      <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
         <MessageSquare size={20} className="text-white fill-current" />
       </div>
       <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
@@ -2034,11 +2033,11 @@ const exportPdf = React.useCallback(async () => {
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
-            <div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl mb-8">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl mb-8">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
                     <MessageSquare size={20} className="text-white fill-current" />
                   </div>
                   <h3 className="text-xl font-bold tracking-tight">Objekt- & Marktanalyse</h3>
@@ -2103,11 +2102,11 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             {/* Block 2: Investment-Empfehlung - Modernisiert */}
-            <div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF8C00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-[#FF8C00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
                     <MessageSquare size={20} className="text-white fill-current" />
                   </div>
                   <h3 className="text-xl font-bold tracking-tight">Investment-Empfehlung</h3>

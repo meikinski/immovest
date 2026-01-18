@@ -22,10 +22,10 @@ export function KpiCard({
   trendLabel?: string;
 }) {
   return (
-    <div className={`bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md transition-shadow ${className ?? ''}`}>
+    <div className={`bg-white p-6 rounded-[40px] border-2 border-gray-100 shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 ${className ?? ''}`}>
       <div className="flex justify-between items-start mb-4">
         {Icon && (
-          <div className="p-3 bg-slate-50 rounded-xl text-[#001F3F]">
+          <div className="p-3 bg-slate-50 rounded-xl text-[#001d3d]">
             <Icon size={20} />
           </div>
         )}
@@ -58,7 +58,7 @@ export function KpiCard({
         )}
       </div>
       <div className="flex items-baseline gap-1 mt-1">
-        <span className="text-2xl font-bold text-[#001F3F]">{value}</span>
+        <span className="text-2xl font-bold text-[#001d3d]">{value}</span>
       </div>
     </div>
   );
