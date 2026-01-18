@@ -2492,7 +2492,7 @@ const exportPdf = React.useCallback(async () => {
   const freeUsagesRemaining = Math.max(0, 2 - premiumUsageCount);
 
   return (
-    <>
+    <div className="min-h-screen bg-white">
       <Header variant="fixed" />
 
       <UpgradeModal
@@ -2516,6 +2516,6 @@ const exportPdf = React.useCallback(async () => {
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
         {content}
       </div>
-    </>
+    </div>
   );
 }

@@ -52,10 +52,10 @@ export function StickyBottomCTA() {
         isVisible ? 'translate-y-0' : 'translate-y-full'
       }`}
     >
-      <div className="bg-white/20 backdrop-blur-xl border-t border-white/30 shadow-2xl p-4">
+      <div className="bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-2xl p-4">
         <button
           onClick={() => router.push('/input-method')}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] px-6 py-4 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl active:scale-95"
+          className="w-full flex items-center justify-center gap-2 rounded-full bg-[#ff6b00] px-6 py-4 text-base font-bold text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
         >
           Kostenlos testen
           <ArrowRight className="h-5 w-5" />
