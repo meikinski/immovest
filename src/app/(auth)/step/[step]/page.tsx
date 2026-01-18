@@ -860,313 +860,269 @@ const exportPdf = React.useCallback(async () => {
   if (step === 'a') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button
-            onClick={() => router.back()}
-            className="btn-back"
-          >
-            ←
-          </button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-               Objektdaten <House className="icon icon-primary" />
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Gib die grundlegenden Informationen zu deinem Objekt ein.
-            </p>
+        {/* Badge & Title */}
+        <div className="text-center mb-8">
+          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Datenerhebung</span>
           </div>
+          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Kaufpreis & Objektdaten.</h1>
+          <p className="text-slate-600">Gib die grundlegenden Informationen zu deinem Objekt ein.</p>
         </div>
 
-        {/* Kaufpreis */}
-        <div className="card">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Kaufpreis</span>
-            <span className="ml-2"><EuroIcon /></span>
-          </div>
-          <InputField
-            className="input-uniform input-editable"
-            label=""
-            type="text"
-            value={
-              mounted
-                ? kaufpreis.toLocaleString('de-DE')
-                : kaufpreis.toString()
-            }
-            onValueChange={v =>
-              setKaufpreis(
-                Number(
-                  v.replace(/\./g, '').replace(',', '.')
-                )
-              )
-            }
-            unit=" €"
-          />
-        </div>
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
 
-        {/* Kaufnebenkosten */}
-        <div className="card bg-white p-4 rounded-2xl shadow-md">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Kaufnebenkosten</span>
-            <span className="ml-2"><ReceiptText /></span>
+          {/* Kaufpreis */}
+          <div className="space-y-1.5 w-full">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kaufpreis</label>
+            <div className="relative group">
+              <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+              <input
+                type="text"
+                value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
+                onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+              />
+              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+            </div>
           </div>
 
-          {[
-            {
-              label: 'Grunderwerbsteuer',
-              text: grunderwerbText,
-              setText: setGrunderwerbText,
-              setter: setGrunderwerbsteuerPct,
-              amount: grunderwerbsteuer_eur,
-            },
-            {
-              label: 'Notar & Grundbuch',
-              text: notarText,
-              setText: setNotarText,
-              setter: setNotarPct,
-              amount: notar_eur,
-            },
-            {
-              label: 'Maklergebühr',
-              text: maklerText,
-              setText: setMaklerText,
-              setter: setMaklerPct,
-              amount: makler_eur,
-            },
-          ].map((item, i) => (
-            <div key={i} className="grid grid-cols-2 gap-4 mb-4 items-end">
-              {/* Prozent-Feld */}
-              <div className="flex flex-col">
-                <label className="block text-xs text-gray-600 mb-1">{item.label}</label>
+          {/* Kaufnebenkosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Kaufnebenkosten</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[
+                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur },
+                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
+                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur },
+              ].map((item, i) => (
+                <div key={i} className="space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">{item.label} (%)</label>
+                    <div
+                      onBlur={() => {
+                        const num = Number(item.text.replace(',', '.'));
+                        item.setter(isNaN(num) ? 0 : num);
+                      }}
+                    >
+                      <div className="relative group">
+                        <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                        <input
+                          type="text"
+                          value={item.text}
+                          onChange={(e) => item.setText(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                        />
+                        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Betrag</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        readOnly
+                        value={mounted ? item.amount.toLocaleString('de-DE') : item.amount.toString()}
+                        className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                      />
+                      <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Sonstige Kosten */}
+              <div className="space-y-1.5 col-span-full">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Sonstige Kosten
+                  <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
                 <div
                   onBlur={() => {
-                    const num = Number(item.text.replace(',', '.'));
-                    item.setter(isNaN(num) ? 0 : num);
+                    const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+                    setSonstigeKosten(isNaN(num) ? 0 : num);
                   }}
                 >
-                  <InputField
-                    value={item.text}
-                    onValueChange={item.setText}
-                    unit=" %"
-                    className="w-full input-uniform input-editable"
-                  />
+                  <div className="relative group">
+                    <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={sonstigeKostenText}
+                      onChange={(e) => setSonstigeKostenText(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    />
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Betrag-Feld */}
-              <div className="flex flex-col">
-                <label className="block text-xs text-gray-600 mb-1">Betrag</label>
+            {/* Gesamtinvestition */}
+            <div className="mt-6 pt-6 border-t border-slate-200">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Gesamtinvestition</label>
                 <div className="relative">
                   <input
                     type="text"
                     readOnly
-                    value={
-                      mounted
-                        ? item.amount.toLocaleString('de-DE')
-                        : item.amount.toString()
-                    }
-                    className="w-full input-uniform input-computed pr-8 rounded"
+                    value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
+                    className="w-full bg-gradient-to-br from-[#FF8C00] to-[#FF8C00]/90 border-2 border-[#FF8C00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg"
                   />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">
-                    €
-                  </span>
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/90 font-black text-sm">€</span>
                 </div>
               </div>
             </div>
-          ))}
 
-          {/* Sonstige Kosten */}
-          <div className="mt-4">
-            <label className="block text-xs text-gray-600 mb-1 flex items-center">
-              Sonstige Kosten
-              <Tooltip text="Z. B. Renovierung, Küche, Möbel, Parkplatz oder andere einmalige Kosten beim Kauf.">
-                <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-              </Tooltip>
-            </label>
-            <div
-              onBlur={() => {
-                const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
-                setSonstigeKosten(isNaN(num) ? 0 : num);
-              }}
-            >
-              <InputField
-                value={sonstigeKostenText}
-                onValueChange={setSonstigeKostenText}
-                unit=" €"
-                className="w-full input-uniform input-editable"
-              />
-            </div>
+            {/* Warnung bei hoher Maklergebühr */}
+            {maklerPct > 5 && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">Hohe Maklergebühr</p>
+                  <p className="text-xs mt-1">
+                    Die Maklergebühr von {maklerPct.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 2})}% liegt über dem üblichen Rahmen von 2-4%. Bitte prüfe, ob dieser Wert korrekt ist.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Total-Zeile */}
-          <div className="mt-6">
-   <label className="block text-xs text-gray-600 mb-1">Gesamtinvestition</label>
-   <div className="relative">
-     <input
-       type="text"
-       readOnly
-       value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
-       className="w-full input-total pr-8"
-     />
-     <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">€</span>
-   </div>
- </div>
-
-          {/* Warnung bei hoher Maklergebühr */}
-          {maklerPct > 5 && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-              <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold">Hohe Maklergebühr</p>
-                <p className="text-xs mt-1">
-                  Die Maklergebühr von {maklerPct.toLocaleString('de-DE', {minimumFractionDigits: 1, maximumFractionDigits: 2})}% liegt über dem üblichen Rahmen von 2-4%. Bitte prüfe, ob dieser Wert korrekt ist.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Objekttyp */}
-        <div className="card">
-  <div className="mb-3 text-lg font-semibold flex items-center">
-    <span>Objekttyp</span>
-    <span className="ml-2"><House /></span>
-  </div>
-  <div className="flex justify-center gap-2 p-1.5 bg-gray-100 rounded-full">
-    <button
-      type="button"
-      onClick={() => setObjekttyp('wohnung')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'wohnung'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'wohnung' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      <span className="hidden sm:inline">Eigentumswohnung</span>
-      <span className="sm:hidden">ETW</span>
-    </button>
-    <button
-      type="button"
-      onClick={() => setObjekttyp('haus')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'haus'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'haus' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      Haus
-    </button>
-    <button
-      type="button"
-      onClick={() => setObjekttyp('mfh')}
-      className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
-        objekttyp === 'mfh'
-          ? 'bg-white shadow-md'
-          : 'text-gray-600 hover:text-gray-800'
-      }`}
-      style={objekttyp === 'mfh' ? { color: 'hsl(var(--brand))' } : undefined}
-    >
-      <span className="hidden sm:inline">Mehrfamilienhaus</span>
-      <span className="sm:hidden">MFH</span>
-    </button>
-  </div>
-</div>
-
-        {/* Adresse */}
-        <div className="card">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Adresse</span>
-            <span className="ml-2"><MapPin /></span>
-          </div>
-          <AddressAutocomplete
-            value={adresse}
-            onChange={(val: string) => setAdresse(val)}
-          />
-        </div>
-
-        {/* Zimmer (ETW/Haus) oder Wohneinheiten (MFH) & Fläche */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-          <div>
-            <div className='card'>
-              <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>{objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}</span>
-                <span className="ml-2">{objekttyp === 'mfh' ? <House /> : <BedSingle />}</span>
-              </div>
-              <InputField
-                label=""
-                type="text"
-                value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
-                onValueChange={v => objekttyp === 'mfh'
-                  ? setAnzahlWohneinheiten(Number(v))
-                  : setZimmer(Number(v))
-                }
-                className="input-uniform input-editable"
-              />
-              {objekttyp === 'mfh' && (
-                <p className="text-xs text-gray-500 mt-1">Anzahl vermietbarer Wohnungen</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className='card'>
-              <div className="mb-2 text-lg font-semibold flex items-center">
-                <span>{objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}</span>
-                <span className="ml-2"><Ruler /></span>
-              </div>
-              <div
-                onBlur={() => {
-                  const num = Number(
-                    flaecheText.replace(/\./g, '').replace(',', '.')
-                  );
-                  setFlaeche(isNaN(num) ? 0 : num);
-                }}
+          {/* Objekttyp */}
+          <div className="space-y-1.5 pt-4">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
+            <div className="flex justify-center gap-2 p-1.5 bg-slate-200 rounded-full">
+              <button
+                type="button"
+                onClick={() => setObjekttyp('wohnung')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'wohnung'
+                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
               >
-                <InputField
-                  label=""
+                <span className="hidden sm:inline">Eigentumswohnung</span>
+                <span className="sm:hidden">ETW</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setObjekttyp('haus')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'haus'
+                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                Haus
+              </button>
+              <button
+                type="button"
+                onClick={() => setObjekttyp('mfh')}
+                className={`flex-1 px-3 sm:px-5 py-3.5 rounded-full text-xs sm:text-base font-semibold transition-all duration-200 min-h-[48px] ${
+                  objekttyp === 'mfh'
+                    ? 'bg-white shadow-md text-[#FF8C00]'
+                    : 'text-slate-600 hover:text-slate-800'
+                }`}
+              >
+                <span className="hidden sm:inline">Mehrfamilienhaus</span>
+                <span className="sm:hidden">MFH</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Adresse */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Adresse</label>
+            <div className="relative group">
+              <MapPin className="absolute left-4 top-4 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors z-10" size={18} />
+              <div className="pl-8">
+                <AddressAutocomplete
+                  value={adresse}
+                  onChange={(val: string) => setAdresse(val)}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Zimmer/Wohneinheiten & Fläche */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">
+                {objekttyp === 'mfh' ? 'Wohneinheiten' : 'Zimmer'}
+              </label>
+              <div className="relative group">
+                {objekttyp === 'mfh' ? (
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                ) : (
+                  <BedSingle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                )}
+                <input
                   type="text"
-                  value={mounted ? flaecheText : flaecheText}
-                  onValueChange={setFlaecheText}
-                  unit="m²"
-                  className="input-uniform input-editable"
+                  value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
+                  onChange={(e) => objekttyp === 'mfh' ? setAnzahlWohneinheiten(Number(e.target.value)) : setZimmer(Number(e.target.value))}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
                 />
               </div>
               {objekttyp === 'mfh' && (
-                <p className="text-xs text-gray-500 mt-1">Gesamte Wohnfläche aller Einheiten</p>
+                <p className="text-xs text-slate-500 ml-1">Anzahl vermietbarer Wohnungen</p>
               )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">
+                {objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}
+              </label>
+              <div
+                onBlur={() => {
+                  const num = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
+                  setFlaeche(isNaN(num) ? 0 : num);
+                }}
+              >
+                <div className="relative group">
+                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={mounted ? flaecheText : flaecheText}
+                    onChange={(e) => setFlaecheText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">m²</span>
+                </div>
+              </div>
+              {objekttyp === 'mfh' && (
+                <p className="text-xs text-slate-500 ml-1">Gesamte Wohnfläche aller Einheiten</p>
+              )}
+            </div>
+          </div>
+
+          {/* Baujahr */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Baujahr</label>
+            <div className="relative group">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+              <input
+                type="text"
+                value={baujahr.toString()}
+                onChange={(e) => setBaujahr(Number(e.target.value))}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+              />
             </div>
           </div>
         </div>
 
-        {/* Baujahr */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Baujahr</span>
-            <span className="ml-2"><Calendar /></span>
-          </div>
-          <InputField
-            className="input-editable input-uniform"
-            label=""
-            type="text"
-            value={baujahr.toString()}
-            onValueChange={v => setBaujahr(Number(v))}
-          />
-        </div>
-
-        {/* Weiter Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full btn-primary flex justify-center space-x-2"
-        >
-          Weiter <SkipForward className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8">
+          <button
+            onClick={handleNavigateToNextStep}
+            className="w-full bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+          >
+            <span>Weiter</span>
+            <SkipForward size={20} />
+          </button>
         </div>
       </>
     );
@@ -1174,642 +1130,793 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'b') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button onClick={() => router.push('/step/a')} className="btn-back rounded-full p-2">←</button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">Einnahmen & Kosten <Wallet className="icon icon-primary" /></h1>
-            <p className="text-gray-600 mt-1">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
-          </div>
+        {/* Back Button, Badge & Title */}
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
         </div>
 
-        {/* Mieteinnahmen */}
-        <div className="card bg-white p-4 rounded-2xl shadow-md">
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            <span>Mieteinnahmen</span>
-            <span className="ml-2"><Wallet /></span>
+        <div className="text-center mb-8">
+          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Ertragslage</span>
           </div>
+          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Einnahmen & Kosten.</h1>
+          <p className="text-slate-600">Gib die monatlichen Einnahmen und Ausgaben für dein Objekt an.</p>
+        </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Kaltmiete gesamt */}
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
-                <Tooltip text={objekttyp === 'mfh'
-                  ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
-                  : 'Die monatliche Nettokaltmiete ohne Nebenkosten.'}>
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={miete.toString()}
-                onValueChange={v => setMiete(
-                  Number(v.replace(/\./g, '').replace(',', '.'))
-                )}
-                unit="€"
-                className="input-uniform input-editable pr-8"
-              />
-            </div>
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
 
-            {/* Kaltmiete pro qm */}
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1">Kaltmiete pro qm</label>
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  readOnly
-                  value={
-                    mounted && flaeche > 0
-                      ? (miete / flaeche).toLocaleString('de-DE', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })
-                      : ''
-                  }
-                  className="input-computed input-uniform w-full pr-8 rounded-2xl"
-                />
-                <span className="absolute inset-y-0 right-3 flex items-center text-gray-600 pointer-events-none">
-                  €
-                </span>
+          {/* Mieteinnahmen Section */}
+          <div>
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Mieteinnahmen</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Kaltmiete gesamt */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  {objekttyp === 'mfh' ? 'Kaltmiete gesamt (alle Einheiten)' : 'Kaltmiete gesamt'}
+                  <Tooltip text={objekttyp === 'mfh'
+                    ? 'Die Summe der monatlichen Nettokaltmiete aller Wohneinheiten ohne Nebenkosten.'
+                    : 'Die monatliche Nettokaltmiete ohne Nebenkosten.'}>
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={miete.toString()}
+                    onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                </div>
+              </div>
+
+              {/* Kaltmiete pro qm */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Kaltmiete pro qm</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      mounted && flaeche > 0
+                        ? (miete / flaeche).toLocaleString('de-DE', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                        : ''
+                    }
+                    className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Mietnebenkosten / Betriebskosten */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            {objekttyp === 'wohnung' ? 'Mietnebenkosten' : 'Betriebskosten'}
-            &nbsp;<span><ChartBar /></span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Umlagefähig - für alle Objekttypen */}
-            <div
-              onBlur={() => {
-                const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                if (objekttyp === 'wohnung') {
-                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                  setHausgeld(isNaN(um) ? non : um + non);
-                }
-              }}
-              className="flex flex-col"
-            >
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
-                <Tooltip text={objekttyp === 'wohnung'
-                  ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
-                  : 'Monatliche Nebenkosten, die auf Mieter umgelegt werden (Wasser, Müll, Grundsteuer, etc.).'}>
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={hausUmlegText}
-                onValueChange={setHausUmlegText}
-                unit="€"
-                className="input-uniform input-editable"
-              />
-            </div>
+          {/* Mietnebenkosten / Betriebskosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">
+              {objekttyp === 'wohnung' ? 'Mietnebenkosten' : 'Betriebskosten'}
+            </h3>
 
-            {/* Für ETW: Nicht umlagefähiges Hausgeld */}
-            {objekttyp === 'wohnung' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Umlagefähig - für alle Objekttypen */}
               <div
                 onBlur={() => {
                   const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                  const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
                   setHausgeldUmlegbar(isNaN(um) ? 0 : um);
-                  setHausgeld(isNaN(non) ? um : um + non);
+                  if (objekttyp === 'wohnung') {
+                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setHausgeld(isNaN(um) ? non : um + non);
+                  }
                 }}
-                className="flex flex-col"
+                className="space-y-1.5"
               >
-                <label className="text-xs text-gray-600 mb-1 flex items-center">
-                  Hausgeld nicht umlagefähig
-                  <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  {objekttyp === 'wohnung' ? 'Hausgeld umlagefähig' : 'Nebenkosten umlagbar'}
+                  <Tooltip text={objekttyp === 'wohnung'
+                    ? 'Teil der WEG-Umlage, der auf Mieter umgelegt werden kann (z.B. Hausmeister, Müll).'
+                    : 'Monatliche Nebenkosten, die auf Mieter umgelegt werden (Wasser, Müll, Grundsteuer, etc.).'}>
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                   </Tooltip>
                 </label>
-                <InputField
-                  value={hausNichtText}
-                  onValueChange={setHausNichtText}
-                  unit="€"
-                  className="input-uniform input-editable"
-                />
+                <div className="relative group">
+                  <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={hausUmlegText}
+                    onChange={(e) => setHausUmlegText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                </div>
               </div>
-            )}
 
-            {/* Für Haus/MFH: Verwaltungskosten */}
-            {(objekttyp === 'haus' || objekttyp === 'mfh') && (
+              {/* Für ETW: Nicht umlagefähiges Hausgeld */}
+              {objekttyp === 'wohnung' && (
+                <div
+                  onBlur={() => {
+                    const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
+                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setHausgeldUmlegbar(isNaN(um) ? 0 : um);
+                    setHausgeld(isNaN(non) ? um : um + non);
+                  }}
+                  className="space-y-1.5"
+                >
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                    Hausgeld nicht umlagefähig
+                    <Tooltip text="Teil der WEG-Umlage, der vom Eigentümer getragen wird (z.B. Instandhaltungsrücklage, Verwaltung).">
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </label>
+                  <div className="relative group">
+                    <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={hausNichtText}
+                      onChange={(e) => setHausNichtText(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    />
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Für Haus/MFH: Verwaltungskosten */}
+              {(objekttyp === 'haus' || objekttyp === 'mfh') && (
+                <div
+                  onBlur={() => {
+                    const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    setVerwaltungskosten(isNaN(verw) ? 0 : verw);
+                  }}
+                  className="space-y-1.5"
+                >
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                    Verwaltungskosten
+                    <Tooltip text={objekttyp === 'mfh'
+                      ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
+                      : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
+                      <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                    </Tooltip>
+                  </label>
+                  <div className="relative group">
+                    <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                    <input
+                      type="text"
+                      value={hausNichtText}
+                      onChange={(e) => setHausNichtText(e.target.value)}
+                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                    />
+                    <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Hinweise zu Hausgeld-Verteilung */}
+            {objekttyp === 'wohnung' && (() => {
+              const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
+              const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
+              const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
+
+              // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
+              const isAutoDistribution = hausgeld > 0 && hausgeld_umlegbar > 0 &&
+                Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
+                Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5;
+
+              // Fall 2: Nur umlagefähig eingetragen, nicht-umlagefähig fehlt
+              const onlyUmlegbarFilled = umlegbarNum > 0 && nichtUmlegbarNum === 0;
+
+              // Fall 3: Nur nicht-umlagefähig eingetragen, umlagefähig fehlt
+              const onlyNichtUmlegbarFilled = nichtUmlegbarNum > 0 && umlegbarNum === 0;
+
+              if (isAutoDistribution) {
+                return (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-2xl text-blue-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
+                      <p className="text-xs mt-1">
+                        Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
+                      </p>
+                    </div>
+                  </div>
+                );
+              } else if (onlyUmlegbarFilled) {
+                const recommendedUmlegbar = totalHausgeld * 0.6;
+                const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+                return (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                      <p className="text-xs mt-1">
+                        Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                      </p>
+                      <p className="text-xs mt-1">
+                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                      </p>
+                    </div>
+                  </div>
+                );
+              } else if (onlyNichtUmlegbarFilled) {
+                const recommendedUmlegbar = totalHausgeld * 0.6;
+                const recommendedNichtUmlegbar = totalHausgeld * 0.4;
+                return (
+                  <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl text-yellow-800 text-sm flex items-start gap-3">
+                    <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
+                      <p className="text-xs mt-1">
+                        Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
+                      </p>
+                      <p className="text-xs mt-1">
+                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
+
+          {/* Kalkulatorische Kosten Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Kalkulatorische Kosten</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Mietausfall */}
               <div
-                onBlur={() => {
-                  const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                  setVerwaltungskosten(isNaN(verw) ? 0 : verw);
-                }}
-                className="flex flex-col"
+                onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
+                className="space-y-1.5"
               >
-                <label className="text-xs text-gray-600 mb-1 flex items-center">
-                  Verwaltungskosten
-                  <Tooltip text={objekttyp === 'mfh'
-                    ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
-                    : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
-                    <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Kalk. Mietausfall
+                  <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                   </Tooltip>
                 </label>
-                <InputField
-                  value={hausNichtText}
-                  onValueChange={setHausNichtText}
-                  unit="€"
-                  className="input-uniform input-editable"
-                />
+                <div className="relative group">
+                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={mietausfallText}
+                    onChange={(e) => setMietausfallText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+                </div>
               </div>
-            )}
+
+              {/* Instandhaltung */}
+              <div
+                onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Instandhaltungskosten /qm
+                  <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={instandText}
+                    onChange={(e) => setInstandText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Hinweise zu Hausgeld-Verteilung */}
-          {objekttyp === 'wohnung' && (() => {
-            const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
-            const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
-            const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
+          {/* Steuern Section */}
+          <div className="pt-4">
+            <h3 className="text-sm font-bold text-slate-700 mb-4">Steuern</h3>
 
-            // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
-            const isAutoDistribution = hausgeld > 0 && hausgeld_umlegbar > 0 &&
-              Math.abs(hausgeld_umlegbar - hausgeld * 0.6) < 0.5 &&
-              Math.abs((hausgeld - hausgeld_umlegbar) - hausgeld * 0.4) < 0.5;
-
-            // Fall 2: Nur umlagefähig eingetragen, nicht-umlagefähig fehlt
-            const onlyUmlegbarFilled = umlegbarNum > 0 && nichtUmlegbarNum === 0;
-
-            // Fall 3: Nur nicht-umlagefähig eingetragen, umlagefähig fehlt
-            const onlyNichtUmlegbarFilled = nichtUmlegbarNum > 0 && umlegbarNum === 0;
-
-            if (isAutoDistribution) {
-              return (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
-                    <p className="text-xs mt-1">
-                      Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
-                    </p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* AfA Satz */}
+              <div
+                onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  AfA Satz (% p.a.)
+                  <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={afaText}
+                    onChange={(e) => setAfaText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
                 </div>
-              );
-            } else if (onlyUmlegbarFilled) {
-              const recommendedUmlegbar = totalHausgeld * 0.6;
-              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
-              return (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
-                    <p className="text-xs mt-1">
-                      Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
-                    </p>
-                    <p className="text-xs mt-1">
-                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
-                    </p>
-                  </div>
-                </div>
-              );
-            } else if (onlyNichtUmlegbarFilled) {
-              const recommendedUmlegbar = totalHausgeld * 0.6;
-              const recommendedNichtUmlegbar = totalHausgeld * 0.4;
-              return (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-sm flex items-start gap-2">
-                  <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Hausgeld-Verteilung empfohlen</p>
-                    <p className="text-xs mt-1">
-                      Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
-                    </p>
-                    <p className="text-xs mt-1">
-                      • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                      • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
-        </div>
+              </div>
 
-        {/* Kalkulatorische Kosten */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">Kalkulatorische Kosten&nbsp;<span><WrenchIcon /></span></div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Mietausfall */}
-            <div onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Kalk. Mietausfall
-                <Tooltip text="Puffer für Leerstand/Verzug. 1–3 % der Jahresmiete sind typisch.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={mietausfallText}
-                onValueChange={setMietausfallText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-            {/* Instandhaltung */}
-            <div onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Instandhaltungskosten /qm
-                <Tooltip text="Ø Aufwand für Reparaturen/Wartung je m²/Jahr. 5–15 € üblich, 10 € als Startwert.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={instandText}
-                onValueChange={setInstandText}
-                unit="€"
-                className="input-uniform input-editable"
-              />
+              {/* Anteil Gebäude */}
+              <div
+                onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
+                className="space-y-1.5"
+              >
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Anteil Gebäude am Kaufpreis (%)
+                  <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={gebText}
+                    onChange={(e) => setGebText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+                </div>
+              </div>
+
+              {/* Persönlicher Steuersatz */}
+              <div
+                onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
+                className="space-y-1.5 col-span-full"
+              >
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1 flex items-center">
+                  Pers. Steuersatz (%)
+                  <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
+                    <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
+                  </Tooltip>
+                </label>
+                <div className="relative group">
+                  <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                  <input
+                    type="text"
+                    value={persText}
+                    onChange={(e) => setPersText(e.target.value)}
+                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                  />
+                  <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Steuern (optional) */}
-        <div className='card'>
-          <div className="mb-2 text-lg font-semibold flex items-center">
-            Steuern&nbsp;<span><SquarePercent /></span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-            {/* AfA Satz */}
-            <div onBlur={() => setAfa(Number(afaText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                AfA Satz (% p.a.)
-                <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={afaText}
-                onValueChange={setAfaText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-
-            {/* Anteil Gebäude */}
-            <div onBlur={() => setSteuer(Number(gebText.replace(',', '.')))} className="flex flex-col">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Anteil Gebäude am Kaufpreis (%)
-                <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={gebText}
-                onValueChange={setGebText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-
-            {/* Persönlicher Steuersatz */}
-            <div onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))} className="flex flex-col col-span-2">
-              <label className="text-xs text-gray-600 mb-1 flex items-center">
-                Pers. Steuersatz (%)
-                <Tooltip text="Grenzsteuersatz auf Einkünfte; oft 30–45 %.">
-                  <Info className="w-4 h-4 text-gray-400 cursor-pointer ml-1 hover:text-gray-600" />
-                </Tooltip>
-              </label>
-              <InputField
-                value={persText}
-                onValueChange={setPersText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Weiter Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full btn-primary flex items-center justify-center space-x-2"
-        >
-          Weiter <SkipForward className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/a')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <button
+            onClick={handleNavigateToNextStep}
+            className="flex-1 bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+          >
+            <span>Weiter</span>
+            <SkipForward size={20} />
+          </button>
         </div>
       </>
     );
   } else if (step === 'c') {
     content = (
       <>
-        {/* Header */}
-        <div className="flex items-center mb-4">
-          <button onClick={() => router.push('/step/b')} className="btn-back">
-            ←
+        {/* Back Button, Badge & Title */}
+        <div className="flex items-center mb-6">
+          <button
+            onClick={() => router.push('/step/b')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors mr-4"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <div className="ml-4">
-            <h1 className="text-3xl font-bold flex items-center gap-2">Finanzierung <Calculator className="icon icon-primary" /></h1>
-            <p className="text-gray-600 mt-1">
-              Gib die Details zur Finanzierung deiner Immobilie an.
-            </p>
-          </div>
         </div>
 
-        {/* Finanzierungskarte */}
-        <div className='card'>
+        <div className="text-center mb-8">
+          <div className="inline-block px-4 py-1.5 bg-slate-100 rounded-full mb-4">
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Finanzierung</span>
+          </div>
+          <h1 className="text-4xl font-bold text-[#001F3F] mb-2">Eigenkapital & Kredit.</h1>
+          <p className="text-slate-600">Gib die Details zur Finanzierung deiner Immobilie an.</p>
+        </div>
+
+        {/* Input Container */}
+        <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-10 border border-slate-100/50 shadow-inner space-y-6">
+
           {/* Eigenkapital */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Eigenkapital</label>
-            <div className="relative">
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Eigenkapital</label>
+            <div className="relative group">
+              <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
               <input
                 type="text"
-                value={mounted ? ek.toLocaleString('de-DE') : + ' 0'}
-                onChange={e => setEk(
-                  Number(
-                    e.target.value
-                    .replace(/\./g, '')
-                    .replace(',', '.')
-                  ) || 0
-                )}
-                onFocus={e => e.target.select()}
-                className="w-full input-uniform input-editable"
+                value={mounted ? ek.toLocaleString('de-DE') : '0'}
+                onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
+                onFocus={(e) => e.target.select()}
+                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
               />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">€</span>
+              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
           </div>
 
-          {/* Eigenkapitalquote */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Eigenkapitalquote</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted && anschaffungskosten > 0
-                    ? ((ek / anschaffungskosten) * 100).toFixed(2)
-                    : '0,0'
-                }
-                className="w-full input-uniform input-computed"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
+          {/* Eigenkapitalquote & Darlehenssumme */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Eigenkapitalquote */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Eigenkapitalquote</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    mounted && anschaffungskosten > 0
+                      ? ((ek / anschaffungskosten) * 100).toFixed(2)
+                      : '0,0'
+                  }
+                  className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+              </div>
+            </div>
+
+            {/* Darlehenssumme */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Darlehenssumme</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={mounted ? darlehensSumme.toLocaleString('de-DE') : '0'}
+                  className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
+              </div>
             </div>
           </div>
 
-          {/* Darlehenssumme */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Darlehenssumme</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted
-                    ? darlehensSumme.toLocaleString('de-DE') 
-                    : '0'
-                }
-                className="w-full input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">€</span>
+          {/* Zinssatz & Tilgung */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Zinssatz */}
+            <div
+              onBlur={() => {
+                const num = Number(zinsText.replace(',', '.'));
+                setZins(isNaN(num) ? 0 : num);
+              }}
+              className="space-y-1.5"
+            >
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Zinssatz</label>
+              <div className="relative group">
+                <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={zinsText}
+                  onChange={(e) => setZinsText(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+              </div>
             </div>
-          </div>
 
-          {/* Zinssatz */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Zinssatz</label>
-            <div className="relative" onBlur={() => {
-              const num = Number(zinsText.replace(',', '.'));
-              setZins(isNaN(num) ? 0 : num);
-            }}>
-              <InputField
-                value={zinsText}
-                onValueChange={setZinsText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
-            </div>
-          </div>
-
-          {/* Tilgung */}
-          <div className="flex flex-col mb-4">
-            <label className="text-xs text-gray-600 mb-1">Tilgung</label>
-            <div className="relative" onBlur={() => {
-              const num = Number(tilgungText.replace(',', '.'));
-              setTilgung(isNaN(num) ? 0 : num);
-            }}>
-              <InputField
-                value={tilgungText}
-                onValueChange={setTilgungText}
-                unit="%"
-                className="input-uniform input-editable"
-              />
-              <span className="absolute inset-y-0 right-3 flex items-center text-gray-600">%</span>
+            {/* Tilgung */}
+            <div
+              onBlur={() => {
+                const num = Number(tilgungText.replace(',', '.'));
+                setTilgung(isNaN(num) ? 0 : num);
+              }}
+              className="space-y-1.5"
+            >
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Tilgung</label>
+              <div className="relative group">
+                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#FF8C00] transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={tilgungText}
+                  onChange={(e) => setTilgungText(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-12 text-base font-bold text-[#001F3F] focus:ring-4 focus:ring-[#FF8C00]/10 focus:border-[#FF8C00] outline-none transition-all shadow-sm"
+                />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">%</span>
+              </div>
             </div>
           </div>
 
           {/* Monatliche Rate */}
-          <div className="mt-4">
-            <label className="text-xs text-gray-600 mb-1 block">Monatliche Rate</label>
-            <div className="relative">
-              <input
-                type="text"
-                readOnly
-                value={
-                  mounted
-                    ? (
-                        darlehensSumme *
-                        ((zins + tilgung) / 100) /
-                        12
-                      ).toLocaleString('de-DE', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      }) + ' €/Monat'
-                    : ''
-                }
-                className="w-full input-total text-center"
-              />
+          <div className="pt-6 border-t border-slate-200">
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] ml-1">Monatliche Rate</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    mounted
+                      ? (darlehensSumme * ((zins + tilgung) / 100) / 12).toLocaleString('de-DE', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                        }) + ' €/Monat'
+                      : ''
+                  }
+                  className="w-full bg-gradient-to-br from-[#FF8C00] to-[#FF8C00]/90 border-2 border-[#FF8C00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg text-center"
+                />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Berechnen-Button */}
-        <button
-          onClick={handleNavigateToNextStep}
-          className="w-full w-full btn-primary flex items-center justify-center space-x-2"
-        >
-          Berechnen
-          <Calculator className='ml-2' />
-        </button>
-
-        {/* Mobile Progress Text */}
-        <div className="mt-4 text-center sm:hidden">
-          <p className="text-sm text-gray-600">
-            Schritt <span className="font-bold text-[hsl(var(--brand))]">{idx + 2}</span> von 5
-          </p>
+        {/* Buttons */}
+        <div className="mt-8 flex gap-4">
+          <button
+            onClick={() => router.push('/step/b')}
+            className="w-12 h-12 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+          >
+            <SkipForward size={20} className="rotate-180 text-slate-600" />
+          </button>
+          <button
+            onClick={handleNavigateToNextStep}
+            className="flex-1 bg-[#001F3F] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001F3F]/90 transition-all shadow-lg flex items-center justify-center gap-2"
+          >
+            <span>Berechnen</span>
+            <Calculator size={20} />
+          </button>
         </div>
       </>
     );
   } else if (step === 'tabs') {
     content = (
-      <>
-        {/* Progress Indicator */}
-        <div className="mb-6">
-          <ProgressIndicator currentStep="tabs" />
-        </div>
-
-        {/* Header */}
-        <div className="flex items-center mb-4">
-  <button onClick={() => router.push('/step/c')} className="btn-back">←</button>
-  <div className="ml-4 flex items-center gap-3">
-    <h1 className="text-3xl font-bold">Analyse</h1>
-    <BarChart3 size={32} className="text-[var(--color-primary)]" />
-  </div>
-</div>
-
-
-        {/* Property Header - Neu gestaltet */}
-        <section className="bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 mb-8">
-          <div className="flex flex-col md:flex-row justify-between gap-8">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 text-[#FF8C00] font-bold text-xs uppercase tracking-widest mb-2">
-                <MapPin size={14} />
-                {shortAddress ? (
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(adresse.replace(/,\s*(Deutschland|Germany|Bundesrepublik Deutschland|DE)$/i, ''))}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover:underline"
-                  >
-                    {cityFromAddress(adresse)}
-                  </a>
-                ) : (
-                  cityFromAddress(adresse)
-                )}
+      <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
+        {/* Sticky Header */}
+        <div className="bg-white border-b border-slate-200 z-40 shadow-sm flex-shrink-0">
+          <div className="px-6 lg:px-10 py-7 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 bg-slate-50 text-[#001F3F] rounded-2xl flex items-center justify-center border border-slate-100 shadow-sm">
+                <House size={28} />
               </div>
-              <h1 className="text-3xl font-bold mb-4 tracking-tight">{shortAddress || adresse || 'Immobilie'}</h1>
-              <div className="flex flex-wrap gap-6 text-sm text-gray-500 font-medium">
-                <div className="flex items-center gap-2 text-[#001F3F]">
-                  <House size={16} /> {objekttyp || 'Immobilie'}
-                </div>
-                {zimmer && (
-                  <div className="flex items-center gap-2">
-                    <BedSingle size={16} /> {zimmer} Zimmer
-                  </div>
-                )}
-                {flaeche && (
-                  <div className="flex items-center gap-2">
-                    <Ruler size={16} /> {flaeche.toLocaleString('de-DE')} m²
-                  </div>
-                )}
-                {baujahr && (
-                  <div className="flex items-center gap-2 font-bold">
-                    <Calendar size={16} className="text-[#FF8C00]" /> BJ {baujahr}
-                  </div>
-                )}
+              <div>
+                <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                  {shortAddress || adresse || 'Immobilie'}
+                </h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">
+                  {flaeche}m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
+                </p>
               </div>
             </div>
-            <div className="text-right flex flex-col justify-center">
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Kaufpreis</p>
-              <p className="text-3xl font-black text-[#001F3F] tracking-tight">
-                {kaufpreis ? `${kaufpreis.toLocaleString('de-DE')} €` : '–'}
-              </p>
-              {anschaffungskosten && anschaffungskosten !== kaufpreis && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Gesamtinvestition: {anschaffungskosten.toLocaleString('de-DE')} €
-                </p>
-              )}
+
+            <div className="flex gap-3 w-full lg:w-auto">
+              <div className="flex-1 lg:flex-none bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100 text-center">
+                <span className="block text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1 italic">Netto-Rendite</span>
+                <span className="text-xl font-black text-[#FF8C00]">{nettoMietrendite.toFixed(1)}%</span>
+              </div>
+              <div className="flex-1 lg:flex-none bg-[#001F3F] px-6 py-3 rounded-2xl shadow-lg shadow-blue-900/20 text-center">
+                <span className="block text-[8px] font-black text-white/50 uppercase tracking-widest mb-1 italic">Monatl. Cashflow</span>
+                <span className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {cashflowVorSteuer.toFixed(0)} €
+                </span>
+              </div>
             </div>
           </div>
-        </section>
 
-{/* Tabs - Modernisiert */}
-<div className="flex flex-wrap gap-2 mb-8 bg-slate-100/50 p-1.5 rounded-3xl w-fit mx-auto">
-  {([
-    { key: 'kpi', label: 'KI-Analyse', icon: BarChart3, premium: false },
-    { key: 'markt', label: 'Marktvergleich', icon: ChartBar, premium: true },
-    { key: 'szenarien', label: 'Szenarien', icon: Calculator, premium: true },
-  ] as const).map(t => {
-    const active = activeTab === t.key;
-    const locked = t.premium && (!isSignedIn || !canAccessPremium);
-    return (
-      <button
-        key={t.key}
-        onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.key)}
-        className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-          active
-            ? 'bg-white text-[#001F3F] shadow-md'
-            : 'text-gray-500 hover:text-[#001F3F]'
-        }`}
-        aria-current={active ? 'page' : undefined}
-      >
-        {locked ? (
-          <Lock size={16} />
-        ) : (
-          <t.icon size={16} className={active ? 'text-[#FF8C00]' : ''} />
-        )}
-        {t.label}
-      </button>
-    );
-  })}
-</div>
+          {/* TABS */}
+          <div className="px-6 lg:px-10 border-t border-slate-50 flex gap-10 overflow-x-auto no-scrollbar bg-white">
+            {[
+              { id: 'kpi', label: 'KI-Analyse', icon: BarChart3 },
+              { id: 'markt', label: 'Marktvergleich', icon: ChartBar },
+              { id: 'szenarien', label: 'Szenarien', icon: Calculator }
+            ].map(t => {
+              const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id as any)}
+                  className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001F3F]' : 'text-slate-300 hover:text-slate-500'}`}
+                >
+                  {locked ? (
+                    <Lock size={14} />
+                  ) : (
+                    <t.icon size={14} className={activeTab === t.id ? 'text-[#FF8C00]' : ''} />
+                  )}
+                  {t.label}
+                  {activeTab === t.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#FF8C00] rounded-t-full shadow-[0_-2px_8px_rgba(255,140,0,0.3)]" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-
-
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto px-6 lg:px-10 py-10 space-y-10">
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
-          <>
-            {/* KPI-Karten (Tooltips = Erklärung, keine Pfeile/Icons) */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-  <KpiCard
-    icon={EuroIcon}
-    title="Cashflow (vor Steuern)"
-    value={`${cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    help="Monatlicher Überschuss: Mieteinnahmen minus alle laufenden Kosten (Kreditrate, Hausgeld nicht umlegbar, Instandhaltung, Mietausfall). Positiv = Immobilie trägt sich selbst. Negativ = Du musst monatlich zuschießen."
-  />
-  <KpiCard
-    icon={ReceiptText}
-    title="Cashflow (nach Steuern)"
-    value={`${cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €`}
-    help="Cashflow nach Steuern: Berücksichtigt vereinfacht die Steuerersparnis durch AfA (Abschreibung) und Zinsen. Zeigt dir realistischer, was am Ende bei dir ankommt oder wie viel du monatlich einplanen musst."
-  />
-  <KpiCard
-    icon={Percent}
-    title="Nettomietrendite"
-    value={`${nettoMietrendite.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`}
-    help="Nettomietrendite: (Jahreskaltmiete - Bewirtschaftungskosten) / Kaufpreis. Berücksichtigt Hausgeld, Instandhaltung, Mietausfall. Richtwerte: < 2% schwach, 2-3% solide, > 3% attraktiv. Stark abhängig von Lage & Objekttyp."
-  />
-  <KpiCard
-    icon={SquarePercent}
-    title="Bruttomietrendite"
-    value={`${bruttoMietrendite.toFixed(1)} %`}
-    help="Einfache Berechnung: Jahreskaltmiete geteilt durch Kaufpreis. Berücksichtigt KEINE Nebenkosten, Instandhaltung oder Leerstand – daher immer höher als Nettomietrendite. Gut für ersten Überblick."
-  />
-  <KpiCard
-    icon={Wallet}
-    title="EK-Quote"
-    value={`${anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'} %`}
-    help="Wie viel % der Gesamtkosten du aus eigener Tasche zahlst. Höhere Quote = weniger Kredit nötig, niedrigere Zinslast. Aber: Mehr gebundenes Kapital. Banken mögen oft 20-30%."
-  />
-  <KpiCard
-    icon={TrendingUp}
-    title="EK-Rendite"
-    value={`${ekRendite.toFixed(1)} %`}
-    help="Eigenkapitalrendite: Der jährliche Cashflow (nach Steuern) geteilt durch dein eingesetztes Eigenkapital. Beispiel: 30.000€ EK, 2.000€ Jahrescashflow = 6,7% EK-Rendite. Durch Fremdfinanzierung (Hebel) kann diese höher sein als die Nettomietrendite – aber nur wenn der Cashflow positiv ist."
-  />
-  <KpiCard icon={Calendar} title="Break-Even-Jahr" value={isFinite(breakEvenJahre) ? String(new Date().getFullYear() + Math.round(breakEvenJahre)) : '–'} help="Ab wann hast du dein eingesetztes Eigenkapital durch die monatlichen Überschüsse zurückverdient? Grobe Schätzung – berücksichtigt keine Wertsteigerung oder Sondertilgungen." />
-  <KpiCard icon={Calendar} title="Abzahlungsjahr (≈)" value={String(new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)))} help="Wann wäre der Kredit abbezahlt (grobe Schätzung)? Geht von konstanter Rate und keinen Sondertilgungen aus. Tatsächliche Laufzeit kann abweichen, z.B. durch Zinsbindung oder Anschlussfinanzierung."/>
-<KpiCard
-  icon={ShieldCheck}
-  title="DSCR"
-  value={`${dscr.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-  help="Schuldendienstdeckungsgrad: Verhältnis von Nettoeinnahmen zu Kreditrate. Werte > 1,2 gelten als solide, < 1,0 kritisch."
-/>
-</div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Main KPI Cards */}
+            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Feature Card 1 - EK-Rendite */}
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative group overflow-hidden">
+                <div className="relative z-10">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">EK-Rendite</span>
+                  <div className="text-6xl font-black text-[#001F3F] mt-3 group-hover:text-[#FF8C00] transition-colors">
+                    {ekRendite.toFixed(1)}%
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-400 mt-6 leading-relaxed">
+                    Der Hebeleffekt Ihres Kapitals. Durch Fremdfinanzierung kann diese höher sein als die Nettomietrendite.
+                  </p>
+                </div>
+                <TrendingUp className="absolute -right-8 -bottom-8 text-slate-50 group-hover:text-orange-50 transition-all duration-500" size={180} />
+              </div>
+
+              {/* Feature Card 2 - Cashflow vor Steuern */}
+              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative group overflow-hidden">
+                <div className="relative z-10">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Cashflow (vor Steuern)</span>
+                  <div className={`text-6xl font-black mt-3 transition-colors ${cashflowVorSteuer >= 0 ? 'text-green-600 group-hover:text-green-700' : 'text-red-600 group-hover:text-red-700'}`}>
+                    {cashflowVorSteuer.toFixed(0)}€
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-400 mt-6 leading-relaxed">
+                    {cashflowVorSteuer >= 0 ? 'Ihre Immobilie trägt sich selbst.' : 'Monatlicher Zuschuss erforderlich.'}
+                  </p>
+                </div>
+                <EuroIcon className={`absolute -right-8 -bottom-8 transition-all duration-500 ${cashflowVorSteuer >= 0 ? 'text-green-50' : 'text-red-50'}`} size={180} />
+              </div>
+
+              {/* Standard KPI Card 1 - Nettomietrendite */}
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <Percent size={20} className="text-[#FF8C00]" />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nettomietrendite</span>
+                </div>
+                <div className="text-4xl font-black text-[#001F3F]">
+                  {nettoMietrendite.toFixed(1)}%
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  {nettoMietrendite < 2 ? 'Schwach' : nettoMietrendite < 3 ? 'Solide' : 'Attraktiv'}
+                </p>
+              </div>
+
+              {/* Standard KPI Card 2 - Cashflow nach Steuern */}
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ReceiptText size={20} className="text-[#FF8C00]" />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cashflow (nach St.)</span>
+                </div>
+                <div className={`text-4xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {cashflowAfterTax.toFixed(0)}€
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  Mit Steuerersparnis (AfA + Zinsen)
+                </p>
+              </div>
+
+              {/* Standard KPI Card 3 - Bruttomietrendite */}
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <SquarePercent size={20} className="text-[#FF8C00]" />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Bruttomietrendite</span>
+                </div>
+                <div className="text-4xl font-black text-[#001F3F]">
+                  {bruttoMietrendite.toFixed(1)}%
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  Vereinfachte Berechnung
+                </p>
+              </div>
+
+              {/* Standard KPI Card 4 - DSCR */}
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center">
+                    <ShieldCheck size={20} className="text-[#FF8C00]" />
+                  </div>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">DSCR</span>
+                </div>
+                <div className={`text-4xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                  {dscr.toFixed(2)}
+                </div>
+                <p className="text-[10px] text-slate-400 mt-3">
+                  {dscr >= 1.2 ? 'Solide' : dscr >= 1.0 ? 'Grenzwertig' : 'Kritisch'}
+                </p>
+              </div>
+            </div>
+            </div>
+
+            {/* Sidebar with Details */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
+                  <BarChart3 size={16} /> Asset Performance
+                </h4>
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">EK-Quote</span>
+                      <span className="text-xl font-black text-[#001F3F]">
+                        {anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-[#FF8C00] to-[#001F3F] h-full rounded-full transition-all"
+                        style={{ width: `${Math.min(100, anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100) : 0)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Break-Even</span>
+                      <span className="text-lg font-black text-[#001F3F]">
+                        {isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Jahr der EK-Rückgewinnung
+                    </p>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Abzahlung</span>
+                      <span className="text-lg font-black text-[#001F3F]">
+                        {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Voraussichtliche Entschuldung
+                    </p>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Gesamtinvestition</span>
+                      <span className="text-lg font-black text-[#001F3F]">
+                        {anschaffungskosten.toLocaleString('de-DE')}€
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">
+                      Inkl. Nebenkosten
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Compact Info Card */}
+              <div className="bg-gradient-to-br from-[#001F3F] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Info size={16} className="text-[#FF8C00]" />
+                  <span className="text-[8px] font-black uppercase tracking-widest">Hinweis</span>
+                </div>
+                <p className="text-[10px] leading-relaxed opacity-90">
+                  Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
+                </p>
+              </div>
+            </div>
+            </div>
+
+            {/* KI-Kommentar - Full Width */}
+            <div className="lg:col-span-12">
 
 {/* KI-Kurzkommentar - Modernisiert */}
 <div className="bg-[#001F3F] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
@@ -1878,8 +1985,8 @@ const exportPdf = React.useCallback(async () => {
       Weiter zu Marktvergleich & Lage →
     </button>
   </div>
-
-          </>
+            </div>
+          </div>
         )}
 
         {/* Tab 2 – Marktvergleich & Lage */}
@@ -2331,8 +2438,8 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
-
-      </>
+        </div>
+      </div>
     );
   } else {
     content = <p>Seite existiert nicht</p>;
