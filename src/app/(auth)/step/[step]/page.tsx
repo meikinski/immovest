@@ -1776,106 +1776,158 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Main KPI Cards */}
-            <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-3 gap-3">
-              {/* KPI Card 1 - Bruttomietrendite */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <SquarePercent size={14} className="text-[#ff6b00]" />
+            <div className="lg:col-span-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {/* KPI Card 1 - Bruttomietrendite */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <SquarePercent size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
                   </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Bruttomietrendite</span>
+                  <div className="text-lg font-black text-[#001d3d]">
+                    {bruttoMietrendite.toFixed(1)}%
+                  </div>
                 </div>
-                <div className="text-xl font-black text-[#001d3d]">
-                  {bruttoMietrendite.toFixed(1)}%
+
+                {/* KPI Card 2 - Nettomietrendite */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <Percent size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
+                  </div>
+                  <div className="text-lg font-black text-[#001d3d]">
+                    {nettoMietrendite.toFixed(1)}%
+                  </div>
                 </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  Ohne Nebenkosten
-                </p>
+
+                {/* KPI Card 3 - Cashflow vor Steuern */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <Wallet size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
+                  </div>
+                  <div className={`text-lg font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {cashflowVorSteuer.toFixed(0)}€
+                  </div>
+                </div>
+
+                {/* KPI Card 4 - Cashflow nach Steuern */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <ReceiptText size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
+                  </div>
+                  <div className={`text-lg font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {cashflowAfterTax.toFixed(0)}€
+                  </div>
+                </div>
+
+                {/* KPI Card 5 - EK-Rendite */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <TrendingUp size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
+                  </div>
+                  <div className="text-lg font-black text-[#001d3d]">
+                    {ekRendite.toFixed(1)}%
+                  </div>
+                </div>
+
+                {/* KPI Card 6 - DSCR */}
+                <div className="bg-white p-2.5 rounded-lg border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all">
+                  <div className="flex items-center gap-0.5 mb-1">
+                    <div className="w-5 h-5 bg-slate-50 rounded-md flex items-center justify-center">
+                      <ShieldCheck size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <span className="text-[7px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
+                  </div>
+                  <div className={`text-lg font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {dscr.toFixed(2)}
+                  </div>
+                </div>
               </div>
 
-              {/* KPI Card 2 - Nettomietrendite */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <Percent size={14} className="text-[#ff6b00]" />
+              {/* KI-Kurzkommentar - Modernisiert */}
+              <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+
+                {/* Blur Overlay wenn nicht angemeldet */}
+                {isCommentLocked && !isLoadingComment && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[2.5rem] p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                      <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                        <Lock className="w-7 h-7 text-white" />
+                      </div>
+                      <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
+                      <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                        Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
+                      </p>
+                      <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                        <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                          <Lock size={18} />
+                          Kostenlos anmelden
+                        </button>
+                      </SignInButton>
+                    </div>
                   </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Nettomietrendite</span>
+                )}
+
+                {/* Content (geblurred wenn locked) */}
+                <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                      <MessageSquare size={20} className="text-white fill-current" />
+                    </div>
+                    <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
+                  </div>
+                  {isLoadingComment ? (
+                    <LoadingSpinner
+                      size="sm"
+                      messages={[
+                        'Analysiere Cashflow und Rendite...',
+                        'Bewerte Eigenkapitalquote...',
+                        'Prüfe Schuldendienstdeckung...',
+                        'Erstelle Investment-Einschätzung...',
+                      ]}
+                    />
+                  ) : (
+                    <div className="space-y-6 text-slate-200 leading-relaxed">
+                      <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
+                    </div>
+                  )}
                 </div>
-                <div className="text-xl font-black text-[#001d3d]">
-                  {nettoMietrendite.toFixed(1)}%
-                </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  {nettoMietrendite < 2 ? 'Schwach' : nettoMietrendite < 3 ? 'Solide' : 'Attraktiv'}
-                </p>
               </div>
 
-              {/* KPI Card 3 - Cashflow vor Steuern */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <Wallet size={14} className="text-[#ff6b00]" />
-                  </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Cashflow (vor St.)</span>
-                </div>
-                <div className={`text-xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {cashflowVorSteuer.toFixed(0)}€
-                </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  {cashflowVorSteuer >= 0 ? 'Selbsttragend' : 'Zuschuss nötig'}
-                </p>
-              </div>
-
-              {/* KPI Card 4 - Cashflow nach Steuern */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <ReceiptText size={14} className="text-[#ff6b00]" />
-                  </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Cashflow (nach St.)</span>
-                </div>
-                <div className={`text-xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {cashflowAfterTax.toFixed(0)}€
-                </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  Mit Steuerersparnis
-                </p>
-              </div>
-
-              {/* KPI Card 5 - EK-Rendite */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <TrendingUp size={14} className="text-[#ff6b00]" />
-                  </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
-                </div>
-                <div className="text-xl font-black text-[#001d3d]">
-                  {ekRendite.toFixed(1)}%
-                </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  Hebeleffekt
-                </p>
-              </div>
-
-              {/* KPI Card 6 - DSCR */}
-              <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 hover:border-[#ff6b00]/30 transition-all duration-300">
-                <div className="flex items-center gap-1 mb-1.5">
-                  <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                    <ShieldCheck size={14} className="text-[#ff6b00]" />
-                  </div>
-                  <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
-                </div>
-                <div className={`text-xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
-                  {dscr.toFixed(2)}
-                </div>
-                <p className="text-[8px] text-slate-400 mt-1">
-                  {dscr >= 1.2 ? 'Solide' : dscr >= 1.0 ? 'Grenzwertig' : 'Kritisch'}
-                </p>
+              {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
+              <div className={`relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                <button
+                  onClick={() => {
+                    if (!isSignedIn || !canAccessPremium) {
+                      setShowUpgradeModal(true);
+                    } else {
+                      setActiveTab('markt');
+                    }
+                  }}
+                  className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
+                >
+                  {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
+                  Weiter zu Marktvergleich & Lage →
+                </button>
               </div>
             </div>
 
             {/* Sidebar with Details */}
-            <div className="lg:col-span-4 space-y-6">
+            <div className="lg:col-span-4 space-y-6 sticky top-4 self-start">
               <div className="bg-white p-8 rounded-[40px] border-2 border-gray-100 shadow-lg">
                 <h4 className="text-[10px] font-black uppercase text-slate-400 mb-8 tracking-widest flex items-center gap-2">
                   <BarChart3 size={16} /> Finanzierungsübersicht
@@ -1977,78 +2029,6 @@ const exportPdf = React.useCallback(async () => {
                   Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
                 </p>
               </div>
-            </div>
-
-            {/* KI-Kommentar - Full Width */}
-            <div className="lg:col-span-12">
-
-{/* KI-Kurzkommentar - Modernisiert */}
-<div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
-  <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
-
-  {/* Blur Overlay wenn nicht angemeldet */}
-  {isCommentLocked && !isLoadingComment && (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[2.5rem] p-6">
-      <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
-        <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
-          <Lock className="w-7 h-7 text-white" />
-        </div>
-        <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
-        <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-          Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
-        </p>
-        <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-          <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
-            <Lock size={18} />
-            Kostenlos anmelden
-          </button>
-        </SignInButton>
-      </div>
-    </div>
-  )}
-
-  {/* Content (geblurred wenn locked) */}
-  <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
-    <div className="flex items-center gap-3 mb-6">
-      <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-        <MessageSquare size={20} className="text-white fill-current" />
-      </div>
-      <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
-    </div>
-    {isLoadingComment ? (
-      <LoadingSpinner
-        size="sm"
-        messages={[
-          'Analysiere Cashflow und Rendite...',
-          'Bewerte Eigenkapitalquote...',
-          'Prüfe Schuldendienstdeckung...',
-          'Erstelle Investment-Einschätzung...',
-        ]}
-      />
-    ) : (
-      <div className="space-y-6 text-slate-200 leading-relaxed">
-        <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
-      </div>
-    )}
-  </div>
-</div>
-
-{/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
-<div className={`mt-3 relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
-    <button
-      onClick={() => {
-        if (!isSignedIn || !canAccessPremium) {
-          setShowUpgradeModal(true);
-        } else {
-          setActiveTab('markt');
-        }
-      }}
-      className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
-    >
-      {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
-      Weiter zu Marktvergleich & Lage →
-    </button>
-  </div>
             </div>
           </div>
         )}
