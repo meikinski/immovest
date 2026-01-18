@@ -2,16 +2,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { InputField } from '@/components/InputField';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import HtmlContent from '@/components/HtmlContent';
 import {
- BarChart3, BedSingle, Bot, Calculator, Calendar, ChartBar, Crown,
+ BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
   TrendingUp, Percent, ShieldCheck, MessageSquare
 } from 'lucide-react';
-import { KpiCard } from '@/components/KpiCard';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
@@ -667,6 +665,7 @@ const dscr =
       setLoadingDetails(false);
     }
   })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 }, [
   step, activeTab,
   adresse, objekttyp,
@@ -675,6 +674,7 @@ const dscr =
   ek, zins, tilgung,
   // Paywall context dependencies
   canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
+  // Note: Setters and comment states are intentionally excluded to prevent infinite loops
 ]);
 
 
@@ -1716,16 +1716,16 @@ const exportPdf = React.useCallback(async () => {
 
           {/* TABS */}
           <div className="px-6 lg:px-10 border-t border-slate-50 flex gap-10 overflow-x-auto no-scrollbar bg-white">
-            {[
+            {([
               { id: 'kpi', label: 'KI-Analyse', icon: BarChart3 },
               { id: 'markt', label: 'Marktvergleich', icon: ChartBar },
               { id: 'szenarien', label: 'Szenarien', icon: Calculator }
-            ].map(t => {
+            ] as const).map(t => {
               const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
               return (
                 <button
                   key={t.id}
-                  onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id as any)}
+                  onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id)}
                   className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
                 >
                   {locked ? (
