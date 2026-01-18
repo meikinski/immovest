@@ -279,10 +279,10 @@ export default function LandingPage() {
               </div>
 
               {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 max-w-6xl mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-6 md:mx-0 px-6 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -318,7 +318,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 2: Zu teuer gekauft */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -348,7 +348,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 3: Schlechte Lage */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -382,7 +382,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Problem 4: Miete überschätzt */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-48px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full min-w-[calc(100vw-32px)] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
                     <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
@@ -643,8 +643,8 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Tabs Navigation - Mobile Only */}
-              <div className="flex md:hidden flex-wrap justify-center gap-3 mb-12">
+              {/* Tabs Navigation */}
+              <div className="flex flex-wrap justify-center gap-3 mb-12">
                 <button
                   onClick={() => setSelectedImportMethod('url')}
                   className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
@@ -917,67 +917,238 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Desktop: All three cards */}
-              <div className="hidden md:grid md:grid-cols-3 gap-8">
-                {/* URL Import Card */}
-                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                    <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">URL-Import</h3>
-                  <p className="text-gray-600 text-base leading-relaxed mb-6">
-                    Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                  </p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>Alle Objektdaten in Sekunden erfasst</span>
+              {/* Desktop: Tab content on left, mockup on right */}
+              <div className="hidden md:flex md:flex-row items-start gap-8 md:gap-12">
+                {/* Content */}
+                <div className="w-full md:w-1/2">
+                  {/* URL Import Content */}
+                  {selectedImportMethod === 'url' && (
+                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
+                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>Alle Objektdaten in Sekunden erfasst</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>Unterstützt alle großen Portale</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>Unterstützt alle großen Portale</span>
+                  )}
+
+                  {/* Photo Scan Content */}
+                  {selectedImportMethod === 'photo' && (
+                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
+                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>Perfekt für Besichtigungen vor Ort</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Manual Input Content */}
+                  {selectedImportMethod === 'manual' && (
+                    <div className="animate-[fadeIn_0.3s_ease-in] space-y-6">
+                      <p className="text-gray-600 text-base md:text-lg leading-relaxed">
+                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
+                      </p>
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>Smartes Formular mit Validierung</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
+                          <span>Volle Kontrolle über alle Details</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Photo Scan Card */}
-                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                    <Camera className="w-7 h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Foto-Scan</h3>
-                  <p className="text-gray-600 text-base leading-relaxed mb-6">
-                    Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
-                  </p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>Perfekt für Besichtigungen vor Ort</span>
-                    </div>
-                  </div>
-                </div>
+                {/* Visual Mockup - Desktop */}
+                <div className="w-full md:w-1/2">
+                  <div className="bg-[#001d3d] rounded-[32px] md:rounded-[48px] min-h-[400px] md:min-h-[500px] flex items-center justify-center p-8 md:p-12 shadow-2xl border-4 border-gray-100">
+                    <div className="w-full max-w-md">
+                      {/* URL Import Mockup */}
+                      {selectedImportMethod === 'url' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <LinkIcon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">URL einfügen</div>
+                            </div>
 
-                {/* Manual Input Card */}
-                <div className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center shadow-sm mb-6">
-                    <Edit3 className="w-7 h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-4 text-[#001d3d]">Manuell</h3>
-                  <p className="text-gray-600 text-base leading-relaxed mb-6">
-                    Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
-                  </p>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>Smartes Formular mit Validierung</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <CheckCircle2 className="w-5 h-5 text-[#ff6b00]" />
-                      <span>Volle Kontrolle über alle Details</span>
+                            {/* Input Field Mockup */}
+                            <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
+                              <div className="w-5 h-5 text-gray-400">
+                                <LinkIcon className="w-5 h-5" />
+                              </div>
+                              <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
+                            </div>
+
+                            {/* Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Analyse starten</span>
+                              <ArrowRight className="w-5 h-5 text-white" />
+                            </div>
+
+                            {/* Feature Pills */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1"></div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>Powered by GPT-4 Vision + OCR</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Photo Scan Mockup */}
+                      {selectedImportMethod === 'photo' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <Camera className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">Foto scannen</div>
+                            </div>
+
+                            {/* Camera Preview Mockup */}
+                            <div className="bg-white/5 rounded-2xl p-6 mb-6 aspect-[4/3] flex items-center justify-center border-2 border-dashed border-white/30">
+                              <div className="text-center">
+                                <Camera className="w-16 h-16 text-white/40 mx-auto mb-3" />
+                                <div className="text-white/60 text-sm">Exposé fotografieren</div>
+                              </div>
+                            </div>
+
+                            {/* Scan Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Foto aufnehmen</span>
+                              <Camera className="w-5 h-5 text-white" />
+                            </div>
+
+                            {/* OCR Features */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">OCR-Texterkennung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">GPT-4 Vision Analyse</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">98% Genauigkeit</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>KI-gestützte Texterkennung</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Manual Entry Mockup */}
+                      {selectedImportMethod === 'manual' && (
+                        <div className="animate-[fadeIn_0.3s_ease-in]">
+                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                            <div className="flex items-center gap-4 mb-6">
+                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
+                                <Edit3 className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="text-white font-bold text-lg">Manuelle Eingabe</div>
+                            </div>
+
+                            {/* Form Fields Mockup */}
+                            <div className="space-y-4 mb-6">
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Kaufpreis</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/2"></div>
+                                  <div className="text-gray-400 text-sm">€</div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Kaltmiete</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/3"></div>
+                                  <div className="text-gray-400 text-sm">€</div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-white/60 text-xs mb-2">Wohnfläche</div>
+                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
+                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/4"></div>
+                                  <div className="text-gray-400 text-sm">m²</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Continue Button Mockup */}
+                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
+                              <span className="text-white font-bold">Weiter</span>
+                              <ArrowRight className="w-5 h-5 text-white" />
+                            </div>
+
+                            {/* Smart Features */}
+                            <div className="mt-8 space-y-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Auto-Vervollständigung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Intelligente Validierung</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+                                <div className="text-white/60 text-sm">Smarte Vorschläge</div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* KI Badge */}
+                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
+                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
+                            <span>KI-gestützte Eingabehilfe</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1100,9 +1271,9 @@ export default function LandingPage() {
               </div>
 
               {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
-              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-2 md:mx-0 px-2 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide -mx-6 md:mx-0 px-6 md:px-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Testimonial 1 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     L
                   </div>
@@ -1114,7 +1285,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 2 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     M
                   </div>
@@ -1126,7 +1297,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 3 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     S
                   </div>
@@ -1138,7 +1309,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Testimonial 4 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-48px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
+                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 min-w-[calc(100vw-32px)] md:min-w-0 md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start md:snap-align-none flex-shrink-0 md:flex-shrink">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
                     T
                   </div>
