@@ -435,10 +435,10 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Bento Box Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+              {/* Bento Box Grid: Mobile Carousel, Desktop Grid */}
+              <div className="flex md:grid md:grid-cols-12 gap-6 overflow-x-auto md:overflow-visible pb-6 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
                 {/* Marktdaten-Check - Large Box */}
-                <div className="md:col-span-8 bg-white rounded-[32px] p-10 flex flex-col md:flex-row items-center gap-8 min-h-[300px] shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <div className="md:col-span-8 bg-white rounded-[32px] p-10 flex flex-col md:flex-row items-center gap-8 min-h-[300px] shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="md:w-1/2">
                     <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                       <BarChart3 className="w-7 h-7 text-[#ff6b00]" />
@@ -457,7 +457,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* KPI-Berechnung - Small Navy Box */}
-                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
                     <Calculator className="w-7 h-7 text-[#ff6b00]" />
                   </div>
@@ -471,7 +471,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Investitionsanalyse - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Lightbulb className="w-7 h-7 text-[#ff6b00]" />
                   </div>
@@ -485,7 +485,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Szenarien - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="w-14 h-14 bg-[#001d3d] rounded-2xl flex items-center justify-center mb-6 shadow-sm">
                     <Zap className="w-7 h-7 text-[#ff6b00]" />
                   </div>
@@ -499,7 +499,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Bank-Ready PDF - Small Highlighted Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
+                <div className="md:col-span-4 bg-white rounded-[32px] p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 min-w-[85vw] md:min-w-0 snap-start flex-shrink-0 md:flex-shrink">
                   <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mb-6">
                     <FileBarChart className="w-7 h-7 text-[#ff6b00]" />
                   </div>
