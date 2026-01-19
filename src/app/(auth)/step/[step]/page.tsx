@@ -2501,6 +2501,9 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
+
+        {/* Footer */}
+        <Footer />
         </div>
       </div>
     );
