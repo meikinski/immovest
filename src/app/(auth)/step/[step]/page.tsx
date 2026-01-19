@@ -249,6 +249,8 @@ export default function StepPage() {
   const [wertentwicklungAktiv, setWertentwicklungAktiv] = useState<boolean>(false);
   const [wertentwicklungPct, setWertentwicklungPct] = useState<number>(1.5);
   const [sondertilgungJaehrlich, setSondertilgungJaehrlich] = useState<number>(0);
+  const [sondertilgungText, setSondertilgungText] = useState<string>('0');
+  const [liquiditaetJahrIndex, setLiquiditaetJahrIndex] = useState<number>(0);
 
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
@@ -402,12 +404,14 @@ export default function StepPage() {
     const halbschuldJahr = prognose.jahre.find(jahr => jahr.restschuld <= halbschuld);
     const schuldenfrei = prognose.jahre.find(jahr => jahr.restschuld <= 0);
     const eigenkapital100k = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= 100_000);
+    const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowMonatlich > 0);
 
     return {
       breakEven,
       halbschuld: halbschuldJahr,
       schuldenfrei,
       eigenkapital100k,
+      cashflowPositiv,
     };
   }, [darlehensSumme, ek, prognose.jahre]);
 
@@ -449,6 +453,8 @@ export default function StepPage() {
     });
     return breakEven?.jahr ?? null;
   }, [prognose.jahre, kaufpreis, ek]);
+
+  const liquiditaetJahr = prognose.jahre[Math.min(liquiditaetJahrIndex, prognose.jahre.length - 1)] ?? prognose.jahre[0];
 
   // Store-Ableitungen aktualisieren, wenn sich Kernwerte ändern
   useEffect(() => {
@@ -2654,11 +2660,25 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-black text-[#001d3d]">Liquiditäts-Dashboard</h3>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
-                    Jahresbasis
-                  </span>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                  <div>
+                    <h3 className="text-lg font-black text-[#001d3d]">Liquiditäts-Dashboard</h3>
+                    <p className="text-[10px] text-slate-500 mt-1">Wähle das Jahr, um Cashflow &amp; Steuer-Vorteil zu sehen.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Jahr</span>
+                    <select
+                      value={liquiditaetJahrIndex}
+                      onChange={(event) => setLiquiditaetJahrIndex(Number(event.target.value))}
+                      className="text-xs font-bold text-[#001d3d] bg-white border border-slate-200 rounded-xl px-3 py-2"
+                    >
+                      {prognose.jahre.map((jahr, index) => (
+                        <option key={jahr.jahr} value={index}>
+                          {jahr.jahr}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4">
@@ -2670,8 +2690,8 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow mit Sondertilgung</p>
-                    <p className={`text-2xl font-black mt-2 ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatEur(prognose.jahre[0]?.cashflowMonatlich ?? 0)} €
+                    <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatEur(liquiditaetJahr?.cashflowMonatlich ?? 0)} €
                     </p>
                     <p className="text-[10px] text-slate-500 mt-1">Zusätzliche Auszahlung berücksichtigt</p>
                   </div>
@@ -2685,7 +2705,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">AfA Vorteil / Jahr</p>
                     <p className="text-2xl font-black mt-2 text-[#001d3d]">
-                      {formatEur(prognose.jahre[0]?.afaVorteil ?? 0)} €
+                      {formatEur(liquiditaetJahr?.afaVorteil ?? 0)} €
                     </p>
                     <p className="text-[10px] text-slate-500 mt-1">Steuerliche Entlastung</p>
                   </div>
@@ -2697,10 +2717,19 @@ const exportPdf = React.useCallback(async () => {
                     </label>
                     <div className="relative mt-2">
                       <input
-                        type="number"
-                        min={0}
-                        value={sondertilgungJaehrlich}
-                        onChange={(event) => setSondertilgungJaehrlich(Number(event.target.value) || 0)}
+                        type="text"
+                        inputMode="decimal"
+                        value={sondertilgungText}
+                        onChange={(event) => {
+                          const nextValue = event.target.value.replace(/[^\d]/g, '');
+                          setSondertilgungText(nextValue);
+                          setSondertilgungJaehrlich(Number(nextValue) || 0);
+                        }}
+                        onBlur={() => {
+                          const normalized = Number(sondertilgungText.replace(/[^\d]/g, '')) || 0;
+                          setSondertilgungText(normalized.toLocaleString('de-DE'));
+                          setSondertilgungJaehrlich(normalized);
+                        }}
                         className="w-full bg-white border border-slate-200 rounded-2xl py-3 px-4 text-sm font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">€</span>
@@ -2776,6 +2805,12 @@ const exportPdf = React.useCallback(async () => {
                       {prognoseMilestones.eigenkapital100k?.jahr ?? '–'}
                     </span>
                   </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
+                    <span className="text-sm font-black text-[#001d3d]">
+                      {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -2822,7 +2857,8 @@ const exportPdf = React.useCallback(async () => {
                   Die Prognose nutzt eine Annuitäten-Logik auf den jeweils verbleibenden Kreditbetrag.
                 </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
-                  Cashflow, Steuerlast und Wertentwicklung bleiben ansonsten konstant – für Einsteiger eine klare Basis.
+                  Zinslast und Cashflow reagieren auf die sinkende Restschuld. Miete, Kosten und Steuersatz bleiben hier
+                  konstant – für Einsteiger eine klare Basis.
                 </p>
               </div>
             </div>
