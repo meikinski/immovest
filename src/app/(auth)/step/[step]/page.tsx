@@ -1572,7 +1572,17 @@ const exportPdf = React.useCallback(async () => {
 
           {/* Steuern Section */}
           <div className="pt-4">
-            <h3 className="text-sm font-bold text-slate-700 mb-4">Steuern</h3>
+            <h3 className="text-sm font-bold text-slate-700 mb-2">Steuern</h3>
+            <div className="mb-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+              <div className="flex gap-2">
+                <Info className="mt-0.5 h-4 w-4 text-slate-400" />
+                <p>
+                  Hinweis für Einsteiger: AfA-Satz und Gebäudeanteil hängen von Baujahr und Objektart ab.
+                  Wir setzen Standardwerte (z. B. vor 1925: 2,5 %, ab 1925: 2 %, ab 2023: 3 %) – bitte prüfe
+                  sie bei Bedarf.
+                </p>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* AfA Satz */}
