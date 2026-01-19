@@ -297,7 +297,7 @@ export default function LandingPage() {
                 {/* Problem 1: Versteckte Kosten */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
@@ -333,7 +333,7 @@ export default function LandingPage() {
                 {/* Problem 2: Zu teuer gekauft */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
@@ -363,7 +363,7 @@ export default function LandingPage() {
                 {/* Problem 3: Schlechte Lage */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
@@ -397,7 +397,7 @@ export default function LandingPage() {
                 {/* Problem 4: Miete überschätzt */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
                   <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
                       <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                   </div>
@@ -455,7 +455,7 @@ export default function LandingPage() {
                 {/* Marktdaten-Check - Large Box */}
                 <div className="md:col-span-8 bg-white rounded-[32px] p-6 md:p-10 flex flex-col md:flex-row items-center gap-4 md:gap-8 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
                   <div className="w-full md:w-1/2">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
                       <BarChart3 className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                     </div>
                     <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-[#001d3d]">Marktdaten-Check</h3>
@@ -487,7 +487,7 @@ export default function LandingPage() {
 
                 {/* Investitionsanalyse - Small Box */}
                 <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
                     <Lightbulb className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Investitionsanalyse</h3>
@@ -501,7 +501,7 @@ export default function LandingPage() {
 
                 {/* Szenarien - Small Box */}
                 <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-[#001d3d] rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
+                  <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
                     <Zap className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Szenarien</h3>
@@ -552,7 +552,7 @@ export default function LandingPage() {
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
                     <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
                         <svg className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                         </svg>
@@ -586,7 +586,7 @@ export default function LandingPage() {
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
                     <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
                         <BarChart3 className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
                       </div>
                       <div>
@@ -617,7 +617,7 @@ export default function LandingPage() {
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
                     <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
+                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
                         <FileBarChart className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
                       </div>
                       <div>
@@ -664,7 +664,7 @@ export default function LandingPage() {
                     onClick={() => setSelectedImportMethod('url')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
                       selectedImportMethod === 'url'
-                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -675,7 +675,7 @@ export default function LandingPage() {
                     onClick={() => setSelectedImportMethod('photo')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
                       selectedImportMethod === 'photo'
-                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -686,7 +686,7 @@ export default function LandingPage() {
                     onClick={() => setSelectedImportMethod('manual')}
                     className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
                       selectedImportMethod === 'manual'
-                        ? 'bg-[#001d3d] text-white shadow-lg'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
@@ -779,7 +779,7 @@ export default function LandingPage() {
                       onClick={() => setSelectedImportMethod('url')}
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
                           <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
                         </div>
                         <h4 className="text-3xl font-bold text-[#001d3d]">1. Link einfügen</h4>
@@ -809,7 +809,7 @@ export default function LandingPage() {
                       onClick={() => setSelectedImportMethod('photo')}
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
                           <Camera className="w-6 h-6 text-[#ff6b00]" />
                         </div>
                         <h4 className="text-3xl font-bold text-[#001d3d]">2. Foto scannen</h4>
@@ -839,7 +839,7 @@ export default function LandingPage() {
                       onClick={() => setSelectedImportMethod('manual')}
                     >
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#001d3d] flex items-center justify-center shadow-lg">
+                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
                           <Edit3 className="w-6 h-6 text-[#ff6b00]" />
                         </div>
                         <h4 className="text-3xl font-bold text-[#001d3d]">3. Manuell eingeben</h4>

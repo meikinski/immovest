@@ -276,9 +276,6 @@ export default function InputMethodPage() {
         <div className="relative max-w-5xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16">
-            <div className="inline-block px-5 py-2 bg-orange-100 rounded-full mb-6">
-              <span className="text-[#ff6b00] font-bold text-xs uppercase tracking-widest">Schritt 1</span>
-            </div>
             <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter text-[#001d3d]">
               Wie möchtest du <span className="text-[#ff6b00]">starten?</span>
             </h1>
@@ -292,7 +289,7 @@ export default function InputMethodPage() {
             {/* Manual Input - FIRST */}
             <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                   <Keyboard className="w-8 h-8 text-[#ff6b00]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
@@ -309,7 +306,7 @@ export default function InputMethodPage() {
                   localStorage.removeItem('immovest_kpi_state');
                   router.push('/step/a');
                 }}
-                className="w-full py-4 bg-[#001d3d] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
+                className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
               >
                 <span>Jetzt starten</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -335,7 +332,7 @@ export default function InputMethodPage() {
               </div>
 
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                   <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
@@ -353,7 +350,7 @@ export default function InputMethodPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://www.immobilienscout24.de/..."
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#001d3d] focus:outline-none focus:ring-4 focus:ring-[#001d3d]/15 transition-all hover:border-gray-300"
+                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#ff6b00] focus:outline-none focus:ring-4 focus:ring-[#ff6b00]/15 transition-all hover:border-gray-300"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
                   }}
@@ -362,7 +359,7 @@ export default function InputMethodPage() {
                 <button
                   onClick={handleUrlSubmit}
                   disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-[#001d3d] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {urlLoading ? (
                     <>
@@ -413,7 +410,7 @@ export default function InputMethodPage() {
               </div>
 
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-[#001d3d] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
                   <Camera className="w-8 h-8 text-[#ff6b00]" />
                 </div>
                 <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
