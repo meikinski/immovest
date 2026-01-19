@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents } from '@/lib/analytics';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 
 export default function InputMethodPage() {
   const router = useRouter();
@@ -239,37 +241,7 @@ export default function InputMethodPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header - Clean & Minimal */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200 shadow-sm'
-          : 'bg-white border-b border-gray-100'
-      }`}>
-        <div className="relative max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo */}
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2"
-          >
-            <div className="w-10 h-10 bg-[#ff6b00] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">i</span>
-            </div>
-            <span className="text-2xl font-bold text-[#001d3d] tracking-tighter">
-              imvestr
-            </span>
-          </button>
-
-          {/* Right Side */}
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push('/sign-in')}
-              className="px-6 py-2.5 bg-[#001d3d] text-white font-semibold rounded-full hover:bg-[#001d3d]/90 transition-all"
-            >
-              Login
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header variant="fixed" />
 
       {/* Main Content */}
       <div className="relative pt-32 pb-20 px-6 bg-[#f5f5f7]">
@@ -535,6 +507,8 @@ export default function InputMethodPage() {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
