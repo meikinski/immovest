@@ -28,10 +28,12 @@ import {
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useUser, UserButton } from '@clerk/nextjs';
 
 export default function LandingPage() {
   const router = useRouter();
   const { trackCTA } = useAnalytics();
+  const { isSignedIn, user } = useUser();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open
@@ -182,9 +184,20 @@ export default function LandingPage() {
             </nav>
 
             <div className="flex items-center gap-4">
-              <Link href="/sign-in" className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
-                Login
-              </Link>
+              {isSignedIn ? (
+                <UserButton
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "w-10 h-10"
+                    }
+                  }}
+                />
+              ) : (
+                <Link href="/sign-in" className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         </header>
@@ -210,13 +223,13 @@ export default function LandingPage() {
                     onClick={() => handleGetStarted('hero')}
                     className="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-bold text-lg shadow-lg hover:shadow-[#ff6b00]/20 transition-all hover:scale-105"
                   >
-                    Jetzt kostenlos starten
+                    {isSignedIn ? 'Jetzt Investment analysieren' : 'Jetzt kostenlos starten'}
                   </button>
                   <button
-                    onClick={() => router.push('/sign-in')}
+                    onClick={() => router.push(isSignedIn ? '/properties' : '/sign-in')}
                     className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-10 py-5 rounded-full font-bold text-lg hover:bg-[#001d3d] hover:text-white transition-all"
                   >
-                    Anmelden / Einloggen
+                    {isSignedIn ? 'Zu meinen Immobilien' : 'Anmelden / Einloggen'}
                   </button>
                 </div>
               </div>
@@ -524,7 +537,7 @@ export default function LandingPage() {
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
                   <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
                 </h2>
-                <p className="text-gray-500 text-sm md:text-xl max-w-2xl mx-auto md:ml-auto leading-relaxed px-2">
+                <p className="text-gray-500 text-sm md:text-xl leading-relaxed px-2">
                   In 3 einfachen Schritten von der Exposé-URL zum vollständigen Investment-Report.
                 </p>
               </div>
@@ -538,7 +551,7 @@ export default function LandingPage() {
                     onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 0 ? null : 0)}
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 md:block">
                       <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
                         <svg className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -572,7 +585,7 @@ export default function LandingPage() {
                     onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 1 ? null : 1)}
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 md:block">
                       <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
                         <BarChart3 className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
                       </div>
@@ -603,7 +616,7 @@ export default function LandingPage() {
                     onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 2 ? null : 2)}
                     className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 md:block">
                       <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#001d3d] flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-lg">
                         <FileBarChart className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
                       </div>
