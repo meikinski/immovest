@@ -249,7 +249,6 @@ export default function StepPage() {
   const [wertentwicklungAktiv, setWertentwicklungAktiv] = useState<boolean>(false);
   const [wertentwicklungPct, setWertentwicklungPct] = useState<number>(1.5);
   const [sondertilgungJaehrlich, setSondertilgungJaehrlich] = useState<number>(0);
-  const [equityView, setEquityView] = useState<'aufbau' | 'gesamt'>('aufbau');
 
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
@@ -2567,31 +2566,15 @@ const exportPdf = React.useCallback(async () => {
                       Restschuld, Eigenkapital und kumulierter Cashflow im Zeitverlauf.
                     </p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2 rounded-full bg-slate-100 p-1 text-[10px] font-bold">
-                      {(['aufbau', 'gesamt'] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          type="button"
-                          onClick={() => setEquityView(mode)}
-                          className={`px-3 py-1 rounded-full transition ${
-                            equityView === mode ? 'bg-white text-[#001d3d] shadow' : 'text-slate-500'
-                          }`}
-                        >
-                          {mode === 'aufbau' ? 'EK-Aufbau' : 'EK gesamt'}
-                        </button>
-                      ))}
-                    </div>
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={wertentwicklungAktiv}
-                        onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                        className="accent-[#ff6b00]"
-                      />
-                      Immobilienwert anzeigen
-                    </label>
-                  </div>
+                  <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                    <input
+                      type="checkbox"
+                      checked={wertentwicklungAktiv}
+                      onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
+                      className="accent-[#ff6b00]"
+                    />
+                    Immobilienwert anzeigen
+                  </label>
                 </div>
 
                 {wertentwicklungAktiv && (
@@ -2632,10 +2615,19 @@ const exportPdf = React.useCallback(async () => {
                       />
                       <Line
                         type="monotone"
-                        dataKey={equityView === 'aufbau' ? 'eigenkapitalAufbau' : 'eigenkapitalGesamt'}
-                        name={equityView === 'aufbau' ? 'Eigenkapitalaufbau' : 'Eigenkapital gesamt'}
+                        dataKey="eigenkapitalAufbau"
+                        name="Eigenkapitalaufbau"
                         stroke="#22c55e"
                         strokeWidth={2}
+                        dot={false}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="eigenkapitalGesamt"
+                        name="Eigenkapital gesamt"
+                        stroke="#16a34a"
+                        strokeWidth={2}
+                        strokeDasharray="6 4"
                         dot={false}
                       />
                       <Line
@@ -2668,13 +2660,20 @@ const exportPdf = React.useCallback(async () => {
                     Jahresbasis
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow / Monat</p>
+                    <p className={`text-2xl font-black mt-2 ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatEur(cashflowAfterTax)} €
+                    </p>
+                    <p className="text-[10px] text-slate-500 mt-1">Ohne Sondertilgung</p>
+                  </div>
+                  <div className="bg-slate-50 rounded-2xl p-4">
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow mit Sondertilgung</p>
                     <p className={`text-2xl font-black mt-2 ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatEur(prognose.jahre[0]?.cashflowMonatlich ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Nach Steuern & Rücklagen</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Zusätzliche Auszahlung berücksichtigt</p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Worst-Case Puffer</p>
