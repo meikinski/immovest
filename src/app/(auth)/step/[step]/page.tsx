@@ -2501,10 +2501,10 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
+        </div>
 
         {/* Footer */}
         <Footer />
-        </div>
       </div>
     );
   } else {
@@ -2515,7 +2515,7 @@ const exportPdf = React.useCallback(async () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {step !== 'tabs' && <Header variant="fixed" />}
+      <Header variant="fixed" />
 
       <UpgradeModal
         isOpen={showUpgradeModal}
@@ -2523,8 +2523,8 @@ const exportPdf = React.useCallback(async () => {
         remainingFreeUses={freeUsagesRemaining}
       />
 
-      {/* Upsell Banner: Show after 2nd premium usage (when 0 free uses remain) */}
-      {step === 'tabs' && !isPremium && premiumUsageCount >= 2 && (
+      {/* Upsell Banner: Show after 1st premium usage */}
+      {step === 'tabs' && !isPremium && premiumUsageCount >= 1 && (
         <UpsellBanner
           remainingFreeUses={freeUsagesRemaining}
           onDismiss={() => {
