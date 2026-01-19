@@ -1877,7 +1877,7 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-orange-100">
+              <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
 
                 {/* Blur Overlay wenn nicht angemeldet */}
@@ -1928,7 +1928,7 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
-              <div className={`relative ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+              <div className={`relative mt-8 mb-16 ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                 <button
                   onClick={() => {
                     if (!isSignedIn || !canAccessPremium) {
@@ -2097,12 +2097,12 @@ const exportPdf = React.useCallback(async () => {
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
-            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl mb-8">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                    <MessageSquare size={20} className="text-white fill-current" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <Sparkles size={20} className="text-[#001d3d]" />
                   </div>
                   <h3 className="text-xl font-bold tracking-tight">Objekt- & Marktanalyse</h3>
                 </div>
@@ -2121,14 +2121,14 @@ const exportPdf = React.useCallback(async () => {
                 <div className="space-y-6 text-slate-700 leading-relaxed">
                   {/* Lage */}
                   <div>
-                    <h3 className="text-sm font-semibold text-white mb-2">Lage & Umgebung</h3>
-                    <HtmlContent className="text-slate-200" html={lageComment || '<p>–</p>'} />
+                    <h3 className="text-sm font-semibold text-[#001d3d] mb-2">Lage & Umgebung</h3>
+                    <HtmlContent className="text-slate-700" html={lageComment || '<p>–</p>'} />
                   </div>
 
                   {/* Mietpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-white">Mietpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-[#001d3d]">Mietpreis-Vergleich</h3>
                       {mietMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                           mietMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
@@ -2140,13 +2140,13 @@ const exportPdf = React.useCallback(async () => {
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-slate-200" html={mietpreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-700" html={mietpreisComment || '<p>–</p>'} />
                   </div>
 
                   {/* Kaufpreis */}
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-white">Kaufpreis-Vergleich</h3>
+                      <h3 className="text-sm font-semibold text-[#001d3d]">Kaufpreis-Vergleich</h3>
                       {kaufMarktDelta != null && (
                         <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                           kaufMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
@@ -2158,7 +2158,7 @@ const exportPdf = React.useCallback(async () => {
                         </span>
                       )}
                     </div>
-                    <HtmlContent className="text-slate-200" html={qmPreisComment || '<p>–</p>'} />
+                    <HtmlContent className="text-slate-700" html={qmPreisComment || '<p>–</p>'} />
                   </div>
                 </div>
               )}
@@ -2166,12 +2166,12 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             {/* Block 2: Investment-Empfehlung - Modernisiert */}
-            <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-[#ff6b00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                    <MessageSquare size={20} className="text-white fill-current" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
+                    <Sparkles size={20} className="text-white" />
                   </div>
                   <h3 className="text-xl font-bold tracking-tight">Investment-Empfehlung</h3>
                 </div>
@@ -2192,7 +2192,7 @@ const exportPdf = React.useCallback(async () => {
                 )}
               </div>
             </div>
-<div className="mt-3">
+<div className="mt-8 mb-16">
     <button
       onClick={() => setActiveTab('szenarien')}
       className="btn-secondary"
@@ -2473,7 +2473,7 @@ const exportPdf = React.useCallback(async () => {
 
 
     {/* Actions unten – modern, ohne Bullet-Liste */}
-    <div className="mt-6 flex flex-col sm:flex-row gap-3">
+    <div className="mt-8 mb-16 flex flex-col sm:flex-row gap-3">
       {pdfBusy ? (
         <button
           className="btn-secondary flex items-center gap-2"
