@@ -127,6 +127,7 @@ export default function StepPage() {
   const afaStore    = useImmoStore(s => s.afa);
   const setAfa      = useImmoStore(s => s.setAfa);
   const setSteuer   = useImmoStore(s => s.setSteuer);
+  const steuer      = useImmoStore(s => s.steuer);
 
   // Step C: Werte + Setter
   const ek          = useImmoStore(s => s.ek);
@@ -195,13 +196,36 @@ export default function StepPage() {
 
   // --- Steuer-Berechnung (monatlich) ---
   // Local text states & defaults for Step B (UI-Eingaben in %/€)
+  const defaultAfaForBaujahr = (year: number) => {
+    if (!year) return 2;
+    if (year < 1925) return 2.5;
+    if (year >= 2023) return 3;
+    return 2;
+  };
+
+  const defaultGebaeudeAnteil = (typ: 'wohnung' | 'haus' | 'mfh') => {
+    switch (typ) {
+      case 'haus':
+        return 80;
+      case 'mfh':
+        return 85;
+      case 'wohnung':
+      default:
+        return 75;
+    }
+  };
+
   const [mietausfallText, setMietausfallText] = useState('1,00');
   const [instandText,     setInstandText]     = useState('10,00');
   const [persText,        setPersText]        = useState('42,00');
-  const [afaText,         setAfaText]         = useState((afaStore ?? 2).toString().replace('.', ','));
-  const [gebText,         setGebText]         = useState('75');
+  const initialAfa = afaStore ?? defaultAfaForBaujahr(baujahr);
+  const initialGebaeude = steuer || defaultGebaeudeAnteil(objekttyp);
+  const [afaText,         setAfaText]         = useState(initialAfa.toString().replace('.', ','));
+  const [gebText,         setGebText]         = useState(initialGebaeude.toString().replace('.', ','));
   const [hausUmlegText,   setHausUmlegText]   = useState(() => hausgeld_umlegbar.toString());
   const [hausNichtText,   setHausNichtText]   = useState(() => (hausgeld - hausgeld_umlegbar).toString());
+  const autoAfa = useRef(false);
+  const autoGebaeude = useRef(false);
 
   // Zinssatz/Tilgung (Textfelder) für Step C
   const [zinsText,    setZinsText]    = useState((zins ?? 3.5).toString().replace('.', ','));
@@ -342,6 +366,36 @@ export default function StepPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objekttyp, anzahlWohneinheiten, mounted]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const defaultAfa = defaultAfaForBaujahr(baujahr);
+    const parsedAfa = Number(afaText.replace(',', '.')) || 0;
+    const shouldUpdateAfa =
+      autoAfa.current ||
+      parsedAfa === 0 ||
+      Math.abs(parsedAfa - defaultAfa) < 0.001;
+
+    if (shouldUpdateAfa) {
+      setAfa(defaultAfa);
+      setAfaText(defaultAfa.toString().replace('.', ','));
+      autoAfa.current = true;
+    }
+
+    const defaultGeb = defaultGebaeudeAnteil(objekttyp);
+    const parsedGeb = Number(gebText.replace(',', '.')) || 0;
+    const shouldUpdateGeb =
+      autoGebaeude.current ||
+      parsedGeb === 0 ||
+      Math.abs(parsedGeb - defaultGeb) < 0.001;
+
+    if (shouldUpdateGeb) {
+      setSteuer(defaultGeb);
+      setGebText(defaultGeb.toString().replace('.', ','));
+      autoGebaeude.current = true;
+    }
+  }, [baujahr, objekttyp, mounted, setAfa, setSteuer, afaText, gebText]);
 
   // KPI-Berechnungen (in %)
   const bruttoMietrendite = anschaffungskosten > 0
@@ -1529,7 +1583,7 @@ const exportPdf = React.useCallback(async () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
                   <span className="flex items-center">
                     AfA Satz (% p.a.)
-                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. 2 % p.a. sind Standard.">
+                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. Typisch 2 % p.a., vor 1925 2,5 %, ab 2023 3 % (vereinfachte Orientierung). Wir hinterlegen den Satz automatisch basierend auf dem Baujahr.">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </span>
@@ -1539,7 +1593,10 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     type="text"
                     value={afaText}
-                    onChange={(e) => setAfaText(e.target.value)}
+                    onChange={(e) => {
+                      autoAfa.current = false;
+                      setAfaText(e.target.value);
+                    }}
                     onFocus={(e) => e.target.select()}
                     className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
@@ -1554,7 +1611,7 @@ const exportPdf = React.useCallback(async () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
                   <span className="flex items-center">
                     Anteil Gebäude am Kaufpreis (%)
-                    <Tooltip text="Typisch 70–80 % Gebäudeanteil, z. B. 75 %.">
+                    <Tooltip text="Orientierung je Objektart: ETW ~75 %, Haus ~80 %, MFH ~85 %. Wir hinterlegen den Gebäudeanteil automatisch basierend auf der Objektart.">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </span>
@@ -1564,7 +1621,10 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     type="text"
                     value={gebText}
-                    onChange={(e) => setGebText(e.target.value)}
+                    onChange={(e) => {
+                      autoGebaeude.current = false;
+                      setGebText(e.target.value);
+                    }}
                     onFocus={(e) => e.target.select()}
                     className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
