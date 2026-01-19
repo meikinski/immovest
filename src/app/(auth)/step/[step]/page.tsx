@@ -141,7 +141,8 @@ export default function StepPage() {
   // === Tabs (neu) ===
   const [activeTab, setActiveTab] = useState<'kpi' | 'markt' | 'szenarien'>('kpi');
   const [tilgungDeltaPp, setTilgungDeltaPp] = useState<number>(0);
-const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
+  const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
+  const [openFormulaKey, setOpenFormulaKey] = useState<string | null>(null);
 
 
   // === Local UI-States (Step-A Felder, damit Kommaeingaben sauber sind) ===
@@ -215,6 +216,67 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
   const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
   
+  const formulaDetails = {
+    brutto: {
+      title: 'Bruttomietrendite',
+      formula: 'Jahreskaltmiete ÷ Anschaffungskosten × 100',
+      description: 'Zeigt den Anteil der Jahresmiete am gesamten Kaufpreis (inkl. Nebenkosten).',
+    },
+    netto: {
+      title: 'Nettomietrendite',
+      formula: '(Jahreskaltmiete − Bewirtschaftungskosten) ÷ Anschaffungskosten × 100',
+      description: 'Bezieht laufende Kosten ein und zeigt die realistischere Rendite.',
+    },
+    cfVor: {
+      title: 'Cashflow vor Steuern',
+      formula: 'Warmmiete − Hausgeld − kalk. Kosten − Zins − Tilgung',
+      description: 'Was monatlich vor Steuern übrig bleibt (inkl. Puffer für Rücklagen).',
+    },
+    cfNach: {
+      title: 'Cashflow nach Steuern',
+      formula: 'Cashflow vor Steuern − Steuer',
+      description: 'Was nach Steuern wirklich übrig bleibt.',
+    },
+    ek: {
+      title: 'EK-Rendite',
+      formula: '(Jahreskaltmiete − Bewirtschaftungskosten − Zinsen) ÷ Eigenkapital × 100',
+      description: 'Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer).',
+    },
+    dscr: {
+      title: 'DSCR',
+      formula: 'NOI ÷ (Zins + Tilgung)',
+      description: 'Zeigt, wie gut die Miete die Kreditrate deckt.',
+    },
+  };
+
+  const renderFormulaDrawer = () => {
+    if (!openFormulaKey) return null;
+    const details = formulaDetails[openFormulaKey as keyof typeof formulaDetails];
+    if (!details) return null;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-6 md:p-8">
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <h3 className="text-xl font-black text-[#001d3d]">{details.title}</h3>
+              <p className="text-sm text-slate-600 mt-1">{details.description}</p>
+            </div>
+            <button
+              onClick={() => setOpenFormulaKey(null)}
+              className="w-9 h-9 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:border-slate-300 transition"
+              aria-label="Formel schließen"
+            >
+              ×
+            </button>
+          </div>
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm font-mono text-slate-800">
+            {details.formula}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // 1) Texte -> Zahlen
   const instandhaltungPct = Number(instandText.replace(',', '.')) || 0;
@@ -244,9 +306,9 @@ const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   const afaAnnualEur      = gebaeudeAnteilEur * (afaPct / 100);
   const afaMonthlyEur     = afaAnnualEur / 12;
 
-  // 7) zu versteuernder Cashflow
+  // 7) zu versteuernder Cashflow (ohne kalkulatorische Kosten)
   const taxableCashflow =
-    warmmiete - hausgeldTotal - kalkKostenMonthly - zinsMonthly - afaMonthlyEur;
+    warmmiete - hausgeldTotal - zinsMonthly - afaMonthlyEur;
 
   // 8) Steuer (monatlich) – kann negativ sein (= Steuervorteil)
   const taxMonthly = taxableCashflow * (effectiveStz / 100);
@@ -1776,6 +1838,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {renderFormulaDrawer()}
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1786,7 +1849,25 @@ const exportPdf = React.useCallback(async () => {
                       <SquarePercent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
-                    <Tooltip text="Wie viel % Miete du vom Kaufpreis zurück bekommst. Ohne Kosten.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Anteil der Jahresmiete am Kaufpreis (ohne Kosten). Je höher, desto besser.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('brutto');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1802,7 +1883,25 @@ const exportPdf = React.useCallback(async () => {
                       <Percent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
-                    <Tooltip text="Jahresmiete minus laufende Kosten (Hausgeld, Instandhaltung) geteilt durch Gesamtinvestition inkl. Nebenkosten.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Rendite nach laufenden Kosten. Zeigt realistischer, was vom Investment bleibt.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('netto');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1818,7 +1917,25 @@ const exportPdf = React.useCallback(async () => {
                       <Wallet size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
-                    <Tooltip text="Monatlicher Überschuss nach Abzug aller Kosten (Kredit, Hausgeld, Instandhaltung) von der Miete, vor Steuern.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Monatlicher Überschuss vor Steuern. Rücklagen sind bereits eingeplant.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('cfVor');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1834,7 +1951,25 @@ const exportPdf = React.useCallback(async () => {
                       <ReceiptText size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
-                    <Tooltip text="Was am Ende wirklich in deiner Tasche bleibt – jeden Monat.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Cashflow nach Steuern. Das ist das Geld, das am Monatsende übrig bleibt.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('cfNach');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1850,7 +1985,25 @@ const exportPdf = React.useCallback(async () => {
                       <TrendingUp size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
-                    <Tooltip text="Jahrescashflow (nach Steuern) geteilt durch eingesetztes Eigenkapital. Zeigt die Rendite auf dein investiertes Geld.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Je höher, desto effizienter arbeitet dein Eigenkapital.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('ek');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1866,7 +2019,25 @@ const exportPdf = React.useCallback(async () => {
                       <ShieldCheck size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
-                    <Tooltip text="Zeigt, ob die Miete die Kreditrate deckt. Über 1,2 = super, unter 1,0 = riskant.">
+                    <Tooltip
+                      text={(
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-700">
+                            Zeigt, ob die Miete die Kreditrate deckt. Über 1,2 ist stark, unter 1,0 kritisch.
+                          </p>
+                          <button
+                            type="button"
+                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenFormulaKey('dscr');
+                            }}
+                          >
+                            Wie wird das berechnet?
+                          </button>
+                        </div>
+                      )}
+                    >
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -2300,7 +2471,7 @@ const exportPdf = React.useCallback(async () => {
       const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
       const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
       const afaMonthlyEurSc = afaAnnualEurSc / 12;
-      const taxableCashflowSc = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - afaMonthlyEurSc;
+      const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
       const effectiveStz = Number(persText.replace(',', '.')) || 0;
       const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
       const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
