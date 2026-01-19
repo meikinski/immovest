@@ -2501,10 +2501,10 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
-        </div>
 
         {/* Footer */}
         <Footer />
+        </div>
       </div>
     );
   } else {
