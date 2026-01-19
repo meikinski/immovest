@@ -150,11 +150,10 @@ input::placeholder,textarea::placeholder{
    Buttons - Apple-Style Design System
    ============================================== */
 
-/* Primary Button (Navy #001d3d) */
-/* Primary Button (Orange #ff6b00) */
+/* Primary Button (Orange #ff6b00) - Landingpage Style */
 .btn-primary{
   @apply px-10 py-4 rounded-full font-bold text-white;
-  background: linear-gradient(to right, #ff6b00, #ff8c00);
+  background: #ff6b00;
   box-shadow: 0 4px 14px rgba(255, 107, 0, 0.25);
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   display:inline-flex;
@@ -164,25 +163,24 @@ input::placeholder,textarea::placeholder{
   letter-spacing: -0.01em;
 }
 .btn-primary:hover{
-  background: linear-gradient(to right, rgba(255, 107, 0, 0.92), rgba(255, 140, 0, 0.92));
-  box-shadow: 0 10px 30px rgba(255, 107, 0, 0.35);
-  transform: translateY(-2px) scale(1.02);
+  background: #ff6b00;
+  box-shadow: 0 4px 14px rgba(255, 107, 0, 0.2);
+  transform: scale(1.05);
 }
 .btn-primary:active{
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.98);
 }
 .btn-primary:focus-visible{
   outline:none;
   box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.25);
 }
 
-/* Secondary Button (Navy Outline with Hover) */
+/* Secondary Button (White with Navy Border) - Landingpage Style */
 .btn-secondary{
   @apply px-10 py-4 rounded-full font-bold;
-  color: hsl(var(--brand)); /* Navy */
-  background: transparent;
-  border: 2px solid hsl(var(--brand));
-  box-shadow: 0 2px 8px rgba(0, 29, 61, 0.1);
+  color: #001d3d;
+  background: white;
+  border: 2px solid #001d3d;
   transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
   display:inline-flex;
   align-items:center;
@@ -191,13 +189,12 @@ input::placeholder,textarea::placeholder{
   letter-spacing: -0.01em;
 }
 .btn-secondary:hover{
-  background: hsl(var(--brand)); /* Navy */
+  background: #001d3d;
   color: white;
-  box-shadow: 0 8px 20px rgba(0, 29, 61, 0.25);
-  transform: translateY(-2px) scale(1.02);
+  transform: scale(1.05);
 }
 .btn-secondary:active{
-  transform: translateY(0) scale(0.98);
+  transform: scale(0.98);
 }
 .btn-secondary:focus-visible{
   outline:none;
