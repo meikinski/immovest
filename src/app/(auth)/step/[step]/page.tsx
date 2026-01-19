@@ -368,7 +368,9 @@ export default function StepPage() {
           ek,
           zins,
           tilgung,
-          cashflowMonatlich: cashflowAfterTax,
+          warmmiete,
+          hausgeld: hausgeldTotal,
+          kalkKostenMonthly,
           afaJaehrlich: afaAnnualEur,
           steuersatz: effectiveStz,
           immobilienwert: wertentwicklungAktiv ? kaufpreis : undefined,
@@ -382,7 +384,9 @@ export default function StepPage() {
       ek,
       zins,
       tilgung,
-      cashflowAfterTax,
+      warmmiete,
+      hausgeldTotal,
+      kalkKostenMonthly,
       afaAnnualEur,
       effectiveStz,
       wertentwicklungAktiv,
@@ -397,7 +401,7 @@ export default function StepPage() {
     const breakEven = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= ek);
     const halbschuldJahr = prognose.jahre.find(jahr => jahr.restschuld <= halbschuld);
     const schuldenfrei = prognose.jahre.find(jahr => jahr.restschuld <= 0);
-    const eigenkapital100k = prognose.jahre.find(jahr => jahr.eigenkapital >= 100_000);
+    const eigenkapital100k = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= 100_000);
 
     return {
       breakEven,
@@ -406,6 +410,45 @@ export default function StepPage() {
       eigenkapital100k,
     };
   }, [darlehensSumme, ek, prognose.jahre]);
+
+  const verkaufSzenarien = useMemo(() => {
+    const jahre = [10, 20, 30];
+    return jahre.map((jahr) => {
+      const daten = prognose.jahre[jahr];
+      if (!daten) {
+        return {
+          jahr,
+          restschuld: 0,
+          immobilienwert: wertentwicklungAktiv ? kaufpreis : 0,
+          eigenkapital: 0,
+          cashflowKumuliert: 0,
+          gesamtErgebnis: 0,
+        };
+      }
+      const immobilienwert = daten.immobilienwert ?? kaufpreis;
+      const eigenkapital = immobilienwert - daten.restschuld;
+      const gesamtErgebnis = eigenkapital + daten.cashflowKumuliert - ek;
+
+      return {
+        jahr: daten.jahr,
+        restschuld: daten.restschuld,
+        immobilienwert,
+        eigenkapital,
+        cashflowKumuliert: daten.cashflowKumuliert,
+        gesamtErgebnis,
+      };
+    });
+  }, [prognose.jahre, wertentwicklungAktiv, kaufpreis, ek]);
+
+  const verkaufBreakEven = useMemo(() => {
+    const breakEven = prognose.jahre.find((jahr) => {
+      const immobilienwert = jahr.immobilienwert ?? kaufpreis;
+      const eigenkapitalVerkauf = immobilienwert - jahr.restschuld;
+      const gesamtErgebnis = eigenkapitalVerkauf + jahr.cashflowKumuliert - ek;
+      return gesamtErgebnis >= 0;
+    });
+    return breakEven?.jahr ?? null;
+  }, [prognose.jahre, kaufpreis, ek]);
 
   // Store-Ableitungen aktualisieren, wenn sich Kernwerte ändern
   useEffect(() => {
@@ -2520,7 +2563,7 @@ const exportPdf = React.useCallback(async () => {
                   <div>
                     <h3 className="text-lg font-black text-[#001d3d]">Entwicklung über 30 Jahre</h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      Restschuld, Eigenkapital und kumulierter Cashflow im Zeitverlauf.
+                      Restschuld, Eigenkapitalaufbau (ohne Start-EK) und kumulierter Cashflow im Zeitverlauf.
                     </p>
                   </div>
                   <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -2572,8 +2615,8 @@ const exportPdf = React.useCallback(async () => {
                       />
                       <Line
                         type="monotone"
-                        dataKey="eigenkapital"
-                        name="Eigenkapital"
+                        dataKey="eigenkapitalAufbau"
+                        name="Eigenkapitalaufbau"
                         stroke="#22c55e"
                         strokeWidth={2}
                         dot={false}
@@ -2611,8 +2654,8 @@ const exportPdf = React.useCallback(async () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow / Monat</p>
-                    <p className={`text-2xl font-black mt-2 ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatEur(cashflowAfterTax)} €
+                    <p className={`text-2xl font-black mt-2 ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatEur(prognose.jahre[0]?.cashflowMonatlich ?? 0)} €
                     </p>
                     <p className="text-[10px] text-slate-500 mt-1">Nach Steuern & Rücklagen</p>
                   </div>
@@ -2661,6 +2704,31 @@ const exportPdf = React.useCallback(async () => {
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="flex items-center gap-2 mb-4">
+                  <Info size={16} className="text-[#ff6b00]" />
+                  <h4 className="text-sm font-black text-[#001d3d]">So liest du die Kurven</h4>
+                </div>
+                <ul className="space-y-3 text-[11px] text-slate-600">
+                  <li>
+                    <span className="font-bold text-[#001d3d]">Restschuld</span> sinkt jedes Jahr durch Tilgung und
+                    Sondertilgung.
+                  </li>
+                  <li>
+                    <span className="font-bold text-[#001d3d]">Eigenkapitalaufbau</span> startet bei 0 und zeigt nur die
+                    abgezahlte Schuld (ohne dein Start‑EK).
+                  </li>
+                  <li>
+                    <span className="font-bold text-[#001d3d]">Cashflow kumuliert</span> summiert den jährlichen
+                    Überschuss nach Steuern.
+                  </li>
+                  <li>
+                    <span className="font-bold text-[#001d3d]">Immobilienwert</span> wird nur angezeigt, wenn du eine
+                    Wertentwicklung aktivierst.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2 mb-4">
                   <Calendar size={16} className="text-[#ff6b00]" />
                   <h4 className="text-sm font-black text-[#001d3d]">Meilensteine</h4>
                 </div>
@@ -2692,16 +2760,47 @@ const exportPdf = React.useCallback(async () => {
                 </div>
               </div>
 
+              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-black text-[#001d3d]">Verkaufsszenarien</h4>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Brutto</span>
+                </div>
+                <div className="space-y-4">
+                  {verkaufSzenarien.map((szenario) => (
+                    <div key={szenario.jahr} className="bg-slate-50 rounded-2xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
+                          Verkauf nach {szenario.jahr}
+                        </span>
+                        <span className={`text-sm font-black ${szenario.gesamtErgebnis >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatEur(szenario.gesamtErgebnis)} €
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 space-y-1">
+                        <p>Immobilienwert: {formatEur(szenario.immobilienwert)} €</p>
+                        <p>Restschuld: {formatEur(szenario.restschuld)} €</p>
+                        <p>Cashflow kumuliert: {formatEur(szenario.cashflowKumuliert)} €</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[10px] text-slate-500 mt-4">
+                  {verkaufBreakEven
+                    ? `Erster Verkauf ohne Verlust voraussichtlich ab ${verkaufBreakEven}.`
+                    : 'In diesem Modell wird der Break-Even durch Verkauf nicht erreicht.'}
+                </p>
+              </div>
+
               <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Info size={16} className="text-[#ff6b00]" />
                   <span className="text-[8px] font-black uppercase tracking-widest">Prognose-Hinweis</span>
                 </div>
                 <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  Die Prognose basiert auf einer Annuitäten-Finanzierung mit konstantem Zinssatz und Tilgung.
+                  Die Prognose nutzt eine Annuitäten-Logik auf den jeweils verbleibenden Kreditbetrag.
                 </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
-                  Cashflow, Steuerlast und Wertentwicklung bleiben in diesem Modell konstant.
+                  Cashflow, Steuerlast und Wertentwicklung bleiben ansonsten konstant – für Einsteiger eine klare Basis.
                 </p>
               </div>
             </div>
