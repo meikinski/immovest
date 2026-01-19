@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useAuth } from '@clerk/nextjs';
 
 interface PricingCardsProps {
   onClose?: () => void;
 }
 
 export default function PricingCards({}: PricingCardsProps) {
-  // For public pages without auth, userId is undefined
-  const userId = undefined;
+  const { userId } = useAuth();
   const { trackUpgradeClick } = useAnalytics();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
