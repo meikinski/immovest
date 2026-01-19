@@ -249,6 +249,7 @@ export default function StepPage() {
   const [wertentwicklungAktiv, setWertentwicklungAktiv] = useState<boolean>(false);
   const [wertentwicklungPct, setWertentwicklungPct] = useState<number>(1.5);
   const [sondertilgungJaehrlich, setSondertilgungJaehrlich] = useState<number>(0);
+  const [equityView, setEquityView] = useState<'aufbau' | 'gesamt'>('aufbau');
 
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
@@ -2563,18 +2564,34 @@ const exportPdf = React.useCallback(async () => {
                   <div>
                     <h3 className="text-lg font-black text-[#001d3d]">Entwicklung über 30 Jahre</h3>
                     <p className="text-xs text-slate-500 mt-1">
-                      Restschuld, Eigenkapitalaufbau (ohne Start-EK) und kumulierter Cashflow im Zeitverlauf.
+                      Restschuld, Eigenkapital und kumulierter Cashflow im Zeitverlauf.
                     </p>
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={wertentwicklungAktiv}
-                      onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                      className="accent-[#ff6b00]"
-                    />
-                    Immobilienwert anzeigen
-                  </label>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2 rounded-full bg-slate-100 p-1 text-[10px] font-bold">
+                      {(['aufbau', 'gesamt'] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setEquityView(mode)}
+                          className={`px-3 py-1 rounded-full transition ${
+                            equityView === mode ? 'bg-white text-[#001d3d] shadow' : 'text-slate-500'
+                          }`}
+                        >
+                          {mode === 'aufbau' ? 'EK-Aufbau' : 'EK gesamt'}
+                        </button>
+                      ))}
+                    </div>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={wertentwicklungAktiv}
+                        onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
+                        className="accent-[#ff6b00]"
+                      />
+                      Immobilienwert anzeigen
+                    </label>
+                  </div>
                 </div>
 
                 {wertentwicklungAktiv && (
@@ -2615,8 +2632,8 @@ const exportPdf = React.useCallback(async () => {
                       />
                       <Line
                         type="monotone"
-                        dataKey="eigenkapitalAufbau"
-                        name="Eigenkapitalaufbau"
+                        dataKey={equityView === 'aufbau' ? 'eigenkapitalAufbau' : 'eigenkapitalGesamt'}
+                        name={equityView === 'aufbau' ? 'Eigenkapitalaufbau' : 'Eigenkapital gesamt'}
                         stroke="#22c55e"
                         strokeWidth={2}
                         dot={false}
@@ -2689,6 +2706,9 @@ const exportPdf = React.useCallback(async () => {
                       />
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">€</span>
                     </div>
+                    <p className="text-[10px] text-slate-500 mt-2">
+                      Sondertilgung wird als zusätzliche Auszahlung gerechnet und senkt den Cashflow.
+                    </p>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-4">
                     <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Restschuld nächstes Jahr</p>
@@ -2713,8 +2733,8 @@ const exportPdf = React.useCallback(async () => {
                     Sondertilgung.
                   </li>
                   <li>
-                    <span className="font-bold text-[#001d3d]">Eigenkapitalaufbau</span> startet bei 0 und zeigt nur die
-                    abgezahlte Schuld (ohne dein Start‑EK).
+                    <span className="font-bold text-[#001d3d]">EK-Aufbau</span> startet bei 0 und zeigt nur die
+                    abgezahlte Schuld. <span className="font-bold text-[#001d3d]">EK gesamt</span> addiert dein Start‑EK.
                   </li>
                   <li>
                     <span className="font-bold text-[#001d3d]">Cashflow kumuliert</span> summiert den jährlichen
@@ -2765,6 +2785,9 @@ const exportPdf = React.useCallback(async () => {
                   <h4 className="text-sm font-black text-[#001d3d]">Verkaufsszenarien</h4>
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Brutto</span>
                 </div>
+                <p className="text-[10px] text-slate-500 mb-4">
+                  Ergebnis = Immobilienwert − Restschuld + kumulierter Cashflow − eingesetztes EK.
+                </p>
                 <div className="space-y-4">
                   {verkaufSzenarien.map((szenario) => (
                     <div key={szenario.jahr} className="bg-slate-50 rounded-2xl p-4">
