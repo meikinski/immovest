@@ -1593,7 +1593,7 @@ const exportPdf = React.useCallback(async () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
                   <span className="flex items-center">
                     AfA Satz (% p.a.)
-                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. Typisch 2 % p.a., vor 1925 2,5 %, ab 2023 3 % (vereinfachte Orientierung).">
+                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. Typisch 2 % p.a., vor 1925 2,5 %, ab 2023 3 % (vereinfachte Orientierung). Wir hinterlegen den Satz automatisch basierend auf dem Baujahr.">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </span>
@@ -1621,7 +1621,7 @@ const exportPdf = React.useCallback(async () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
                   <span className="flex items-center">
                     Anteil Gebäude am Kaufpreis (%)
-                    <Tooltip text="Orientierung je Objektart: ETW ~75 %, Haus ~80 %, MFH ~85 %.">
+                    <Tooltip text="Orientierung je Objektart: ETW ~75 %, Haus ~80 %, MFH ~85 %. Wir hinterlegen den Gebäudeanteil automatisch basierend auf der Objektart.">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </span>
