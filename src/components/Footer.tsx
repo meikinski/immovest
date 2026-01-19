@@ -7,7 +7,7 @@ import { ShieldCheck } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#264171]/8 bg-white px-6 py-12 text-sm text-[#6C7F99] mt-auto">
+    <footer className="border-t border-[#264171]/8 bg-white px-6 py-16 md:py-20 text-sm text-[#6C7F99] mt-16 md:mt-24">
       <div className="mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Logo & Description */}

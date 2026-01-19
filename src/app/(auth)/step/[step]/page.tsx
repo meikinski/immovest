@@ -1786,7 +1786,7 @@ const exportPdf = React.useCallback(async () => {
                       <SquarePercent size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
-                    <Tooltip text="Jahresmiete geteilt durch Kaufpreis. Zeigt die Rendite ohne Berücksichtigung von Nebenkosten.">
+                    <Tooltip text="Wie viel % Miete du vom Kaufpreis zurück bekommst. Ohne Kosten.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1834,7 +1834,7 @@ const exportPdf = React.useCallback(async () => {
                       <ReceiptText size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
-                    <Tooltip text="Monatlicher Überschuss nach allen Kosten und Steuern. Dein tatsächlicher Gewinn oder Verlust pro Monat.">
+                    <Tooltip text="Was am Ende wirklich in deiner Tasche bleibt – jeden Monat.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1866,7 +1866,7 @@ const exportPdf = React.useCallback(async () => {
                       <ShieldCheck size={14} className="text-[#ff6b00]" />
                     </div>
                     <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
-                    <Tooltip text="Debt Service Coverage Ratio. Einkommen geteilt durch Kreditkosten. >1,2 ist ideal, <1,0 kritisch.">
+                    <Tooltip text="Zeigt, ob die Miete die Kreditrate deckt. Über 1,2 = super, unter 1,0 = riskant.">
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
@@ -1877,12 +1877,12 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-[#001d3d] rounded-[2.5rem] p-8 md:p-10 text-white relative overflow-hidden shadow-2xl min-h-[480px] flex flex-col justify-center">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-orange-100">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
 
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-[2.5rem] p-6">
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[2.5rem] p-6">
                     <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                       <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                         <Lock className="w-7 h-7 text-white" />
@@ -1920,7 +1920,7 @@ const exportPdf = React.useCallback(async () => {
                       ]}
                     />
                   ) : (
-                    <div className="space-y-6 text-slate-200 leading-relaxed">
+                    <div className="space-y-6 text-slate-700 leading-relaxed">
                       <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
                     </div>
                   )}
@@ -2118,7 +2118,7 @@ const exportPdf = React.useCallback(async () => {
                   ]}
                 />
               ) : (
-                <div className="space-y-6 text-slate-200 leading-relaxed">
+                <div className="space-y-6 text-slate-700 leading-relaxed">
                   {/* Lage */}
                   <div>
                     <h3 className="text-sm font-semibold text-white mb-2">Lage & Umgebung</h3>
@@ -2186,7 +2186,7 @@ const exportPdf = React.useCallback(async () => {
                     ]}
                   />
                 ) : (
-                  <div className="space-y-6 text-slate-200 leading-relaxed">
+                  <div className="space-y-6 text-slate-700 leading-relaxed">
                     <HtmlContent className="text-lg" html={investComment || '<p>–</p>'} />
                   </div>
                 )}
@@ -2512,7 +2512,7 @@ const exportPdf = React.useCallback(async () => {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header variant="fixed" />
+      {step !== 'tabs' && <Header variant="fixed" />}
 
       <UpgradeModal
         isOpen={showUpgradeModal}
@@ -2536,7 +2536,7 @@ const exportPdf = React.useCallback(async () => {
         {content}
       </div>
 
-      <Footer />
+      {step !== 'tabs' && <Footer />}
     </div>
   );
 }
