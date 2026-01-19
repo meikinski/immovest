@@ -1937,7 +1937,7 @@ const exportPdf = React.useCallback(async () => {
                       setActiveTab('markt');
                     }
                   }}
-                  className={`btn-secondary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
+                  className={`btn-primary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
                 >
                   {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
                   Weiter zu Marktvergleich & Lage →
@@ -2195,7 +2195,7 @@ const exportPdf = React.useCallback(async () => {
 <div className="mt-8 mb-16">
     <button
       onClick={() => setActiveTab('szenarien')}
-      className="btn-secondary"
+      className="btn-primary"
     >
       Szenarien testen →
     </button>
