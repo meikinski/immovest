@@ -1250,7 +1250,11 @@ const exportPdf = React.useCallback(async () => {
               <input
                 type="text"
                 value={baujahr.toString()}
-                onChange={(e) => setBaujahr(Number(e.target.value))}
+                onChange={(e) => {
+                  autoAfa.current = true;
+                  autoGebaeude.current = true;
+                  setBaujahr(Number(e.target.value));
+                }}
                 onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
@@ -1573,16 +1577,6 @@ const exportPdf = React.useCallback(async () => {
           {/* Steuern Section */}
           <div className="pt-4">
             <h3 className="text-sm font-bold text-slate-700 mb-2">Steuern</h3>
-            <div className="mb-4 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-              <div className="flex gap-2">
-                <Info className="mt-0.5 h-4 w-4 text-slate-400" />
-                <p>
-                  Hinweis für Einsteiger: AfA-Satz und Gebäudeanteil hängen von Baujahr und Objektart ab.
-                  Wir setzen Standardwerte (z. B. vor 1925: 2,5 %, ab 1925: 2 %, ab 2023: 3 %) – bitte prüfe
-                  sie bei Bedarf.
-                </p>
-              </div>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* AfA Satz */}
@@ -1593,7 +1587,7 @@ const exportPdf = React.useCallback(async () => {
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
                   <span className="flex items-center">
                     AfA Satz (% p.a.)
-                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. Typisch 2 % p.a., vor 1925 2,5 %, ab 2023 3 % (vereinfachte Orientierung). Wir hinterlegen den Satz automatisch basierend auf dem Baujahr.">
+                    <Tooltip text="Lineare Abschreibung für Wohnimmobilien. Der AfA-Satz hängt vom Baujahr ab: vor 1925: 2,5 % p.a., ab 1925: 2 % p.a., ab 2023: 3 % p.a. (vereinfachte Orientierung). Wir setzen den Standardwert automatisch basierend auf dem eingegebenen Baujahr – bitte prüfe ihn bei Bedarf.">
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </span>
