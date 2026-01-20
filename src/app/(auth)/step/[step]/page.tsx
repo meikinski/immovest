@@ -3465,8 +3465,8 @@ const exportPdf = React.useCallback(async () => {
           </div>
         )}
 
-        {/* Footer - No side padding/margin */}
-        <Footer noPadding />
+          {/* Footer - No side padding/margin */}
+          <Footer noPadding />
           </div>
           {/* End Tab Content */}
         </div>
