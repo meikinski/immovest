@@ -3461,8 +3461,6 @@ const exportPdf = React.useCallback(async () => {
       )}
     </div>
   </>
-            </div>
-          </div>
         )}
           </div>
           {/* End Tab Content */}
