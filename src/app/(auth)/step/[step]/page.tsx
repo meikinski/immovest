@@ -2027,7 +2027,7 @@ const exportPdf = React.useCallback(async () => {
                 { id: 'prognose', label: 'Prognose & Entwicklung', icon: TrendingUp },
                 { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
               ] as const).map(t => {
-                const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
+                const locked = (t.id === 'markt') && (!isSignedIn || !canAccessPremium); // Only lock 'markt', not 'szenarien'
                 return (
                   <button
                     key={t.id}
