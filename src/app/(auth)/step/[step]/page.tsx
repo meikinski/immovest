@@ -255,6 +255,13 @@ export default function StepPage() {
   const [zeigeEigenkapitalAufbau, setZeigeEigenkapitalAufbau] = useState<boolean>(false);
   const [zeigeCashflowKumuliert, setZeigeCashflowKumuliert] = useState<boolean>(true);
 
+  // Erweiterte Prognose-Optionen
+  const [darlehensTyp, setDarlehensTyp] = useState<'annuitaet' | 'degressiv'>('degressiv');
+  const [mietInflationPct, setMietInflationPct] = useState<number>(0);
+  const [kostenInflationPct, setKostenInflationPct] = useState<number>(0);
+  const [verkaufsNebenkostenPct, setVerkaufsNebenkostenPct] = useState<number>(5);
+  const [zeigeErweiterteOptionen, setZeigeErweiterteOptionen] = useState<boolean>(false);
+
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
   const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
@@ -381,6 +388,10 @@ export default function StepPage() {
           immobilienwert: wertentwicklungAktiv ? kaufpreis : undefined,
           wertsteigerungPct: wertentwicklungAktiv ? wertentwicklungPct : undefined,
           sondertilgungJaehrlich,
+          darlehensTyp,
+          mietInflationPct,
+          kostenInflationPct,
+          verkaufsNebenkostenPct: wertentwicklungAktiv ? verkaufsNebenkostenPct : undefined,
         },
         30
       ),
@@ -398,6 +409,10 @@ export default function StepPage() {
       wertentwicklungPct,
       kaufpreis,
       sondertilgungJaehrlich,
+      darlehensTyp,
+      mietInflationPct,
+      kostenInflationPct,
+      verkaufsNebenkostenPct,
     ]
   );
 
@@ -429,11 +444,13 @@ export default function StepPage() {
           immobilienwert: wertentwicklungAktiv ? kaufpreis : 0,
           eigenkapital: 0,
           cashflowKumuliert: 0,
+          verkaufsNebenkosten: 0,
           gesamtErgebnis: 0,
         };
       }
       const immobilienwert = daten.immobilienwert ?? kaufpreis;
-      const eigenkapital = immobilienwert - daten.restschuld;
+      const verkaufsNebenkosten = daten.verkaufsNebenkosten ?? 0;
+      const eigenkapital = immobilienwert - verkaufsNebenkosten - daten.restschuld;
       const gesamtErgebnis = eigenkapital + daten.cashflowKumuliert - ek;
 
       return {
@@ -442,6 +459,7 @@ export default function StepPage() {
         immobilienwert,
         eigenkapital,
         cashflowKumuliert: daten.cashflowKumuliert,
+        verkaufsNebenkosten,
         gesamtErgebnis,
       };
     });
@@ -450,7 +468,8 @@ export default function StepPage() {
   const verkaufBreakEven = useMemo(() => {
     const breakEven = prognose.jahre.find((jahr) => {
       const immobilienwert = jahr.immobilienwert ?? kaufpreis;
-      const eigenkapitalVerkauf = immobilienwert - jahr.restschuld;
+      const verkaufsNebenkosten = jahr.verkaufsNebenkosten ?? 0;
+      const eigenkapitalVerkauf = immobilienwert - verkaufsNebenkosten - jahr.restschuld;
       const gesamtErgebnis = eigenkapitalVerkauf + jahr.cashflowKumuliert - ek;
       return gesamtErgebnis >= 0;
     });
@@ -2620,6 +2639,86 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                 )}
 
+                {/* Erweiterte Optionen */}
+                <div className="mb-6">
+                  <button
+                    onClick={() => setZeigeErweiterteOptionen(!zeigeErweiterteOptionen)}
+                    className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#ff6b00] transition-colors"
+                  >
+                    {zeigeErweiterteOptionen ? '▼' : '▶'} Erweiterte Optionen
+                  </button>
+                  {zeigeErweiterteOptionen && (
+                    <div className="mt-4 space-y-4 pl-4 border-l-2 border-slate-200">
+                      {/* Darlehenstyp */}
+                      <div>
+                        <label className="text-xs font-bold text-slate-600 mb-2 block">Darlehenstyp</label>
+                        <div className="flex gap-3">
+                          <label className="flex items-center gap-2 text-xs text-slate-600">
+                            <input
+                              type="radio"
+                              value="degressiv"
+                              checked={darlehensTyp === 'degressiv'}
+                              onChange={(e) => setDarlehensTyp(e.target.value as 'degressiv')}
+                              className="accent-[#ff6b00]"
+                            />
+                            Degressiv (Rate sinkt)
+                          </label>
+                          <label className="flex items-center gap-2 text-xs text-slate-600">
+                            <input
+                              type="radio"
+                              value="annuitaet"
+                              checked={darlehensTyp === 'annuitaet'}
+                              onChange={(e) => setDarlehensTyp(e.target.value as 'annuitaet')}
+                              className="accent-[#ff6b00]"
+                            />
+                            Annuität (Rate konstant)
+                          </label>
+                        </div>
+                        <p className="text-[9px] text-slate-400 mt-1">
+                          {darlehensTyp === 'degressiv'
+                            ? 'Die monatliche Rate sinkt mit der Restschuld (seltener in der Praxis)'
+                            : 'Die monatliche Rate bleibt konstant (üblich bei Immobilienkrediten)'}
+                        </p>
+                      </div>
+
+                      {/* Mietinflation */}
+                      <Slider
+                        label="Mietinflation p.a."
+                        value={mietInflationPct}
+                        onChange={setMietInflationPct}
+                        min={0}
+                        max={5}
+                        step={0.1}
+                        suffix="%"
+                      />
+
+                      {/* Kosteninflation */}
+                      <Slider
+                        label="Kosteninflation p.a."
+                        value={kostenInflationPct}
+                        onChange={setKostenInflationPct}
+                        min={0}
+                        max={5}
+                        step={0.1}
+                        suffix="%"
+                      />
+
+                      {/* Verkaufsnebenkosten */}
+                      {wertentwicklungAktiv && (
+                        <Slider
+                          label="Verkaufsnebenkosten"
+                          value={verkaufsNebenkostenPct}
+                          onChange={setVerkaufsNebenkostenPct}
+                          min={0}
+                          max={15}
+                          step={0.5}
+                          suffix="%"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+
                 <div className="h-[360px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={prognose.jahre} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
@@ -2872,14 +2971,20 @@ const exportPdf = React.useCallback(async () => {
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-black text-[#001d3d]">Verkaufsszenarien</h4>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Ohne Nebenkosten</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                    {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 ? 'Inkl. Nebenkosten' : 'Ohne Nebenkosten'}
+                  </span>
                 </div>
                 <p className="text-[10px] text-slate-500 mb-4">
-                  <span className="font-bold text-[#001d3d]">Ergebnis =</span> Immobilienwert − Restschuld + kumulierter Cashflow − Start-EK
+                  <span className="font-bold text-[#001d3d]">Ergebnis =</span> Immobilienwert
+                  {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 && ` − Nebenkosten (${verkaufsNebenkostenPct}%)`}
+                  {' '}− Restschuld + kumulierter Cashflow − Start-EK
                 </p>
-                <p className="text-[9px] text-slate-400 mb-4">
-                  ⚠️ Ohne Verkaufsnebenkosten (Makler ~3-7%, Vorfälligkeitsentschädigung, etc.)
-                </p>
+                {(!wertentwicklungAktiv || verkaufsNebenkostenPct === 0) && (
+                  <p className="text-[9px] text-slate-400 mb-4">
+                    💡 Aktiviere "Erweiterte Optionen" → "Verkaufsnebenkosten", um Maklerkosten (~3-7%) und Vorfälligkeitsentschädigung zu berücksichtigen
+                  </p>
+                )}
                 <div className="space-y-4">
                   {verkaufSzenarien.map((szenario) => (
                     <div key={szenario.jahr} className="bg-slate-50 rounded-2xl p-4">
@@ -2893,8 +2998,13 @@ const exportPdf = React.useCallback(async () => {
                       </div>
                       <div className="text-[10px] text-slate-500 space-y-1">
                         <p>Immobilienwert: {formatEur(szenario.immobilienwert)} €</p>
-                        <p>Restschuld: {formatEur(szenario.restschuld)} €</p>
-                        <p>Cashflow kumuliert: {formatEur(szenario.cashflowKumuliert)} €</p>
+                        {szenario.verkaufsNebenkosten > 0 && (
+                          <p className="text-red-600">− Verkaufsnebenkosten: {formatEur(szenario.verkaufsNebenkosten)} €</p>
+                        )}
+                        <p>− Restschuld: {formatEur(szenario.restschuld)} €</p>
+                        <p className={szenario.cashflowKumuliert >= 0 ? 'text-green-600' : 'text-red-600'}>
+                          {szenario.cashflowKumuliert >= 0 ? '+ ' : ''}Cashflow kumuliert: {formatEur(szenario.cashflowKumuliert)} €
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -2912,13 +3022,20 @@ const exportPdf = React.useCallback(async () => {
                   <span className="text-[8px] font-black uppercase tracking-widest">Prognose-Hinweis</span>
                 </div>
                 <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  <span className="font-bold">Darlehensmodell:</span> Die Berechnung verwendet ein degressives Tilgungsmodell, bei dem Zins und Tilgung prozentual auf die verbleibende Restschuld berechnet werden. Die monatliche Rate sinkt daher mit der Zeit.
+                  <span className="font-bold">Darlehensmodell:</span> {darlehensTyp === 'degressiv'
+                    ? 'Degressives Modell – Zins und Tilgung werden prozentual auf die Restschuld berechnet. Die Rate sinkt mit der Zeit.'
+                    : 'Annuitätendarlehen – Die monatliche Rate bleibt konstant. Der Zinsanteil sinkt, der Tilgungsanteil steigt mit der Zeit.'}
                 </p>
                 <p className="text-[10px] leading-relaxed opacity-90 mb-3">
                   <span className="font-bold">AfA-Abschreibung:</span> Der steuerliche Vorteil durch AfA wird standardmäßig für 50 Jahre berechnet. Danach entfällt der Steuervorteil.
                 </p>
+                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
+                  <span className="font-bold">Inflation:</span> {mietInflationPct > 0 || kostenInflationPct > 0
+                    ? `Miete steigt um ${mietInflationPct}% p.a., Kosten steigen um ${kostenInflationPct}% p.a.`
+                    : 'Miete und Kosten bleiben konstant (0% Inflation).'}
+                </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
-                  <span className="font-bold">Konstante Annahmen:</span> Miete, Nebenkosten und Steuersatz bleiben konstant – das vereinfacht die Prognose und macht sie nachvollziehbar.
+                  <span className="font-bold">Erweiterte Optionen:</span> Nutze "Erweiterte Optionen" für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
                 </p>
               </div>
             </div>

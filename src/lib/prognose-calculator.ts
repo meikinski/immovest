@@ -10,6 +10,8 @@ export interface PrognoseJahr {
   zinslast: number;
   afaVorteil: number;
   immobilienwert?: number;
+  warmmieteAktuell?: number;
+  verkaufsNebenkosten?: number;
 }
 
 export interface PrognoseData {
@@ -31,6 +33,11 @@ export interface PrognoseInput {
   immobilienwert?: number;
   wertsteigerungPct?: number;
   sondertilgungJaehrlich?: number;
+  // Erweiterte Optionen
+  darlehensTyp?: 'annuitaet' | 'degressiv';
+  mietInflationPct?: number;
+  kostenInflationPct?: number;
+  verkaufsNebenkostenPct?: number;
 }
 
 export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData {
@@ -38,9 +45,29 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
   let restschuld = Math.max(0, input.darlehensSumme);
   let kumuliertCF = 0;
   let kumuliertCFOhneSondertilgung = 0;
+
+  // Konfiguration
   const wertsteigerung = input.wertsteigerungPct ?? 0;
   const afaLaufzeit = input.afaLaufzeitJahre ?? 50;
   const afaMonthly = (input.afaJaehrlich ?? 0) / 12;
+  const darlehensTyp = input.darlehensTyp ?? 'degressiv';
+  const mietInflation = input.mietInflationPct ?? 0;
+  const kostenInflation = input.kostenInflationPct ?? 0;
+  const verkaufsNebenkostenPct = input.verkaufsNebenkostenPct ?? 0;
+
+  // Annuitäten-Berechnung (einmalig für konstante Rate)
+  let annuitaetMonatlich = 0;
+  if (darlehensTyp === 'annuitaet') {
+    const zinsMonatlich = input.zins / 100 / 12;
+    const laufzeitMonate = jahre * 12;
+    if (zinsMonatlich > 0) {
+      annuitaetMonatlich =
+        (input.darlehensSumme * zinsMonatlich * Math.pow(1 + zinsMonatlich, laufzeitMonate)) /
+        (Math.pow(1 + zinsMonatlich, laufzeitMonate) - 1);
+    } else {
+      annuitaetMonatlich = input.darlehensSumme / laufzeitMonate;
+    }
+  }
 
   for (let jahr = 0; jahr <= jahre; jahr += 1) {
     // AfA-Vorteil nur innerhalb der Laufzeit
@@ -49,28 +76,49 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
         ? input.afaJaehrlich * (input.steuersatz / 100)
         : 0;
 
-    const zinslast = restschuld * (input.zins / 100);
-    const jahresrate = restschuld * ((input.zins + input.tilgung) / 100);
-    const regulareTilgung = Math.max(0, jahresrate - zinslast);
+    // Inflation: Miete und Kosten steigen
+    const warmmieteAktuell = input.warmmiete * Math.pow(1 + mietInflation / 100, jahr);
+    const hausgeldAktuell = input.hausgeld * Math.pow(1 + kostenInflation / 100, jahr);
+    const kalkKostenAktuell = input.kalkKostenMonthly * Math.pow(1 + kostenInflation / 100, jahr);
+
+    // Tilgungsberechnung je nach Darlehenstyp
+    let zinslast: number;
+    let regulareTilgung: number;
+    let regulareTilgungMonthly: number;
+
+    if (darlehensTyp === 'annuitaet') {
+      // Annuitätendarlehen: Konstante monatliche Rate
+      zinslast = restschuld * (input.zins / 100);
+      const zinsMonthly = zinslast / 12;
+      regulareTilgungMonthly = Math.max(0, annuitaetMonatlich - zinsMonthly);
+      regulareTilgung = regulareTilgungMonthly * 12;
+    } else {
+      // Degressives Darlehen: Rate sinkt mit Restschuld
+      zinslast = restschuld * (input.zins / 100);
+      const jahresrate = restschuld * ((input.zins + input.tilgung) / 100);
+      regulareTilgung = Math.max(0, jahresrate - zinslast);
+      regulareTilgungMonthly = regulareTilgung / 12;
+    }
+
     const sondertilgung = Math.max(0, input.sondertilgungJaehrlich ?? 0);
     const tilgung = Math.min(restschuld, regulareTilgung + sondertilgung);
     const regulareTilgungAllein = Math.min(restschuld, regulareTilgung);
 
     const zinsMonthly = zinslast / 12;
     const tilgungMonthly = tilgung / 12;
-    const regulareTilgungMonthly = regulareTilgungAllein / 12;
+    const regulareTilgungMonthlyFinal = regulareTilgungAllein / 12;
 
     // Cashflow MIT Sondertilgung
     const cashflowVorSteuern =
-      input.warmmiete - input.hausgeld - input.kalkKostenMonthly - zinsMonthly - tilgungMonthly;
+      warmmieteAktuell - hausgeldAktuell - kalkKostenAktuell - zinsMonthly - tilgungMonthly;
 
     // Cashflow OHNE Sondertilgung
     const cashflowVorSteuernOhneSondertilgung =
-      input.warmmiete - input.hausgeld - input.kalkKostenMonthly - zinsMonthly - regulareTilgungMonthly;
+      warmmieteAktuell - hausgeldAktuell - kalkKostenAktuell - zinsMonthly - regulareTilgungMonthlyFinal;
 
     // Steuerberechnung (für beide gleich, da Sondertilgung steuerlich nicht relevant)
     const afaMonthlyAktuell = jahr <= afaLaufzeit ? afaMonthly : 0;
-    const taxableCashflow = input.warmmiete - input.hausgeld - zinsMonthly - afaMonthlyAktuell;
+    const taxableCashflow = warmmieteAktuell - hausgeldAktuell - zinsMonthly - afaMonthlyAktuell;
     const taxMonthly = taxableCashflow * ((input.steuersatz ?? 0) / 100);
 
     const cashflowMonatlich = cashflowVorSteuern - taxMonthly;
@@ -85,6 +133,11 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       ? input.immobilienwert * Math.pow(1 + wertsteigerung / 100, jahr)
       : undefined;
 
+    // Verkaufsnebenkosten
+    const verkaufsNebenkosten = immobilienwert
+      ? immobilienwert * (verkaufsNebenkostenPct / 100)
+      : undefined;
+
     result.push({
       jahr: input.startJahr + jahr,
       restschuld,
@@ -97,6 +150,8 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       zinslast,
       afaVorteil: afaVorteilJaehrlich,
       ...(immobilienwert !== undefined ? { immobilienwert } : {}),
+      ...(warmmieteAktuell !== input.warmmiete ? { warmmieteAktuell } : {}),
+      ...(verkaufsNebenkosten !== undefined ? { verkaufsNebenkosten } : {}),
     });
 
     restschuld = Math.max(0, restschuld - tilgung);
