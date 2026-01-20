@@ -2011,7 +2011,7 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-          <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+          <div className="sticky top-4 z-40 bg-white border-b border-slate-200 shadow-sm">
             <div className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
               {([
                 { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
@@ -2734,8 +2734,61 @@ const exportPdf = React.useCallback(async () => {
                         tickFormatter={(value) => `${formatEur(value / 1000)}k`}
                       />
                       <ChartTooltip
-                        formatter={(value) => `${formatEur(Number(value))} €`}
-                        labelFormatter={(label) => `Jahr ${label}`}
+                        content={({ active, payload, label }) => {
+                          if (!active || !payload || !payload.length) return null;
+
+                          const jahr = label;
+                          const data = prognose.jahre.find(j => j.jahr === jahr);
+
+                          // Check if this is a milestone year
+                          let milestoneInfo: { title: string; description: string } | null = null;
+
+                          if (prognoseMilestones.halbschuld?.jahr === jahr) {
+                            milestoneInfo = {
+                              title: '🎯 50% getilgt!',
+                              description: 'Du hast die Hälfte deines Darlehens abbezahlt. Deine Zinslast wird ab jetzt deutlich sinken.'
+                            };
+                          } else if (prognoseMilestones.selbstfinanziert?.jahr === jahr) {
+                            milestoneInfo = {
+                              title: '💰 Selbstfinanziert!',
+                              description: 'Dein kumulierter Cashflow deckt die Restschuld. Du könntest theoretisch alles selbst abbezahlen.'
+                            };
+                          } else if (prognoseMilestones.eigenkapitalGrößerKaufpreis?.jahr === jahr) {
+                            milestoneInfo = {
+                              title: '🏆 Eigenkapital > Kaufpreis!',
+                              description: 'Dein Eigenkapital überschreitet den ursprünglichen Kaufpreis. Du hast mehr Vermögen aufgebaut als investiert.'
+                            };
+                          } else if (prognoseMilestones.cashflowPositiv?.jahr === jahr) {
+                            milestoneInfo = {
+                              title: '✅ Cashflow positiv!',
+                              description: 'Ab jetzt erwirtschaftet deine Immobilie monatlich Überschuss - selbstfinanzierter Vermögensaufbau beginnt!'
+                            };
+                          }
+
+                          return (
+                            <div className="bg-white border-2 border-slate-200 rounded-xl p-3 shadow-xl max-w-xs">
+                              <p className="text-xs font-black text-slate-700 mb-2">Jahr {jahr}</p>
+                              {milestoneInfo && (
+                                <div className="mb-3 pb-3 border-b-2 border-[#ff6b00]">
+                                  <p className="text-sm font-black text-[#ff6b00] mb-1">{milestoneInfo.title}</p>
+                                  <p className="text-[10px] text-slate-600 leading-relaxed">{milestoneInfo.description}</p>
+                                </div>
+                              )}
+                              <div className="space-y-1">
+                                {payload.map((entry: any, index: number) => (
+                                  <div key={index} className="flex justify-between gap-3">
+                                    <span className="text-[10px] font-bold" style={{ color: entry.color }}>
+                                      {entry.name}:
+                                    </span>
+                                    <span className="text-[10px] font-black text-slate-700">
+                                      {formatEur(Number(entry.value))} €
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        }}
                       />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Line
