@@ -2774,9 +2774,9 @@ const exportPdf = React.useCallback(async () => {
                                 </div>
                               )}
                               <div className="space-y-1">
-                                {payload.map((entry: { name?: string; value?: number; color?: string }, index: number) => (
+                                {payload.map((entry, index: number) => (
                                   <div key={index} className="flex justify-between gap-3">
-                                    <span className="text-[10px] font-bold" style={{ color: entry.color }}>
+                                    <span className="text-[10px] font-bold" style={{ color: entry.color as string }}>
                                       {entry.name}:
                                     </span>
                                     <span className="text-[10px] font-black text-slate-700">
