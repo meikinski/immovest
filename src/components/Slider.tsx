@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Minus, Plus } from 'lucide-react';
+import { Minus, Plus, RotateCcw } from 'lucide-react';
 
 type SliderProps = {
   label: string;
@@ -13,10 +13,12 @@ type SliderProps = {
   suffix?: string; // z.B. "%", "pp"
   helpText?: string;
   id?: string;
+  onReset?: () => void; // Optional reset function
+  showReset?: boolean; // Whether to show reset button
 };
 
 export default function Slider({
-  label, value, onChange, min, max, step = 1, suffix = '', helpText, id
+  label, value, onChange, min, max, step = 1, suffix = '', helpText, id, onReset, showReset = true
 }: SliderProps) {
   const sliderId = id || `sl-${label.replace(/\s+/g, '-').toLowerCase()}`;
   const [isEditing, setIsEditing] = useState(false);
@@ -55,9 +57,22 @@ export default function Slider({
   return (
     <div className="slider-card">
       <div className="flex items-center justify-between mb-2">
-        <label htmlFor={sliderId} className="text-sm font-medium text-[var(--color-text-default)]">
-          {label}
-        </label>
+        <div className="flex items-center gap-2">
+          <label htmlFor={sliderId} className="text-sm font-medium text-[var(--color-text-default)]">
+            {label}
+          </label>
+          {showReset && onReset && value !== 0 && (
+            <button
+              type="button"
+              onClick={onReset}
+              className="text-orange-500 hover:text-orange-600 transition-colors p-1 rounded hover:bg-orange-50"
+              title="Zurücksetzen"
+              aria-label={`${label} zurücksetzen`}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
         <div className="text-sm text-[var(--color-text-muted)]">
           {isEditing ? (
             <input
@@ -90,7 +105,7 @@ export default function Slider({
           type="button"
           onClick={handleDecrement}
           disabled={value <= min}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
+          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           aria-label={`${label} verringern`}
         >
           <Minus className="w-5 h-5" />
@@ -113,7 +128,7 @@ export default function Slider({
           type="button"
           onClick={handleIncrement}
           disabled={value >= max}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
+          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           aria-label={`${label} erhöhen`}
         >
           <Plus className="w-5 h-5" />

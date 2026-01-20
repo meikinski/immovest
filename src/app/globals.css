@@ -141,9 +141,9 @@ input::placeholder,textarea::placeholder{
 }
 
 .card-scenario:hover{
-  transform: translateY(-8px);
-  box-shadow: 0 20px 50px hsl(var(--brand-2) / .15);
-  border-color: hsl(var(--brand-2) / .40);
+  /* Removed translateY - cards are not interactive */
+  box-shadow: 0 6px 16px hsl(var(--brand-2) / .12);
+  border-color: hsl(var(--brand-2) / .25);
 }
 
 /* ==============================================
