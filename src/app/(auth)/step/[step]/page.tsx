@@ -16,7 +16,6 @@ import {
   Legend,
   Line,
   LineChart,
-  ReferenceDot,
   ResponsiveContainer,
   Tooltip as ChartTooltip,
   XAxis,
@@ -255,7 +254,6 @@ export default function StepPage() {
   // Kurvendiagramm Toggle-Optionen
   const [zeigeEigenkapitalAufbau, setZeigeEigenkapitalAufbau] = useState<boolean>(false);
   const [zeigeCashflowKumuliert, setZeigeCashflowKumuliert] = useState<boolean>(true);
-  const [zeigeCashflowOhneSondertilgung, setZeigeCashflowOhneSondertilgung] = useState<boolean>(false);
 
   // Erweiterte Prognose-Optionen
   const [darlehensTyp, setDarlehensTyp] = useState<'annuitaet' | 'degressiv'>('annuitaet');
@@ -425,17 +423,11 @@ export default function StepPage() {
     const eigenkapitalGrößerKaufpreis = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= kaufpreis);
     const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowOhneSondertilgung > 0);
 
-    // Schnittpunkte für Chart-Visualisierung
-    const ekGesamtKreuztRestschuld = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= jahr.restschuld);
-    const ekAufbauKreuztRestschuld = prognose.jahre.find(jahr => jahr.eigenkapitalAufbau >= jahr.restschuld);
-
     return {
       halbschuld: halbschuldJahr,
       selbstfinanziert,
       eigenkapitalGrößerKaufpreis,
       cashflowPositiv,
-      ekGesamtKreuztRestschuld,
-      ekAufbauKreuztRestschuld,
     };
   }, [darlehensSumme, prognose.jahre, kaufpreis]);
 
@@ -483,10 +475,6 @@ export default function StepPage() {
   }, [prognose.jahre, kaufpreis, ek]);
 
   const liquiditaetJahr = prognose.jahre[Math.min(liquiditaetJahrIndex, prognose.jahre.length - 1)] ?? prognose.jahre[0];
-
-  // KPI-Konsistenz: Verwende Prognose-Werte statt manuelle Berechnung
-  // Damit stimmen KPI-Tab und Prognose-Tab überein (Jahr 0)
-  const cashflowAfterTaxAktuell = prognose.jahre[0]?.cashflowOhneSondertilgung ?? cashflowAfterTax;
 
   // Store-Ableitungen aktualisieren, wenn sich Kernwerte ändern
   useEffect(() => {
@@ -2052,8 +2040,8 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-          {/* Tab Content */}
-          <div className="px-6 lg:px-10 py-10 space-y-10">
+        {/* Content Area */}
+        <div className="px-6 lg:px-10 py-10 space-y-10">
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -2192,8 +2180,8 @@ const exportPdf = React.useCallback(async () => {
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
-                  <div className={`text-3xl font-black ${cashflowAfterTaxAktuell >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {cashflowAfterTaxAktuell.toFixed(0)}€
+                  <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {cashflowAfterTax.toFixed(0)}€
                   </div>
                 </div>
 
@@ -2623,19 +2611,8 @@ const exportPdf = React.useCallback(async () => {
                         onChange={(event) => setZeigeCashflowKumuliert(event.target.checked)}
                         className="accent-[#ff6b00]"
                       />
-                      Cashflow kumuliert (mit Sondertilgung)
+                      Cashflow kumuliert
                     </label>
-                    {sondertilgungJaehrlich > 0 && (
-                      <label className="flex items-center gap-2 text-xs font-bold text-slate-600 ml-4">
-                        <input
-                          type="checkbox"
-                          checked={zeigeCashflowOhneSondertilgung}
-                          onChange={(event) => setZeigeCashflowOhneSondertilgung(event.target.checked)}
-                          className="accent-[#ff6b00]"
-                        />
-                        Cashflow kumuliert (ohne Sondertilgung)
-                      </label>
-                    )}
                   </div>
                 </div>
 
@@ -2656,92 +2633,94 @@ const exportPdf = React.useCallback(async () => {
                     )}
                   </button>
                   {zeigeErweiterteOptionen && (
-                    <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                      {/* Grid Layout: 2 Spalten auf Desktop */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                        {/* Linke Spalte: Darlehenstyp & Inflation */}
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-xs font-bold text-slate-600 mb-1 block">Darlehenstyp</label>
-                            <div className="flex gap-2">
-                              <label className="flex items-center gap-1 text-[10px] text-slate-600">
-                                <input
-                                  type="radio"
-                                  value="degressiv"
-                                  checked={darlehensTyp === 'degressiv'}
-                                  onChange={(e) => setDarlehensTyp(e.target.value as 'degressiv')}
-                                  className="accent-[#ff6b00]"
-                                />
-                                Degressiv
-                              </label>
-                              <label className="flex items-center gap-1 text-[10px] text-slate-600">
-                                <input
-                                  type="radio"
-                                  value="annuitaet"
-                                  checked={darlehensTyp === 'annuitaet'}
-                                  onChange={(e) => setDarlehensTyp(e.target.value as 'annuitaet')}
-                                  className="accent-[#ff6b00]"
-                                />
-                                Annuität ⭐
-                              </label>
-                            </div>
-                          </div>
-                          <Slider
-                            label="Mietinflation p.a."
-                            value={mietInflationPct}
-                            onChange={setMietInflationPct}
-                            min={0}
-                            max={5}
-                            step={0.1}
-                            suffix="%"
-                          />
-                          <Slider
-                            label="Kosteninflation p.a."
-                            value={kostenInflationPct}
-                            onChange={setKostenInflationPct}
-                            min={0}
-                            max={5}
-                            step={0.1}
-                            suffix="%"
-                          />
+                    <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                      {/* Darlehenstyp */}
+                      <div className="mb-4">
+                        <label className="text-xs font-bold text-slate-600 mb-2 block">Darlehenstyp</label>
+                        <div className="flex gap-3">
+                          <label className="flex items-center gap-2 text-xs text-slate-600">
+                            <input
+                              type="radio"
+                              value="degressiv"
+                              checked={darlehensTyp === 'degressiv'}
+                              onChange={(e) => setDarlehensTyp(e.target.value as 'degressiv')}
+                              className="accent-[#ff6b00]"
+                            />
+                            Degressiv
+                          </label>
+                          <label className="flex items-center gap-2 text-xs text-slate-600">
+                            <input
+                              type="radio"
+                              value="annuitaet"
+                              checked={darlehensTyp === 'annuitaet'}
+                              onChange={(e) => setDarlehensTyp(e.target.value as 'annuitaet')}
+                              className="accent-[#ff6b00]"
+                            />
+                            Annuität ⭐
+                          </label>
                         </div>
+                        <p className="text-[9px] text-slate-400 mt-1">
+                          {darlehensTyp === 'degressiv'
+                            ? 'Rate sinkt mit Restschuld (selten)'
+                            : 'Konstante Rate, wie bei echten Immobilienkrediten'}
+                        </p>
+                      </div>
 
-                        {/* Rechte Spalte: Immobilienwert & Wertentwicklung */}
-                        <div className="space-y-3">
-                          <div>
-                            <label className="flex items-center gap-2 text-xs font-bold text-slate-600 mb-2">
-                              <input
-                                type="checkbox"
-                                checked={wertentwicklungAktiv}
-                                onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                                className="accent-[#ff6b00]"
-                              />
-                              Immobilienwert im Chart
-                            </label>
+                      {/* Inflation Slider in Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <Slider
+                          label="Mietinflation p.a."
+                          value={mietInflationPct}
+                          onChange={setMietInflationPct}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          suffix="%"
+                        />
+                        <Slider
+                          label="Kosteninflation p.a."
+                          value={kostenInflationPct}
+                          onChange={setKostenInflationPct}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          suffix="%"
+                        />
+                      </div>
+
+                      {/* Immobilienwert & Wertentwicklung */}
+                      <div className="mt-4 border-t border-slate-200 pt-4">
+                        <label className="flex items-center gap-2 text-xs font-bold text-slate-600 mb-3">
+                          <input
+                            type="checkbox"
+                            checked={wertentwicklungAktiv}
+                            onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
+                            className="accent-[#ff6b00]"
+                          />
+                          Immobilienwert im Chart anzeigen
+                        </label>
+                        {wertentwicklungAktiv && (
+                          <div className="space-y-3 pl-6">
+                            <Slider
+                              label="Wertentwicklung p.a."
+                              value={wertentwicklungPct}
+                              onChange={setWertentwicklungPct}
+                              min={-5}
+                              max={5}
+                              step={0.1}
+                              suffix="%"
+                            />
+                            <Slider
+                              label="Verkaufsnebenkosten"
+                              value={verkaufsNebenkostenPct}
+                              onChange={setVerkaufsNebenkostenPct}
+                              min={0}
+                              max={15}
+                              step={0.5}
+                              suffix="%"
+                            />
                           </div>
-                          {wertentwicklungAktiv && (
-                            <>
-                              <Slider
-                                label="Wertentwicklung p.a."
-                                value={wertentwicklungPct}
-                                onChange={setWertentwicklungPct}
-                                min={-5}
-                                max={5}
-                                step={0.1}
-                                suffix="%"
-                              />
-                              <Slider
-                                label="Verkaufsnebenkosten"
-                                value={verkaufsNebenkostenPct}
-                                onChange={setVerkaufsNebenkostenPct}
-                                min={0}
-                                max={15}
-                                step={0.5}
-                                suffix="%"
-                              />
-                            </>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -2792,20 +2771,9 @@ const exportPdf = React.useCallback(async () => {
                         <Line
                           type="monotone"
                           dataKey="cashflowKumuliert"
-                          name="Cashflow kumuliert (mit ST)"
+                          name="Cashflow kumuliert"
                           stroke="#0ea5e9"
                           strokeWidth={2}
-                          dot={false}
-                        />
-                      )}
-                      {zeigeCashflowOhneSondertilgung && (
-                        <Line
-                          type="monotone"
-                          dataKey="cashflowKumuliertOhneSondertilgung"
-                          name="Cashflow kumuliert (ohne ST)"
-                          stroke="#06b6d4"
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
                           dot={false}
                         />
                       )}
@@ -2819,101 +2787,9 @@ const exportPdf = React.useCallback(async () => {
                           dot={false}
                         />
                       )}
-
-                      {/* Schnittpunkte visualisieren */}
-                      {prognoseMilestones.ekGesamtKreuztRestschuld && (
-                        <ReferenceDot
-                          x={prognoseMilestones.ekGesamtKreuztRestschuld.jahr}
-                          y={prognoseMilestones.ekGesamtKreuztRestschuld.restschuld}
-                          r={6}
-                          fill="#16a34a"
-                          stroke="#fff"
-                          strokeWidth={2}
-                          label={{
-                            value: '⭐ EK > Restschuld',
-                            position: 'top',
-                            fontSize: 10,
-                            fill: '#16a34a',
-                            fontWeight: 'bold'
-                          }}
-                        />
-                      )}
-                      {prognoseMilestones.selbstfinanziert && (
-                        <ReferenceDot
-                          x={prognoseMilestones.selbstfinanziert.jahr}
-                          y={prognoseMilestones.selbstfinanziert.restschuld}
-                          r={6}
-                          fill="#0ea5e9"
-                          stroke="#fff"
-                          strokeWidth={2}
-                          label={{
-                            value: '💰 Selbstfinanziert',
-                            position: 'top',
-                            fontSize: 10,
-                            fill: '#0ea5e9',
-                            fontWeight: 'bold'
-                          }}
-                        />
-                      )}
-                      {prognoseMilestones.ekAufbauKreuztRestschuld && zeigeEigenkapitalAufbau && (
-                        <ReferenceDot
-                          x={prognoseMilestones.ekAufbauKreuztRestschuld.jahr}
-                          y={prognoseMilestones.ekAufbauKreuztRestschuld.restschuld}
-                          r={6}
-                          fill="#22c55e"
-                          stroke="#fff"
-                          strokeWidth={2}
-                          label={{
-                            value: '🎯 EK-Aufbau > Restschuld',
-                            position: 'bottom',
-                            fontSize: 10,
-                            fill: '#22c55e',
-                            fontWeight: 'bold'
-                          }}
-                        />
-                      )}
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-
-                {/* Schnittpunkte Erklärungen */}
-                {(prognoseMilestones.ekGesamtKreuztRestschuld || prognoseMilestones.selbstfinanziert || prognoseMilestones.ekAufbauKreuztRestschuld) && (
-                  <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-2xl p-5 border border-slate-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles size={16} className="text-[#ff6b00]" />
-                      <h4 className="text-sm font-black text-[#001d3d]">Wichtige Meilensteine im Chart</h4>
-                    </div>
-                    <div className="space-y-3 text-xs text-slate-700">
-                      {prognoseMilestones.ekGesamtKreuztRestschuld && (
-                        <div className="flex gap-3 bg-white/70 rounded-xl p-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">⭐</div>
-                          <div>
-                            <p className="font-bold text-green-700">EK gesamt &gt; Restschuld ({prognoseMilestones.ekGesamtKreuztRestschuld.jahr})</p>
-                            <p className="mt-1">Dein Gesamteigenkapital (Start-EK + Tilgungsaufbau) übersteigt erstmals die Restschuld. Du hast mehr Vermögen als Schulden – ein wichtiger psychologischer und finanzieller Meilenstein!</p>
-                          </div>
-                        </div>
-                      )}
-                      {prognoseMilestones.selbstfinanziert && (
-                        <div className="flex gap-3 bg-white/70 rounded-xl p-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white font-bold">💰</div>
-                          <div>
-                            <p className="font-bold text-sky-700">Selbstfinanziert ({prognoseMilestones.selbstfinanziert.jahr})</p>
-                            <p className="mt-1">Dein kumulierter Cashflow reicht aus, um die Restschuld komplett abzulösen. Ab hier könntest du theoretisch dein Investment selbst finanzieren, ohne externe Mittel zu benötigen.</p>
-                          </div>
-                        </div>
-                      )}
-                      {prognoseMilestones.ekAufbauKreuztRestschuld && zeigeEigenkapitalAufbau && (
-                        <div className="flex gap-3 bg-white/70 rounded-xl p-3">
-                          <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">🎯</div>
-                          <div>
-                            <p className="font-bold text-green-600">EK-Aufbau &gt; Restschuld ({prognoseMilestones.ekAufbauKreuztRestschuld.jahr})</p>
-                            <p className="mt-1">Der durch Tilgung aufgebaute Eigenkapitalanteil (ohne dein Start-EK) übersteigt die Restschuld. Du hast allein durch Tilgung mehr Vermögen aufgebaut als du noch schuldest.</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
@@ -3337,7 +3213,7 @@ const exportPdf = React.useCallback(async () => {
         { label: "Monatliche Rate",    base: rateMonat,          sc: scRateMonat,       unit: "€", higherIsBetter: false, fractionDigits: 2 },
         { label: "Kaltmiete",          base: miete,              sc: scMiete,           unit: "€", higherIsBetter: true,  fractionDigits: 0 },
         { label: "Cashflow (vor St.)", base: cashflowVorSteuer,  sc: scCashflowVorSt,   unit: "€", higherIsBetter: true,  fractionDigits: 0 },
-        { label: "Cashflow (nach St.)", base: cashflowAfterTaxAktuell,  sc: scCashflowAfterTax, unit: "€", higherIsBetter: true,  fractionDigits: 0 },
+        { label: "Cashflow (nach St.)", base: cashflowAfterTax,  sc: scCashflowAfterTax, unit: "€", higherIsBetter: true,  fractionDigits: 0 },
         { label: "DSCR",               base: dscr,               sc: scDSCR,            unit: "",  higherIsBetter: true,  fractionDigits: 2 },
         { label: "Nettomietrendite",   base: nettoMietrendite,   sc: scNettoRendite,    unit: "%", higherIsBetter: true,  fractionDigits: 1 },
         { label: "Bruttomietrendite",  base: bruttoMietrendite,  sc: scBruttoRendite,   unit: "%", higherIsBetter: true,  fractionDigits: 1 },
@@ -3369,7 +3245,7 @@ const exportPdf = React.useCallback(async () => {
 
               <div>Cashflow (nach Steuern)</div>
               <div className="text-right">
-                {cashflowAfterTaxAktuell.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
+                {cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
               </div>
 
               <div>DSCR</div>                  <div className="text-right">{dscr.toFixed(2)}</div>
@@ -3464,11 +3340,11 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
+        </div>
+        {/* End Content Area */}
 
-          {/* Footer - No side padding/margin */}
-          <Footer noPadding />
-          </div>
-          {/* End Tab Content */}
+        {/* Footer - No side padding/margin */}
+        <Footer noPadding />
         </div>
         {/* End Scrollable Area */}
       </div>
