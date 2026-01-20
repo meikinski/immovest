@@ -3213,7 +3213,7 @@ const exportPdf = React.useCallback(async () => {
       )}
     </div>
 <p className="text-gray-600 mt-1 pb-6">
-  Wähle die Parameter und nutze den Regler, um das Szenario anzupassen. Über „Ergebnis speichern" kannst du die Berechnung ablegen.
+  Wähle die Parameter und nutze den Regler, um das Szenario anzupassen. Über &ldquo;Ergebnis speichern&rdquo; kannst du die Berechnung ablegen.
 </p>
 
     {/* Reset All Button */}
