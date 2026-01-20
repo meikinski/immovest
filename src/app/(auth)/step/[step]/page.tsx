@@ -256,7 +256,7 @@ export default function StepPage() {
   const [zeigeCashflowKumuliert, setZeigeCashflowKumuliert] = useState<boolean>(true);
 
   // Erweiterte Prognose-Optionen
-  const [darlehensTyp, setDarlehensTyp] = useState<'annuitaet' | 'degressiv'>('degressiv');
+  const [darlehensTyp, setDarlehensTyp] = useState<'annuitaet' | 'degressiv'>('annuitaet');
   const [mietInflationPct, setMietInflationPct] = useState<number>(0);
   const [kostenInflationPct, setKostenInflationPct] = useState<number>(0);
   const [verkaufsNebenkostenPct, setVerkaufsNebenkostenPct] = useState<number>(5);
@@ -418,20 +418,18 @@ export default function StepPage() {
 
   const prognoseMilestones = useMemo(() => {
     const halbschuld = darlehensSumme / 2;
-    const breakEven = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= ek);
     const halbschuldJahr = prognose.jahre.find(jahr => jahr.restschuld <= halbschuld);
-    const schuldenfrei = prognose.jahre.find(jahr => jahr.restschuld <= 0);
+    const selbstfinanziert = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= jahr.restschuld);
     const eigenkapitalGrößerKaufpreis = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= kaufpreis);
-    const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowMonatlich > 0);
+    const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowOhneSondertilgung > 0);
 
     return {
-      breakEven,
       halbschuld: halbschuldJahr,
-      schuldenfrei,
+      selbstfinanziert,
       eigenkapitalGrößerKaufpreis,
       cashflowPositiv,
     };
-  }, [darlehensSumme, ek, prognose.jahre, kaufpreis]);
+  }, [darlehensSumme, prognose.jahre, kaufpreis]);
 
   const verkaufSzenarien = useMemo(() => {
     const jahre = [10, 20, 30];
@@ -2598,15 +2596,6 @@ const exportPdf = React.useCallback(async () => {
                     <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
                       <input
                         type="checkbox"
-                        checked={wertentwicklungAktiv}
-                        onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                        className="accent-[#ff6b00]"
-                      />
-                      Immobilienwert anzeigen
-                    </label>
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <input
-                        type="checkbox"
                         checked={zeigeEigenkapitalAufbau}
                         onChange={(event) => setZeigeEigenkapitalAufbau(event.target.checked)}
                         className="accent-[#ff6b00]"
@@ -2625,20 +2614,6 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                 </div>
 
-                {wertentwicklungAktiv && (
-                  <div className="mb-6">
-                    <Slider
-                      label="Wertentwicklung p.a."
-                      value={wertentwicklungPct}
-                      onChange={setWertentwicklungPct}
-                      min={-5}
-                      max={5}
-                      step={0.1}
-                      suffix="%"
-                    />
-                  </div>
-                )}
-
                 {/* Erweiterte Optionen */}
                 <div className="mb-6">
                   <button
@@ -2647,7 +2622,7 @@ const exportPdf = React.useCallback(async () => {
                   >
                     <span className="flex items-center gap-2 text-[#001d3d]">
                       {zeigeErweiterteOptionen ? '▼' : '▶'} Erweiterte Optionen
-                      <span className="text-[9px] font-normal text-slate-500">(Annuität, Inflation, Verkaufskosten)</span>
+                      <span className="text-[9px] font-normal text-slate-500">(Annuität, Inflation, Immobilienwert)</span>
                     </span>
                     {!zeigeErweiterteOptionen && (
                       <span className="px-2 py-1 bg-[#ff6b00] text-white text-[9px] font-black rounded-full">
@@ -2711,20 +2686,40 @@ const exportPdf = React.useCallback(async () => {
                         />
                       </div>
 
-                      {/* Verkaufsnebenkosten */}
-                      {wertentwicklungAktiv && (
-                        <div className="mt-3">
-                          <Slider
-                            label="Verkaufsnebenkosten"
-                            value={verkaufsNebenkostenPct}
-                            onChange={setVerkaufsNebenkostenPct}
-                            min={0}
-                            max={15}
-                            step={0.5}
-                            suffix="%"
+                      {/* Immobilienwert & Wertentwicklung */}
+                      <div className="mt-4 border-t border-slate-200 pt-4">
+                        <label className="flex items-center gap-2 text-xs font-bold text-slate-600 mb-3">
+                          <input
+                            type="checkbox"
+                            checked={wertentwicklungAktiv}
+                            onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
+                            className="accent-[#ff6b00]"
                           />
-                        </div>
-                      )}
+                          Immobilienwert im Chart anzeigen
+                        </label>
+                        {wertentwicklungAktiv && (
+                          <div className="space-y-3 pl-6">
+                            <Slider
+                              label="Wertentwicklung p.a."
+                              value={wertentwicklungPct}
+                              onChange={setWertentwicklungPct}
+                              min={-5}
+                              max={5}
+                              step={0.1}
+                              suffix="%"
+                            />
+                            <Slider
+                              label="Verkaufsnebenkosten"
+                              value={verkaufsNebenkostenPct}
+                              onChange={setVerkaufsNebenkostenPct}
+                              min={0}
+                              max={15}
+                              step={0.5}
+                              suffix="%"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -2935,12 +2930,12 @@ const exportPdf = React.useCallback(async () => {
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Break-Even (EK zurück)</span>
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
                       <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.breakEven?.jahr ?? '–'}
+                        {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">Kumulierter Cashflow ≥ Start-EK</p>
+                    <p className="text-[9px] text-slate-400">Monatlicher Überschuss nach Steuern (ohne Sondertilgung)</p>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
@@ -2953,12 +2948,12 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Schuldenfrei</span>
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Selbstfinanziert</span>
                       <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.schuldenfrei?.jahr ?? '–'}
+                        {prognoseMilestones.selbstfinanziert?.jahr ?? '–'}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">Kredit vollständig getilgt</p>
+                    <p className="text-[9px] text-slate-400">Cashflow kumuliert ≥ Restschuld (Schnittpunkt im Chart)</p>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
@@ -2967,16 +2962,7 @@ const exportPdf = React.useCallback(async () => {
                         {prognoseMilestones.eigenkapitalGrößerKaufpreis?.jahr ?? '–'}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">Eigenkapital übersteigt Kaufpreis</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
-                      <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">Monatlicher Überschuss nach Steuern</p>
+                    <p className="text-[9px] text-slate-400">Eigenkapital übersteigt Kaufpreis (volle Ownership)</p>
                   </div>
                 </div>
               </div>
