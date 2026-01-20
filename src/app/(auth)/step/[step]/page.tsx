@@ -9,7 +9,7 @@ import HtmlContent from '@/components/HtmlContent';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
-  TrendingUp, Percent, ShieldCheck, MessageSquare, Sparkles
+  TrendingUp, Percent, ShieldCheck, Sparkles
 } from 'lucide-react';
 import {
   CartesianGrid,
@@ -2738,7 +2738,6 @@ const exportPdf = React.useCallback(async () => {
                           if (!active || !payload || !payload.length) return null;
 
                           const jahr = label;
-                          const data = prognose.jahre.find(j => j.jahr === jahr);
 
                           // Check if this is a milestone year
                           let milestoneInfo: { title: string; description: string } | null = null;
@@ -2775,7 +2774,7 @@ const exportPdf = React.useCallback(async () => {
                                 </div>
                               )}
                               <div className="space-y-1">
-                                {payload.map((entry: any, index: number) => (
+                                {payload.map((entry: { name?: string; value?: number; color?: string }, index: number) => (
                                   <div key={index} className="flex justify-between gap-3">
                                     <span className="text-[10px] font-bold" style={{ color: entry.color }}>
                                       {entry.name}:
