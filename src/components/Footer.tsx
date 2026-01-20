@@ -4,10 +4,14 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export function Footer() {
+interface FooterProps {
+  noPadding?: boolean;
+}
+
+export function Footer({ noPadding = false }: FooterProps) {
   return (
-    <footer className="bg-[#001d3d] text-white py-24">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className={`bg-[#001d3d] text-white ${noPadding ? 'pt-24' : 'py-24'}`}>
+      <div className={`max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 ${noPadding ? '' : 'px-6'}`}>
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center gap-3 mb-8">
             <Image
@@ -88,7 +92,7 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-slate-400 text-sm">
+      <div className={`max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-slate-400 text-sm ${noPadding ? 'pb-0' : ''}`}>
         <p>© {new Date().getFullYear()} imvestr. Alle Rechte vorbehalten. Keine Anlageberatung – alle Ergebnisse sind Modellrechnungen.</p>
       </div>
     </footer>
