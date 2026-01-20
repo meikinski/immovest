@@ -5,6 +5,7 @@ export interface PrognoseJahr {
   eigenkapitalGesamt: number;
   cashflowMonatlich: number;
   cashflowOhneSondertilgung: number;
+  cashflowVorSteuern: number;
   cashflowKumuliert: number;
   cashflowKumuliertOhneSondertilgung: number;
   zinslast: number;
@@ -145,6 +146,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       eigenkapitalGesamt,
       cashflowMonatlich,
       cashflowOhneSondertilgung,
+      cashflowVorSteuern: cashflowVorSteuernOhneSondertilgung,
       cashflowKumuliert: kumuliertCF,
       cashflowKumuliertOhneSondertilgung: kumuliertCFOhneSondertilgung,
       zinslast,

@@ -2144,8 +2144,8 @@ const exportPdf = React.useCallback(async () => {
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
-                  <div className={`text-3xl font-black ${cashflowVorSteuer >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {cashflowVorSteuer.toFixed(0)}€
+                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowVorSteuern ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(prognose.jahre[0]?.cashflowVorSteuern ?? 0).toFixed(0)}€
                   </div>
                 </div>
 
