@@ -2305,8 +2305,8 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
 
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
@@ -2525,8 +2525,8 @@ const exportPdf = React.useCallback(async () => {
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
-            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
@@ -2594,8 +2594,8 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             {/* Block 2: Investment-Empfehlung - Modernisiert */}
-            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
