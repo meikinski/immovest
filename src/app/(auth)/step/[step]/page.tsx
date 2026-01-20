@@ -3459,7 +3459,6 @@ const exportPdf = React.useCallback(async () => {
           PDF wird erstellt...
         </div>
       )}
-    </div>
   </>
             </div>
           </div>
