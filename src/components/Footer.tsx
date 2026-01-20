@@ -21,7 +21,7 @@ export function Footer({ noPadding = false }: FooterProps) {
               height={40}
               className="rounded-lg"
             />
-            <span className="text-2xl font-bold tracking-tighter">imvestr</span>
+            <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
           </div>
           <p className="text-slate-400 max-w-sm mb-8">
             Die intelligenteste Art, Immobilien zu bewerten und Investment-Entscheidungen auf Basis von echten Daten zu treffen.

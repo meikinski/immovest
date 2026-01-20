@@ -39,7 +39,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
               priority
             />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+          <span className="text-2xl font-extrabold tracking-tighter">
             imvestr
           </span>
         </button>
