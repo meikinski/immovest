@@ -2439,6 +2439,7 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
             </div>
+            </div>
           </div>
         )}
 
@@ -2590,6 +2591,7 @@ const exportPdf = React.useCallback(async () => {
       Szenarien testen →
     </button>
   </div>
+            </div>
             </div>
           </div>
         )}
