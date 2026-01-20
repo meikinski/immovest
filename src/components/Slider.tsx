@@ -56,20 +56,20 @@ export default function Slider({
 
   return (
     <div className="slider-card">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <label htmlFor={sliderId} className="text-sm font-medium text-[var(--color-text-default)]">
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <label htmlFor={sliderId} className="text-xs font-semibold text-[var(--color-text-default)]">
             {label}
           </label>
           {showReset && onReset && value !== 0 && (
             <button
               type="button"
               onClick={onReset}
-              className="text-orange-500 hover:text-orange-600 transition-colors p-1 rounded hover:bg-orange-50"
+              className="text-orange-500 hover:text-orange-600 transition-colors p-0.5 rounded hover:bg-orange-50"
               title="Zurücksetzen"
               aria-label={`${label} zurücksetzen`}
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3 h-3" />
             </button>
           )}
         </div>
@@ -105,10 +105,10 @@ export default function Slider({
           type="button"
           onClick={handleDecrement}
           disabled={value <= min}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           aria-label={`${label} verringern`}
         >
-          <Minus className="w-5 h-5" />
+          <Minus className="w-4 h-4" />
         </button>
 
         <input
@@ -128,10 +128,10 @@ export default function Slider({
           type="button"
           onClick={handleIncrement}
           disabled={value >= max}
-          className="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
+          className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-md bg-orange-50/50 hover:bg-orange-100 border border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-manipulation"
           aria-label={`${label} erhöhen`}
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-4 h-4" />
         </button>
       </div>
 

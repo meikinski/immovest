@@ -3213,7 +3213,7 @@ const exportPdf = React.useCallback(async () => {
       )}
     </div>
 <p className="text-gray-600 mt-1 pb-6">
-  Wähle die Parameter und nutze den Regler, um das Szenario anzupassen. Über &ldquo;Ergebnis speichern&rdquo; kannst du die Berechnung ablegen.
+  Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
 </p>
 
     {/* Reset All Button */}
@@ -3377,15 +3377,39 @@ const exportPdf = React.useCallback(async () => {
         { label: "EK-Rendite",         base: ekRendite,          sc: scEkRendite,       unit: "%", higherIsBetter: true,  fractionDigits: 1 },
       ];
 
-      // Summary KPIs - Top 3 wichtigste Änderungen
+      // Summary KPIs - Alle 6 wichtigsten KPIs
       const summaryKpis = [
         {
-          label: "Cashflow (nach Steuern)",
+          label: "Bruttomietrendite",
+          base: bruttoMietrendite,
+          sc: scBruttoRendite,
+          delta: scBruttoRendite - bruttoMietrendite,
+          unit: "%",
+          icon: SquarePercent
+        },
+        {
+          label: "Nettomietrendite",
+          base: nettoMietrendite,
+          sc: scNettoRendite,
+          delta: scNettoRendite - nettoMietrendite,
+          unit: "%",
+          icon: Percent
+        },
+        {
+          label: "Cashflow vor Steuern",
+          base: cashflowVorSteuer,
+          sc: scCashflowVorSt,
+          delta: scCashflowVorSt - cashflowVorSteuer,
+          unit: "€",
+          icon: Wallet
+        },
+        {
+          label: "Cashflow nach Steuern",
           base: cashflowAfterTax,
           sc: scCashflowAfterTax,
           delta: scCashflowAfterTax - cashflowAfterTax,
           unit: "€",
-          icon: "💰"
+          icon: ReceiptText
         },
         {
           label: "EK-Rendite",
@@ -3393,7 +3417,7 @@ const exportPdf = React.useCallback(async () => {
           sc: scEkRendite,
           delta: scEkRendite - ekRendite,
           unit: "%",
-          icon: "📈"
+          icon: TrendingUp
         },
         {
           label: "DSCR",
@@ -3401,30 +3425,33 @@ const exportPdf = React.useCallback(async () => {
           sc: scDSCR,
           delta: scDSCR - dscr,
           unit: "",
-          icon: "🎯"
+          icon: ShieldCheck
         }
       ];
 
       return (
         <>
-        {/* Summary Card - Top 3 KPIs */}
+        {/* Summary Card - Alle 6 KPIs */}
         <div className="card bg-gradient-to-br from-orange-50/30 to-white border-2 border-orange-100 mb-6">
           <h3 className="font-bold text-lg mb-4 text-[#001d3d]">Auswirkungen auf einen Blick</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {summaryKpis.map((kpi) => {
               const isPositive = kpi.delta > 0;
               const isZero = Math.abs(kpi.delta) < 1e-9;
               const deltaColor = isZero ? "text-gray-500" : isPositive ? "text-green-600" : "text-red-600";
               const bgColor = isZero ? "bg-gray-50" : isPositive ? "bg-green-50" : "bg-red-50";
+              const IconComponent = kpi.icon;
 
               return (
-                <div key={kpi.label} className={`p-4 rounded-xl ${bgColor} border border-gray-200`}>
+                <div key={kpi.label} className={`p-3 rounded-xl ${bgColor} border border-gray-200`}>
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl">{kpi.icon}</span>
-                    <div className="text-xs font-medium text-gray-600 uppercase tracking-wider">{kpi.label}</div>
+                    <div className="w-5 h-5 bg-white/70 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <IconComponent size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">{kpi.label}</div>
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <div className="text-2xl font-bold text-[#001d3d]">
+                    <div className="text-xl font-bold text-[#001d3d]">
                       {kpi.unit === "€"
                         ? kpi.sc.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + " €"
                         : kpi.unit === "%"
@@ -3433,7 +3460,7 @@ const exportPdf = React.useCallback(async () => {
                       }
                     </div>
                   </div>
-                  <div className={`text-sm font-semibold mt-1 ${deltaColor}`}>
+                  <div className={`text-xs font-semibold mt-1 ${deltaColor}`}>
                     {isZero
                       ? "Keine Änderung"
                       : `${isPositive ? "+" : "−"}${Math.abs(kpi.delta).toLocaleString('de-DE', {
