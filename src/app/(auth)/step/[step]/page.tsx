@@ -1975,9 +1975,7 @@ const exportPdf = React.useCallback(async () => {
   } else if (step === 'tabs') {
     content = (
       <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
-        {/* Scrollable Content Area */}
         <div className="flex-1 overflow-y-auto">
-          {/* Property Card - Scrolls away */}
           <div className="px-6 lg:px-10 py-6 bg-white border-b border-slate-200">
             <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div className="flex items-center gap-5">
@@ -2011,7 +2009,6 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-          {/* Sticky Tabs */}
           <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
             <div className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
               {([
@@ -2040,7 +2037,6 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-        {/* Content Area */}
         <div className="px-6 lg:px-10 py-10 space-y-10">
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
@@ -3341,14 +3337,10 @@ const exportPdf = React.useCallback(async () => {
           </div>
         )}
         </div>
-        {/* End Content Area */}
 
-        {/* Footer - No side padding/margin */}
         <Footer noPadding />
         </div>
-        {/* End Scrollable Area */}
       </div>
-      {/* End Fixed Container */}
     );
   } else {
     content = <p>Seite existiert nicht</p>;
