@@ -1415,28 +1415,57 @@ export default function LandingPage() {
           {/* 10. Final CTA */}
           <section className="py-32 px-6 bg-[#001d3d] text-white">
             <div className="max-w-6xl mx-auto px-6 text-center">
-              <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
-              </h2>
-              <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-                Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
-              </p>
+              {isSignedIn ? (
+                <>
+                  <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+                    <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">nächsten Check?</span>
+                  </h2>
+                  <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+                    Starte eine neue Analyse und erhalte in Minuten eine vollständige Bewertung deines Immobilien-Deals.
+                  </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <button
-                  onClick={() => handleGetStarted('final_cta')}
-                  className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
-                >
-                  <span>Jetzt kostenlos starten</span>
-                  <ArrowRight className="w-6 h-6" />
-                </button>
-                <Link
-                  href="/sign-in"
-                  className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
-                >
-                  Anmelden / Einloggen
-                </Link>
-              </div>
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button
+                      onClick={() => handleGetStarted('final_cta')}
+                      className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
+                    >
+                      <span>Neue Analyse starten</span>
+                      <ArrowRight className="w-6 h-6" />
+                    </button>
+                    <Link
+                      href="/dashboard"
+                      className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
+                    >
+                      Zum Dashboard
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
+                    <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
+                  </h2>
+                  <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
+                    Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <button
+                      onClick={() => handleGetStarted('final_cta')}
+                      className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
+                    >
+                      <span>Jetzt kostenlos starten</span>
+                      <ArrowRight className="w-6 h-6" />
+                    </button>
+                    <Link
+                      href="/sign-in"
+                      className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
+                    >
+                      Anmelden / Einloggen
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
           </section>
         </main>
