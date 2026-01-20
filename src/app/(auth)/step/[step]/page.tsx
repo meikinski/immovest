@@ -421,17 +421,17 @@ export default function StepPage() {
     const breakEven = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= ek);
     const halbschuldJahr = prognose.jahre.find(jahr => jahr.restschuld <= halbschuld);
     const schuldenfrei = prognose.jahre.find(jahr => jahr.restschuld <= 0);
-    const eigenkapital100k = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= 100_000);
+    const eigenkapitalGrößerKaufpreis = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= kaufpreis);
     const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowMonatlich > 0);
 
     return {
       breakEven,
       halbschuld: halbschuldJahr,
       schuldenfrei,
-      eigenkapital100k,
+      eigenkapitalGrößerKaufpreis,
       cashflowPositiv,
     };
-  }, [darlehensSumme, ek, prognose.jahre]);
+  }, [darlehensSumme, ek, prognose.jahre, kaufpreis]);
 
   const verkaufSzenarien = useMemo(() => {
     const jahre = [10, 20, 30];
@@ -2643,14 +2643,22 @@ const exportPdf = React.useCallback(async () => {
                 <div className="mb-6">
                   <button
                     onClick={() => setZeigeErweiterteOptionen(!zeigeErweiterteOptionen)}
-                    className="flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#ff6b00] transition-colors"
+                    className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-bold bg-gradient-to-r from-slate-50 to-slate-100 hover:from-[#ff6b00]/10 hover:to-[#ff6b00]/5 rounded-xl border border-slate-200 transition-all shadow-sm"
                   >
-                    {zeigeErweiterteOptionen ? '▼' : '▶'} Erweiterte Optionen
+                    <span className="flex items-center gap-2 text-[#001d3d]">
+                      {zeigeErweiterteOptionen ? '▼' : '▶'} Erweiterte Optionen
+                      <span className="text-[9px] font-normal text-slate-500">(Annuität, Inflation, Verkaufskosten)</span>
+                    </span>
+                    {!zeigeErweiterteOptionen && (
+                      <span className="px-2 py-1 bg-[#ff6b00] text-white text-[9px] font-black rounded-full">
+                        NEU
+                      </span>
+                    )}
                   </button>
                   {zeigeErweiterteOptionen && (
-                    <div className="mt-4 space-y-4 pl-4 border-l-2 border-slate-200">
+                    <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
                       {/* Darlehenstyp */}
-                      <div>
+                      <div className="mb-4">
                         <label className="text-xs font-bold text-slate-600 mb-2 block">Darlehenstyp</label>
                         <div className="flex gap-3">
                           <label className="flex items-center gap-2 text-xs text-slate-600">
@@ -2661,7 +2669,7 @@ const exportPdf = React.useCallback(async () => {
                               onChange={(e) => setDarlehensTyp(e.target.value as 'degressiv')}
                               className="accent-[#ff6b00]"
                             />
-                            Degressiv (Rate sinkt)
+                            Degressiv
                           </label>
                           <label className="flex items-center gap-2 text-xs text-slate-600">
                             <input
@@ -2671,49 +2679,51 @@ const exportPdf = React.useCallback(async () => {
                               onChange={(e) => setDarlehensTyp(e.target.value as 'annuitaet')}
                               className="accent-[#ff6b00]"
                             />
-                            Annuität (Rate konstant)
+                            Annuität ⭐
                           </label>
                         </div>
                         <p className="text-[9px] text-slate-400 mt-1">
                           {darlehensTyp === 'degressiv'
-                            ? 'Die monatliche Rate sinkt mit der Restschuld (seltener in der Praxis)'
-                            : 'Die monatliche Rate bleibt konstant (üblich bei Immobilienkrediten)'}
+                            ? 'Rate sinkt mit Restschuld (selten)'
+                            : 'Konstante Rate, wie bei echten Immobilienkrediten'}
                         </p>
                       </div>
 
-                      {/* Mietinflation */}
-                      <Slider
-                        label="Mietinflation p.a."
-                        value={mietInflationPct}
-                        onChange={setMietInflationPct}
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        suffix="%"
-                      />
-
-                      {/* Kosteninflation */}
-                      <Slider
-                        label="Kosteninflation p.a."
-                        value={kostenInflationPct}
-                        onChange={setKostenInflationPct}
-                        min={0}
-                        max={5}
-                        step={0.1}
-                        suffix="%"
-                      />
+                      {/* Inflation Slider in Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <Slider
+                          label="Mietinflation p.a."
+                          value={mietInflationPct}
+                          onChange={setMietInflationPct}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          suffix="%"
+                        />
+                        <Slider
+                          label="Kosteninflation p.a."
+                          value={kostenInflationPct}
+                          onChange={setKostenInflationPct}
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          suffix="%"
+                        />
+                      </div>
 
                       {/* Verkaufsnebenkosten */}
                       {wertentwicklungAktiv && (
-                        <Slider
-                          label="Verkaufsnebenkosten"
-                          value={verkaufsNebenkostenPct}
-                          onChange={setVerkaufsNebenkostenPct}
-                          min={0}
-                          max={15}
-                          step={0.5}
-                          suffix="%"
-                        />
+                        <div className="mt-3">
+                          <Slider
+                            label="Verkaufsnebenkosten"
+                            value={verkaufsNebenkostenPct}
+                            onChange={setVerkaufsNebenkostenPct}
+                            min={0}
+                            max={15}
+                            step={0.5}
+                            suffix="%"
+                          />
+                        </div>
                       )}
                     </div>
                   )}
@@ -2789,7 +2799,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
                   <div>
                     <h3 className="text-lg font-black text-[#001d3d]">Liquiditäts-Dashboard</h3>
-                    <p className="text-[10px] text-slate-500 mt-1">Wähle das Jahr, um Cashflow &amp; Steuer-Vorteil zu sehen.</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Werte am Ende des ausgewählten Jahres (nach Tilgung)</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Jahr</span>
@@ -2838,7 +2848,9 @@ const exportPdf = React.useCallback(async () => {
                       {formatEur(liquiditaetJahr?.afaVorteil ?? 0)} €
                     </p>
                     <p className="text-[10px] text-slate-500 mt-1">
-                      {(liquiditaetJahr?.afaVorteil ?? 0) > 0 ? 'Steuerliche Entlastung' : 'AfA-Zeitraum abgelaufen'}
+                      {(liquiditaetJahr?.afaVorteil ?? 0) > 0
+                        ? 'Fest (AfA × Steuersatz), unabhängig von Zinsen'
+                        : 'AfA-Zeitraum abgelaufen'}
                     </p>
                   </div>
                 </div>
@@ -2852,6 +2864,7 @@ const exportPdf = React.useCallback(async () => {
                         type="text"
                         inputMode="decimal"
                         value={sondertilgungText}
+                        onFocus={(event) => event.target.select()}
                         onChange={(event) => {
                           const nextValue = event.target.value.replace(/[^\d]/g, '');
                           setSondertilgungText(nextValue);
@@ -2949,12 +2962,12 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Eigenkapital 100k</span>
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">EK &gt; Kaufpreis</span>
                       <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.eigenkapital100k?.jahr ?? '–'}
+                        {prognoseMilestones.eigenkapitalGrößerKaufpreis?.jahr ?? '–'}
                       </span>
                     </div>
-                    <p className="text-[9px] text-slate-400">100.000 € Gesamteigenkapital erreicht</p>
+                    <p className="text-[9px] text-slate-400">Eigenkapital übersteigt Kaufpreis</p>
                   </div>
                   <div>
                     <div className="flex items-center justify-between mb-1">
