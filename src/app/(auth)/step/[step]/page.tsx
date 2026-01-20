@@ -491,7 +491,56 @@ const dscr =
     return { isValid: missing.length === 0, missingFields: missing };
   };
 
+  // Flush all text input values to store before navigation
+  const flushAllInputs = () => {
+    // Step A inputs
+    const grEStNum = Number(grunderwerbText.replace(',', '.'));
+    if (!isNaN(grEStNum)) setGrunderwerbsteuerPct(grEStNum);
+
+    const notarNum = Number(notarText.replace(',', '.'));
+    if (!isNaN(notarNum)) setNotarPct(notarNum);
+
+    const maklerNum = Number(maklerText.replace(',', '.'));
+    if (!isNaN(maklerNum)) setMaklerPct(maklerNum);
+
+    const sonstigeNum = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+    if (!isNaN(sonstigeNum)) setSonstigeKosten(sonstigeNum);
+
+    // Step A2 inputs
+    const flaecheNum = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
+    if (!isNaN(flaecheNum)) setFlaeche(flaecheNum);
+
+    // Step B inputs
+    const afaNum = Number(afaText.replace(',', '.'));
+    if (!isNaN(afaNum)) setAfa(afaNum);
+
+    const gebNum = Number(gebText.replace(',', '.'));
+    if (!isNaN(gebNum)) setSteuer(gebNum);
+
+    const hausUmlegNum = Number(hausUmlegText.replace(',', '.'));
+    if (!isNaN(hausUmlegNum)) setHausgeldUmlegbar(hausUmlegNum);
+
+    const instandNum = Number(instandText.replace(',', '.'));
+    if (!isNaN(instandNum)) setInstandhaltungskostenProQm(instandNum);
+
+    const mietausfallNum = Number(mietausfallText.replace(',', '.'));
+    if (!isNaN(mietausfallNum)) setMietausfallPct(mietausfallNum);
+
+    const persNum = Number(persText.replace(',', '.'));
+    if (!isNaN(persNum)) setPersoenlicherSteuersatz(persNum);
+
+    // Step C inputs
+    const zinsNum = Number(zinsText.replace(',', '.'));
+    if (!isNaN(zinsNum)) setZins(zinsNum);
+
+    const tilgungNum = Number(tilgungText.replace(',', '.'));
+    if (!isNaN(tilgungNum)) setTilgung(tilgungNum);
+  };
+
   const handleNavigateToNextStep = () => {
+    // Flush all pending input values first
+    flushAllInputs();
+
     const validation = validateStep(step);
 
     if (!validation.isValid) {
