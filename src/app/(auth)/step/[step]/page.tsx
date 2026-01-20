@@ -251,6 +251,9 @@ export default function StepPage() {
   const [sondertilgungJaehrlich, setSondertilgungJaehrlich] = useState<number>(0);
   const [sondertilgungText, setSondertilgungText] = useState<string>('0');
   const [liquiditaetJahrIndex, setLiquiditaetJahrIndex] = useState<number>(0);
+  // Kurvendiagramm Toggle-Optionen
+  const [zeigeEigenkapitalAufbau, setZeigeEigenkapitalAufbau] = useState<boolean>(false);
+  const [zeigeCashflowKumuliert, setZeigeCashflowKumuliert] = useState<boolean>(true);
 
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
@@ -2565,22 +2568,42 @@ const exportPdf = React.useCallback(async () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
                   <div>
                     <h3 className="text-lg font-black text-[#001d3d]">Entwicklung über 30 Jahre</h3>
                     <p className="text-xs text-slate-500 mt-1">
                       Restschuld, Eigenkapital und kumulierter Cashflow im Zeitverlauf.
                     </p>
                   </div>
-                  <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                    <input
-                      type="checkbox"
-                      checked={wertentwicklungAktiv}
-                      onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                      className="accent-[#ff6b00]"
-                    />
-                    Immobilienwert anzeigen
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={wertentwicklungAktiv}
+                        onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
+                        className="accent-[#ff6b00]"
+                      />
+                      Immobilienwert anzeigen
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={zeigeEigenkapitalAufbau}
+                        onChange={(event) => setZeigeEigenkapitalAufbau(event.target.checked)}
+                        className="accent-[#ff6b00]"
+                      />
+                      EK-Aufbau (zusätzlich)
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                      <input
+                        type="checkbox"
+                        checked={zeigeCashflowKumuliert}
+                        onChange={(event) => setZeigeCashflowKumuliert(event.target.checked)}
+                        className="accent-[#ff6b00]"
+                      />
+                      Cashflow kumuliert
+                    </label>
+                  </div>
                 </div>
 
                 {wertentwicklungAktiv && (
@@ -2619,31 +2642,35 @@ const exportPdf = React.useCallback(async () => {
                         strokeWidth={2}
                         dot={false}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="eigenkapitalAufbau"
-                        name="Eigenkapitalaufbau"
-                        stroke="#22c55e"
-                        strokeWidth={2}
-                        dot={false}
-                      />
+                      {zeigeEigenkapitalAufbau && (
+                        <Line
+                          type="monotone"
+                          dataKey="eigenkapitalAufbau"
+                          name="EK-Aufbau (ohne Start-EK)"
+                          stroke="#22c55e"
+                          strokeWidth={2}
+                          strokeDasharray="3 3"
+                          dot={false}
+                        />
+                      )}
                       <Line
                         type="monotone"
                         dataKey="eigenkapitalGesamt"
                         name="Eigenkapital gesamt"
                         stroke="#16a34a"
                         strokeWidth={2}
-                        strokeDasharray="6 4"
                         dot={false}
                       />
-                      <Line
-                        type="monotone"
-                        dataKey="cashflowKumuliert"
-                        name="Cashflow kumuliert"
-                        stroke="#0ea5e9"
-                        strokeWidth={2}
-                        dot={false}
-                      />
+                      {zeigeCashflowKumuliert && (
+                        <Line
+                          type="monotone"
+                          dataKey="cashflowKumuliert"
+                          name="Cashflow kumuliert"
+                          stroke="#0ea5e9"
+                          strokeWidth={2}
+                          dot={false}
+                        />
+                      )}
                       {wertentwicklungAktiv && (
                         <Line
                           type="monotone"
@@ -2682,32 +2709,38 @@ const exportPdf = React.useCallback(async () => {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow / Monat</p>
-                    <p className={`text-2xl font-black mt-2 ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatEur(cashflowAfterTax)} €
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow ohne Sondertilgung</p>
+                    <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowOhneSondertilgung ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {formatEur(liquiditaetJahr?.cashflowOhneSondertilgung ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Ohne Sondertilgung</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Monatlich verfügbar</p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow mit Sondertilgung</p>
                     <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatEur(liquiditaetJahr?.cashflowMonatlich ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Zusätzliche Auszahlung berücksichtigt</p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {sondertilgungJaehrlich > 0
+                        ? `Inkl. ${formatEur(sondertilgungJaehrlich / 12)} € Sondertilgung/Monat`
+                        : 'Keine Sondertilgung eingegeben'}
+                    </p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Worst-Case Puffer</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Restschuld</p>
                     <p className="text-2xl font-black mt-2 text-[#001d3d]">
-                      {formatEur(warmmiete * 3)} €
+                      {formatEur(liquiditaetJahr?.restschuld ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">3 Monate Leerstand</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Verbleibende Schuld</p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">AfA Vorteil / Jahr</p>
                     <p className="text-2xl font-black mt-2 text-[#001d3d]">
                       {formatEur(liquiditaetJahr?.afaVorteil ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Steuerliche Entlastung</p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {(liquiditaetJahr?.afaVorteil ?? 0) > 0 ? 'Steuerliche Entlastung' : 'AfA-Zeitraum abgelaufen'}
+                    </p>
                   </div>
                 </div>
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2735,15 +2768,15 @@ const exportPdf = React.useCallback(async () => {
                       <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-400">€</span>
                     </div>
                     <p className="text-[10px] text-slate-500 mt-2">
-                      Sondertilgung wird als zusätzliche Auszahlung gerechnet und senkt den Cashflow.
+                      💡 Sondertilgung reduziert deine Restschuld schneller und spart langfristig Zinsen. Sie wird als zusätzliche monatliche Auszahlung vom Cashflow abgezogen.
                     </p>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-4">
-                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Restschuld nächstes Jahr</p>
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em]">Eigenkapital gesamt</p>
                     <p className="text-2xl font-black mt-3 text-[#001d3d]">
-                      {formatEur(prognose.jahre[1]?.restschuld ?? 0)} €
+                      {formatEur(liquiditaetJahr?.eigenkapitalGesamt ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">inkl. Sondertilgung</p>
+                    <p className="text-[10px] text-slate-500 mt-1">Start-EK + Tilgungsfortschritt</p>
                   </div>
                 </div>
               </div>
@@ -2757,20 +2790,24 @@ const exportPdf = React.useCallback(async () => {
                 </div>
                 <ul className="space-y-3 text-[11px] text-slate-600">
                   <li>
-                    <span className="font-bold text-[#001d3d]">Restschuld</span> sinkt jedes Jahr durch Tilgung und
-                    Sondertilgung.
+                    <span className="font-bold text-red-600">Restschuld</span> (rot) sinkt jedes Jahr durch reguläre Tilgung und
+                    optionale Sondertilgung.
                   </li>
                   <li>
-                    <span className="font-bold text-[#001d3d]">EK-Aufbau</span> startet bei 0 und zeigt nur die
-                    abgezahlte Schuld. <span className="font-bold text-[#001d3d]">EK gesamt</span> addiert dein Start‑EK.
+                    <span className="font-bold text-green-700">Eigenkapital gesamt</span> (grün) zeigt dein Start-EK plus den
+                    Tilgungsfortschritt. Es wächst automatisch mit jeder Kreditrate.
                   </li>
                   <li>
-                    <span className="font-bold text-[#001d3d]">Cashflow kumuliert</span> summiert den jährlichen
-                    Überschuss nach Steuern.
+                    <span className="font-bold text-green-600">EK-Aufbau</span> (hellgrün gestrichelt, optional) zeigt nur die
+                    abgezahlte Schuld – ohne dein eingesetztes Start-EK.
                   </li>
                   <li>
-                    <span className="font-bold text-[#001d3d]">Immobilienwert</span> wird nur angezeigt, wenn du eine
-                    Wertentwicklung aktivierst.
+                    <span className="font-bold text-blue-500">Cashflow kumuliert</span> (blau, optional) summiert deinen jährlichen
+                    Überschuss nach Steuern. Kann anfangs negativ sein.
+                  </li>
+                  <li>
+                    <span className="font-bold text-purple-600">Immobilienwert</span> (lila, optional) zeigt die simulierte
+                    Wertentwicklung deiner Immobilie basierend auf der gewählten Wertsteigerungsrate.
                   </li>
                 </ul>
               </div>
@@ -2780,36 +2817,54 @@ const exportPdf = React.useCallback(async () => {
                   <Calendar size={16} className="text-[#ff6b00]" />
                   <h4 className="text-sm font-black text-[#001d3d]">Meilensteine</h4>
                 </div>
+                <p className="text-[10px] text-slate-500 mb-4">
+                  Wichtige Zeitpunkte in deiner Immobilieninvestition
+                </p>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Break-Even</span>
-                    <span className="text-sm font-black text-[#001d3d]">
-                      {prognoseMilestones.breakEven?.jahr ?? '–'}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Break-Even (EK zurück)</span>
+                      <span className="text-sm font-black text-[#001d3d]">
+                        {prognoseMilestones.breakEven?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">Kumulierter Cashflow ≥ Start-EK</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Restschuld &lt; 50%</span>
-                    <span className="text-sm font-black text-[#001d3d]">
-                      {prognoseMilestones.halbschuld?.jahr ?? '–'}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Restschuld &lt; 50%</span>
+                      <span className="text-sm font-black text-[#001d3d]">
+                        {prognoseMilestones.halbschuld?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">Hälfte des Kredits abbezahlt</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Schuldenfrei</span>
-                    <span className="text-sm font-black text-[#001d3d]">
-                      {prognoseMilestones.schuldenfrei?.jahr ?? '–'}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Schuldenfrei</span>
+                      <span className="text-sm font-black text-[#001d3d]">
+                        {prognoseMilestones.schuldenfrei?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">Kredit vollständig getilgt</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Eigenkapital 100k</span>
-                    <span className="text-sm font-black text-[#001d3d]">
-                      {prognoseMilestones.eigenkapital100k?.jahr ?? '–'}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Eigenkapital 100k</span>
+                      <span className="text-sm font-black text-[#001d3d]">
+                        {prognoseMilestones.eigenkapital100k?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">100.000 € Gesamteigenkapital erreicht</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
-                    <span className="text-sm font-black text-[#001d3d]">
-                      {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
-                    </span>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
+                      <span className="text-sm font-black text-[#001d3d]">
+                        {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">Monatlicher Überschuss nach Steuern</p>
                   </div>
                 </div>
               </div>
@@ -2817,10 +2872,13 @@ const exportPdf = React.useCallback(async () => {
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-sm font-black text-[#001d3d]">Verkaufsszenarien</h4>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Brutto</span>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Ohne Nebenkosten</span>
                 </div>
                 <p className="text-[10px] text-slate-500 mb-4">
-                  Ergebnis = Immobilienwert − Restschuld + kumulierter Cashflow − eingesetztes EK.
+                  <span className="font-bold text-[#001d3d]">Ergebnis =</span> Immobilienwert − Restschuld + kumulierter Cashflow − Start-EK
+                </p>
+                <p className="text-[9px] text-slate-400 mb-4">
+                  ⚠️ Ohne Verkaufsnebenkosten (Makler ~3-7%, Vorfälligkeitsentschädigung, etc.)
                 </p>
                 <div className="space-y-4">
                   {verkaufSzenarien.map((szenario) => (
@@ -2854,11 +2912,13 @@ const exportPdf = React.useCallback(async () => {
                   <span className="text-[8px] font-black uppercase tracking-widest">Prognose-Hinweis</span>
                 </div>
                 <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  Die Prognose nutzt eine Annuitäten-Logik auf den jeweils verbleibenden Kreditbetrag.
+                  <span className="font-bold">Darlehensmodell:</span> Die Berechnung verwendet ein degressives Tilgungsmodell, bei dem Zins und Tilgung prozentual auf die verbleibende Restschuld berechnet werden. Die monatliche Rate sinkt daher mit der Zeit.
+                </p>
+                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
+                  <span className="font-bold">AfA-Abschreibung:</span> Der steuerliche Vorteil durch AfA wird standardmäßig für 50 Jahre berechnet. Danach entfällt der Steuervorteil.
                 </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
-                  Zinslast und Cashflow reagieren auf die sinkende Restschuld. Miete, Kosten und Steuersatz bleiben hier
-                  konstant – für Einsteiger eine klare Basis.
+                  <span className="font-bold">Konstante Annahmen:</span> Miete, Nebenkosten und Steuersatz bleiben konstant – das vereinfacht die Prognose und macht sie nachvollziehbar.
                 </p>
               </div>
             </div>
