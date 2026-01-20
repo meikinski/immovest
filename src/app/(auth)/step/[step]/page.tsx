@@ -20,6 +20,8 @@ import {
   Tooltip as ChartTooltip,
   XAxis,
   YAxis,
+  ReferenceDot,
+  Label,
 } from 'recharts';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
@@ -2176,8 +2178,8 @@ const exportPdf = React.useCallback(async () => {
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
-                  <div className={`text-3xl font-black ${cashflowAfterTax >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {cashflowAfterTax.toFixed(0)}€
+                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0).toFixed(0)}€
                   </div>
                 </div>
 
@@ -2696,7 +2698,7 @@ const exportPdf = React.useCallback(async () => {
                           Immobilienwert im Chart anzeigen
                         </label>
                         {wertentwicklungAktiv && (
-                          <div className="space-y-3 pl-6">
+                          <div className="pl-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Slider
                               label="Wertentwicklung p.a."
                               value={wertentwicklungPct}
@@ -2782,6 +2784,64 @@ const exportPdf = React.useCallback(async () => {
                           strokeWidth={2}
                           dot={false}
                         />
+                      )}
+
+                      {/* Highlight intersection points */}
+                      {prognoseMilestones.halbschuld && (
+                        <ReferenceDot
+                          x={prognoseMilestones.halbschuld.jahr}
+                          y={prognoseMilestones.halbschuld.restschuld}
+                          r={6}
+                          fill="#ff6b00"
+                          stroke="#fff"
+                          strokeWidth={2}
+                        >
+                          <Label
+                            value="50% getilgt"
+                            position="top"
+                            fill="#001d3d"
+                            fontSize={10}
+                            fontWeight="bold"
+                          />
+                        </ReferenceDot>
+                      )}
+
+                      {zeigeCashflowKumuliert && prognoseMilestones.selbstfinanziert && (
+                        <ReferenceDot
+                          x={prognoseMilestones.selbstfinanziert.jahr}
+                          y={prognoseMilestones.selbstfinanziert.restschuld}
+                          r={6}
+                          fill="#0ea5e9"
+                          stroke="#fff"
+                          strokeWidth={2}
+                        >
+                          <Label
+                            value="Selbstfinanziert"
+                            position="top"
+                            fill="#001d3d"
+                            fontSize={10}
+                            fontWeight="bold"
+                          />
+                        </ReferenceDot>
+                      )}
+
+                      {wertentwicklungAktiv && prognoseMilestones.eigenkapitalGrößerKaufpreis && (
+                        <ReferenceDot
+                          x={prognoseMilestones.eigenkapitalGrößerKaufpreis.jahr}
+                          y={prognoseMilestones.eigenkapitalGrößerKaufpreis.eigenkapitalGesamt}
+                          r={6}
+                          fill="#16a34a"
+                          stroke="#fff"
+                          strokeWidth={2}
+                        >
+                          <Label
+                            value="EK > Kaufpreis"
+                            position="top"
+                            fill="#001d3d"
+                            fontSize={10}
+                            fontWeight="bold"
+                          />
+                        </ReferenceDot>
                       )}
                     </LineChart>
                   </ResponsiveContainer>

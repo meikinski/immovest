@@ -3,6 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useAuth, SignInButton, UserButton } from '@clerk/nextjs';
 import { Save } from 'lucide-react';
 
@@ -46,15 +47,9 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
         {/* Right Side */}
         <div className="flex items-center gap-4">
           {!isSignedIn ? (
-            <SignInButton
-              mode="modal"
-              forceRedirectUrl="/input-method"
-              fallbackRedirectUrl="/input-method"
-            >
-              <button className="text-sm font-medium text-gray-700 hover:text-[hsl(var(--brand))] transition">
-                Anmelden
-              </button>
-            </SignInButton>
+            <Link href="/sign-in" className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
+              Login
+            </Link>
           ) : (
             <UserButton afterSignOutUrl="/">
               <UserButton.MenuItems>
