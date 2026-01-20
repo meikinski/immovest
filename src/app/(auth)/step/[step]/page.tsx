@@ -1387,9 +1387,18 @@ const exportPdf = React.useCallback(async () => {
                 type="text"
                 value={baujahr.toString()}
                 onChange={(e) => {
+                  const newBaujahr = Number(e.target.value);
+                  const newAfaValue = defaultAfaForBaujahr(newBaujahr);
+                  const newGebValue = defaultGebaeudeAnteil(objekttyp);
+
                   autoAfa.current = true;
                   autoGebaeude.current = true;
-                  setBaujahr(Number(e.target.value));
+
+                  setAfaText(newAfaValue.toString().replace('.', ','));
+                  setAfa(newAfaValue);
+                  setGebText(newGebValue.toString().replace('.', ','));
+                  setSteuer(newGebValue);
+                  setBaujahr(newBaujahr);
                 }}
                 onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
