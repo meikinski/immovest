@@ -37,7 +37,7 @@ export default function Page() {
               priority
             />
           </div>
-          <span className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] bg-clip-text text-transparent">
+          <span className="text-2xl font-extrabold tracking-tighter">
             imvestr
           </span>
         </Link>
