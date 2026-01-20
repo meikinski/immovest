@@ -2019,7 +2019,7 @@ const exportPdf = React.useCallback(async () => {
                 { id: 'prognose', label: 'Prognose & Entwicklung', icon: TrendingUp },
                 { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
               ] as const).map(t => {
-                const locked = (t.id === 'markt' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
+                const locked = (t.id === 'markt' || t.id === 'prognose' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
                 return (
                   <button
                     key={t.id}
@@ -2582,6 +2582,47 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Tab 3 – Prognose */}
         {activeTab === 'prognose' && (
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {(!isSignedIn || !canAccessPremium) && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                    Schalte Prognose & Entwicklung frei.
+                  </p>
+                  {!isSignedIn ? (
+                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
+                        Kostenlos anmelden
+                      </button>
+                    </SignInButton>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
+                      >
+                        <Crown size={18} />
+                        Jetzt freischalten
+                      </button>
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
+                        {2 - premiumUsageCount > 0
+                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                          : 'Nur 13,99 €/Monat'}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
@@ -3147,6 +3188,8 @@ const exportPdf = React.useCallback(async () => {
                   <span className="font-bold">Erweiterte Optionen:</span> Nutze &quot;Erweiterte Optionen&quot; für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
                 </p>
               </div>
+            </div>
+          </div>
             </div>
           </div>
         )}
