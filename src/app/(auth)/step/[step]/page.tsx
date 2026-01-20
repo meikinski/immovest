@@ -2982,7 +2982,7 @@ const exportPdf = React.useCallback(async () => {
                 </p>
                 {(!wertentwicklungAktiv || verkaufsNebenkostenPct === 0) && (
                   <p className="text-[9px] text-slate-400 mb-4">
-                    💡 Aktiviere "Erweiterte Optionen" → "Verkaufsnebenkosten", um Maklerkosten (~3-7%) und Vorfälligkeitsentschädigung zu berücksichtigen
+                    💡 Aktiviere &quot;Erweiterte Optionen&quot; → &quot;Verkaufsnebenkosten&quot;, um Maklerkosten (~3-7%) und Vorfälligkeitsentschädigung zu berücksichtigen
                   </p>
                 )}
                 <div className="space-y-4">
@@ -3035,7 +3035,7 @@ const exportPdf = React.useCallback(async () => {
                     : 'Miete und Kosten bleiben konstant (0% Inflation).'}
                 </p>
                 <p className="text-[10px] leading-relaxed opacity-90">
-                  <span className="font-bold">Erweiterte Optionen:</span> Nutze "Erweiterte Optionen" für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
+                  <span className="font-bold">Erweiterte Optionen:</span> Nutze &quot;Erweiterte Optionen&quot; für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
                 </p>
               </div>
             </div>
