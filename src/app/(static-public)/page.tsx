@@ -709,13 +709,14 @@ export default function LandingPage() {
                   </button>
                 </div>
 
-                {/* Selected Card */}
+                {/* Selected Card in Navy Container */}
                 <div className="px-4">
-                  {/* URL Import Card */}
-                  {selectedImportMethod === 'url' && (
-                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
-                      {/* KI Badge */}
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
+                  <div className="bg-[#001d3d] rounded-[32px] min-h-[400px] flex items-center justify-center p-6 shadow-2xl border-4 border-gray-100">
+                    {/* URL Import Card */}
+                    {selectedImportMethod === 'url' && (
+                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
+                        {/* KI Badge */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
                         <Sparkles size={14} />
                         <span>KI-Power</span>
                       </div>
@@ -759,11 +760,11 @@ export default function LandingPage() {
                     </div>
                   )}
 
-                  {/* Photo Scan Card */}
-                  {selectedImportMethod === 'photo' && (
-                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
-                      {/* KI Badge */}
-                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
+                    {/* Photo Scan Card */}
+                    {selectedImportMethod === 'photo' && (
+                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
+                        {/* KI Badge */}
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
                         <Sparkles size={14} />
                         <span>KI-Power</span>
                       </div>
@@ -805,12 +806,12 @@ export default function LandingPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                      </div>
+                    )}
 
-                  {/* Manual Entry Card */}
-                  {selectedImportMethod === 'manual' && (
-                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
+                    {/* Manual Entry Card */}
+                    {selectedImportMethod === 'manual' && (
+                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
                       <div className="text-center mb-6">
                         <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
                           <Keyboard className="w-7 h-7 text-[#ff6b00]" />
@@ -837,8 +838,9 @@ export default function LandingPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
