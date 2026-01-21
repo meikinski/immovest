@@ -706,7 +706,7 @@ export default function LandingPage() {
                   {/* URL Import Card */}
                   <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
                     {/* KI Badge */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
                       <Sparkles size={14} />
                       <span>KI-Power</span>
                     </div>
@@ -752,7 +752,7 @@ export default function LandingPage() {
                   {/* Photo Scan Card */}
                   <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
                     {/* KI Badge */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
                       <Sparkles size={14} />
                       <span>KI-Power</span>
                     </div>
@@ -897,14 +897,14 @@ export default function LandingPage() {
 
                 {/* Right: Visual Mockup with Real Cards */}
                 <div className="md:w-1/2">
-                  <div className="bg-white rounded-[48px] min-h-[600px] flex items-center justify-center p-8 shadow-2xl border border-gray-100">
+                  <div className="bg-[#001d3d] rounded-[48px] min-h-[600px] flex items-center justify-center p-8 shadow-2xl border-4 border-gray-100">
                     <div className="w-full max-w-md">
                       {/* URL Import Card */}
                       {selectedImportMethod === 'url' && (
                         <div className="animate-[fadeIn_0.3s_ease-in]">
                           <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
                             {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                               <Sparkles size={16} />
                               <span>KI-Power</span>
                             </div>
@@ -954,7 +954,7 @@ export default function LandingPage() {
                         <div className="animate-[fadeIn_0.3s_ease-in]">
                           <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
                             {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                               <Sparkles size={16} />
                               <span>KI-Power</span>
                             </div>
