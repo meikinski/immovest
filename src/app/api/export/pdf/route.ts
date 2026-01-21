@@ -98,6 +98,16 @@ export async function POST(req: Request) {
     const font = await pdf.embedFont(fontBytesRegular);
     const bold = await pdf.embedFont(fontBytesBold);
 
+    // Embed logo
+    const logoPath = join(process.cwd(), 'public', 'logo.png');
+    let logoImage;
+    try {
+      const logoBytes = readFileSync(logoPath);
+      logoImage = await pdf.embedPng(logoBytes);
+    } catch (e) {
+      console.warn('Logo not found, continuing without logo');
+    }
+
     let page = pdf.addPage([595.28, 841.89]); // A4
 
     const MARGIN = 50;
@@ -150,29 +160,29 @@ export async function POST(req: Request) {
     // ===== SEITE 1: DECKBLATT =====
     y = 841.89 - 60;
 
-    // Modern Header with gradient accent
+    // Logo and branding (top left)
+    if (logoImage) {
+      const logoDims = logoImage.scale(0.15);
+      page.drawImage(logoImage, {
+        x: MARGIN,
+        y: y - 5,
+        width: logoDims.width,
+        height: logoDims.height,
+      });
+
+      // "imvestr" text next to logo
+      drawText('imvestr', MARGIN + logoDims.width + 12, y + 8, 20, true, NAVY);
+    }
+
+    // Investment-Report heading (top right)
+    const reportText = 'Investment-Report';
+    const reportWidth = font.widthOfTextAtSize(reportText, 13);
+    drawText(reportText, 595.28 - MARGIN - reportWidth, y + 10, 13, false, GRAY);
+
+    y -= 45;
+
+    // Main header
     drawText('IMMOBILIEN-ANALYSE', MARGIN, y, 26, true, NAVY);
-
-    // Bank-ready badge (top right)
-    const badgeText = 'Bank-ready';
-    const badgeW = 110;
-    const badgeH = 35;
-    const badgeX = 595.28 - MARGIN - badgeW;
-    const badgeY = y - 5;
-
-    // Orange badge background
-    page.drawRectangle({
-      x: badgeX, y: badgeY, width: badgeW, height: badgeH,
-      color: ORANGE
-    });
-
-    // Checkmark symbol (✓)
-    drawText('✓', badgeX + 15, badgeY + 10, 16, true, WHITE);
-
-    // Badge text
-    const badgeTextWidth = font.widthOfTextAtSize(badgeText, 11);
-    drawText(badgeText, badgeX + 35, badgeY + 11, 11, true, WHITE);
-
     y -= 38;
     drawText(d.address || 'Keine Adresse', MARGIN, y, 13, false, GRAY);
     y -= 8;
@@ -293,13 +303,34 @@ export async function POST(req: Request) {
 
     y = cardY - 50;
 
-    // ===== OBJEKTDATEN KOMPAKT =====
-    // Section header with orange accent
-    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
-    drawText('OBJEKTDATEN', MARGIN + 12, y, 12, true, NAVY);
-    y -= 25;
+    // Card background helper for data sections
+    const drawCardBackground = (cardX: number, cardY: number, cardWidth: number, cardHeight: number) => {
+      // Shadow
+      page.drawRectangle({
+        x: cardX + 2, y: cardY - 2, width: cardWidth, height: cardHeight,
+        color: rgb(0.92, 0.92, 0.92),
+        opacity: 0.4
+      });
 
-    // Tabelle: 2 Spalten
+      // Card background
+      page.drawRectangle({
+        x: cardX, y: cardY, width: cardWidth, height: cardHeight,
+        color: rgb(0.99, 0.99, 0.99),
+        borderColor: BORDER,
+        borderWidth: 1.5
+      });
+    };
+
+    // ===== OBJEKTDATEN KOMPAKT =====
+    const objCardY = y - 115;
+    drawCardBackground(MARGIN, objCardY, WIDTH, 115);
+
+    // Section header with orange accent
+    page.drawRectangle({ x: MARGIN + 20, y: y - 15, width: 4, height: 14, color: ORANGE });
+    drawText('OBJEKTDATEN', MARGIN + 32, y - 12, 12, true, NAVY);
+    y -= 35;
+
+    // Tabelle: 2 Spalten (with padding inside card)
     const objData: [string, string][] = [
       ['Kaufpreis', eur(Math.round(d.kaufpreis))],
       ['Fläche', d.flaeche ? `${num(d.flaeche, 0)} m²` : '–'],
@@ -309,8 +340,8 @@ export async function POST(req: Request) {
       ['Kaufpreis/m²', d.flaeche > 0 ? eur(Math.round(pricePerSqm)) : '–'],
     ];
 
-    const col1X = MARGIN;
-    const col2X = MARGIN + WIDTH / 2;
+    const col1X = MARGIN + 20;
+    const col2X = MARGIN + WIDTH / 2 + 10;
     const rowH = 16;
 
     for (let i = 0; i < objData.length; i++) {
@@ -322,13 +353,16 @@ export async function POST(req: Request) {
       drawText(value, xPos + 140, yPos, 10, true, BLACK);
     }
 
-    y -= Math.ceil(objData.length / 2) * rowH + 20;
+    y -= Math.ceil(objData.length / 2) * rowH + 30;
 
     // ===== FINANZIERUNGSÜBERSICHT =====
+    const finCardY = y - 115;
+    drawCardBackground(MARGIN, finCardY, WIDTH, 115);
+
     // Section header with orange accent
-    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
-    drawText('FINANZIERUNG', MARGIN + 12, y, 12, true, NAVY);
-    y -= 25;
+    page.drawRectangle({ x: MARGIN + 20, y: y - 15, width: 4, height: 14, color: ORANGE });
+    drawText('FINANZIERUNG', MARGIN + 32, y - 12, 12, true, NAVY);
+    y -= 35;
 
     const finData: [string, string][] = [
       ['Eigenkapital', eur(Math.round(d.ek))],
@@ -351,10 +385,13 @@ export async function POST(req: Request) {
     y -= Math.ceil(finData.length / 2) * rowH + 30;
 
     // ===== RENDITEKENNZAHLEN =====
+    const rendCardY = y - 85;
+    drawCardBackground(MARGIN, rendCardY, WIDTH, 85);
+
     // Section header with orange accent
-    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
-    drawText('RENDITEKENNZAHLEN', MARGIN + 12, y, 12, true, NAVY);
-    y -= 25;
+    page.drawRectangle({ x: MARGIN + 20, y: y - 15, width: 4, height: 14, color: ORANGE });
+    drawText('RENDITEKENNZAHLEN', MARGIN + 32, y - 12, 12, true, NAVY);
+    y -= 35;
 
     const rendData: [string, string][] = [
       ['Nettomietrendite', pct(d.nettoMietrendite)],
@@ -363,8 +400,8 @@ export async function POST(req: Request) {
     ];
 
     for (const [label, value] of rendData) {
-      drawText(label, MARGIN, y, 9, false, GRAY);
-      drawText(value, MARGIN + 200, y, 11, true, NAVY);
+      drawText(label, MARGIN + 20, y, 9, false, GRAY);
+      drawText(value, MARGIN + 220, y, 11, true, NAVY);
       y -= rowH;
     }
 
