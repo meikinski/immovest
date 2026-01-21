@@ -9,7 +9,7 @@ import HtmlContent from '@/components/HtmlContent';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
-  TrendingUp, Percent, ShieldCheck, Sparkles
+  TrendingUp, Percent, ShieldCheck, Sparkles, RotateCcw
 } from 'lucide-react';
 import {
   CartesianGrid,
@@ -248,6 +248,7 @@ export default function StepPage() {
   const [mieteDeltaPct, setMieteDeltaPct]   = useState<number>(0);
   const [preisDeltaPct, setPreisDeltaPct]   = useState<number>(0);
   const [zinsDeltaPp,   setZinsDeltaPp]     = useState<number>(0);
+  const [isCalculating, setIsCalculating]   = useState<boolean>(false);
   const [wertentwicklungAktiv, setWertentwicklungAktiv] = useState<boolean>(false);
   const [wertentwicklungPct, setWertentwicklungPct] = useState<number>(1.5);
   const [sondertilgungJaehrlich, setSondertilgungJaehrlich] = useState<number>(0);
@@ -267,7 +268,20 @@ export default function StepPage() {
   // Markt-Deltas von Agent (für Badges)
   const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
   const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
-  
+
+  // Live-Update Indikator für Szenario-Berechnungen
+  useEffect(() => {
+    // Set calculating state when any slider changes
+    setIsCalculating(true);
+
+    // Clear calculating state after a short delay
+    const timer = setTimeout(() => {
+      setIsCalculating(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct]);
+
   const formulaDetails = {
     brutto: {
       title: 'Bruttomietrendite',
@@ -3250,7 +3264,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'szenarien' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !canAccessPremium) && (
+            {false && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
@@ -3288,20 +3302,61 @@ const exportPdf = React.useCallback(async () => {
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={''}>
   <>
-    {/* Kein H2, Tab-Button dient als Titel */}
+    <div className="flex items-center gap-3 mb-2">
+      <h2 className="text-2xl font-bold text-[#001d3d]">Was-wäre-wenn Analyse</h2>
+      {isCalculating && (
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold animate-pulse">
+          <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping" />
+          Berechnet...
+        </span>
+      )}
+    </div>
 <p className="text-gray-600 mt-1 pb-6">
-  Wähle die Parameter und nutze den Regler, um das Szenario anzupassen. Über „Ergebnis speichern“ kannst du die Berechnung ablegen.
+  Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
 </p>
 
-    {/* kompakte Regler, Label & Wert in einer Zeile */}
-    <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-      <Slider label="Kaltmiete" value={mieteDeltaPct} onChange={setMieteDeltaPct} min={-30} max={30} step={0.5} suffix="%" />
-      <Slider label="Kaufpreis" value={preisDeltaPct} onChange={setPreisDeltaPct} min={-30} max={30} step={0.5} suffix="%" />
-      <Slider label="Zins" value={zinsDeltaPp} onChange={setZinsDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
-      <Slider label="Tilgung" value={tilgungDeltaPp} onChange={setTilgungDeltaPp} min={-3} max={3} step={0.1} suffix="pp" />
-      <Slider label="Eigenkapital" value={ekDeltaPct} onChange={setEkDeltaPct} min={-100} max={100} step={1} suffix="%" />
+    {/* Reset All Button */}
+    {(mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0) && (
+      <div className="mb-4 flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            setMieteDeltaPct(0);
+            setPreisDeltaPct(0);
+            setZinsDeltaPp(0);
+            setTilgungDeltaPp(0);
+            setEkDeltaPct(0);
+          }}
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Alle zurücksetzen
+        </button>
+      </div>
+    )}
+
+    {/* Grouped Sliders by Category */}
+    <div className="mb-6 space-y-6">
+      {/* Immobilie Category */}
+      <div>
+        <h3 className="text-sm font-bold text-[#001d3d] mb-3 uppercase tracking-wider">Immobilie</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Slider label="Kaufpreis" value={preisDeltaPct} onChange={setPreisDeltaPct} onReset={() => setPreisDeltaPct(0)} min={-30} max={30} step={0.5} suffix="%" />
+          <Slider label="Kaltmiete" value={mieteDeltaPct} onChange={setMieteDeltaPct} onReset={() => setMieteDeltaPct(0)} min={-30} max={30} step={0.5} suffix="%" />
+        </div>
+      </div>
+
+      {/* Finanzierung Category */}
+      <div>
+        <h3 className="text-sm font-bold text-[#001d3d] mb-3 uppercase tracking-wider">Finanzierung</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Slider label="Eigenkapital" value={ekDeltaPct} onChange={setEkDeltaPct} onReset={() => setEkDeltaPct(0)} min={-100} max={100} step={1} suffix="%" />
+          <Slider label="Zins" value={zinsDeltaPp} onChange={setZinsDeltaPp} onReset={() => setZinsDeltaPp(0)} min={-3} max={3} step={0.1} suffix="pp" />
+          <Slider label="Tilgung" value={tilgungDeltaPp} onChange={setTilgungDeltaPp} onReset={() => setTilgungDeltaPp(0)} min={-3} max={3} step={0.1} suffix="pp" />
+        </div>
+      </div>
     </div>
 
     {/* Base vs Szenario */}
@@ -3423,93 +3478,201 @@ const exportPdf = React.useCallback(async () => {
         { label: "EK-Rendite",         base: ekRendite,          sc: scEkRendite,       unit: "%", higherIsBetter: true,  fractionDigits: 1 },
       ];
 
+      // Summary KPIs - Alle 6 wichtigsten KPIs
+      const summaryKpis = [
+        {
+          label: "Bruttomietrendite",
+          base: bruttoMietrendite,
+          sc: scBruttoRendite,
+          delta: scBruttoRendite - bruttoMietrendite,
+          unit: "%",
+          icon: SquarePercent
+        },
+        {
+          label: "Nettomietrendite",
+          base: nettoMietrendite,
+          sc: scNettoRendite,
+          delta: scNettoRendite - nettoMietrendite,
+          unit: "%",
+          icon: Percent
+        },
+        {
+          label: "Cashflow vor Steuern",
+          base: cashflowVorSteuer,
+          sc: scCashflowVorSt,
+          delta: scCashflowVorSt - cashflowVorSteuer,
+          unit: "€",
+          icon: Wallet
+        },
+        {
+          label: "Cashflow nach Steuern",
+          base: cashflowAfterTax,
+          sc: scCashflowAfterTax,
+          delta: scCashflowAfterTax - cashflowAfterTax,
+          unit: "€",
+          icon: ReceiptText
+        },
+        {
+          label: "EK-Rendite",
+          base: ekRendite,
+          sc: scEkRendite,
+          delta: scEkRendite - ekRendite,
+          unit: "%",
+          icon: TrendingUp
+        },
+        {
+          label: "DSCR",
+          base: dscr,
+          sc: scDSCR,
+          delta: scDSCR - dscr,
+          unit: "",
+          icon: ShieldCheck
+        }
+      ];
+
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basis */}
-          <div className="card bg-white">
-            <h3 className="font-semibold mb-3">Aktuelle Eingaben</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
-              <div>Kaufpreis</div>             <div className="text-right">{kaufpreis.toLocaleString('de-DE')} €</div>
-              <div>Gesamtinvestition</div>     <div className="text-right">{anschaffungskosten.toLocaleString('de-DE')} €</div>
-              <div>Eigenkapital</div>          <div className="text-right">{ek.toLocaleString('de-DE')} €</div>
-              <div>Darlehenssumme</div>        <div className="text-right">{darlehensSumme.toLocaleString('de-DE')} €</div>
-              <div>Zins / Tilgung</div>        <div className="text-right">{zins.toFixed(2)} % / {tilgung.toFixed(2)} %</div>
-              <div>Monatliche Rate</div>       <div className="text-right">{rateMonat.toLocaleString('de-DE', { maximumFractionDigits: 2 })} €</div>
-              <div>Kaltmiete</div>             <div className="text-right">{miete.toLocaleString('de-DE')} €</div>
+        <>
+        {/* Summary Card - Alle 6 KPIs */}
+        <div className="card bg-gradient-to-br from-orange-50/30 to-white border-2 border-orange-100 mb-6">
+          <h3 className="font-bold text-lg mb-4 text-[#001d3d]">Auswirkungen auf einen Blick</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {summaryKpis.map((kpi) => {
+              const isZero = Math.abs(kpi.delta) < 1e-9;
+              const isPositive = !isZero && kpi.delta > 0;
+              const deltaColor = isZero ? "text-gray-500" : isPositive ? "text-green-600" : "text-red-600";
+              const bgColor = isZero ? "bg-gray-50" : isPositive ? "bg-green-50" : "bg-red-50";
+              const IconComponent = kpi.icon;
 
-              {/* Separator */}
-              <div className="col-span-2 border-t border-gray-300 my-2" />
-
-              <div className="font-medium">Cashflow (vor Steuern)</div>
-              <div className="text-right font-medium">
-                {cashflowVorSteuer.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
-              </div>
-
-
-              <div>Cashflow (nach Steuern)</div>
-              <div className="text-right">
-                {cashflowAfterTax.toLocaleString('de-DE', { maximumFractionDigits: 0 })} €
-              </div>
-
-              <div>DSCR</div>                  <div className="text-right">{dscr.toFixed(2)}</div>
-              <div>Nettomietrendite</div>      <div className="text-right">{nettoMietrendite.toFixed(1)} %</div>
-              <div>Bruttomietrendite</div>     <div className="text-right">{bruttoMietrendite.toFixed(1)} %</div>
-              <div>EK-Rendite</div>            <div className="text-right">{ekRendite.toFixed(1)} %</div>
-            </div>
-          </div>
-
-          {/* Szenario – ohne Icons, Delta unter dem Wert */}
-          <div className="card card-scenario">
-            <h3 className="font-semibold mb-3">Szenario</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
-              {rows.map((r) => {
-  const delta  = r.sc - r.base;
-  const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
-  const color  = nz(delta) ? "text-gray-600"
-                : better ? "text-[hsl(var(--success))]"
-                         : "text-[hsl(var(--danger))]";
-  const fd = r.fractionDigits ?? (r.unit === "%" ? 1 : r.unit === "€" ? 0 : 0);
-
-  // Trennstrich vor "Cashflow (vor St.)" einfügen
-  const showSeparator = r.label === "Cashflow (vor St.)";
-
-  return (
-    <React.Fragment key={r.label}>
-      {/* Separator */}
-      {showSeparator && (
-        <div className="col-span-2 border-t border-gray-300 my-2" />
-      )}
-
-      {/* Label */}
-      <div className={showSeparator ? "font-medium pt-2" : ""}>{r.label}</div>
-
-      {/* Value */}
-      <div className={`text-right ${showSeparator ? "font-medium pt-2" : ""}`}>
-        {/* Hauptwert */}
-        <div className="text-gray-800">
-          {r.renderMain ? r.renderMain() : fmt(r.sc, r.unit, fd)}
-        </div>
-        {/* Delta-Zeile */}
-        <div className={`text-xs mt-0.5 ${r.renderDelta ? "" : color}`}>
-          {r.renderDelta
-            ? r.renderDelta()
-            : nz(delta)
-              ? "±0"
-              : (delta > 0 ? "+" : "−") + (
-                  r.unit === "€"
-                    ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " €"
-                    : r.unit === "%"
-                      ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " %"
-                      : Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd })
-                )}
-        </div>
-      </div>
-    </React.Fragment>
-  );
-})}
-            </div>
+              return (
+                <div key={kpi.label} className={`p-3 rounded-xl ${bgColor} border border-gray-200`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-5 h-5 bg-white/70 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <IconComponent size={12} className="text-[#ff6b00]" />
+                    </div>
+                    <div className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">{kpi.label}</div>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <div className="text-xl font-bold text-[#001d3d]">
+                      {kpi.unit === "€"
+                        ? kpi.sc.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + " €"
+                        : kpi.unit === "%"
+                        ? kpi.sc.toFixed(1) + " %"
+                        : kpi.sc.toFixed(2)
+                      }
+                    </div>
+                  </div>
+                  <div className={`text-xs font-semibold mt-1 ${deltaColor}`}>
+                    {isZero
+                      ? "Keine Änderung"
+                      : `${isPositive ? "+" : "−"}${Math.abs(kpi.delta).toLocaleString('de-DE', {
+                          maximumFractionDigits: kpi.unit === "%" ? 1 : kpi.unit === "€" ? 0 : 2
+                        })} ${kpi.unit}`
+                    }
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
+
+        {/* Unified Table - 4 Spalten für bessere Vergleichbarkeit */}
+        <div className="card bg-white">
+          <h3 className="font-semibold mb-4 text-lg">Detaillierter Vergleich</h3>
+
+          {/* Responsive wrapper with horizontal scroll on mobile */}
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <table className="w-full min-w-[600px] text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50/50">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Metrik</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Basis</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Szenario</th>
+                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Änderung</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const delta = r.sc - r.base;
+                  const isZero = nz(delta);
+                  const better = !isZero && (r.higherIsBetter !== false ? delta > 0 : delta < 0);
+                  const deltaColor = isZero ? "text-gray-600"
+                    : better ? "text-green-600"
+                    : "text-red-600";
+                  const bgColor = isZero ? ""
+                    : better ? "bg-green-50/30"
+                    : "bg-red-50/30";
+                  const fd = r.fractionDigits ?? (r.unit === "%" ? 1 : r.unit === "€" ? 0 : 0);
+
+                  // Separator before "Cashflow (vor St.)"
+                  const showSeparator = r.label === "Cashflow (vor St.)";
+
+                  // Format delta text
+                  const deltaText = isZero
+                    ? "±0"
+                    : (delta > 0 ? "+" : "−") + (
+                        r.unit === "€"
+                          ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " €"
+                          : r.unit === "%"
+                            ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " %"
+                            : Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd })
+                      );
+
+                  // Arrow icon
+                  const arrow = isZero ? "" : delta > 0 ? "↑" : "↓";
+
+                  return (
+                    <React.Fragment key={r.label}>
+                      {/* Separator row */}
+                      {showSeparator && (
+                        <tr>
+                          <td colSpan={4} className="py-0">
+                            <div className="border-t border-gray-300 my-2" />
+                          </td>
+                        </tr>
+                      )}
+
+                      {/* Data row */}
+                      <tr className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${showSeparator ? "font-medium" : ""}`}>
+                        {/* Metric name */}
+                        <td className="py-3 px-4 text-gray-700">{r.label}</td>
+
+                        {/* Basis value */}
+                        <td className="py-3 px-4 text-right text-gray-800">
+                          {r.renderMain
+                            ? (r.label === "Zins / Tilgung"
+                                ? <span className="whitespace-nowrap">{zins.toFixed(2)} % / {tilgung.toFixed(2)} %</span>
+                                : r.renderMain())
+                            : fmt(r.base, r.unit, fd)
+                          }
+                        </td>
+
+                        {/* Szenario value */}
+                        <td className="py-3 px-4 text-right text-gray-800">
+                          {r.renderMain ? r.renderMain() : fmt(r.sc, r.unit, fd)}
+                        </td>
+
+                        {/* Delta with arrow and color */}
+                        <td className={`py-3 px-4 text-right font-medium ${bgColor}`}>
+                          {r.renderDelta ? (
+                            <div className={deltaColor}>
+                              {r.renderDelta()}
+                            </div>
+                          ) : (
+                            <span className={deltaColor}>
+                              {arrow && <span className="mr-1">{arrow}</span>}
+                              {deltaText}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        </>
       );
     })()}
 
