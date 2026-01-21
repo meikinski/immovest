@@ -670,131 +670,175 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Mobile: Card Carousel */}
+              {/* Mobile: Tabs */}
               <div className="md:hidden">
-                <div className="space-y-6 px-4">
-                  {/* Manual Input Card */}
-                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
-                    <div className="text-center mb-6">
-                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <Keyboard className="w-7 h-7 text-[#ff6b00]" />
-                      </div>
-                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                        Manuelle Eingabe
-                      </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
-                      </p>
-                    </div>
+                {/* Tabs Navigation */}
+                <div className="flex flex-wrap justify-center gap-3 mb-8">
+                  <button
+                    onClick={() => setSelectedImportMethod('url')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'url'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <LinkIcon size={18} />
+                    URL-Import
+                  </button>
+                  <button
+                    onClick={() => setSelectedImportMethod('photo')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'photo'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Camera size={18} />
+                    Foto-Scan
+                  </button>
+                  <button
+                    onClick={() => setSelectedImportMethod('manual')}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
+                      selectedImportMethod === 'manual'
+                        ? 'bg-[#ff6b00] text-white shadow-lg'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    <Edit3 size={18} />
+                    Manuell
+                  </button>
+                </div>
 
-                    <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
-                      <span>Jetzt starten</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    {/* Benefits */}
-                    <div className="mt-4 space-y-2">
-                      {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                          <span>{benefit}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
+                {/* Selected Card */}
+                <div className="px-4">
                   {/* URL Import Card */}
-                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
-                    {/* KI Badge */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
-                      <Sparkles size={14} />
-                      <span>KI-Power</span>
-                    </div>
-
-                    <div className="text-center mb-6">
-                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
+                  {selectedImportMethod === 'url' && (
+                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
+                      {/* KI Badge */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
+                        <Sparkles size={14} />
+                        <span>KI-Power</span>
                       </div>
-                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                        URL Import
-                      </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
-                      </p>
-                    </div>
 
-                    {/* URL Input (disabled) */}
-                    <div className="space-y-3">
-                      <input
-                        type="url"
-                        placeholder="https://www.immobilienscout24.de/..."
-                        disabled
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default text-sm"
-                      />
-
-                      <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
-                        <Sparkles size={18} />
-                        <span>Mit KI analysieren</span>
-                      </button>
-                    </div>
-
-                    {/* Benefits */}
-                    <div className="mt-4 space-y-2">
-                      {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                          <span>{benefit}</span>
+                      <div className="text-center mb-6">
+                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                          <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
                         </div>
-                      ))}
+                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                          URL Import
+                        </h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
+                        </p>
+                      </div>
+
+                      {/* URL Input (disabled) */}
+                      <div className="space-y-3">
+                        <input
+                          type="url"
+                          placeholder="https://www.immobilienscout24.de/..."
+                          disabled
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default text-sm"
+                        />
+
+                        <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
+                          <Sparkles size={18} />
+                          <span>Mit KI analysieren</span>
+                        </button>
+                      </div>
+
+                      {/* Benefits */}
+                      <div className="mt-4 space-y-2">
+                        {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Photo Scan Card */}
-                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
-                    {/* KI Badge */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
-                      <Sparkles size={14} />
-                      <span>KI-Power</span>
-                    </div>
-
-                    <div className="text-center mb-6">
-                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                        <Camera className="w-7 h-7 text-[#ff6b00]" />
+                  {selectedImportMethod === 'photo' && (
+                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
+                      {/* KI Badge */}
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
+                        <Sparkles size={14} />
+                        <span>KI-Power</span>
                       </div>
-                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                        Foto scannen
-                      </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        Fotografiere das Exposé mit deinem Smartphone
-                      </p>
-                    </div>
 
-                    {/* Camera Upload Area (visual only) */}
-                    <div className="text-center mb-4">
-                      <div className="w-full py-10 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
-                        <Camera className="w-10 h-10 text-[#ff6b00] mx-auto mb-2" />
-                        <p className="text-sm font-bold text-gray-900 mb-1">
-                          Foto aufnehmen
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Klicken um Kamera zu öffnen
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-2">
-                        Max. 10 MB • PNG, JPG, WebP
-                      </p>
-                    </div>
-
-                    {/* Benefits */}
-                    <div className="mt-4 space-y-2">
-                      {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
-                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                          <span>{benefit}</span>
+                      <div className="text-center mb-6">
+                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                          <Camera className="w-7 h-7 text-[#ff6b00]" />
                         </div>
-                      ))}
+                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                          Foto scannen
+                        </h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          Fotografiere das Exposé mit deinem Smartphone
+                        </p>
+                      </div>
+
+                      {/* Camera Upload Area (visual only) */}
+                      <div className="text-center mb-4">
+                        <div className="w-full py-10 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
+                          <Camera className="w-10 h-10 text-[#ff6b00] mx-auto mb-2" />
+                          <p className="text-sm font-bold text-gray-900 mb-1">
+                            Foto aufnehmen
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Klicken um Kamera zu öffnen
+                          </p>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2">
+                          Max. 10 MB • PNG, JPG, WebP
+                        </p>
+                      </div>
+
+                      {/* Benefits */}
+                      <div className="mt-4 space-y-2">
+                        {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* Manual Entry Card */}
+                  {selectedImportMethod === 'manual' && (
+                    <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in]">
+                      <div className="text-center mb-6">
+                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                          <Keyboard className="w-7 h-7 text-[#ff6b00]" />
+                        </div>
+                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                          Manuelle Eingabe
+                        </h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">
+                          Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
+                        </p>
+                      </div>
+
+                      <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
+                        <span>Jetzt starten</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+
+                      {/* Benefits */}
+                      <div className="mt-4 space-y-2">
+                        {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
+                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -897,14 +941,14 @@ export default function LandingPage() {
 
                 {/* Right: Visual Mockup with Real Cards */}
                 <div className="md:w-1/2">
-                  <div className="bg-white rounded-[48px] min-h-[600px] flex items-center justify-center p-8 shadow-2xl border border-gray-100">
+                  <div className="bg-[#001d3d] rounded-[48px] min-h-[600px] flex items-center justify-center p-8 shadow-2xl border-4 border-gray-100">
                     <div className="w-full max-w-md">
                       {/* URL Import Card */}
                       {selectedImportMethod === 'url' && (
                         <div className="animate-[fadeIn_0.3s_ease-in]">
                           <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
                             {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                               <Sparkles size={16} />
                               <span>KI-Power</span>
                             </div>
@@ -954,7 +998,7 @@ export default function LandingPage() {
                         <div className="animate-[fadeIn_0.3s_ease-in]">
                           <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
                             {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
                               <Sparkles size={16} />
                               <span>KI-Power</span>
                             </div>
