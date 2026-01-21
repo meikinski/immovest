@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GA4 Import URL Tracking Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f7;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #001d3d;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .test-section {
+      margin-bottom: 30px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #ff6b00;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #ff6b00;
+    }
+    button {
+      background: #ff6b00;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #e55f00;
+    }
+    button.secondary {
+      background: #001d3d;
+    }
+    button.secondary:hover {
+      background: #00132a;
+    }
+    .log {
+      background: #001d3d;
+      color: #00ff00;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    .log-entry {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #333;
+    }
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+    .timestamp {
+      color: #888;
+      font-size: 11px;
+    }
+    .event-name {
+      color: #ff6b00;
+      font-weight: bold;
+    }
+    .success {
+      color: #00ff00;
+    }
+    .error {
+      color: #ff4444;
+    }
+    .warning {
+      color: #ffaa00;
+    }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .info-box h3 {
+      margin-top: 0;
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 GA4 Import URL Tracking Test</h1>
+    <p class="subtitle">Test ob die import_url korrekt an GA4 gesendet wird</p>
+
+    <div class="info-box">
+      <h3>📊 So funktioniert der Test:</h3>
+      <ol>
+        <li>Events werden ins <code>dataLayer</code> gepusht (wie in deiner App)</li>
+        <li>Die Konsole zeigt dir genau was gesendet wird</li>
+        <li>Öffne parallel: <strong>GA4 → Configure → DebugView</strong></li>
+        <li>Klicke auf die Buttons unten und schau ob die <code>import_url</code> in DebugView ankommt</li>
+      </ol>
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Test 1: AI Import mit URL</h3>
+      <input
+        type="text"
+        id="testUrl"
+        placeholder="https://www.immobilienscout24.de/expose/12345"
+        value="https://www.immobilienscout24.de/expose/test-12345"
+      />
+      <button onclick="testImportStarted()">▶️ AI Import Started</button>
+      <button onclick="testImportCompleted()">✅ AI Import Completed</button>
+      <button onclick="testImportFailed()">❌ AI Import Failed</button>
+    </div>
+
+    <div class="test-section">
+      <h3>🧪 Test 2: Verschiedene URLs testen</h3>
+      <button onclick="testRandomUrls()">🎲 10 Random URLs senden</button>
+      <button class="secondary" onclick="clearLog()">🗑️ Log leeren</button>
+    </div>
+
+    <div class="log" id="log">
+      <div class="log-entry">
+        <span class="timestamp">[Bereit]</span>
+        <span class="success">✓ Test-Tool geladen. Klicke auf einen Button um Events zu senden.</span>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 30px;">
+      <h3>🔍 GA4 DebugView öffnen:</h3>
+      <ol>
+        <li>Installiere: <a href="https://chrome.google.com/webstore/detail/google-analytics-debugger/jnkmfdileelhofjcijamephohjechhna" target="_blank">Google Analytics Debugger Extension</a></li>
+        <li>Aktiviere die Extension (Icon wird blau)</li>
+        <li>Öffne GA4 → Configure → DebugView</li>
+        <li>Diese Seite sollte als "aktives Gerät" erscheinen</li>
+        <li>Klicke auf die Test-Buttons und schau ob <code>import_url</code> Parameter ankommen</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Initialize dataLayer
+    window.dataLayer = window.dataLayer || [];
+
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+
+      const timestamp = new Date().toLocaleTimeString('de-DE');
+      const colorClass = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : '';
+
+      entry.innerHTML = `<span class="timestamp">[${timestamp}]</span> <span class="${colorClass}">${message}</span>`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function trackEvent(eventName, eventParams) {
+      // Add timestamp
+      const eventData = {
+        event: eventName,
+        timestamp: new Date().toISOString(),
+        ...eventParams
+      };
+
+      // Push to dataLayer
+      window.dataLayer.push(eventData);
+
+      // Log to console (like in development)
+      console.log('📊 Analytics Event:', eventName, eventParams);
+
+      // Log to UI
+      const paramsStr = JSON.stringify(eventParams, null, 2);
+      log(`
+        <div class="event-name">${eventName}</div>
+        <pre style="margin: 5px 0; color: #aaa;">${paramsStr}</pre>
+      `, 'success');
+    }
+
+    function testImportStarted() {
+      const url = document.getElementById('testUrl').value;
+      trackEvent('ai_import_started', {
+        import_method: 'url',
+        import_url: url
+      });
+    }
+
+    function testImportCompleted() {
+      const url = document.getElementById('testUrl').value;
+      trackEvent('ai_import_completed', {
+        import_method: 'url',
+        import_url: url,
+        has_warnings: false
+      });
+    }
+
+    function testImportFailed() {
+      const url = document.getElementById('testUrl').value;
+      trackEvent('ai_import_failed', {
+        import_method: 'url',
+        import_url: url,
+        error: 'Test error: Could not extract data from URL'
+      });
+    }
+
+    function testRandomUrls() {
+      const testUrls = [
+        'https://www.immobilienscout24.de/expose/123456',
+        'https://www.immowelt.de/expose/abc123',
+        'https://www.ebay-kleinanzeigen.de/expose/xyz789',
+        'https://www.immobilienscout24.de/expose/failed-1',
+        'https://www.immowelt.de/expose/failed-2',
+        'https://example.com/invalid-url',
+        'https://www.immobilienscout24.de/expose/test-error',
+        'https://www.immowelt.de/expose/success-123',
+        'https://www.immobilienscout24.de/expose/partial-data',
+        'https://www.immowelt.de/expose/complete-456'
+      ];
+
+      log('🎲 Sende 10 Test-Events mit verschiedenen URLs...', 'warning');
+
+      testUrls.forEach((url, index) => {
+        setTimeout(() => {
+          // Randomly choose event type
+          const eventTypes = ['ai_import_started', 'ai_import_completed', 'ai_import_failed'];
+          const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+
+          const params = {
+            import_method: Math.random() > 0.5 ? 'url' : 'screenshot',
+            import_url: url
+          };
+
+          if (randomEvent === 'ai_import_completed') {
+            params.has_warnings = Math.random() > 0.5;
+          } else if (randomEvent === 'ai_import_failed') {
+            params.error = `Test error ${index + 1}: Could not extract data`;
+          }
+
+          trackEvent(randomEvent, params);
+        }, index * 500); // Stagger by 500ms
+      });
+
+      log('✅ Alle 10 Events wurden gesendet. Check GA4 DebugView!', 'success');
+    }
+
+    function clearLog() {
+      document.getElementById('log').innerHTML = `
+        <div class="log-entry">
+          <span class="timestamp">[Geleert]</span>
+          <span class="success">✓ Log wurde geleert.</span>
+        </div>
+      `;
+    }
+
+    // Log initial dataLayer state
+    log(`📊 dataLayer initialisiert: ${window.dataLayer.length} Events`, 'info');
+  </script>
+</body>
+</html>
