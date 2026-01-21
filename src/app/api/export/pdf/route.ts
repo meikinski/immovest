@@ -103,13 +103,16 @@ export async function POST(req: Request) {
     const MARGIN = 50;
     const WIDTH  = 595.28 - MARGIN * 2;
 
-    // Professionelle Bank-Farben (sehr reduziert)
-    const NAVY = rgb(25/255, 42/255, 86/255);        // Dunkles Marineblau
-    const GRAY = rgb(100/255, 100/255, 100/255);     // Mittelgrau für Labels
-    const BORDER = rgb(220/255, 220/255, 220/255);   // Dezente Linie
-    const GREEN = rgb(39/255, 158/255, 93/255);      // Erfolg
-    const RED = rgb(217/255, 65/255, 65/255);        // Warnung
+    // Moderne Brand-Farben (neues Design)
+    const NAVY = rgb(0/255, 29/255, 61/255);         // #001d3d - Brand Primary
+    const ORANGE = rgb(255/255, 107/255, 0/255);     // #ff6b00 - Brand Secondary
+    const GRAY = rgb(100/255, 100/255, 100/255);     // #646464 - Labels
+    const GRAY_LIGHT = rgb(240/255, 240/255, 240/255); // #f0f0f0 - Card backgrounds
+    const BORDER = rgb(238/255, 238/255, 238/255);   // #eeeeee - Subtle borders
+    const GREEN = rgb(39/255, 158/255, 93/255);      // #279E5D - Success
+    const RED = rgb(217/255, 65/255, 65/255);        // #D94141 - Warning
     const BLACK = rgb(0, 0, 0);
+    const WHITE = rgb(1, 1, 1);
 
     // ===== Text Helper =====
     const sanitizeText = (s: string) =>
@@ -147,90 +150,154 @@ export async function POST(req: Request) {
     // ===== SEITE 1: DECKBLATT =====
     y = 841.89 - 60;
 
-    // Minimalistischer Header
-    drawText('IMMOBILIEN-ANALYSE', MARGIN, y, 24, true, NAVY);
-    y -= 35;
-    drawText(d.address || 'Keine Adresse', MARGIN, y, 12, false, GRAY);
-    y -= 10;
-    page.drawRectangle({ x: MARGIN, y: y - 2, width: 100, height: 1.5, color: NAVY });
-    y -= 50;
+    // Modern Header with gradient accent
+    drawText('IMMOBILIEN-ANALYSE', MARGIN, y, 26, true, NAVY);
+
+    // Bank-ready badge (top right)
+    const badgeText = 'Bank-ready';
+    const badgeW = 110;
+    const badgeH = 35;
+    const badgeX = 595.28 - MARGIN - badgeW;
+    const badgeY = y - 5;
+
+    // Orange badge background
+    page.drawRectangle({
+      x: badgeX, y: badgeY, width: badgeW, height: badgeH,
+      color: ORANGE
+    });
+
+    // Checkmark symbol (✓)
+    drawText('✓', badgeX + 15, badgeY + 10, 16, true, WHITE);
+
+    // Badge text
+    const badgeTextWidth = font.widthOfTextAtSize(badgeText, 11);
+    drawText(badgeText, badgeX + 35, badgeY + 11, 11, true, WHITE);
+
+    y -= 38;
+    drawText(d.address || 'Keine Adresse', MARGIN, y, 13, false, GRAY);
+    y -= 8;
+
+    // Orange gradient line effect (simulated with multiple rectangles)
+    page.drawRectangle({ x: MARGIN, y: y - 3, width: 80, height: 3, color: ORANGE });
+    page.drawRectangle({ x: MARGIN + 80, y: y - 3, width: 40, height: 3, color: ORANGE, opacity: 0.6 });
+    page.drawRectangle({ x: MARGIN + 120, y: y - 3, width: 20, height: 3, color: ORANGE, opacity: 0.3 });
+    y -= 55;
 
     // ===== 3 GROSSE KPI CARDS =====
     const cardW = (WIDTH - 40) / 3;
     const cardH = 110;
     const cardY = y - cardH;
 
-    // Card Helper
+    // Modern Card Helper with shadow effect and badges
     const drawKpiCard = (
       label: string,
       value: string,
       subtext: string,
+      statusBadge: string,
       x: number,
-      accentColor: ReturnType<typeof rgb>
+      accentColor: ReturnType<typeof rgb>,
+      badgeBgColor: ReturnType<typeof rgb>
     ) => {
-      // Box
+      // Subtle shadow effect (offset rectangle)
       page.drawRectangle({
-        x, y: cardY, width: cardW, height: cardH,
-        color: rgb(1, 1, 1),
-        borderColor: BORDER,
-        borderWidth: 1
+        x: x + 2, y: cardY - 2, width: cardW, height: cardH,
+        color: rgb(0.9, 0.9, 0.9),
+        opacity: 0.3
       });
 
-      // Accent top border
+      // Main card background
       page.drawRectangle({
-        x, y: cardY + cardH - 3, width: cardW, height: 3,
+        x, y: cardY, width: cardW, height: cardH,
+        color: WHITE,
+        borderColor: BORDER,
+        borderWidth: 2
+      });
+
+      // Accent top border (thicker, more prominent)
+      page.drawRectangle({
+        x, y: cardY + cardH - 4, width: cardW, height: 4,
         color: accentColor
       });
 
-      // Label
-      drawText(label, x + 16, cardY + cardH - 28, 9, false, GRAY);
+      // Label (smaller, uppercase style)
+      drawText(label.toUpperCase(), x + 20, cardY + cardH - 28, 8, false, GRAY);
 
-      // Value (sehr groß!)
-      drawText(value, x + 16, cardY + cardH - 55, 20, true, NAVY);
+      // Value (very prominent!)
+      drawText(value, x + 20, cardY + cardH - 58, 22, true, NAVY);
 
-      // Subtext
-      drawText(subtext, x + 16, cardY + cardH - 75, 8, false, GRAY);
+      // Status Badge
+      const badgeWidth = 70;
+      const badgeHeight = 20;
+      const badgeX = x + cardW - badgeWidth - 20;
+      const badgeY = cardY + 15;
+
+      // Badge background (rounded rect simulation)
+      page.drawRectangle({
+        x: badgeX, y: badgeY, width: badgeWidth, height: badgeHeight,
+        color: badgeBgColor,
+        opacity: 0.15
+      });
+
+      // Badge border
+      page.drawRectangle({
+        x: badgeX, y: badgeY, width: badgeWidth, height: badgeHeight,
+        borderColor: badgeBgColor,
+        borderWidth: 1.5,
+        opacity: 0
+      });
+
+      // Badge text (centered)
+      const badgeTextWidth = font.widthOfTextAtSize(statusBadge, 8);
+      drawText(statusBadge, badgeX + (badgeWidth - badgeTextWidth) / 2, badgeY + 6, 8, true, badgeBgColor);
     };
 
     // CARD 1: Cashflow
     const cfColor = d.cashflowVorSteuer >= 0 ? GREEN : RED;
     const cfStatus = d.cashflowVorSteuer >= 0 ? 'Positiv' : 'Negativ';
     drawKpiCard(
-      'CASHFLOW (MONATLICH)',
+      'Cashflow (monatlich)',
       eur(Math.round(d.cashflowVorSteuer)),
+      'Monatlicher Überschuss nach allen Kosten',
       cfStatus,
       MARGIN,
+      cfColor,
       cfColor
     );
 
     // CARD 2: DSCR (SEHR WICHTIG!)
     const dscrVal = d.dscr ?? 0;
-    const dscrColor = dscrVal >= 1.25 ? GREEN : dscrVal >= 1.0 ? NAVY : RED;
+    const dscrColor = dscrVal >= 1.25 ? GREEN : dscrVal >= 1.0 ? ORANGE : RED;
     const dscrText = dscrVal >= 1.25 ? 'Sehr gut' : dscrVal >= 1.0 ? 'Ausreichend' : 'Kritisch';
     drawKpiCard(
-      'DSCR (DEBT SERVICE COVERAGE)',
+      'DSCR',
       num(dscrVal, 2),
+      'Debt Service Coverage Ratio',
       dscrText,
       MARGIN + cardW + 20,
+      dscrColor,
       dscrColor
     );
 
     // CARD 3: EK-Quote
-    const ekColor = ekQuotePct >= 25 ? GREEN : ekQuotePct >= 15 ? NAVY : RED;
+    const ekColor = ekQuotePct >= 25 ? GREEN : ekQuotePct >= 15 ? ORANGE : RED;
     const ekText = ekQuotePct >= 25 ? 'Stark' : ekQuotePct >= 15 ? 'Solide' : 'Schwach';
     drawKpiCard(
-      'EIGENKAPITALQUOTE',
+      'Eigenkapitalquote',
       pct(ekQuotePct, 1),
+      'Anteil des Eigenkapitals an der Gesamtinvestition',
       ekText,
       MARGIN + (cardW + 20) * 2,
+      ekColor,
       ekColor
     );
 
     y = cardY - 50;
 
     // ===== OBJEKTDATEN KOMPAKT =====
-    drawText('OBJEKTDATEN', MARGIN, y, 11, true, NAVY);
-    y -= 20;
+    // Section header with orange accent
+    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+    drawText('OBJEKTDATEN', MARGIN + 12, y, 12, true, NAVY);
+    y -= 25;
 
     // Tabelle: 2 Spalten
     const objData: [string, string][] = [
@@ -258,8 +325,10 @@ export async function POST(req: Request) {
     y -= Math.ceil(objData.length / 2) * rowH + 20;
 
     // ===== FINANZIERUNGSÜBERSICHT =====
-    drawText('FINANZIERUNG', MARGIN, y, 11, true, NAVY);
-    y -= 20;
+    // Section header with orange accent
+    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+    drawText('FINANZIERUNG', MARGIN + 12, y, 12, true, NAVY);
+    y -= 25;
 
     const finData: [string, string][] = [
       ['Eigenkapital', eur(Math.round(d.ek))],
@@ -282,8 +351,10 @@ export async function POST(req: Request) {
     y -= Math.ceil(finData.length / 2) * rowH + 30;
 
     // ===== RENDITEKENNZAHLEN =====
-    drawText('RENDITEKENNZAHLEN', MARGIN, y, 11, true, NAVY);
-    y -= 20;
+    // Section header with orange accent
+    page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+    drawText('RENDITEKENNZAHLEN', MARGIN + 12, y, 12, true, NAVY);
+    y -= 25;
 
     const rendData: [string, string][] = [
       ['Nettomietrendite', pct(d.nettoMietrendite)],
@@ -304,15 +375,20 @@ export async function POST(req: Request) {
       page = pdf.addPage([595.28, 841.89]);
       y = 841.89 - 60;
 
-      drawText('MARKT & LAGE', MARGIN, y, 16, true, NAVY);
-      y -= 10;
-      page.drawRectangle({ x: MARGIN, y: y - 2, width: 90, height: 1.5, color: NAVY });
-      y -= 35;
+      drawText('MARKT & LAGE', MARGIN, y, 18, true, NAVY);
+      y -= 8;
+      // Orange gradient line effect
+      page.drawRectangle({ x: MARGIN, y: y - 3, width: 80, height: 3, color: ORANGE });
+      page.drawRectangle({ x: MARGIN + 80, y: y - 3, width: 40, height: 3, color: ORANGE, opacity: 0.6 });
+      page.drawRectangle({ x: MARGIN + 120, y: y - 3, width: 20, height: 3, color: ORANGE, opacity: 0.3 });
+      y -= 40;
 
       const drawBulletSection = (title: string, text: string) => {
         ensure(100);
-        drawText(title, MARGIN, y, 11, true, NAVY);
-        y -= 18;
+        // Subsection header with orange accent
+        page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+        drawText(title, MARGIN + 12, y, 12, true, NAVY);
+        y -= 22;
 
         const bullets = extractBullets(text, 5);
         for (const bullet of bullets) {
@@ -361,16 +437,21 @@ export async function POST(req: Request) {
       page = pdf.addPage([595.28, 841.89]);
       y = 841.89 - 60;
 
-      drawText('SZENARIO-ANALYSE', MARGIN, y, 16, true, NAVY);
-      y -= 10;
-      page.drawRectangle({ x: MARGIN, y: y - 2, width: 120, height: 1.5, color: NAVY });
-      y -= 35;
+      drawText('SZENARIO-ANALYSE', MARGIN, y, 18, true, NAVY);
+      y -= 8;
+      // Orange gradient line effect
+      page.drawRectangle({ x: MARGIN, y: y - 3, width: 80, height: 3, color: ORANGE });
+      page.drawRectangle({ x: MARGIN + 80, y: y - 3, width: 40, height: 3, color: ORANGE, opacity: 0.6 });
+      page.drawRectangle({ x: MARGIN + 120, y: y - 3, width: 20, height: 3, color: ORANGE, opacity: 0.3 });
+      y -= 40;
 
       const s = d.szenario;
 
       // Anpassungen
-      drawText('Anpassungen gegenüber Basis', MARGIN, y, 11, true, NAVY);
-      y -= 20;
+      // Subsection header with orange accent
+      page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+      drawText('Anpassungen gegenüber Basis', MARGIN + 12, y, 12, true, NAVY);
+      y -= 25;
 
       const adjustments: [string, string, string][] = [];
 
@@ -405,8 +486,10 @@ export async function POST(req: Request) {
       y -= 25;
 
       // Vergleichstabelle
-      drawText('Ergebnisse im Vergleich', MARGIN, y, 11, true, NAVY);
-      y -= 25;
+      // Subsection header with orange accent
+      page.drawRectangle({ x: MARGIN, y: y + 3, width: 4, height: 14, color: ORANGE });
+      drawText('Ergebnisse im Vergleich', MARGIN + 12, y, 12, true, NAVY);
+      y -= 30;
 
       // Header
       drawText('Kennzahl', MARGIN, y, 8, true, GRAY);

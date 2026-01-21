@@ -99,6 +99,16 @@ export interface ImmoState {
 // Typ für die Set-Funktion: akzeptiert partielle ImmoState-Updates
 type SetFn = (state: Partial<ImmoState>) => void;
 
+// Helper to calculate default AfA based on construction year
+const getDefaultAfa = (year: number) => {
+  if (!year) return 2;
+  if (year < 1925) return 2.5;
+  if (year >= 2023) return 3;
+  return 2;
+};
+
+const currentYear = new Date().getFullYear();
+
 const initialState = {
   // Metadata
   analysisId: null,
@@ -116,7 +126,7 @@ const initialState = {
   flaeche: 0,
   adresse: '',
   zimmer: 0,
-  baujahr: new Date().getFullYear(),
+  baujahr: currentYear,
   miete: 0,
   hausgeld: 0,
   hausgeld_umlegbar: 0,
@@ -125,7 +135,7 @@ const initialState = {
   verwaltungskosten: 0,
   instandhaltungskosten_pro_qm: 0,
   steuer: 0,
-  afa: 2,
+  afa: getDefaultAfa(currentYear),
   ruecklagen: 0,
   persoenlicher_steuersatz: 40,
   ek: 0,

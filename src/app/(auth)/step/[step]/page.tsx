@@ -641,7 +641,56 @@ const dscr =
     return { isValid: missing.length === 0, missingFields: missing };
   };
 
+  // Flush all text input values to store before navigation
+  const flushAllInputs = () => {
+    // Step A inputs
+    const grEStNum = Number(grunderwerbText.replace(',', '.'));
+    if (!isNaN(grEStNum)) setGrunderwerbsteuerPct(grEStNum);
+
+    const notarNum = Number(notarText.replace(',', '.'));
+    if (!isNaN(notarNum)) setNotarPct(notarNum);
+
+    const maklerNum = Number(maklerText.replace(',', '.'));
+    if (!isNaN(maklerNum)) setMaklerPct(maklerNum);
+
+    const sonstigeNum = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+    if (!isNaN(sonstigeNum)) setSonstigeKosten(sonstigeNum);
+
+    // Step A2 inputs
+    const flaecheNum = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
+    if (!isNaN(flaecheNum)) setFlaeche(flaecheNum);
+
+    // Step B inputs
+    const afaNum = Number(afaText.replace(',', '.'));
+    if (!isNaN(afaNum)) setAfa(afaNum);
+
+    const gebNum = Number(gebText.replace(',', '.'));
+    if (!isNaN(gebNum)) setSteuer(gebNum);
+
+    const hausUmlegNum = Number(hausUmlegText.replace(',', '.'));
+    if (!isNaN(hausUmlegNum)) setHausgeldUmlegbar(hausUmlegNum);
+
+    const instandNum = Number(instandText.replace(',', '.'));
+    if (!isNaN(instandNum)) setInstandhaltungskostenProQm(instandNum);
+
+    const mietausfallNum = Number(mietausfallText.replace(',', '.'));
+    if (!isNaN(mietausfallNum)) setMietausfallPct(mietausfallNum);
+
+    const persNum = Number(persText.replace(',', '.'));
+    if (!isNaN(persNum)) setPersoenlicherSteuersatz(persNum);
+
+    // Step C inputs
+    const zinsNum = Number(zinsText.replace(',', '.'));
+    if (!isNaN(zinsNum)) setZins(zinsNum);
+
+    const tilgungNum = Number(tilgungText.replace(',', '.'));
+    if (!isNaN(tilgungNum)) setTilgung(tilgungNum);
+  };
+
   const handleNavigateToNextStep = () => {
+    // Flush all pending input values first
+    flushAllInputs();
+
     const validation = validateStep(step);
 
     if (!validation.isValid) {
@@ -1401,9 +1450,18 @@ const exportPdf = React.useCallback(async () => {
                 type="text"
                 value={baujahr.toString()}
                 onChange={(e) => {
+                  const newBaujahr = Number(e.target.value);
+                  const newAfaValue = defaultAfaForBaujahr(newBaujahr);
+                  const newGebValue = defaultGebaeudeAnteil(objekttyp);
+
                   autoAfa.current = true;
                   autoGebaeude.current = true;
-                  setBaujahr(Number(e.target.value));
+
+                  setAfaText(newAfaValue.toString().replace('.', ','));
+                  setAfa(newAfaValue);
+                  setGebText(newGebValue.toString().replace('.', ','));
+                  setSteuer(newGebValue);
+                  setBaujahr(newBaujahr);
                 }}
                 onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
@@ -2027,7 +2085,7 @@ const exportPdf = React.useCallback(async () => {
                 { id: 'prognose', label: 'Prognose & Entwicklung', icon: TrendingUp },
                 { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
               ] as const).map(t => {
-                const locked = (t.id === 'markt') && (!isSignedIn || !canAccessPremium); // Only lock 'markt', not 'szenarien'
+                const locked = (t.id === 'markt' || t.id === 'prognose' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
                 return (
                   <button
                     key={t.id}
@@ -2261,8 +2319,8 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+              <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
 
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
@@ -2481,8 +2539,8 @@ const exportPdf = React.useCallback(async () => {
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
-            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
@@ -2550,8 +2608,8 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             {/* Block 2: Investment-Empfehlung - Modernisiert */}
-            <div className="bg-orange-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-orange-100 hover:shadow-[0_0_40px_rgba(255,107,0,0.5)] hover:border-[#ff6b00] transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff6b00] opacity-5 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
@@ -2590,6 +2648,47 @@ const exportPdf = React.useCallback(async () => {
 
         {/* Tab 3 – Prognose */}
         {activeTab === 'prognose' && (
+          <div className="relative">
+            {/* Blur Overlay when locked */}
+            {(!isSignedIn || !canAccessPremium) && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
+                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                    Schalte Prognose & Entwicklung frei.
+                  </p>
+                  {!isSignedIn ? (
+                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
+                        Kostenlos anmelden
+                      </button>
+                    </SignInButton>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
+                      >
+                        <Crown size={18} />
+                        Jetzt freischalten
+                      </button>
+                      <p className="text-xs text-slate-500 mt-3 text-center font-medium">
+                        {2 - premiumUsageCount > 0
+                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
+                          : 'Nur 13,99 €/Monat'}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Content (blurred when locked) */}
+            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <div className="lg:col-span-8 space-y-6">
               <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
@@ -3155,6 +3254,8 @@ const exportPdf = React.useCallback(async () => {
                   <span className="font-bold">Erweiterte Optionen:</span> Nutze &quot;Erweiterte Optionen&quot; für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
                 </p>
               </div>
+            </div>
+          </div>
             </div>
           </div>
         )}
