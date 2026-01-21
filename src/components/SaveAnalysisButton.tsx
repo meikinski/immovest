@@ -66,7 +66,7 @@ export function SaveAnalysisButton() {
       ) : (
         <>
           <Save size={18} />
-          {isSaving ? 'Speichere...' : 'Ergebnis speichern'}
+          {isSaving ? 'Speichere...' : 'Immobilie speichern'}
         </>
       )}
     </button>

@@ -3436,8 +3436,8 @@ const exportPdf = React.useCallback(async () => {
           <h3 className="font-bold text-lg mb-4 text-[#001d3d]">Auswirkungen auf einen Blick</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {summaryKpis.map((kpi) => {
-              const isPositive = kpi.delta > 0;
               const isZero = Math.abs(kpi.delta) < 1e-9;
+              const isPositive = !isZero && kpi.delta > 0;
               const deltaColor = isZero ? "text-gray-500" : isPositive ? "text-green-600" : "text-red-600";
               const bgColor = isZero ? "bg-gray-50" : isPositive ? "bg-green-50" : "bg-red-50";
               const IconComponent = kpi.icon;
@@ -3492,8 +3492,8 @@ const exportPdf = React.useCallback(async () => {
               <tbody>
                 {rows.map((r) => {
                   const delta = r.sc - r.base;
-                  const better = r.higherIsBetter !== false ? delta > 0 : delta < 0;
                   const isZero = nz(delta);
+                  const better = !isZero && (r.higherIsBetter !== false ? delta > 0 : delta < 0);
                   const deltaColor = isZero ? "text-gray-600"
                     : better ? "text-green-600"
                     : "text-red-600";
