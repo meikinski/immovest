@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "KI-basierter Immobilien-Renditerechner | ImVestr – Lohnt sich diese Immobilie?",
+  title: "KI-basierter Immobilien-Renditerechner | Imvestr – Lohnt sich diese Immobilie?",
   description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
   keywords: [
     "immobilien renditerechner",
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     "rendite rechner immobilie",
     "immobilien roi rechner",
   ],
-  authors: [{ name: "ImVestr" }],
-  creator: "ImVestr",
-  publisher: "ImVestr",
+  authors: [{ name: "Imvestr" }],
+  creator: "Imvestr",
+  publisher: "Imvestr",
   metadataBase: new URL('https://imvestr.de'),
   alternates: {
     canonical: '/',
@@ -43,21 +43,21 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_DE",
     url: "https://imvestr.de",
-    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
+    title: "KI-basierter Immobilien-Renditerechner | Imvestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
-    siteName: "ImVestr",
+    siteName: "Imvestr",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ImVestr - KI-basierter Immobilien-Renditerechner",
+        alt: "Imvestr - KI-basierter Immobilien-Renditerechner",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KI-basierter Immobilien-Renditerechner | ImVestr",
+    title: "KI-basierter Immobilien-Renditerechner | Imvestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     images: ["/og-image.png"],
   },
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'ImVestr',
+    title: 'Imvestr',
   },
   manifest: '/manifest.json',
 };
