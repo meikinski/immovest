@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Keyboard,
 } from 'lucide-react';
 import Link from 'next/link';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
@@ -37,7 +38,6 @@ export default function LandingPage() {
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open
-  const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
   const [activeGoalIndex, setActiveGoalIndex] = React.useState<number>(1); // Default middle card active
 
   React.useEffect(() => {
@@ -669,382 +669,256 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              {/* Mobile: Tabs */}
+              {/* Mobile: Card Carousel */}
               <div className="md:hidden">
-                {/* Tabs Navigation */}
-                <div className="flex flex-wrap justify-center gap-3 mb-8">
-                  <button
-                    onClick={() => setSelectedImportMethod('url')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'url'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <LinkIcon size={18} className={selectedImportMethod === 'url' ? 'text-[#ff6b00]' : ''} />
-                    URL-Import
-                  </button>
-                  <button
-                    onClick={() => setSelectedImportMethod('photo')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'photo'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Camera size={18} className={selectedImportMethod === 'photo' ? 'text-[#ff6b00]' : ''} />
-                    Foto-Scan
-                  </button>
-                  <button
-                    onClick={() => setSelectedImportMethod('manual')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'manual'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Edit3 size={18} className={selectedImportMethod === 'manual' ? 'text-[#ff6b00]' : ''} />
-                    Manuell
-                  </button>
-                </div>
+                <div className="space-y-6 px-4">
+                  {/* Manual Input Card */}
+                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
+                    <div className="text-center mb-6">
+                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <Keyboard className="w-7 h-7 text-[#ff6b00]" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                        Manuelle Eingabe
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">
+                        Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
+                      </p>
+                    </div>
 
-                {/* Content + Mockup */}
-                <div className="space-y-6">
-                  {/* Text Content */}
-                  {selectedImportMethod === 'url' && (
-                    <div className="text-center px-4">
-                      <p className="text-gray-600 text-base leading-relaxed mb-4">
-                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Alle Objektdaten in Sekunden erfasst</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Unterstützt alle großen Portale</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {selectedImportMethod === 'photo' && (
-                    <div className="text-center px-4">
-                      <p className="text-gray-600 text-base leading-relaxed mb-4">
-                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Perfekt für Besichtigungen vor Ort</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {selectedImportMethod === 'manual' && (
-                    <div className="text-center px-4">
-                      <p className="text-gray-600 text-base leading-relaxed mb-4">
-                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Smartes Formular mit Validierung</span>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Volle Kontrolle über alle Details</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
+                      <span>Jetzt starten</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
 
-                  {/* Mockup Image Placeholder */}
-                  <div className="bg-[#001d3d] rounded-[32px] min-h-[300px] flex items-center justify-center p-8 mx-4">
-                    <div className="text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-[#ff6b00] flex items-center justify-center mx-auto mb-4">
-                        {selectedImportMethod === 'url' && <LinkIcon className="w-8 h-8 text-white" />}
-                        {selectedImportMethod === 'photo' && <Camera className="w-8 h-8 text-white" />}
-                        {selectedImportMethod === 'manual' && <Edit3 className="w-8 h-8 text-white" />}
+                    {/* Benefits */}
+                    <div className="mt-4 space-y-2">
+                      {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                          <span>{benefit}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* URL Import Card */}
+                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
+                    {/* KI Badge */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
+                      <Sparkles size={14} />
+                      <span>KI-Power</span>
+                    </div>
+
+                    <div className="text-center mb-6">
+                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
                       </div>
-                      <p className="text-white/60 text-sm">Mockup Preview</p>
+                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                        URL Import
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">
+                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
+                      </p>
+                    </div>
+
+                    {/* URL Input (disabled) */}
+                    <div className="space-y-3">
+                      <input
+                        type="url"
+                        placeholder="https://www.immobilienscout24.de/..."
+                        disabled
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default text-sm"
+                      />
+
+                      <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
+                        <Sparkles size={18} />
+                        <span>Mit KI analysieren</span>
+                      </button>
+                    </div>
+
+                    {/* Benefits */}
+                    <div className="mt-4 space-y-2">
+                      {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                          <span>{benefit}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Photo Scan Card */}
+                  <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg">
+                    {/* KI Badge */}
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1">
+                      <Sparkles size={14} />
+                      <span>KI-Power</span>
+                    </div>
+
+                    <div className="text-center mb-6">
+                      <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                        <Camera className="w-7 h-7 text-[#ff6b00]" />
+                      </div>
+                      <h3 className="text-xl font-bold text-[#001d3d] mb-2">
+                        Foto scannen
+                      </h3>
+                      <p className="text-gray-600 text-sm leading-relaxed">
+                        Fotografiere das Exposé mit deinem Smartphone
+                      </p>
+                    </div>
+
+                    {/* Camera Upload Area (visual only) */}
+                    <div className="text-center mb-4">
+                      <div className="w-full py-10 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
+                        <Camera className="w-10 h-10 text-[#ff6b00] mx-auto mb-2" />
+                        <p className="text-sm font-bold text-gray-900 mb-1">
+                          Foto aufnehmen
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Klicken um Kamera zu öffnen
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Max. 10 MB • PNG, JPG, WebP
+                      </p>
+                    </div>
+
+                    {/* Benefits */}
+                    <div className="mt-4 space-y-2">
+                      {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
+                          <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
+                          <span>{benefit}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Desktop: Sticky Border-Left Design */}
-              <div className="hidden md:flex flex-col md:flex-row items-start gap-20">
-                {/* Left: Sticky Text */}
-                <div className="md:w-1/2">
-                  <div className="sticky top-40 space-y-12">
-                    {/* Step 1: URL-Import */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'url'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('url')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">1. Link einfügen</h4>
-                      </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Alle Objektdaten in Sekunden erfasst</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Unterstützt alle großen Portale</span>
-                        </div>
-                      </div>
+              {/* Desktop: 3 Column Grid with Real Cards */}
+              <div className="hidden md:grid md:grid-cols-3 gap-6">
+                {/* Manual Input Card */}
+                <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                      <Keyboard className="w-8 h-8 text-[#ff6b00]" />
                     </div>
+                    <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
+                      Manuelle Eingabe
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
+                    </p>
+                  </div>
 
-                    {/* Step 2: Foto-Scan */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'photo'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('photo')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <Camera className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">2. Foto scannen</h4>
-                      </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Perfekt für Besichtigungen vor Ort</span>
-                        </div>
-                      </div>
-                    </div>
+                  <button className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default">
+                    <span>Jetzt starten</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
 
-                    {/* Step 3: Manuelle Eingabe */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'manual'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('manual')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <Edit3 className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">3. Manuell eingeben</h4>
+                  {/* Benefits */}
+                  <div className="mt-6 space-y-2">
+                    {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                        <span>{benefit}</span>
                       </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Smartes Formular mit Validierung</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Volle Kontrolle über alle Details</span>
-                        </div>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Right: Visual Mockup */}
-                <div className="md:w-1/2">
-                  <div className="bg-[#001d3d] rounded-[48px] h-[600px] flex items-center justify-center p-12 shadow-2xl border-4 border-gray-100">
-                    <div className="w-full max-w-md">
-                      {/* URL Import Mockup */}
-                      {selectedImportMethod === 'url' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <LinkIcon className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">URL einfügen</div>
-                            </div>
+                {/* URL Import Card */}
+                <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  {/* KI Badge */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                    <Sparkles size={16} />
+                    <span>KI-Power</span>
+                  </div>
 
-                            {/* Input Field Mockup */}
-                            <div className="bg-white rounded-2xl p-4 mb-6 flex items-center gap-3">
-                              <div className="w-5 h-5 text-gray-400">
-                                <LinkIcon className="w-5 h-5" />
-                              </div>
-                              <div className="flex-1 h-6 bg-gray-100 rounded animate-pulse"></div>
-                            </div>
-
-                            {/* Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Analyse starten</span>
-                              <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* Feature Pills */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1"></div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1 w-3/4"></div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="h-3 bg-white/20 rounded flex-1 w-2/3"></div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>Powered by GPT-4 Vision + OCR</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Photo Scan Mockup */}
-                      {selectedImportMethod === 'photo' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <Camera className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">Foto scannen</div>
-                            </div>
-
-                            {/* Camera Preview Mockup */}
-                            <div className="bg-white/5 rounded-2xl p-6 mb-6 aspect-[4/3] flex items-center justify-center border-2 border-dashed border-white/30">
-                              <div className="text-center">
-                                <Camera className="w-16 h-16 text-white/40 mx-auto mb-3" />
-                                <div className="text-white/60 text-sm">Exposé fotografieren</div>
-                              </div>
-                            </div>
-
-                            {/* Scan Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Foto aufnehmen</span>
-                              <Camera className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* OCR Features */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">OCR-Texterkennung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">GPT-4 Vision Analyse</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">98% Genauigkeit</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>KI-gestützte Texterkennung</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Manual Entry Mockup */}
-                      {selectedImportMethod === 'manual' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                            <div className="flex items-center gap-4 mb-6">
-                              <div className="w-10 h-10 rounded-xl bg-[#ff6b00] flex items-center justify-center">
-                                <Edit3 className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="text-white font-bold text-lg">Manuelle Eingabe</div>
-                            </div>
-
-                            {/* Form Fields Mockup */}
-                            <div className="space-y-4 mb-6">
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Kaufpreis</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/2"></div>
-                                  <div className="text-gray-400 text-sm">€</div>
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Kaltmiete</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/3"></div>
-                                  <div className="text-gray-400 text-sm">€</div>
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-white/60 text-xs mb-2">Wohnfläche</div>
-                                <div className="bg-white rounded-xl p-3 flex items-center gap-2">
-                                  <div className="h-5 bg-gray-100 rounded flex-1 w-1/4"></div>
-                                  <div className="text-gray-400 text-sm">m²</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Continue Button Mockup */}
-                            <div className="bg-[#ff6b00] rounded-full py-4 flex items-center justify-center gap-2">
-                              <span className="text-white font-bold">Weiter</span>
-                              <ArrowRight className="w-5 h-5 text-white" />
-                            </div>
-
-                            {/* Smart Features */}
-                            <div className="mt-8 space-y-3">
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Auto-Vervollständigung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Intelligente Validierung</div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                                <div className="text-white/60 text-sm">Smarte Vorschläge</div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* KI Badge */}
-                          <div className="mt-6 flex items-center justify-center gap-2 text-white/60 text-sm">
-                            <Sparkles className="w-4 h-4 text-[#ff6b00]" />
-                            <span>KI-gestützte Eingabehilfe</span>
-                          </div>
-                        </div>
-                      )}
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                      <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
                     </div>
+                    <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
+                      URL Import
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
+                    </p>
+                  </div>
+
+                  {/* URL Input (disabled) */}
+                  <div className="space-y-4">
+                    <input
+                      type="url"
+                      placeholder="https://www.immobilienscout24.de/..."
+                      disabled
+                      className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default"
+                    />
+
+                    <button className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default">
+                      <Sparkles size={20} />
+                      <span>Mit KI analysieren</span>
+                    </button>
+                  </div>
+
+                  {/* Benefits */}
+                  <div className="mt-6 space-y-2">
+                    {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Photo Scan Card */}
+                <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+                  {/* KI Badge */}
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5">
+                    <Sparkles size={16} />
+                    <span>KI-Power</span>
+                  </div>
+
+                  <div className="text-center mb-8">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                      <Camera className="w-8 h-8 text-[#ff6b00]" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
+                      Foto scannen
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      Fotografiere das Exposé mit deinem Smartphone
+                    </p>
+                  </div>
+
+                  {/* Camera Upload Area (visual only) */}
+                  <div className="text-center mb-6">
+                    <div className="w-full py-12 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
+                      <Camera className="w-12 h-12 text-[#ff6b00] mx-auto mb-3" />
+                      <p className="text-sm font-bold text-gray-900 mb-1">
+                        Foto aufnehmen
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Klicken um Kamera zu öffnen
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-3">
+                      Max. 10 MB • PNG, JPG, WebP
+                    </p>
+                  </div>
+
+                  {/* Benefits */}
+                  <div className="mt-6 space-y-2">
+                    {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
+                        <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
+                        <span>{benefit}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
