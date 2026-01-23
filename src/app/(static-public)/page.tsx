@@ -130,7 +130,7 @@ export default function LandingPage() {
     {
       question: 'Was kostet es?',
       answer:
-        'Der erste Check ist komplett kostenlos. Premium-Features wie Markt- & Investitionsanalyse und PDF-Export sind ab 9,90€ pro Analyse verfügbar.',
+        'Der erste Check ist komplett kostenlos. Für unbegrenzten Zugang zu allen Premium-Features (Markt- & Investitionsanalyse, PDF-Export, KI-Empfehlungen) gibt es ein Monatsabo für 13,99€/Monat oder ein Jahresabo für 69€/Jahr (nur 5,75€/Monat).',
     },
     {
       question: 'Kann ich den Report für die Bank nutzen?',
@@ -1245,7 +1245,7 @@ export default function LandingPage() {
                   <p className="font-bold text-[#001d3d] text-base mb-2">Thomas</p>
                   <p className="text-sm text-gray-500 mb-5">Selbstständig, 39</p>
                   <p className="text-gray-700 leading-relaxed italic text-sm">
-                    &quot;Die Steuer-Berechnung zeigt mir, wie viel ich wirklich spare.&quot;
+                    &quot;Die KI-Empfehlungen und Szenario-Analysen geben mir die Sicherheit für meine Investments.&quot;
                   </p>
                 </div>
               </div>
