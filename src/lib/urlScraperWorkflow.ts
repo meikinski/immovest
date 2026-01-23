@@ -271,16 +271,67 @@ REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
 
 export type UrlScraperResult = z.infer<typeof ImmobilienDataSchema>;
 
+/**
+ * Normalisiert eBay Kleinanzeigen URLs von verschiedenen Quellen (App, Mobile, Desktop)
+ * - Konvertiert mobile URLs (m.kleinanzeigen.de) zu Desktop (www.kleinanzeigen.de)
+ * - Konvertiert alte Domain (ebay-kleinanzeigen.de) zu neuer Domain (kleinanzeigen.de)
+ * - Behandelt App Deep Links und Share-URLs
+ */
+function normalizeEbayKleinanzeigenUrl(url: string): string {
+  try {
+    const urlObj = new URL(url);
+
+    // Check if it's an eBay Kleinanzeigen URL
+    const isKleinanzeigen =
+      urlObj.hostname.includes('kleinanzeigen.de') ||
+      urlObj.hostname.includes('ebay-kleinanzeigen.de');
+
+    if (!isKleinanzeigen) {
+      return url; // Not an eBay Kleinanzeigen URL, return as is
+    }
+
+    // Normalize domain variations
+    // m.kleinanzeigen.de → www.kleinanzeigen.de
+    // ebay-kleinanzeigen.de → kleinanzeigen.de
+    // m.ebay-kleinanzeigen.de → www.kleinanzeigen.de
+    let normalizedHost = urlObj.hostname
+      .replace('m.kleinanzeigen.de', 'www.kleinanzeigen.de')
+      .replace('m.ebay-kleinanzeigen.de', 'www.kleinanzeigen.de')
+      .replace('ebay-kleinanzeigen.de', 'kleinanzeigen.de');
+
+    // Ensure www prefix if not present
+    if (normalizedHost === 'kleinanzeigen.de') {
+      normalizedHost = 'www.kleinanzeigen.de';
+    }
+
+    urlObj.hostname = normalizedHost;
+
+    const normalizedUrl = urlObj.toString();
+    if (normalizedUrl !== url) {
+      console.log(`[URL Normalizer] eBay Kleinanzeigen: ${url} → ${normalizedUrl}`);
+    }
+
+    return normalizedUrl;
+  } catch (err) {
+    // If URL parsing fails, return original
+    console.warn('[URL Normalizer] Failed to parse URL, returning original:', err);
+    return url;
+  }
+}
+
 export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperResult> {
   if (!input.url) {
     throw new Error('URL ist erforderlich');
   }
 
   // Validate URL (lenient - just check basic format)
-  const trimmedUrl = input.url.trim();
+  let trimmedUrl = input.url.trim();
   if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
     throw new Error('URL muss mit http:// oder https:// beginnen');
   }
+
+  // Normalize eBay Kleinanzeigen URLs (mobile app, old domain, etc.)
+  trimmedUrl = normalizeEbayKleinanzeigenUrl(trimmedUrl);
 
   // Try parsing, but don't fail on fragments or complex query params
   try {
