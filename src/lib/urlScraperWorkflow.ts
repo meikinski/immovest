@@ -272,6 +272,36 @@ REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
 export type UrlScraperResult = z.infer<typeof ImmobilienDataSchema>;
 
 /**
+ * Extrahiert die erste URL aus einem Text
+ * Nützlich wenn User den ganzen Share-Text aus der App einfügen (z.B. "Gerade bei #Kleinanzeigen gefunden... https://...")
+ */
+function extractUrlFromText(input: string): string {
+  const trimmed = input.trim();
+
+  // Check if input starts with http/https - likely already a clean URL
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    // But it might have text after the URL, so still extract
+    const urlMatch = trimmed.match(/https?:\/\/[^\s]+/);
+    if (urlMatch) {
+      return urlMatch[0];
+    }
+    return trimmed;
+  }
+
+  // Extract URL from text (e.g., share text from app)
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  const urls = trimmed.match(urlRegex);
+
+  if (urls && urls.length > 0) {
+    console.log(`[URL Extractor] Found URL in text: ${urls[0]}`);
+    return urls[0];
+  }
+
+  // No URL found, return original input
+  return trimmed;
+}
+
+/**
  * Normalisiert eBay Kleinanzeigen URLs von verschiedenen Quellen (App, Mobile, Desktop)
  * - Konvertiert mobile URLs (m.kleinanzeigen.de) zu Desktop (www.kleinanzeigen.de)
  * - Konvertiert alte Domain (ebay-kleinanzeigen.de) zu neuer Domain (kleinanzeigen.de)
@@ -324,8 +354,10 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     throw new Error('URL ist erforderlich');
   }
 
+  // Extract URL from text (handles app share messages like "Gerade bei #Kleinanzeigen gefunden... https://...")
+  let trimmedUrl = extractUrlFromText(input.url);
+
   // Validate URL (lenient - just check basic format)
-  let trimmedUrl = input.url.trim();
   if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
     throw new Error('URL muss mit http:// oder https:// beginnen');
   }
