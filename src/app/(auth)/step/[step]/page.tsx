@@ -3415,6 +3415,8 @@ const exportPdf = React.useCallback(async () => {
 
       const scZinsMonthly    = (scDarlehen * (scZins / 100)) / 12;
       const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
+      const scSondertilgungMonthly = sondertilgungJaehrlich / 12;
+      const scGesamtTilgungMonthly = scTilgungMonthly + scSondertilgungMonthly;
 
       const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
       const mietausfallPctN    = Number(mietausfallText.replace(',', '.')) || 0;
@@ -3422,7 +3424,7 @@ const exportPdf = React.useCallback(async () => {
       const scMietausfallMon   = scMiete * (mietausfallPctN / 100);
       const scKalkKostenMon    = scInstandMonthly + scMietausfallMon;
 
-      const scCashflowVorSt    = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scTilgungMonthly;
+      const scCashflowVorSt    = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scGesamtTilgungMonthly;
 
       const rateMonat   = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
       const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
