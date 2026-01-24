@@ -1874,6 +1874,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="mietausfall-input"
                     type="text"
                     value={mietausfallText}
                     onChange={(e) => setMietausfallText(e.target.value)}
@@ -1899,6 +1900,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="instandhaltung-input"
                     type="text"
                     value={instandText}
                     onChange={(e) => setInstandText(e.target.value)}
@@ -1931,6 +1933,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="afa-input"
                     type="text"
                     value={afaText}
                     onChange={(e) => {
@@ -1959,6 +1962,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="gebaeude-input"
                     type="text"
                     value={gebText}
                     onChange={(e) => {
@@ -1987,6 +1991,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="steuersatz-input"
                     type="text"
                     value={persText}
                     onChange={(e) => setPersText(e.target.value)}

@@ -111,8 +111,8 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: '💰 Schritt 2: Mieteinnahmen erfassen',
-            description: 'Jetzt erfasst du die monatlichen Mieteinnahmen und laufenden Kosten.',
+            title: '💰 Schritt 2: Mieteinnahmen & Kosten',
+            description: 'Jetzt erfasst du die monatlichen Mieteinnahmen und alle laufenden Kosten. Die meisten Werte sind bereits vorausgefüllt – du kannst sie aber anpassen.',
             side: 'bottom' as const,
             align: 'center' as const,
           }
@@ -129,7 +129,7 @@ export function useOnboarding() {
           element: '#hausgeld-umlegbar-input',
           popover: {
             title: 'Hausgeld umlegefähig',
-            description: 'Diese Nebenkosten kannst du auf den Mieter umlegen (z.B. Heizung, Wasser, Müll).',
+            description: 'Diese Nebenkosten kannst du auf den Mieter umlegen (z.B. Heizung, Wasser, Müll). Bei Wohnungen steht das im WEG-Exposé.',
             ...commonConfig.popover,
           }
         },
@@ -142,10 +142,66 @@ export function useOnboarding() {
           }
         },
         {
+          popover: {
+            title: '📊 Kalkulatorische Kosten',
+            description: 'Das sind Kosten, die du NICHT direkt bezahlst, aber einkalkulieren solltest. Sie dienen zur realistischen Bewertung deiner Rendite.',
+            side: 'bottom' as const,
+            align: 'center' as const,
+          }
+        },
+        {
+          element: '#mietausfall-input',
+          popover: {
+            title: 'Kalkulatorischer Mietausfall',
+            description: 'Puffer für Leerstand oder Mietausfall (z.B. Mieter zahlt nicht). Standard: 2% der Jahresmiete. Musst du normalerweise NICHT anpassen – ist bereits optimal vorausgefüllt.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#instandhaltung-input',
+          popover: {
+            title: 'Instandhaltungskosten pro m²',
+            description: 'Rücklagen für Reparaturen (Heizung, Dach, etc.). Standard: 10 €/m²/Jahr. Bei Altbauten (vor 1980) eher 12-15 €, bei Neubauten 5-8 €. Der Wert ist vorausgefüllt, kannst du aber anpassen.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          popover: {
+            title: '💼 Steuern & Abschreibung',
+            description: 'Diese Werte beeinflussen deinen Cashflow NACH Steuern. Die meisten Werte sind automatisch berechnet – nur bei speziellen Fällen musst du etwas ändern.',
+            side: 'bottom' as const,
+            align: 'center' as const,
+          }
+        },
+        {
+          element: '#afa-input',
+          popover: {
+            title: 'AfA-Satz (Abschreibung)',
+            description: 'Die "Abschreibung für Abnutzung" reduziert deine Steuerlast. Der Wert wird automatisch berechnet basierend auf dem Baujahr: Altbau (vor 1925) = 2,5%, Neubau (ab 1925) = 2%, Neubau (ab 2023) = 3%. Musst du NICHT anpassen.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#gebaeude-input',
+          popover: {
+            title: 'Gebäudeanteil am Kaufpreis',
+            description: 'Nur das Gebäude (nicht das Grundstück) kann abgeschrieben werden. Standard: Wohnung 75%, Haus 80%, MFH 85%. Wird automatisch gesetzt. Nur ändern, wenn du einen Kaufvertrag mit genauem Wert hast.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#steuersatz-input',
+          popover: {
+            title: 'Dein persönlicher Steuersatz',
+            description: 'Dein Grenzsteuersatz (was du auf zusätzliches Einkommen zahlst). Typisch: 30-45%. Wichtig für Cashflow NACH Steuern. Wenn unsicher: 42% ist ein guter Durchschnitt.',
+            ...commonConfig.popover,
+          }
+        },
+        {
           element: '[data-step-nav="next"]',
           popover: {
-            title: 'Weiter zur Finanzierung',
-            description: 'Im letzten Schritt erfasst du dein Eigenkapital und die Finanzierungskonditionen.',
+            title: 'Fast fertig!',
+            description: 'Im letzten Schritt erfasst du nur noch dein Eigenkapital und die Kreditkonditionen. Danach siehst du die vollständige Analyse!',
             side: 'top' as const,
             align: 'center' as const,
           }
@@ -219,7 +275,6 @@ export function useOnboarding() {
       prevBtnText: 'Zurück',
       doneBtnText: 'Verstanden',
       progressText: 'Schritt {{current}} von {{total}}',
-      padding: 20, // More padding to show labels and context
       steps,
       onDestroyStarted: () => {
         // Mark as completed when tour is destroyed (completed or skipped)
