@@ -479,6 +479,105 @@ export default function StepPage() {
     return breakEven?.jahr ?? null;
   }, [prognose.jahre, kaufpreis, ek]);
 
+  // Calculate scenario values
+  const scenarioCalculations = useMemo(() => {
+    const scMiete = Math.max(0, miete * (1 + mieteDeltaPct / 100));
+    const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
+    const scZins = Math.max(0, zins + zinsDeltaPp);
+    const scTilgung = Math.max(0, tilgung + tilgungDeltaPp);
+    const scEk = Math.max(0, ek * (1 + ekDeltaPct / 100));
+
+    const { nk: scNk } = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
+    const scAnschaffung = scKaufpreis + scNk + sonstigeKosten;
+    const scDarlehen = Math.max(0, scAnschaffung - scEk);
+
+    const scWarmmiete = scMiete + hausgeld_umlegbar;
+    const scJahresKalt = scMiete * 12;
+
+    const scBewJ = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
+    const scFkZinsenJahr = scDarlehen * (scZins / 100);
+
+    const scZinsMonthly = (scDarlehen * (scZins / 100)) / 12;
+    const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
+    const scSondertilgungMonthly = sondertilgungJaehrlich / 12;
+    const scGesamtTilgungMonthly = scTilgungMonthly + scSondertilgungMonthly;
+
+    const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
+    const mietausfallPctN = Number(mietausfallText.replace(',', '.')) || 0;
+    const scInstandMonthly = (instandhaltungPctN * flaeche) / 12;
+    const scMietausfallMon = scMiete * (mietausfallPctN / 100);
+    const scKalkKostenMon = scInstandMonthly + scMietausfallMon;
+
+    const scCashflowVorSt = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scGesamtTilgungMonthly;
+
+    const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
+
+    // Cashflow nach Steuern für Szenario
+    const gebPctN = Number(gebText.replace(',', '.')) || 0;
+    const afaPctN = Number(afaText.replace(',', '.')) || 0;
+    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
+    const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
+    const afaMonthlyEurSc = afaAnnualEurSc / 12;
+    const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
+    const effectiveStz = Number(persText.replace(',', '.')) || 0;
+    const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
+    const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
+
+    // DSCR für Szenario
+    const scDSCR = scRateMonat > 0 ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat : 0;
+
+    const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
+    const scNettoRendite = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
+    const scEkRendite = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
+
+    const scNoiMonthly = scWarmmiete - hausgeld - scKalkKostenMon;
+
+    // Calculate payoff year for scenario (simplified)
+    let scAbzahlungsjahr = 0;
+    if (scDarlehen > 0 && scTilgung > 0) {
+      const jahresTilgung = scDarlehen * (scTilgung / 100) + sondertilgungJaehrlich;
+      scAbzahlungsjahr = Math.ceil(scDarlehen / jahresTilgung);
+    }
+
+    return {
+      scMiete,
+      scKaufpreis,
+      scZins,
+      scTilgung,
+      scEk,
+      scNk,
+      scAnschaffung,
+      scDarlehen,
+      scWarmmiete,
+      scJahresKalt,
+      scBewJ,
+      scFkZinsenJahr,
+      scZinsMonthly,
+      scTilgungMonthly,
+      scSondertilgungMonthly,
+      scGesamtTilgungMonthly,
+      scInstandMonthly,
+      scMietausfallMon,
+      scKalkKostenMon,
+      scCashflowVorSt,
+      scRateMonat,
+      scCashflowAfterTax,
+      scDSCR,
+      scBruttoRendite,
+      scNettoRendite,
+      scEkRendite,
+      scNoiMonthly,
+      scAbzahlungsjahr,
+    };
+  }, [
+    miete, kaufpreis, zins, tilgung, ek,
+    mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct,
+    grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
+    hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm, flaeche,
+    sondertilgungJaehrlich, instandText, mietausfallText,
+    gebText, afaText, persText,
+  ]);
+
   const liquiditaetJahr = prognose.jahre[Math.min(liquiditaetJahrIndex, prognose.jahre.length - 1)] ?? prognose.jahre[0];
 
   // Store-Ableitungen aktualisieren, wenn sich Kernwerte ändern
@@ -3358,20 +3457,20 @@ const exportPdf = React.useCallback(async () => {
           mietInflationPct,
           kostenInflationPct,
           verkaufsNebenkostenPct,
-          scenarioKaufpreis: kaufpreis * (1 + preisDeltaPct / 100),
-          scenarioMiete: miete * (1 + mieteDeltaPct / 100),
-          scenarioZins: zins + zinsDeltaPp,
-          scenarioTilgung: tilgung + tilgungDeltaPp,
-          scenarioEk: ek * (1 + ekDeltaPct / 100),
-          scenarioCashflowVorSteuer: 0, // Will be calculated in the button
-          scenarioCashflowNachSteuer: 0,
-          scenarioNettorendite: 0,
-          scenarioBruttorendite: 0,
-          scenarioEkRendite: 0,
-          scenarioNoiMonthly: 0,
-          scenarioDscr: 0,
-          scenarioRateMonat: 0,
-          scenarioAbzahlungsjahr: 0,
+          scenarioKaufpreis: scenarioCalculations.scKaufpreis,
+          scenarioMiete: scenarioCalculations.scMiete,
+          scenarioZins: scenarioCalculations.scZins,
+          scenarioTilgung: scenarioCalculations.scTilgung,
+          scenarioEk: scenarioCalculations.scEk,
+          scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
+          scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
+          scenarioNettorendite: scenarioCalculations.scNettoRendite,
+          scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
+          scenarioEkRendite: scenarioCalculations.scEkRendite,
+          scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
+          scenarioDscr: scenarioCalculations.scDSCR,
+          scenarioRateMonat: scenarioCalculations.scRateMonat,
+          scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
         }}
       />
       <LoadScenariosDialog
