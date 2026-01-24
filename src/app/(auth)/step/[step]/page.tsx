@@ -32,8 +32,6 @@ import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
-import { LoadScenariosDialog } from '@/components/LoadScenariosDialog';
-import type { SavedScenario } from '@/lib/storage';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
@@ -2629,6 +2627,11 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
             </div>
+
+            {/* Save Button */}
+            <div className="mt-6 flex justify-end">
+              <SaveAnalysisButton />
+            </div>
           </div>
         )}
 
@@ -3454,28 +3457,6 @@ const exportPdf = React.useCallback(async () => {
 <p className="text-gray-600 mt-1 pb-6">
   Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
 </p>
-
-    {/* Load Saved Scenarios */}
-    <div className="mb-6">
-      <LoadScenariosDialog
-        analysisId={analysisId || undefined}
-        onLoadScenario={(scenario: SavedScenario) => {
-          // Load scenario values into state
-          setMieteDeltaPct(scenario.mieteDeltaPct);
-          setPreisDeltaPct(scenario.preisDeltaPct);
-          setZinsDeltaPp(scenario.zinsDeltaPp);
-          setTilgungDeltaPp(scenario.tilgungDeltaPp);
-          setEkDeltaPct(scenario.ekDeltaPct);
-          setSondertilgungJaehrlich(scenario.sondertilgungJaehrlich);
-          setWertentwicklungAktiv(scenario.wertentwicklungAktiv);
-          setWertentwicklungPct(scenario.wertentwicklungPct);
-          setDarlehensTyp(scenario.darlehensTyp);
-          setMietInflationPct(scenario.mietInflationPct);
-          setKostenInflationPct(scenario.kostenInflationPct);
-          setVerkaufsNebenkostenPct(scenario.verkaufsNebenkostenPct);
-        }}
-      />
-    </div>
 
     {/* Reset All Button */}
     {(mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0) && (
