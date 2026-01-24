@@ -362,10 +362,12 @@ export default function StepPage() {
   // 4) Zins & Tilgung (monatlich)
   const zinsMonthly    = (darlehensSumme * (zins / 100)) / 12;
   const tilgungMonthly = (darlehensSumme * (tilgung / 100)) / 12;
+  const sondertilgungMonthly = sondertilgungJaehrlich / 12;
+  const gesamtTilgungMonthly = tilgungMonthly + sondertilgungMonthly;
 
   // 5) operativer Cashflow vor Steuern
   const cashflowVorSteuer =
-    warmmiete - hausgeldTotal - kalkKostenMonthly - zinsMonthly - tilgungMonthly;
+    warmmiete - hausgeldTotal - kalkKostenMonthly - zinsMonthly - gesamtTilgungMonthly;
 
   // 6) AfA (monatlich)
   const gebaeudeAnteilEur = (kaufpreis * gebPct) / 100;
@@ -2278,8 +2280,8 @@ const exportPdf = React.useCallback(async () => {
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
-                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0).toFixed(0)}€
+                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(prognose.jahre[0]?.cashflowMonatlich ?? 0).toFixed(0)}€
                   </div>
                 </div>
 
