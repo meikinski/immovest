@@ -234,7 +234,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   setBaujahr: (v: number) => {
-    set({ baujahr: v, generatedComment: '' });
+    const newAfa = getDefaultAfa(v);
+    set({ baujahr: v, afa: newAfa, generatedComment: '' });
     get().updateDerived();
   },
   setMiete: (v: number) => {
@@ -309,7 +310,12 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   importData: (data) => {
-    set(data);
+    // Automatically calculate AfA based on baujahr if not explicitly provided
+    const updates = { ...data };
+    if (data.baujahr !== undefined && data.afa === undefined) {
+      updates.afa = getDefaultAfa(data.baujahr);
+    }
+    set(updates);
     get().updateDerived();
   },
 
