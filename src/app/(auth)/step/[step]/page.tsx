@@ -37,6 +37,7 @@ import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { SignInButton, useAuth } from '@clerk/nextjs';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
 
 
 
@@ -1311,6 +1312,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="relative group">
               <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
+                id="kaufpreis-input"
                 type="text"
                 value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
                 onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
@@ -1326,9 +1328,9 @@ const exportPdf = React.useCallback(async () => {
 
             <div className="grid grid-cols-1 gap-6">
               {[
-                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur },
-                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
-                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur },
+                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur, id: 'grunderwerbsteuer-input' },
+                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur, id: 'notar-input' },
+                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur, id: 'makler-input' },
               ].map((item, i) => (
                 <div key={i} className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
@@ -1343,6 +1345,7 @@ const exportPdf = React.useCallback(async () => {
                       <div className="relative group">
                         <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                         <input
+                          id={item.id}
                           type="text"
                           value={item.text}
                           onChange={(e) => item.setText(e.target.value)}
@@ -1428,6 +1431,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Buttons */}
         <div className="mt-8">
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -1642,6 +1646,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="miete-input"
                     type="text"
                     value={miete.toString()}
                     onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
@@ -1704,6 +1709,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="hausgeld-umlegbar-input"
                     type="text"
                     value={hausUmlegText}
                     onChange={(e) => setHausUmlegText(e.target.value)}
@@ -1733,6 +1739,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="relative group">
                     <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
+                      id="hausgeld-nicht-umlegbar-input"
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
@@ -1865,6 +1872,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="mietausfall-input"
                     type="text"
                     value={mietausfallText}
                     onChange={(e) => setMietausfallText(e.target.value)}
@@ -1890,6 +1898,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="instandhaltung-input"
                     type="text"
                     value={instandText}
                     onChange={(e) => setInstandText(e.target.value)}
@@ -1922,6 +1931,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="afa-input"
                     type="text"
                     value={afaText}
                     onChange={(e) => {
@@ -1950,6 +1960,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="gebaeude-input"
                     type="text"
                     value={gebText}
                     onChange={(e) => {
@@ -1978,6 +1989,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="steuersatz-input"
                     type="text"
                     value={persText}
                     onChange={(e) => setPersText(e.target.value)}
@@ -1999,6 +2011,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -2030,6 +2043,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="relative group">
               <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
+                id="eigenkapital-input"
                 type="text"
                 value={mounted ? ek.toLocaleString('de-DE') : '0'}
                 onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
@@ -2088,6 +2102,7 @@ const exportPdf = React.useCallback(async () => {
               <div className="relative group">
                 <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
+                  id="zins-input"
                   type="text"
                   value={zinsText}
                   onChange={(e) => setZinsText(e.target.value)}
@@ -2109,6 +2124,7 @@ const exportPdf = React.useCallback(async () => {
               <div className="relative group">
                 <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
+                  id="tilgung-input"
                   type="text"
                   value={tilgungText}
                   onChange={(e) => setTilgungText(e.target.value)}
@@ -2151,6 +2167,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -2164,7 +2181,7 @@ const exportPdf = React.useCallback(async () => {
       <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
         <div className="flex-1 overflow-y-auto">
           <div className="px-6 lg:px-10 py-6 bg-white border-b border-slate-200">
-            <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div id="results-header" className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-[#ff6b00] rounded-2xl flex items-center justify-center shadow-md">
                   <House size={28} className="text-white" />
@@ -2197,7 +2214,7 @@ const exportPdf = React.useCallback(async () => {
           </div>
 
           <div className="sticky top-4 z-40 bg-white border-b border-slate-200 shadow-sm">
-            <div className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
+            <div id="tabs-navigation" className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
               {([
                 { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
                 { id: 'markt', label: 'Marktvergleich & Investitionsanalyse', icon: ChartBar },
@@ -2233,7 +2250,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="lg:col-span-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* KPI Card 1 - Bruttomietrendite */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-brutto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <SquarePercent size={14} className="text-[#ff6b00]" />
@@ -2267,7 +2284,7 @@ const exportPdf = React.useCallback(async () => {
                 </div>
 
                 {/* KPI Card 2 - Nettomietrendite */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-netto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <Percent size={14} className="text-[#ff6b00]" />
@@ -2301,7 +2318,7 @@ const exportPdf = React.useCallback(async () => {
                 </div>
 
                 {/* KPI Card 3 - Cashflow vor Steuern */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-cashflow" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <Wallet size={14} className="text-[#ff6b00]" />
@@ -3850,6 +3867,11 @@ const exportPdf = React.useCallback(async () => {
         onClose={() => setShowUpgradeModal(false)}
         remainingFreeUses={freeUsagesRemaining}
       />
+
+      {/* Onboarding Wizard - Auto-starts on first visit for each step */}
+      {(step === 'a' || step === 'b' || step === 'c' || step === 'tabs') && (
+        <OnboardingWizard step={step as 'a' | 'b' | 'c' | 'tabs'} autoStart={true} delay={500} />
+      )}
 
       {/* Upsell Banner: Show after 1st premium usage */}
       {step === 'tabs' && !isPremium && premiumUsageCount >= 1 && (

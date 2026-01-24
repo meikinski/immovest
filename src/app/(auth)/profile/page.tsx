@@ -25,7 +25,9 @@ import {
   Plus,
   ArrowRight,
   Save,
+  GraduationCap,
 } from 'lucide-react';
+import { useOnboarding } from '@/hooks/useOnboarding';
 
 // Separate component for handling search params
 function PurchaseTracker() {
@@ -147,6 +149,7 @@ function ProfileContent() {
   const [analyses, setAnalyses] = useState<SavedAnalysis[]>([]);
   const loadAnalysis = useImmoStore((s) => s.loadAnalysis);
   const resetAnalysis = useImmoStore((s) => s.resetAnalysis);
+  const { resetOnboarding } = useOnboarding();
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -208,6 +211,14 @@ function ProfileContent() {
     } else {
       toast.error('Fehler beim Laden der Analyse');
     }
+  };
+
+  const handleRestartTour = () => {
+    // Reset all onboarding states
+    resetOnboarding();
+    // Navigate to Step A where the tour will auto-start
+    router.push('/step/a');
+    toast.success('Tour wird neu gestartet...');
   };
 
   if (!isLoaded || !isSignedIn) {
@@ -381,6 +392,29 @@ function ProfileContent() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Help & Tutorial */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+              <GraduationCap size={20} />
+              Hilfe & Einführung
+            </h3>
+            <div className="space-y-3">
+              <p className="text-gray-600 text-sm">
+                Neu bei imvestr oder möchtest du die Funktionen nochmal kennenlernen?
+              </p>
+              <button
+                onClick={handleRestartTour}
+                className="w-full px-4 py-3 bg-gradient-to-r from-[hsl(var(--brand))] to-[hsl(var(--brand-2))] text-white rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2 font-medium"
+              >
+                <GraduationCap size={18} />
+                Interaktive Tour starten
+              </button>
+              <p className="text-xs text-gray-500">
+                Die Tour führt dich Schritt für Schritt durch alle wichtigen Eingabefelder und erklärt, was du wo eingeben musst.
+              </p>
             </div>
           </div>
 
