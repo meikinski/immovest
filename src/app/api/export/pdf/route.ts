@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const data = (await req.json()) as InvestmentReportData;
 
     // Render the PDF document to a buffer
-    // @ts-ignore - Type issue with React.createElement and @react-pdf/renderer
+    // @ts-expect-error - Type issue with React.createElement and @react-pdf/renderer
     const pdfBuffer = await renderToBuffer(React.createElement(InvestmentReportPDF, { data }));
 
     return new NextResponse(Buffer.from(pdfBuffer), {

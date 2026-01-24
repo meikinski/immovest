@@ -464,7 +464,7 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Image src={logoPath} style={styles.logo} />
+            <Image src={logoPath} style={styles.logo} alt="imvestr logo" />
             <Text style={styles.brandText}>imvestr</Text>
           </View>
           <Text style={styles.reportLabel}>Investment-Report</Text>
