@@ -597,7 +597,7 @@ tab-btn:hover,
 /* Highlighted element */
 .driver-active-element {
   outline: 4px solid hsl(var(--brand-2) / .5) !important; /* Orange outline */
-  outline-offset: 20px !important; /* Increased to show labels and more context */
+  /* Padding and border-radius are now controlled via stagePadding and stageRadius in driver config */
 }
 
 /* Overlay (backdrop) */
