@@ -32,7 +32,6 @@ import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
-import { SaveScenarioButton } from '@/components/SaveScenarioButton';
 import { LoadScenariosDialog } from '@/components/LoadScenariosDialog';
 import type { SavedScenario } from '@/lib/storage';
 import { Header } from '@/components/Header';
@@ -3439,40 +3438,8 @@ const exportPdf = React.useCallback(async () => {
   Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
 </p>
 
-    {/* Scenario Save/Load Buttons */}
-    <div className="mb-6 flex flex-wrap gap-3">
-      <SaveScenarioButton
-        analysisId={analysisId || undefined}
-        scenarioData={{
-          scenarioName: `Szenario ${new Date().toLocaleDateString('de-DE')}`,
-          mieteDeltaPct,
-          preisDeltaPct,
-          zinsDeltaPp,
-          tilgungDeltaPp,
-          ekDeltaPct,
-          sondertilgungJaehrlich,
-          wertentwicklungAktiv,
-          wertentwicklungPct,
-          darlehensTyp,
-          mietInflationPct,
-          kostenInflationPct,
-          verkaufsNebenkostenPct,
-          scenarioKaufpreis: scenarioCalculations.scKaufpreis,
-          scenarioMiete: scenarioCalculations.scMiete,
-          scenarioZins: scenarioCalculations.scZins,
-          scenarioTilgung: scenarioCalculations.scTilgung,
-          scenarioEk: scenarioCalculations.scEk,
-          scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
-          scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
-          scenarioNettorendite: scenarioCalculations.scNettoRendite,
-          scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
-          scenarioEkRendite: scenarioCalculations.scEkRendite,
-          scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
-          scenarioDscr: scenarioCalculations.scDSCR,
-          scenarioRateMonat: scenarioCalculations.scRateMonat,
-          scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
-        }}
-      />
+    {/* Load Saved Scenarios */}
+    <div className="mb-6">
       <LoadScenariosDialog
         analysisId={analysisId || undefined}
         onLoadScenario={(scenario: SavedScenario) => {
@@ -3537,57 +3504,25 @@ const exportPdf = React.useCallback(async () => {
 
     {/* Base vs Szenario */}
         {(() => {
-      const scMiete     = Math.max(0, miete * (1 + mieteDeltaPct / 100));
-      const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
-      const scZins      = Math.max(0, zins + zinsDeltaPp);
-      const scTilgung   = Math.max(0, tilgung + tilgungDeltaPp);
-      const scEk        = Math.max(0, ek * (1 + ekDeltaPct / 100));
+      // Use pre-calculated values from useMemo
+      const {
+        scMiete,
+        scKaufpreis,
+        scZins,
+        scTilgung,
+        scEk,
+        scAnschaffung,
+        scDarlehen,
+        scRateMonat,
+        scCashflowVorSt,
+        scCashflowAfterTax,
+        scDSCR,
+        scBruttoRendite,
+        scNettoRendite,
+        scEkRendite,
+      } = scenarioCalculations;
 
-      const { nk: scNk }    = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
-      const scAnschaffung   = scKaufpreis + scNk + sonstigeKosten;
-      const scDarlehen      = Math.max(0, scAnschaffung - scEk);
-
-      const scWarmmiete     = scMiete + hausgeld_umlegbar;
-      const scJahresKalt    = scMiete * 12;
-
-      const scBewJ          = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-      const scFkZinsenJahr  = scDarlehen * (scZins / 100);
-
-      const scZinsMonthly    = (scDarlehen * (scZins / 100)) / 12;
-      const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
-      const scSondertilgungMonthly = sondertilgungJaehrlich / 12;
-      const scGesamtTilgungMonthly = scTilgungMonthly + scSondertilgungMonthly;
-
-      const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
-      const mietausfallPctN    = Number(mietausfallText.replace(',', '.')) || 0;
-      const scInstandMonthly   = (instandhaltungPctN * flaeche) / 12;
-      const scMietausfallMon   = scMiete * (mietausfallPctN / 100);
-      const scKalkKostenMon    = scInstandMonthly + scMietausfallMon;
-
-      const scCashflowVorSt    = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scGesamtTilgungMonthly;
-
-      const rateMonat   = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-      const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
-
-      // Cashflow nach Steuern für Szenario
-      const gebPctN = Number(gebText.replace(',', '.')) || 0;
-      const afaPctN = Number(afaText.replace(',', '.')) || 0;
-      const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-      const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
-      const afaMonthlyEurSc = afaAnnualEurSc / 12;
-      const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
-      const effectiveStz = Number(persText.replace(',', '.')) || 0;
-      const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
-      const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
-
-      // DSCR für Szenario
-      const scDSCR = scRateMonat > 0
-        ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat
-        : 0;
-
-      const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
-      const scNettoRendite  = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
-      const scEkRendite     = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
+      const rateMonat = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
 
     // --- Szenario: Helpers & Rows (keine weitere IIFE im JSX) ---
       type Unit = "€" | "%" | "" | "pp";
@@ -3872,7 +3807,36 @@ const exportPdf = React.useCallback(async () => {
           PDF exportieren
         </button>
       )}
-      <SaveAnalysisButton />
+      <SaveAnalysisButton
+        scenarioData={{
+          mieteDeltaPct,
+          preisDeltaPct,
+          zinsDeltaPp,
+          tilgungDeltaPp,
+          ekDeltaPct,
+          sondertilgungJaehrlich,
+          wertentwicklungAktiv,
+          wertentwicklungPct,
+          darlehensTyp,
+          mietInflationPct,
+          kostenInflationPct,
+          verkaufsNebenkostenPct,
+          scenarioKaufpreis: scenarioCalculations.scKaufpreis,
+          scenarioMiete: scenarioCalculations.scMiete,
+          scenarioZins: scenarioCalculations.scZins,
+          scenarioTilgung: scenarioCalculations.scTilgung,
+          scenarioEk: scenarioCalculations.scEk,
+          scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
+          scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
+          scenarioNettorendite: scenarioCalculations.scNettoRendite,
+          scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
+          scenarioEkRendite: scenarioCalculations.scEkRendite,
+          scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
+          scenarioDscr: scenarioCalculations.scDSCR,
+          scenarioRateMonat: scenarioCalculations.scRateMonat,
+          scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
+        }}
+      />
       {pdfBusy && (
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <LoadingSpinner size="sm" />
