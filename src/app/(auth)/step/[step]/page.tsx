@@ -359,32 +359,9 @@ export default function StepPage() {
   // 3) Hausgeld gesamt (bereits umlagefähig + nicht umlagefähig)
   const hausgeldTotal = hausgeld;
 
-  // 4) Zins & Tilgung (monatlich)
-  const zinsMonthly    = (darlehensSumme * (zins / 100)) / 12;
-  const tilgungMonthly = (darlehensSumme * (tilgung / 100)) / 12;
-  const sondertilgungMonthly = sondertilgungJaehrlich / 12;
-  const gesamtTilgungMonthly = tilgungMonthly + sondertilgungMonthly;
-
-  // 5) operativer Cashflow vor Steuern
-  const cashflowVorSteuer =
-    warmmiete - hausgeldTotal - kalkKostenMonthly - zinsMonthly - gesamtTilgungMonthly;
-
-  // 6) AfA (monatlich)
+  // 4) AfA (monatlich) - needed for prognose calculation
   const gebaeudeAnteilEur = (kaufpreis * gebPct) / 100;
   const afaAnnualEur      = gebaeudeAnteilEur * (afaPct / 100);
-  const afaMonthlyEur     = afaAnnualEur / 12;
-
-  // 7) zu versteuernder Cashflow (ohne kalkulatorische Kosten)
-  const taxableCashflow =
-    warmmiete - hausgeldTotal - zinsMonthly - afaMonthlyEur;
-
-  // 8) Steuer (monatlich) – kann negativ sein (= Steuervorteil)
-  const taxMonthly = taxableCashflow * (effectiveStz / 100);
-
-  // 9) finaler Cashflow nach Steuern
-  const cashflowAfterTax = cashflowVorSteuer - taxMonthly;
-
-  const breakEvenJahre = cashflowAfterTax > 0 ? ek / (cashflowAfterTax * 12) : Infinity;
 
   const formatEur = (value: number, maximumFractionDigits = 0) =>
     value.toLocaleString('de-DE', { maximumFractionDigits });
@@ -433,6 +410,12 @@ export default function StepPage() {
       verkaufsNebenkostenPct,
     ]
   );
+
+  // Extract cashflow values from prognose year 0 to ensure consistency
+  const cashflowVorSteuer = prognose.jahre[0]?.cashflowVorSteuern ?? 0;
+  const cashflowAfterTax = prognose.jahre[0]?.cashflowMonatlich ?? 0;
+  const taxMonthly = cashflowVorSteuer - cashflowAfterTax;
+  const breakEvenJahre = cashflowAfterTax > 0 ? ek / (cashflowAfterTax * 12) : Infinity;
 
   const prognoseMilestones = useMemo(() => {
     const halbschuld = darlehensSumme / 2;
