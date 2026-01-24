@@ -1,6 +1,7 @@
 // src/lib/urlScraperWorkflow.ts
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
+import { scrapeWithBrowser, isBrowserScrapingAvailable } from './browserScraper';
 
 export type UrlScraperInput = {
   url: string;
@@ -31,7 +32,7 @@ const webSearchForScraping = webSearchTool({
   userLocation: { type: 'approximate' },
 });
 
-// Scraper Agent - back to gpt-4o-mini with clearer instructions
+// Scraper Agent for web search tool (primary method)
 const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
   instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, Kleinanzeigen, eBay Kleinanzeigen, etc.).
@@ -269,6 +270,61 @@ REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
   },
 });
 
+// HTML Parser Agent - for Playwright fallback (no web search tool)
+const htmlParserAgent = new Agent({
+  name: 'ImmobilienHTMLParser',
+  instructions: `Du extrahierst Daten aus dem HTML-Code von Immobilien-Anzeigen.
+
+Du bekommst den vollständigen HTML-Code einer Immobilien-Anzeige und musst daraus die relevanten Daten extrahieren.
+
+Die Anweisungen sind IDENTISCH zum ImmobilienScraper:
+
+🚨🚨🚨 SCHRITT 1 - PROVISION ZUERST SUCHEN! 🚨🚨🚨
+
+BEVOR du IRGENDWELCHE anderen Daten extrahierst, MUSST du nach der Käuferprovision suchen!
+
+SUCH-STRATEGIE für Provision im HTML:
+1. Suche nach diesen EXAKTEN Textmustern:
+   - "Provision für Käufer"
+   - "Käuferprovision beträgt"
+   - "Käuferprovision"
+   - "Provision beträgt"
+   - "Provision:"
+   - "Maklergebühr"
+   - "Courtage"
+2. Wenn du IRGENDEINEN dieser Texte findest, extrahiere den Prozentsatz!
+
+BEISPIELE:
+- "Käuferprovision beträgt 3,0 % (inkl. MwSt.)" → maklergebuehr = 3.0
+- "Provision für Käufer: 3,57%" → maklergebuehr = 3.57
+- "provisionsfrei" → maklergebuehr = 0
+
+Nach der PROVISIONS-SUCHE, extrahiere die anderen Daten:
+
+🔴 KRITISCH - Kaltmiete vs Hausgeld:
+
+1) KALTMIETE (miete) = Mieteinnahmen vom Mieter
+   - Genannt: "Kaltmiete", "Nettokaltmiete", "Grundmiete"
+   - Typisch: 600-2000€
+
+2) HAUSGELD (hausgeld) = Nebenkosten des Eigentümers
+   - Genannt: "Hausgeld", "monatliches Hausgeld"
+   - Typisch: 150-400€
+
+WICHTIG: Das sind ZWEI VERSCHIEDENE Werte! Kaltmiete ist IMMER höher als Hausgeld!
+
+Extrahiere ALLE Felder die du findest. Falls ein Feld nicht vorhanden ist → null.
+
+REGEL: Nur echte Daten aus dem HTML extrahieren. KEINE Erfindungen!`,
+  model: 'gpt-4o',
+  tools: [], // No tools - just HTML parsing
+  outputType: ImmobilienDataSchema,
+  modelSettings: {
+    store: true,
+    temperature: 0.01
+  },
+});
+
 export type UrlScraperResult = z.infer<typeof ImmobilienDataSchema>;
 
 /**
@@ -374,14 +430,6 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     // URL parse failed, but continue anyway
   }
 
-  // Try parsing, but don't fail on fragments or complex query params
-  try {
-    new URL(trimmedUrl);
-  } catch (err) {
-    console.warn('[URL Scraper] URL parse warning (proceeding anyway):', err);
-    // Continue anyway - web search tool might handle it
-  }
-
   const runner = new Runner({
     traceMetadata: {
       __trace_source__: 'url-scraper',
@@ -389,20 +437,78 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     },
   });
 
-  console.log(`[URL Scraper] Starting for: ${trimmedUrl}`);
+  console.log(`[URL Scraper] 🚀 Method 1: Trying webSearchTool (fast)...`);
 
-  const result = await runner.run(scraperAgent, [
-    {
-      role: 'user',
-      content: [{
-        type: 'input_text',
-        text: `Extrahiere Immobilien-Daten von dieser URL: ${trimmedUrl}`
-      }]
-    },
-  ]);
+  let result;
+  let usedPlaywrightFallback = false;
 
+  try {
+    // METHOD 1: Try with webSearchTool (fast, works for most portals)
+    result = await runner.run(scraperAgent, [
+      {
+        role: 'user',
+        content: [{
+          type: 'input_text',
+          text: `Extrahiere Immobilien-Daten von dieser URL: ${trimmedUrl}`
+        }]
+      },
+    ]);
+
+    // Check if we got valid data
+    const hasMinimalData = result.finalOutput?.kaufpreis &&
+                           result.finalOutput?.flaeche &&
+                           result.finalOutput?.adresse;
+
+    if (!result.finalOutput || !hasMinimalData) {
+      console.warn('[URL Scraper] ⚠️ webSearchTool returned incomplete data, trying Playwright fallback...');
+      throw new Error('Incomplete data from webSearchTool');
+    }
+
+    console.log('[URL Scraper] ✅ webSearchTool succeeded');
+
+  } catch (webSearchError) {
+    console.error('[URL Scraper] ❌ webSearchTool failed:', webSearchError);
+
+    // METHOD 2: Fallback to Playwright (slower but more robust)
+    console.log('[URL Scraper] 🔄 Method 2: Trying Playwright (browser automation)...');
+
+    // Check if Playwright is available
+    const isBrowserAvailable = await isBrowserScrapingAvailable();
+
+    if (!isBrowserAvailable) {
+      console.error('[URL Scraper] ❌ Playwright not available - cannot use fallback');
+      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte nicht geladen werden (möglicherweise blockiert).\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein');
+    }
+
+    // Scrape with Playwright
+    const browserResult = await scrapeWithBrowser(trimmedUrl);
+
+    if (!browserResult.success || !browserResult.html) {
+      console.error('[URL Scraper] ❌ Playwright failed:', browserResult.error);
+      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte auch mit Browser-Automation nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection');
+    }
+
+    console.log(`[URL Scraper] ✅ Playwright succeeded - extracted ${browserResult.html.length} chars of HTML`);
+
+    // Parse HTML with AI
+    console.log('[URL Scraper] 🤖 Parsing HTML with AI...');
+    result = await runner.run(htmlParserAgent, [
+      {
+        role: 'user',
+        content: [{
+          type: 'input_text',
+          text: `Extrahiere Immobilien-Daten aus diesem HTML-Code:\n\n${browserResult.html.slice(0, 50000)}`  // Limit to 50k chars
+        }]
+      },
+    ]);
+
+    usedPlaywrightFallback = true;
+    console.log('[URL Scraper] ✅ Playwright fallback succeeded');
+  }
+
+  // Validation (same for both methods)
   if (!result.finalOutput) {
-    throw new Error('❌ KEINE DATEN GEFUNDEN: Die KI konnte auf dieser Seite keine Immobilien-Exposé-Daten finden.\n\nMögliche Gründe:\n• Die Seite ist kein Immobilien-Exposé\n• Die Anzeige ist nicht mehr verfügbar (gelöscht/deaktiviert)\n• Die Seite ist hinter einem Login geschützt\n• Der Web-Crawler wurde blockiert\n\n💡 Alternative: Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion.');
+    throw new Error('❌ KEINE DATEN GEFUNDEN\n\nDie KI konnte auf dieser Seite keine Immobilien-Exposé-Daten finden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Gründe:\n• Die Seite ist kein Immobilien-Exposé\n• Die Anzeige ist nicht mehr verfügbar (gelöscht/deaktiviert)\n• Die Seite ist hinter einem Login geschützt');
   }
 
   console.log('[URL Scraper] Complete (before validation):', {
@@ -412,6 +518,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     hausgeld: result.finalOutput.hausgeld,
     maklergebuehr: result.finalOutput.maklergebuehr,
     confidence: result.finalOutput.confidence,
+    usedPlaywright: usedPlaywrightFallback,
   });
 
   // Check if we have minimal required data to consider this a valid expose
@@ -425,11 +532,18 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
     if (!result.finalOutput.adresse) missing.push('Adresse');
 
-    throw new Error(`❌ UNVOLLSTÄNDIGE DATEN: Die KI konnte nicht alle erforderlichen Informationen extrahieren.\n\nFehlende Informationen: ${missing.join(', ')}\n\nMögliche Ursachen:\n• Das Portal zeigt diese Daten nicht an (z.B. private Kleinanzeige)\n• Die Seitenstruktur wird nicht erkannt\n• Die Anzeige ist unvollständig\n\n💡 Lösung: Nutze einen Screenshot oder gib die Daten manuell ein.`);
+    throw new Error(`❌ UNVOLLSTÄNDIGE DATEN\n\nDie KI konnte nicht alle erforderlichen Informationen extrahieren.\n\nFehlende Informationen: ${missing.join(', ')}\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Das Portal zeigt diese Daten nicht an (z.B. private Kleinanzeige)\n• Die Seitenstruktur wird nicht erkannt\n• Die Anzeige ist unvollständig`);
   }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes
   const validatedOutput = validateAndFixOutput(result.finalOutput);
+
+  // Add note if Playwright was used
+  if (usedPlaywrightFallback && !validatedOutput.notes) {
+    validatedOutput.notes = '✅ Daten per Browser-Automation extrahiert (Playwright-Fallback)';
+  } else if (usedPlaywrightFallback && validatedOutput.notes) {
+    validatedOutput.notes += ' | ✅ Per Browser-Automation extrahiert';
+  }
 
   console.log('[URL Scraper] After validation:', {
     miete: validatedOutput.miete,
@@ -438,6 +552,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     hausgeld_nicht_umlegbar: validatedOutput.hausgeld_nicht_umlegbar,
     maklergebuehr: validatedOutput.maklergebuehr,
     swapped: validatedOutput.miete !== result.finalOutput.miete,
+    usedPlaywright: usedPlaywrightFallback,
   });
 
   return validatedOutput;
