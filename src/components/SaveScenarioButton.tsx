@@ -18,7 +18,7 @@ interface SaveScenarioButtonProps {
     sondertilgungJaehrlich: number;
     wertentwicklungAktiv: boolean;
     wertentwicklungPct: number;
-    darlehensTyp: string;
+    darlehensTyp: 'annuitaet' | 'degressiv';
     mietInflationPct: number;
     kostenInflationPct: number;
     verkaufsNebenkostenPct: number;
