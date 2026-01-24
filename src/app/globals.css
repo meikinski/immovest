@@ -602,8 +602,8 @@ tab-btn:hover,
 
 /* Overlay (backdrop) */
 .driver-overlay {
-  background: hsl(0 0% 0% / .5) !important;
-  backdrop-filter: blur(2px) !important;
+  background: hsl(0 0% 0% / .4) !important;
+  backdrop-filter: none !important; /* No blur, keep highlighted area crisp */
 }
 
 /* Arrow pointing to element */

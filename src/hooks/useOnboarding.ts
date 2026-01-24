@@ -219,6 +219,7 @@ export function useOnboarding() {
       prevBtnText: 'Zurück',
       doneBtnText: 'Verstanden',
       progressText: 'Schritt {{current}} von {{total}}',
+      padding: 20, // More padding to show labels and context
       steps,
       onDestroyStarted: () => {
         // Mark as completed when tour is destroyed (completed or skipped)
