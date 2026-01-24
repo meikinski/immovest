@@ -359,11 +359,20 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
   // Validate URL (lenient - just check basic format)
   if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-    throw new Error('URL muss mit http:// oder https:// beginnen');
+    throw new Error('❌ UNGÜLTIGE URL: Die URL muss mit http:// oder https:// beginnen.\n\nBeispiel: https://www.immobilienscout24.de/expose/123456');
   }
 
   // Normalize eBay Kleinanzeigen URLs (mobile app, old domain, etc.)
   trimmedUrl = normalizeEbayKleinanzeigenUrl(trimmedUrl);
+
+  // Log the final URL being processed
+  console.log('[URL Scraper] Processing URL:', trimmedUrl);
+  try {
+    const urlObj = new URL(trimmedUrl);
+    console.log('[URL Scraper] Domain:', urlObj.hostname);
+  } catch {
+    // URL parse failed, but continue anyway
+  }
 
   // Try parsing, but don't fail on fragments or complex query params
   try {
@@ -393,7 +402,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
   ]);
 
   if (!result.finalOutput) {
-    throw new Error('Die URL enthält keine Immobilien-Exposé-Daten. Bitte stelle sicher, dass du einen Link zu einem Immobilienangebot (z.B. von ImmobilienScout24, Immowelt, etc.) eingibst.');
+    throw new Error('❌ KEINE DATEN GEFUNDEN: Die KI konnte auf dieser Seite keine Immobilien-Exposé-Daten finden.\n\nMögliche Gründe:\n• Die Seite ist kein Immobilien-Exposé\n• Die Anzeige ist nicht mehr verfügbar (gelöscht/deaktiviert)\n• Die Seite ist hinter einem Login geschützt\n• Der Web-Crawler wurde blockiert\n\n💡 Alternative: Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion.');
   }
 
   console.log('[URL Scraper] Complete (before validation):', {
@@ -416,7 +425,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
     if (!result.finalOutput.adresse) missing.push('Adresse');
 
-    throw new Error(`Die URL scheint kein vollständiges Immobilien-Exposé zu sein. Fehlende Informationen: ${missing.join(', ')}. Bitte verwende einen direkten Link zu einem Immobilienangebot.`);
+    throw new Error(`❌ UNVOLLSTÄNDIGE DATEN: Die KI konnte nicht alle erforderlichen Informationen extrahieren.\n\nFehlende Informationen: ${missing.join(', ')}\n\nMögliche Ursachen:\n• Das Portal zeigt diese Daten nicht an (z.B. private Kleinanzeige)\n• Die Seitenstruktur wird nicht erkannt\n• Die Anzeige ist unvollständig\n\n💡 Lösung: Nutze einen Screenshot oder gib die Daten manuell ein.`);
   }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes
