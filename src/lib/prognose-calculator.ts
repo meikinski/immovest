@@ -146,7 +146,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       eigenkapitalGesamt,
       cashflowMonatlich,
       cashflowOhneSondertilgung,
-      cashflowVorSteuern: cashflowVorSteuernOhneSondertilgung,
+      cashflowVorSteuern,
       cashflowKumuliert: kumuliertCF,
       cashflowKumuliertOhneSondertilgung: kumuliertCFOhneSondertilgung,
       zinslast,
