@@ -354,6 +354,25 @@ export type InvestmentReportData = {
     abzahlungsjahr?: number | null;
     cashflowNachSteuern?: number;
   } | null;
+  prognose?: {
+    payoffYear: number | null;
+    jahr5: {
+      restschuld: number;
+      eigenkapital: number;
+      cashflowKumuliert: number;
+    };
+    jahr10: {
+      restschuld: number;
+      eigenkapital: number;
+      cashflowKumuliert: number;
+    };
+    jahre: Array<{
+      jahr: number;
+      restschuld: number;
+      eigenkapitalGesamt: number;
+      cashflowKumuliert: number;
+    }>;
+  } | null;
 };
 
 // Helper functions
@@ -637,7 +656,100 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
         </Page>
       )}
 
-      {/* Page 3: Scenario Analysis */}
+      {/* Page: Prognose & Entwicklung */}
+      {data.prognose && (
+        <Page size="A4" style={styles.page}>
+          <View style={styles.titleSection}>
+            <Text style={styles.mainTitle}>PROGNOSE & ENTWICKLUNG</Text>
+            <View style={styles.accentLine}>
+              <View style={styles.accentSegment1} />
+              <View style={styles.accentSegment2} />
+              <View style={styles.accentSegment3} />
+            </View>
+          </View>
+
+          {/* Key Highlights */}
+          <View style={styles.kpiContainer}>
+            {data.prognose.payoffYear && (
+              <KpiCard
+                label="Vollständige Tilgung"
+                value={String(data.prognose.payoffYear)}
+                badge="Jahr"
+                accentColor={colors.green}
+                badgeColor={colors.green}
+              />
+            )}
+            <KpiCard
+              label="Restschuld (Jahr 10)"
+              value={formatEuro(Math.round(data.prognose.jahr10.restschuld))}
+              badge={`${((data.prognose.jahr10.restschuld / (data.darlehensSumme ?? 1)) * 100).toFixed(0)}%`}
+              accentColor={colors.orange}
+              badgeColor={colors.orange}
+            />
+            <KpiCard
+              label="Eigenkapital (Jahr 10)"
+              value={formatEuro(Math.round(data.prognose.jahr10.eigenkapital))}
+              badge={`+${formatEuro(Math.round(data.prognose.jahr10.eigenkapital - data.ek))}`}
+              accentColor={colors.green}
+              badgeColor={colors.green}
+            />
+          </View>
+
+          {/* Entwicklungstabelle */}
+          <View style={styles.dataCard}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionAccent} />
+              <Text style={styles.sectionTitle}>Entwicklung über 30 Jahre</Text>
+            </View>
+
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { width: '20%' }]}>Jahr</Text>
+              <Text style={[styles.tableHeaderText, { width: '27%', textAlign: 'right' }]}>Restschuld</Text>
+              <Text style={[styles.tableHeaderText, { width: '27%', textAlign: 'right' }]}>Eigenkapital</Text>
+              <Text style={[styles.tableHeaderText, { width: '26%', textAlign: 'right' }]}>CF kumuliert</Text>
+            </View>
+
+            {data.prognose.jahre
+              .filter((j, idx) => idx % 5 === 0 || j.restschuld === 0)
+              .slice(0, 8)
+              .map((jahr, i) => (
+                <View key={i} style={styles.tableRow}>
+                  <Text style={[styles.tableCellBold, { width: '20%' }]}>{jahr.jahr}</Text>
+                  <Text style={[styles.tableCellText, { width: '27%', textAlign: 'right' }]}>
+                    {formatEuro(Math.round(jahr.restschuld))}
+                  </Text>
+                  <Text style={[styles.tableCellText, { width: '27%', textAlign: 'right', color: colors.green }]}>
+                    {formatEuro(Math.round(jahr.eigenkapitalGesamt))}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tableCellText,
+                      {
+                        width: '26%',
+                        textAlign: 'right',
+                        color: jahr.cashflowKumuliert >= 0 ? colors.green : colors.red,
+                      },
+                    ]}
+                  >
+                    {formatEuro(Math.round(jahr.cashflowKumuliert))}
+                  </Text>
+                </View>
+              ))}
+          </View>
+
+          {/* Hinweis */}
+          <View style={{ marginTop: 16, padding: 12, backgroundColor: colors.grayLight, borderRadius: 8 }}>
+            <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>
+              Die Prognose basiert auf den aktuellen Eingaben und geht von konstanten Parametern aus. Tatsächliche
+              Entwicklungen können abweichen (Zinsänderungen, Mietanpassungen, etc.).
+            </Text>
+          </View>
+
+          <Footer />
+        </Page>
+      )}
+
+      {/* Page: Scenario Analysis */}
       {data.szenario && (
         <Page size="A4" style={styles.page}>
           <View style={styles.titleSection}>
