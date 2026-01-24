@@ -42,7 +42,14 @@ CREATE TABLE IF NOT EXISTS analyses (
   cashflow_operativ NUMERIC NOT NULL DEFAULT 0,
   nettorendite NUMERIC NOT NULL DEFAULT 0,
   score NUMERIC NOT NULL DEFAULT 0,
-  anschaffungskosten NUMERIC NOT NULL DEFAULT 0
+  anschaffungskosten NUMERIC NOT NULL DEFAULT 0,
+
+  -- AI-generated comments
+  generated_comment TEXT DEFAULT '',
+  lage_comment TEXT DEFAULT '',
+  mietpreis_comment TEXT DEFAULT '',
+  qm_preis_comment TEXT DEFAULT '',
+  invest_comment TEXT DEFAULT ''
 );
 
 -- Create index on user_id for faster queries
