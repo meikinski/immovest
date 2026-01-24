@@ -1076,28 +1076,61 @@ const exportPdf = React.useCallback(async () => {
     const taxMonthlySc        = taxableSc * (effStzN / 100);
     const scCashflowAfterTax  = scCFvSt - taxMonthlySc;
 
+    // Extract prognose data for PDF
+    const payoffYear = prognose.jahre.find(j => j.restschuld === 0)?.jahr ?? null;
+    const jahr5Data = prognose.jahre[5];
+    const jahr10Data = prognose.jahre[10];
+
     const payload = {
       address: shortAddress || adresse,
       kaufpreis, flaeche, zimmer, baujahr,
       miete, ek, zins, tilgung,
       cashflowVorSteuer,
+      cashflowNachSteuern: cashflowAfterTax,
       nettoMietrendite, bruttoMietrendite, ekRendite,
       anschaffungskosten, darlehensSumme,
+      debtServiceMonthly,
+      ekQuotePct,
+      noiMonthly: warmmiete - hausgeldTotal - kalkKostenMonthly,
+      dscr,
       lageText: strip(lageComment),
       mietvergleich: strip(mietpreisComment),
       preisvergleich: strip(qmPreisComment),
       szenario: {
-        kaufpreis: scKaufpreis, miete: scMiete, zins: scZins, tilgung: scTilgung, ek: scEk,
-        cashflowVorSteuer: scCFvSt, nettoRendite: scNetto, ekRendite: scEkR
+        kaufpreis: scKaufpreis,
+        miete: scMiete,
+        zins: scZins,
+        tilgung: scTilgung,
+        ek: scEk,
+        cashflowVorSteuer: scCFvSt,
+        cashflowNachSteuern: scCashflowAfterTax,
+        nettoRendite: scNetto,
+        bruttorendite: scBruttoRend,
+        ekRendite: scEkR,
+        noiMonthly: scNoiMonthly,
+        dscr: scDscr,
+        rateMonat: scRateMon,
+        abzahlungsjahr: scAbzahlungsjahr,
       },
-      debtServiceMonthly,
-  ekQuotePct,
-  bruttorendite: scBruttoRend,
-  noiMonthly: scNoiMonthly,
-  dscr: scDscr,
-  rateMonat: scRateMon,
-  abzahlungsjahr: scAbzahlungsjahr,
-  cashflowNachSteuern: scCashflowAfterTax
+      prognose: {
+        payoffYear,
+        jahr5: {
+          restschuld: jahr5Data.restschuld,
+          eigenkapital: jahr5Data.eigenkapitalGesamt,
+          cashflowKumuliert: jahr5Data.cashflowKumuliert,
+        },
+        jahr10: {
+          restschuld: jahr10Data.restschuld,
+          eigenkapital: jahr10Data.eigenkapitalGesamt,
+          cashflowKumuliert: jahr10Data.cashflowKumuliert,
+        },
+        jahre: prognose.jahre.map(j => ({
+          jahr: j.jahr,
+          restschuld: j.restschuld,
+          eigenkapitalGesamt: j.eigenkapitalGesamt,
+          cashflowKumuliert: j.cashflowKumuliert,
+        })),
+      },
     };
 
     const res = await fetch('/api/export/pdf', {
@@ -1151,6 +1184,7 @@ const exportPdf = React.useCallback(async () => {
   cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite,
   anschaffungskosten, darlehensSumme,
   lageComment, mietpreisComment, qmPreisComment, afaText, gebText, persText,
+  prognose, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
 ]);
 
 

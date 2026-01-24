@@ -108,14 +108,15 @@ const styles = StyleSheet.create({
   // KPI Cards Section
   kpiContainer: {
     flexDirection: 'row',
-    gap: 16,
-    marginBottom: 40,
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 32,
   },
   kpiCard: {
-    flex: 1,
+    width: '31.5%',
     backgroundColor: colors.white,
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 12,
+    padding: 16,
     border: `2px solid ${colors.border}`,
     position: 'relative',
   },
@@ -129,27 +130,27 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
   },
   kpiLabel: {
-    fontSize: 8,
+    fontSize: 7,
     color: colors.gray,
     textTransform: 'uppercase',
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 8,
+    marginBottom: 8,
   },
   kpiValue: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 700,
     color: colors.navy,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   badge: {
     alignSelf: 'flex-end',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-    marginTop: 8,
+    paddingVertical: 3,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    marginTop: 6,
   },
   badgeText: {
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 700,
     textAlign: 'center',
   },
@@ -353,6 +354,25 @@ export type InvestmentReportData = {
     abzahlungsjahr?: number | null;
     cashflowNachSteuern?: number;
   } | null;
+  prognose?: {
+    payoffYear: number | null;
+    jahr5: {
+      restschuld: number;
+      eigenkapital: number;
+      cashflowKumuliert: number;
+    };
+    jahr10: {
+      restschuld: number;
+      eigenkapital: number;
+      cashflowKumuliert: number;
+    };
+    jahre: Array<{
+      jahr: number;
+      restschuld: number;
+      eigenkapitalGesamt: number;
+      cashflowKumuliert: number;
+    }>;
+  } | null;
 };
 
 // Helper functions
@@ -447,8 +467,11 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
   })();
 
   // KPI Card data
-  const cfColor = data.cashflowVorSteuer >= 0 ? colors.green : colors.red;
-  const cfStatus = data.cashflowVorSteuer >= 0 ? 'Positiv' : 'Negativ';
+  const cfVorColor = data.cashflowVorSteuer >= 0 ? colors.green : colors.red;
+  const cfVorStatus = data.cashflowVorSteuer >= 0 ? 'Positiv' : 'Negativ';
+
+  const cfNachColor = (data.cashflowNachSteuern ?? 0) >= 0 ? colors.green : colors.red;
+  const cfNachStatus = (data.cashflowNachSteuern ?? 0) >= 0 ? 'Positiv' : 'Negativ';
 
   const dscrVal = data.dscr ?? 0;
   const dscrColor = dscrVal >= 1.25 ? colors.green : dscrVal >= 1.0 ? colors.orange : colors.red;
@@ -456,6 +479,15 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
 
   const ekColor = ekQuotePct >= 25 ? colors.green : ekQuotePct >= 15 ? colors.orange : colors.red;
   const ekText = ekQuotePct >= 25 ? 'Stark' : ekQuotePct >= 15 ? 'Solide' : 'Schwach';
+
+  const bruttoColor = data.bruttoMietrendite >= 5 ? colors.green : data.bruttoMietrendite >= 3 ? colors.orange : colors.red;
+  const bruttoText = data.bruttoMietrendite >= 5 ? 'Gut' : data.bruttoMietrendite >= 3 ? 'Okay' : 'Schwach';
+
+  const nettoColor = data.nettoMietrendite >= 4 ? colors.green : data.nettoMietrendite >= 2 ? colors.orange : colors.red;
+  const nettoText = data.nettoMietrendite >= 4 ? 'Gut' : data.nettoMietrendite >= 2 ? 'Okay' : 'Schwach';
+
+  const ekRenditeColor = data.ekRendite >= 10 ? colors.green : data.ekRendite >= 5 ? colors.orange : colors.red;
+  const ekRenditeText = data.ekRendite >= 10 ? 'Sehr gut' : data.ekRendite >= 5 ? 'Solide' : 'Schwach';
 
   return (
     <Document>
@@ -482,14 +514,42 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
           </View>
         </View>
 
-        {/* KPI Cards */}
+        {/* KPI Cards - 2 Rows x 3 Columns */}
         <View style={styles.kpiContainer}>
           <KpiCard
-            label="Cashflow (monatlich)"
+            label="Bruttomietrendite"
+            value={formatPercent(data.bruttoMietrendite, 1)}
+            badge={bruttoText}
+            accentColor={bruttoColor}
+            badgeColor={bruttoColor}
+          />
+          <KpiCard
+            label="Nettomietrendite"
+            value={formatPercent(data.nettoMietrendite, 1)}
+            badge={nettoText}
+            accentColor={nettoColor}
+            badgeColor={nettoColor}
+          />
+          <KpiCard
+            label="Cashflow vor St."
             value={formatEuro(Math.round(data.cashflowVorSteuer))}
-            badge={cfStatus}
-            accentColor={cfColor}
-            badgeColor={cfColor}
+            badge={cfVorStatus}
+            accentColor={cfVorColor}
+            badgeColor={cfVorColor}
+          />
+          <KpiCard
+            label="Cashflow nach St."
+            value={formatEuro(Math.round(data.cashflowNachSteuern ?? 0))}
+            badge={cfNachStatus}
+            accentColor={cfNachColor}
+            badgeColor={cfNachColor}
+          />
+          <KpiCard
+            label="EK-Rendite"
+            value={formatPercent(data.ekRendite, 1)}
+            badge={ekRenditeText}
+            accentColor={ekRenditeColor}
+            badgeColor={ekRenditeColor}
           />
           <KpiCard
             label="DSCR"
@@ -498,13 +558,20 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
             accentColor={dscrColor}
             badgeColor={dscrColor}
           />
-          <KpiCard
-            label="Eigenkapitalquote"
-            value={formatPercent(ekQuotePct, 1)}
-            badge={ekText}
-            accentColor={ekColor}
-            badgeColor={ekColor}
-          />
+        </View>
+
+        <Footer />
+      </Page>
+
+      {/* Page 2: Objekt & Finanzierung Details */}
+      <Page size="A4" style={styles.page}>
+        <View style={styles.titleSection}>
+          <Text style={styles.mainTitle}>OBJEKT & FINANZIERUNG</Text>
+          <View style={styles.accentLine}>
+            <View style={styles.accentSegment1} />
+            <View style={styles.accentSegment2} />
+            <View style={styles.accentSegment3} />
+          </View>
         </View>
 
         {/* Objektdaten */}
@@ -525,6 +592,7 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
           title="FINANZIERUNG"
           data={[
             ['Eigenkapital', formatEuro(Math.round(data.ek))],
+            ['Eigenkapitalquote', formatPercent(ekQuotePct, 1)],
             ['Darlehenssumme', data.darlehensSumme != null ? formatEuro(Math.round(data.darlehensSumme)) : '–'],
             ['Zinssatz', `${data.zins.toFixed(2)} %`],
             ['Tilgung', `${data.tilgung.toFixed(2)} %`],
@@ -533,20 +601,10 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
           ]}
         />
 
-        {/* Renditekennzahlen */}
-        <DataSection
-          title="RENDITEKENNZAHLEN"
-          data={[
-            ['Nettomietrendite', formatPercent(data.nettoMietrendite)],
-            ['Bruttomietrendite', formatPercent(data.bruttoMietrendite)],
-            ['Eigenkapitalrendite', formatPercent(data.ekRendite)],
-          ]}
-        />
-
         <Footer />
       </Page>
 
-      {/* Page 2: Market & Location Analysis */}
+      {/* Page 3: Market & Location Analysis */}
       {(data.lageText || data.mietvergleich || data.preisvergleich) && (
         <Page size="A4" style={styles.page}>
           <View style={styles.titleSection}>
@@ -598,7 +656,100 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
         </Page>
       )}
 
-      {/* Page 3: Scenario Analysis */}
+      {/* Page: Prognose & Entwicklung */}
+      {data.prognose && (
+        <Page size="A4" style={styles.page}>
+          <View style={styles.titleSection}>
+            <Text style={styles.mainTitle}>PROGNOSE & ENTWICKLUNG</Text>
+            <View style={styles.accentLine}>
+              <View style={styles.accentSegment1} />
+              <View style={styles.accentSegment2} />
+              <View style={styles.accentSegment3} />
+            </View>
+          </View>
+
+          {/* Key Highlights */}
+          <View style={styles.kpiContainer}>
+            {data.prognose.payoffYear && (
+              <KpiCard
+                label="Vollständige Tilgung"
+                value={String(data.prognose.payoffYear)}
+                badge="Jahr"
+                accentColor={colors.green}
+                badgeColor={colors.green}
+              />
+            )}
+            <KpiCard
+              label="Restschuld (Jahr 10)"
+              value={formatEuro(Math.round(data.prognose.jahr10.restschuld))}
+              badge={`${((data.prognose.jahr10.restschuld / (data.darlehensSumme ?? 1)) * 100).toFixed(0)}%`}
+              accentColor={colors.orange}
+              badgeColor={colors.orange}
+            />
+            <KpiCard
+              label="Eigenkapital (Jahr 10)"
+              value={formatEuro(Math.round(data.prognose.jahr10.eigenkapital))}
+              badge={`+${formatEuro(Math.round(data.prognose.jahr10.eigenkapital - data.ek))}`}
+              accentColor={colors.green}
+              badgeColor={colors.green}
+            />
+          </View>
+
+          {/* Entwicklungstabelle */}
+          <View style={styles.dataCard}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionAccent} />
+              <Text style={styles.sectionTitle}>Entwicklung über 30 Jahre</Text>
+            </View>
+
+            <View style={styles.tableHeader}>
+              <Text style={[styles.tableHeaderText, { width: '20%' }]}>Jahr</Text>
+              <Text style={[styles.tableHeaderText, { width: '27%', textAlign: 'right' }]}>Restschuld</Text>
+              <Text style={[styles.tableHeaderText, { width: '27%', textAlign: 'right' }]}>Eigenkapital</Text>
+              <Text style={[styles.tableHeaderText, { width: '26%', textAlign: 'right' }]}>CF kumuliert</Text>
+            </View>
+
+            {data.prognose.jahre
+              .filter((j, idx) => idx % 5 === 0 || j.restschuld === 0)
+              .slice(0, 8)
+              .map((jahr, i) => (
+                <View key={i} style={styles.tableRow}>
+                  <Text style={[styles.tableCellBold, { width: '20%' }]}>{jahr.jahr}</Text>
+                  <Text style={[styles.tableCellText, { width: '27%', textAlign: 'right' }]}>
+                    {formatEuro(Math.round(jahr.restschuld))}
+                  </Text>
+                  <Text style={[styles.tableCellText, { width: '27%', textAlign: 'right', color: colors.green }]}>
+                    {formatEuro(Math.round(jahr.eigenkapitalGesamt))}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tableCellText,
+                      {
+                        width: '26%',
+                        textAlign: 'right',
+                        color: jahr.cashflowKumuliert >= 0 ? colors.green : colors.red,
+                      },
+                    ]}
+                  >
+                    {formatEuro(Math.round(jahr.cashflowKumuliert))}
+                  </Text>
+                </View>
+              ))}
+          </View>
+
+          {/* Hinweis */}
+          <View style={{ marginTop: 16, padding: 12, backgroundColor: colors.grayLight, borderRadius: 8 }}>
+            <Text style={{ fontSize: 8, color: colors.gray, lineHeight: 1.4 }}>
+              Die Prognose basiert auf den aktuellen Eingaben und geht von konstanten Parametern aus. Tatsächliche
+              Entwicklungen können abweichen (Zinsänderungen, Mietanpassungen, etc.).
+            </Text>
+          </View>
+
+          <Footer />
+        </Page>
+      )}
+
+      {/* Page: Scenario Analysis */}
       {data.szenario && (
         <Page size="A4" style={styles.page}>
           <View style={styles.titleSection}>
@@ -678,10 +829,10 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
 
             {[
               {
-                label: 'Cashflow (vor St.)',
-                base: data.cashflowVorSteuer,
-                scenario: data.szenario.cashflowVorSteuer ?? data.cashflowVorSteuer,
-                formatter: (n: number) => formatEuro(Math.round(n)),
+                label: 'Bruttomietrendite',
+                base: data.bruttoMietrendite,
+                scenario: data.szenario.bruttorendite ?? data.bruttoMietrendite,
+                formatter: formatPercent,
                 betterIfHigher: true,
               },
               {
@@ -692,10 +843,17 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
                 betterIfHigher: true,
               },
               {
-                label: 'Bruttomietrendite',
-                base: data.bruttoMietrendite,
-                scenario: data.szenario.bruttorendite ?? data.bruttoMietrendite,
-                formatter: formatPercent,
+                label: 'Cashflow (vor St.)',
+                base: data.cashflowVorSteuer,
+                scenario: data.szenario.cashflowVorSteuer ?? data.cashflowVorSteuer,
+                formatter: (n: number) => formatEuro(Math.round(n)),
+                betterIfHigher: true,
+              },
+              {
+                label: 'Cashflow (nach St.)',
+                base: data.cashflowNachSteuern ?? 0,
+                scenario: data.szenario.cashflowNachSteuern ?? data.cashflowNachSteuern ?? 0,
+                formatter: (n: number) => formatEuro(Math.round(n)),
                 betterIfHigher: true,
               },
               {
@@ -703,6 +861,13 @@ export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ 
                 base: data.ekRendite,
                 scenario: data.szenario.ekRendite ?? data.ekRendite,
                 formatter: formatPercent,
+                betterIfHigher: true,
+              },
+              {
+                label: 'DSCR',
+                base: data.dscr ?? 0,
+                scenario: data.szenario.dscr ?? data.dscr ?? 0,
+                formatter: (n: number) => formatNumber(n, 2),
                 betterIfHigher: true,
               },
             ].map((row, i) => {
