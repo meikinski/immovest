@@ -1078,8 +1078,8 @@ const exportPdf = React.useCallback(async () => {
 
     // Extract prognose data for PDF
     const payoffYear = prognose.jahre.find(j => j.restschuld === 0)?.jahr ?? null;
-    const jahr5Data = prognose.jahre[5];
-    const jahr10Data = prognose.jahre[10];
+    const jahr5Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 5);
+    const jahr10Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 10);
 
     const payload = {
       address: shortAddress || adresse,
@@ -1112,7 +1112,7 @@ const exportPdf = React.useCallback(async () => {
         rateMonat: scRateMon,
         abzahlungsjahr: scAbzahlungsjahr,
       },
-      prognose: {
+      prognose: (jahr5Data && jahr10Data) ? {
         payoffYear,
         jahr5: {
           restschuld: jahr5Data.restschuld,
@@ -1130,7 +1130,7 @@ const exportPdf = React.useCallback(async () => {
           eigenkapitalGesamt: j.eigenkapitalGesamt,
           cashflowKumuliert: j.cashflowKumuliert,
         })),
-      },
+      } : null,
     };
 
     const res = await fetch('/api/export/pdf', {
