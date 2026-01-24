@@ -5,7 +5,7 @@ import { driver, DriveStep, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 interface OnboardingOptions {
-  step?: 'a' | 'b' | 'c';
+  step?: 'a' | 'b' | 'c' | 'tabs';
   onComplete?: () => void;
   onSkip?: () => void;
 }
@@ -57,7 +57,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: '🎯 Willkommen bei imvestr!',
+            title: 'Willkommen bei imvestr!',
             description: 'Ich zeige dir kurz, wie du eine Immobilie in 2 Minuten bewertest. Bereit?',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -111,7 +111,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: '💰 Schritt 2: Mieteinnahmen & Kosten',
+            title: 'Schritt 2: Mieteinnahmen & Kosten',
             description: 'Jetzt erfasst du die monatlichen Mieteinnahmen und alle laufenden Kosten. Die meisten Werte sind bereits vorausgefüllt – du kannst sie aber anpassen.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -143,7 +143,7 @@ export function useOnboarding() {
         },
         {
           popover: {
-            title: '📊 Kalkulatorische Kosten',
+            title: 'Kalkulatorische Kosten',
             description: 'Das sind Kosten, die du NICHT direkt bezahlst, aber einkalkulieren solltest. Sie dienen zur realistischen Bewertung deiner Rendite.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -167,7 +167,7 @@ export function useOnboarding() {
         },
         {
           popover: {
-            title: '💼 Steuern & Abschreibung',
+            title: 'Steuern & Abschreibung',
             description: 'Diese Werte beeinflussen deinen Cashflow NACH Steuern. Die meisten Werte sind automatisch berechnet – nur bei speziellen Fällen musst du etwas ändern.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -213,7 +213,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: '🏦 Schritt 3: Finanzierung planen',
+            title: 'Schritt 3: Finanzierung planen',
             description: 'Zum Schluss erfasst du dein Eigenkapital und die Kreditkonditionen.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -231,7 +231,7 @@ export function useOnboarding() {
           element: '#zins-input',
           popover: {
             title: 'Zinssatz',
-            description: 'Aktueller Zinssatz deiner Bank. Stand 2025: ca. 3,5-4,5%. Wenn unsicher: Nutze 4%.',
+            description: 'Aktueller Zinssatz deiner Bank. Stand Januar 2026: ca. 3,0-4,0%. Wenn unsicher: Nutze 3,5%.',
             ...commonConfig.popover,
           }
         },
@@ -239,7 +239,7 @@ export function useOnboarding() {
           element: '#tilgung-input',
           popover: {
             title: 'Tilgung',
-            description: 'Anfangstilgung pro Jahr. Standard sind 2-3%. Je höher, desto schneller bist du schuldenfrei.',
+            description: 'Anfangstilgung pro Jahr. Typisch: 1-3%. Bei Kapitalanlage kannst du auch niedrig mit 1% ansetzen – höhere Tilgung bedeutet schnellere Entschuldung, niedrigere Tilgung bedeutet mehr Liquidität.',
             ...commonConfig.popover,
           }
         },
@@ -249,6 +249,60 @@ export function useOnboarding() {
             title: 'Fertig! Zur Analyse',
             description: 'Klick hier, um deine vollständige Immobilienanalyse mit Cashflow, Rendite und KI-Einschätzung zu sehen.',
             side: 'top' as const,
+            align: 'center' as const,
+          }
+        }
+      ];
+    }
+
+    if (step === 'tabs') {
+      return [
+        {
+          element: '#results-header',
+          popover: {
+            title: 'Deine Immobilienanalyse',
+            description: 'Hier siehst du alle wichtigen Kennzahlen auf einen Blick. Die Analyse basiert auf deinen Eingaben aus den vorherigen Schritten.',
+            side: 'bottom' as const,
+            align: 'start' as const,
+          }
+        },
+        {
+          element: '#tabs-navigation',
+          popover: {
+            title: 'Verschiedene Analysen',
+            description: 'Wechsle zwischen KPI-Analyse, Marktvergleich, Prognose und Szenario-Planung. Premium-Features sind mit einem Schloss markiert.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#kpi-brutto',
+          popover: {
+            title: 'Bruttomietrendite',
+            description: 'Zeigt das Verhältnis der Jahresmiete zum Kaufpreis. Faustregel: Ab 4% interessant, ab 5% sehr gut. Kosten sind hier noch NICHT eingerechnet.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#kpi-netto',
+          popover: {
+            title: 'Nettomietrendite',
+            description: 'Die realistische Rendite NACH allen laufenden Kosten (Hausgeld, Instandhaltung, Mietausfall). Das ist die wichtigste Kennzahl für Kapitalanleger.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#kpi-cashflow',
+          popover: {
+            title: 'Cashflow vor Steuern',
+            description: 'Dein monatlicher Überschuss oder Zuschuss. Positiver Cashflow = Immobilie erwirtschaftet Geld. Negativer Cashflow = Du musst monatlich etwas dazuzahlen.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          popover: {
+            title: 'Weitere Funktionen',
+            description: 'Du kannst die Eingaben jederzeit über "Bearbeiten" anpassen oder mit "Neue Analyse" ein weiteres Objekt bewerten. Viel Erfolg!',
+            side: 'bottom' as const,
             align: 'center' as const,
           }
         }

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 interface OnboardingWizardProps {
-  step?: 'a' | 'b' | 'c';
+  step?: 'a' | 'b' | 'c' | 'tabs';
   autoStart?: boolean;
   delay?: number;
 }
