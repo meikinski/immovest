@@ -1,6 +1,7 @@
 // src/app/api/scrape-with-agent/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
+import { detectPortal, isLikelyRealEstateListing } from '@/lib/portalDetection';
 
 /**
  * Normalisiert objekttyp auf erlaubte Werte (safety layer)
@@ -29,9 +30,11 @@ function normalizeObjekttyp(rawTyp: string | null | undefined): 'wohnung' | 'hau
 }
 
 export async function POST(req: NextRequest) {
+  let url = '';  // Declare outside try block for error handling
+
   try {
     const body = await req.json();
-    const url = body.url;
+    url = body.url;
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json(
@@ -41,6 +44,31 @@ export async function POST(req: NextRequest) {
     }
 
     console.log(`[API] Scraping URL with AI Agent: ${url}`);
+
+    // PORTAL DETECTION: Detect and validate portal
+    const portalInfo = detectPortal(url);
+    const isLikeListing = isLikelyRealEstateListing(url);
+
+    console.log(`[API] Portal detected: ${portalInfo.name} (supported: ${portalInfo.supported}, reliability: ${portalInfo.reliability})`);
+
+    // Collect warnings array
+    const warnings: string[] = [];
+
+    // Add portal-specific warnings
+    if (!portalInfo.supported) {
+      console.warn(`[API] ⚠️ Unknown portal: ${portalInfo.name}`);
+      if (portalInfo.warning) {
+        warnings.push(portalInfo.warning);
+      }
+    } else if (portalInfo.warning) {
+      warnings.push(portalInfo.warning);
+    }
+
+    // Warn if URL doesn't look like a listing
+    if (!isLikeListing) {
+      console.warn('[API] ⚠️ URL does not look like a real estate listing');
+      warnings.push('⚠️ ACHTUNG: Die URL sieht nicht wie ein typisches Immobilien-Exposé aus. Falls keine Daten gefunden werden, stelle sicher, dass du den Link zu einem einzelnen Angebot (nicht zur Übersicht) eingegeben hast.');
+    }
 
     const input: UrlScraperInput = { url };
     const result = await runUrlScraper(input);
@@ -79,25 +107,54 @@ export async function POST(req: NextRequest) {
       data.makler_pct = result.maklergebuehr;  // Store expects makler_pct, not maklergebuehr
     }
 
-    console.log(`[API] Scraping complete - Confidence: ${result.confidence}`);
-    if (result.warnings.length > 0) {
-      console.log(`[API] Warnings:`, result.warnings);
+    // Merge portal warnings with AI-generated warnings
+    const allWarnings = [...warnings, ...result.warnings];
+
+    console.log(`[API] Scraping complete - Portal: ${portalInfo.name}, Confidence: ${result.confidence}`);
+    if (allWarnings.length > 0) {
+      console.log(`[API] Warnings (${allWarnings.length}):`, allWarnings);
     }
 
     return NextResponse.json({
       success: true,
       data,
-      warnings: result.warnings,
+      warnings: allWarnings,
+      _meta: {
+        portal: portalInfo.name,
+        portalSupported: portalInfo.supported,
+        reliability: portalInfo.reliability,
+      }
     });
 
   } catch (err: unknown) {
     const error = err as Error;
     console.error('[API] Scraping error:', error.message);
 
+    // Try to detect portal from URL even in error case
+    let portalName = 'Unbekannt';
+    let enhancedErrorMessage = error.message;
+
+    try {
+      const portalInfo = detectPortal(url);
+      portalName = portalInfo.name;
+
+      // Enhance error message based on portal support
+      if (!portalInfo.supported) {
+        enhancedErrorMessage = `❌ PORTAL NICHT UNTERSTÜTZT: ${portalName} ist noch nicht offiziell unterstützt. Die KI konnte keine verwertbaren Daten finden.\n\n💡 Tipp: Nutze einen Screenshot der Anzeige stattdessen, oder gib die Daten manuell ein.`;
+      } else if (error.message.includes('Fehlende Informationen')) {
+        enhancedErrorMessage = `${error.message}\n\n💡 Mögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Die Seitenstruktur von ${portalName} hat sich geändert\n\n🔄 Versuch es mit einem Screenshot oder manueller Eingabe.`;
+      } else if (error.message.includes('keine Immobilien-Exposé-Daten')) {
+        enhancedErrorMessage = `${error.message}\n\nℹ️ Du hast versucht, Daten von ${portalName} zu laden. Stelle sicher, dass:\n• Der Link zu einem einzelnen Angebot führt (nicht zur Übersicht)\n• Die Anzeige noch aktiv ist\n• Es sich um eine Verkaufsanzeige handelt (nicht Miete)`;
+      }
+    } catch {
+      // Portal detection failed, use generic error
+    }
+
     return NextResponse.json(
       {
         error: 'Fehler beim Laden der Daten',
-        details: error.message,
+        details: enhancedErrorMessage,
+        portal: portalName,
       },
       { status: 500 }
     );
