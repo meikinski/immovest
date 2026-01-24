@@ -2,6 +2,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runWorkflow, type WorkflowInput } from '@/lib/agentWorkflow';
 import { z } from 'zod';
+import { geocodeBasics } from '@/utils/geocoding';
+import { wikidataAreaByPoint } from '@/utils/wikidata';
 
 // ============================================
 // INPUT VALIDATION SCHEMA
@@ -232,10 +234,78 @@ export async function POST(req: NextRequest) {
     }
 
     // ============================================
+    // 2.5 GEOCODING - EXTRACT DISTRICT/NEIGHBORHOOD
+    // ============================================
+    let geocodedDistrict: string | undefined;
+    let geocodedCity: string | undefined;
+    let geocodedNeighborhood: string | undefined;
+
+    try {
+      console.log('[/api/agent/run] Geocoding address:', validatedPayload.address);
+
+      // 1. Mapbox Geocoding für Basis-Informationen
+      const geoBasics = await geocodeBasics(validatedPayload.address);
+      geocodedCity = geoBasics.city;
+      geocodedDistrict = geoBasics.district;
+      geocodedNeighborhood = geoBasics.neighborhood;
+
+      console.log('[/api/agent/run] Mapbox result:', {
+        city: geocodedCity,
+        district: geocodedDistrict,
+        neighborhood: geocodedNeighborhood,
+        lat: geoBasics.lat,
+        lng: geoBasics.lng,
+      });
+
+      // 2. Wikidata Reverse Geocoding für zusätzliche Stadtteil-Informationen
+      if (!geocodedDistrict && geoBasics.lat && geoBasics.lng) {
+        console.log('[/api/agent/run] No district from Mapbox, trying Wikidata...');
+        const wikidataArea = await wikidataAreaByPoint(geoBasics.lat, geoBasics.lng);
+
+        if (wikidataArea) {
+          // Wikidata kann zusätzliche Informationen liefern
+          geocodedDistrict = geocodedDistrict || wikidataArea.districtLabel || wikidataArea.hoodLabel;
+          geocodedNeighborhood = geocodedNeighborhood || wikidataArea.hoodLabel;
+
+          console.log('[/api/agent/run] Wikidata result:', {
+            district: wikidataArea.districtLabel,
+            neighborhood: wikidataArea.hoodLabel,
+            city: wikidataArea.cityLabel,
+          });
+        }
+      }
+
+      // Fallback: Wenn wir einen neighborhood haben aber keinen district, nutze neighborhood als district
+      if (!geocodedDistrict && geocodedNeighborhood) {
+        geocodedDistrict = geocodedNeighborhood;
+      }
+
+      console.log('[/api/agent/run] Final geocoded info:', {
+        city: geocodedCity,
+        district: geocodedDistrict,
+        neighborhood: geocodedNeighborhood,
+      });
+    } catch (geocodeError) {
+      console.error('[/api/agent/run] Geocoding error (non-blocking):', geocodeError);
+      // Geocoding-Fehler sind nicht kritisch - der Agent kann trotzdem arbeiten
+    }
+
+    // ============================================
     // 3. RUN WORKFLOW
     // ============================================
     console.log('[/api/agent/run] Starting workflow with validated payload');
-    const input: WorkflowInput = { input_as_text: JSON.stringify(validatedPayload) };
+
+    // Füge geocodierte Informationen zum Payload hinzu
+    const enrichedPayload = {
+      ...validatedPayload,
+      _geocoded: {
+        city: geocodedCity,
+        district: geocodedDistrict,
+        neighborhood: geocodedNeighborhood,
+      },
+    };
+
+    const input: WorkflowInput = { input_as_text: JSON.stringify(enrichedPayload) };
     const result = await runWorkflow(input);
 
     return NextResponse.json(result, { status: 200 });
