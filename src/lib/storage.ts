@@ -34,7 +34,7 @@ export type SavedScenario = {
   // Scenario settings
   wertentwicklungAktiv: boolean;
   wertentwicklungPct: number;
-  darlehensTyp: string;
+  darlehensTyp: 'annuitaet' | 'degressiv';
   mietInflationPct: number;
   kostenInflationPct: number;
   verkaufsNebenkostenPct: number;
