@@ -32,6 +32,9 @@ import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
+import { SaveScenarioButton } from '@/components/SaveScenarioButton';
+import { LoadScenariosDialog } from '@/components/LoadScenariosDialog';
+import type { SavedScenario } from '@/lib/storage';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
@@ -81,6 +84,7 @@ export default function StepPage() {
   // === Common Store (Inputs & Ableitungen) ===
   const score         = useImmoStore(s => s.score);
   const updateDerived = useImmoStore(s => s.updateDerived);
+  const analysisId    = useImmoStore(s => s.analysisId);
 
   // Step A: Werte + Setter
   const kaufpreis   = useImmoStore(s => s.kaufpreis);
@@ -3352,6 +3356,60 @@ const exportPdf = React.useCallback(async () => {
 <p className="text-gray-600 mt-1 pb-6">
   Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
 </p>
+
+    {/* Scenario Save/Load Buttons */}
+    <div className="mb-6 flex flex-wrap gap-3">
+      <SaveScenarioButton
+        analysisId={analysisId || undefined}
+        scenarioData={{
+          scenarioName: `Szenario ${new Date().toLocaleDateString('de-DE')}`,
+          mieteDeltaPct,
+          preisDeltaPct,
+          zinsDeltaPp,
+          tilgungDeltaPp,
+          ekDeltaPct,
+          sondertilgungJaehrlich,
+          wertentwicklungAktiv,
+          wertentwicklungPct,
+          darlehensTyp,
+          mietInflationPct,
+          kostenInflationPct,
+          verkaufsNebenkostenPct,
+          scenarioKaufpreis: kaufpreis * (1 + preisDeltaPct / 100),
+          scenarioMiete: miete * (1 + mieteDeltaPct / 100),
+          scenarioZins: zins + zinsDeltaPp,
+          scenarioTilgung: tilgung + tilgungDeltaPp,
+          scenarioEk: ek * (1 + ekDeltaPct / 100),
+          scenarioCashflowVorSteuer: 0, // Will be calculated in the button
+          scenarioCashflowNachSteuer: 0,
+          scenarioNettorendite: 0,
+          scenarioBruttorendite: 0,
+          scenarioEkRendite: 0,
+          scenarioNoiMonthly: 0,
+          scenarioDscr: 0,
+          scenarioRateMonat: 0,
+          scenarioAbzahlungsjahr: 0,
+        }}
+      />
+      <LoadScenariosDialog
+        analysisId={analysisId || undefined}
+        onLoadScenario={(scenario: SavedScenario) => {
+          // Load scenario values into state
+          setMieteDeltaPct(scenario.mieteDeltaPct);
+          setPreisDeltaPct(scenario.preisDeltaPct);
+          setZinsDeltaPp(scenario.zinsDeltaPp);
+          setTilgungDeltaPp(scenario.tilgungDeltaPp);
+          setEkDeltaPct(scenario.ekDeltaPct);
+          setSondertilgungJaehrlich(scenario.sondertilgungJaehrlich);
+          setWertentwicklungAktiv(scenario.wertentwicklungAktiv);
+          setWertentwicklungPct(scenario.wertentwicklungPct);
+          setDarlehensTyp(scenario.darlehensTyp);
+          setMietInflationPct(scenario.mietInflationPct);
+          setKostenInflationPct(scenario.kostenInflationPct);
+          setVerkaufsNebenkostenPct(scenario.verkaufsNebenkostenPct);
+        }}
+      />
+    </div>
 
     {/* Reset All Button */}
     {(mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0) && (
