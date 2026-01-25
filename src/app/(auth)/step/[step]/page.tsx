@@ -1463,7 +1463,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Objekttyp */}
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
-            <div className="flex gap-3">
+            <div id="objekttyp-selector" className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setObjekttyp('wohnung')}
@@ -1604,6 +1604,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -3888,8 +3889,8 @@ const exportPdf = React.useCallback(async () => {
       />
 
       {/* Onboarding Wizard - Auto-starts on first visit for each step */}
-      {(step === 'a' || step === 'b' || step === 'c' || step === 'tabs') && (
-        <OnboardingWizard step={step as 'a' | 'b' | 'c' | 'tabs'} autoStart={true} delay={500} />
+      {(step === 'a' || step === 'a2' || step === 'b' || step === 'c' || step === 'tabs') && (
+        <OnboardingWizard step={step as 'a' | 'a2' | 'b' | 'c' | 'tabs'} autoStart={true} delay={500} />
       )}
 
       {/* Upsell Banner: Show after 1st premium usage */}
