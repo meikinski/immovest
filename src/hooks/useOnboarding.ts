@@ -5,7 +5,7 @@ import { driver, DriveStep, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 interface OnboardingOptions {
-  step?: 'a' | 'b' | 'c' | 'tabs';
+  step?: 'a' | 'a2' | 'b' | 'c' | 'tabs';
   onComplete?: () => void;
   onSkip?: () => void;
 }
@@ -75,7 +75,7 @@ export function useOnboarding() {
           element: '#grunderwerbsteuer-input',
           popover: {
             title: 'Grunderwerbsteuer',
-            description: 'Variiert je nach Bundesland (3,5% - 6,5%). Wird automatisch vorausgefüllt basierend auf der Adresse.',
+            description: 'Variiert je nach Bundesland (3,5% - 6,5%). Wird später automatisch vorausgefüllt, sobald du die Adresse eingibst.',
             ...commonConfig.popover,
           }
         },
@@ -107,6 +107,36 @@ export function useOnboarding() {
       ];
     }
 
+    if (step === 'a2') {
+      return [
+        {
+          popover: {
+            title: 'Objektdaten erfassen',
+            description: 'Jetzt gibst du die wichtigsten Details zur Immobilie ein. Diese Daten beeinflussen die Berechnungen im nächsten Schritt.',
+            side: 'bottom' as const,
+            align: 'center' as const,
+          }
+        },
+        {
+          element: '#objekttyp-selector',
+          popover: {
+            title: 'Objekttyp wählen',
+            description: 'Wichtig: Bei Wohnungen musst du später Hausgeld (WEG-Umlage) eingeben. Bei Häusern und MFH gibt es stattdessen separate Verwaltungskosten. Der Objekttyp beeinflusst auch den Gebäudeanteil für die Abschreibung.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '[data-step-nav="next"]',
+          popover: {
+            title: 'Weiter zu Mieteinnahmen',
+            description: 'Im nächsten Schritt erfasst du alle Einnahmen und laufenden Kosten.',
+            side: 'top' as const,
+            align: 'center' as const,
+          }
+        }
+      ];
+    }
+
     if (step === 'b') {
       return [
         {
@@ -129,7 +159,7 @@ export function useOnboarding() {
           element: '#hausgeld-umlegbar-input',
           popover: {
             title: 'Hausgeld umlegefähig',
-            description: 'Diese Nebenkosten kannst du auf den Mieter umlegen (z.B. Heizung, Wasser, Müll). Bei Wohnungen steht das im WEG-Exposé.',
+            description: 'Diese Nebenkosten kannst du auf den Mieter umlegen (z.B. Heizung, Wasser, Müll). Übliche Verteilung: 60% umlegbar, 40% nicht umlegbar. Wenn im Exposé nur das Gesamthausgeld steht, teile es entsprechend auf.',
             ...commonConfig.popover,
           }
         },
@@ -137,7 +167,7 @@ export function useOnboarding() {
           element: '#hausgeld-nicht-umlegbar-input',
           popover: {
             title: 'Hausgeld nicht umlegefähig',
-            description: 'WEG-Kosten die du selbst trägst: Hausverwaltung, Instandhaltungsrücklage. Nur bei Eigentumswohnungen. Steht meist im Exposé. Beispiel: 250 €/Monat.',
+            description: 'WEG-Kosten die du selbst trägst: Hausverwaltung, Instandhaltungsrücklage. Üblich sind ca. 40% des Gesamthausgelds. Beispiel: Bei 250€ Gesamthausgeld → 150€ umlegbar, 100€ nicht umlegbar.',
             ...commonConfig.popover,
           }
         },
@@ -327,7 +357,7 @@ export function useOnboarding() {
       showButtons: ['next', 'previous', 'close'],
       nextBtnText: 'Weiter',
       prevBtnText: 'Zurück',
-      doneBtnText: 'Verstanden',
+      doneBtnText: 'Fertig',
       progressText: 'Schritt {{current}} von {{total}}',
       stagePadding: 35, // Large padding to show labels and full context
       stageRadius: 24, // Rounded corners (1.5rem = 24px) like cards
