@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
 import { PaywallProvider } from '@/contexts/PaywallContext';
 import { SignupTracker } from '@/components/SignupTracker';
+import { ChatAssistant } from '@/components/ChatAssistant';
 
 /**
  * Auth Layout - WITH CLERK AND PAYWALL!
@@ -30,6 +31,7 @@ export default function AuthLayout({
       <SignupTracker />
       <PaywallProvider>
         {children}
+        <ChatAssistant />
       </PaywallProvider>
     </ClerkProvider>
   );
