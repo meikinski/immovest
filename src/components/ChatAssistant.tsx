@@ -2,14 +2,17 @@
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { useState, useRef, useEffect, useMemo, FormEvent } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, FormEvent } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useImmoStore } from '@/store/useImmoStore';
 
 export function ChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lastAssistantRef = useRef<HTMLDivElement>(null);
+  const prevMessageCountRef = useRef(0);
 
   // Get user context from Zustand store
   const {
@@ -21,17 +24,26 @@ export function ChatAssistant() {
     objekttyp,
     flaeche,
     adresse,
+    hausgeld,
+    hausgeld_umlegbar,
+    grunderwerbsteuer_pct,
+    notar_pct,
+    makler_pct,
     cashflow_operativ,
     nettorendite,
+    anschaffungskosten,
   } = useImmoStore();
 
-  // Calculate derived values for context
-  const anschaffungskosten = kaufpreis > 0 ? kaufpreis * 1.12 : 0;
-  const darlehensSumme = anschaffungskosten - ek;
+  // Compute additional KPIs for context
+  const darlehensSumme = kaufpreis > 0 ? (anschaffungskosten || kaufpreis) - ek : 0;
   const jahresRate = darlehensSumme > 0 ? darlehensSumme * ((zins + tilgung) / 100) : 0;
-  const monatsMieteNetto = miete > 0 ? miete * 0.85 : 0;
+  const monatsMieteNetto = miete > 0 ? miete - (hausgeld - hausgeld_umlegbar) : 0;
   const dscr = jahresRate > 0 ? (monatsMieteNetto * 12) / jahresRate : 0;
   const ekRendite = ek > 0 ? ((cashflow_operativ * 12) / ek) * 100 : 0;
+  const bruttomietrendite = kaufpreis > 0 ? ((miete * 12) / kaufpreis) * 100 : 0;
+  const ekQuote = (anschaffungskosten || kaufpreis) > 0
+    ? (ek / (anschaffungskosten || kaufpreis)) * 100
+    : 0;
 
   const userContext = useMemo(() => ({
     kaufpreis,
@@ -42,18 +54,23 @@ export function ChatAssistant() {
     objekttyp,
     flaeche,
     adresse,
+    hausgeld,
+    hausgeld_umlegbar,
+    grunderwerbsteuer_pct,
+    notar_pct,
+    makler_pct,
+    anschaffungskosten,
     cashflow: cashflow_operativ,
     nettomietrendite: nettorendite,
-    ekRendite: ekRendite,
-    dscr: dscr,
-  }), [kaufpreis, miete, ek, zins, tilgung, objekttyp, flaeche, adresse, cashflow_operativ, nettorendite, ekRendite, dscr]);
+    bruttomietrendite,
+    ekRendite,
+    ekQuote,
+    dscr,
+  }), [kaufpreis, miete, ek, zins, tilgung, objekttyp, flaeche, adresse, hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct, anschaffungskosten, cashflow_operativ, nettorendite, bruttomietrendite, ekRendite, ekQuote, dscr]);
 
-  // Create transport with memoization to avoid recreating on every render
   const transport = useMemo(() => new DefaultChatTransport({
     api: '/api/chat',
-    body: {
-      userContext,
-    },
+    body: { userContext },
   }), [userContext]);
 
   const { messages, sendMessage, status, error } = useChat({
@@ -62,52 +79,52 @@ export function ChatAssistant() {
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-
     const messageText = input.trim();
     setInput('');
-
     await sendMessage({ text: messageText });
   };
 
-  // Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
   };
 
-  // Auto-scroll to new messages
+  // Scroll to start of new assistant message when it appears
   useEffect(() => {
-    if (isOpen) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (!isOpen) return;
+    const currentCount = messages.length;
+    const prevCount = prevMessageCountRef.current;
+    prevMessageCountRef.current = currentCount;
+
+    // New assistant message just appeared (count went from user msg to user+assistant)
+    if (currentCount > prevCount && currentCount >= 2) {
+      const lastMsg = messages[currentCount - 1];
+      if (lastMsg.role === 'assistant' && lastAssistantRef.current) {
+        lastAssistantRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
-  }, [messages, isOpen]);
+  }, [messages.length, isOpen, messages]);
 
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        setIsOpen(false);
-      }
+      if (e.key === 'Escape' && isOpen) setIsOpen(false);
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
-  // Helper to get message text content
-  const getMessageText = (message: typeof messages[0]): string => {
-    if (!message.parts || message.parts.length === 0) {
-      return '';
-    }
+  // Helper to get message text content from UIMessage parts
+  const getMessageText = useCallback((message: typeof messages[0]): string => {
+    if (!message.parts || message.parts.length === 0) return '';
     return message.parts
       .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
       .map(part => part.text)
       .join('');
-  };
+  }, []);
 
-  // Handle clicking example questions
   const handleExampleClick = (question: string) => {
     setInput(question);
   };
@@ -117,15 +134,15 @@ export function ChatAssistant() {
       {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 bg-[#ff6b00] text-white p-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+        className="fixed bottom-6 right-6 z-[70] bg-[#ff6b00] text-white p-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
         aria-label={isOpen ? 'Chat schließen' : 'Chat öffnen'}
       >
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* Chat Window */}
+      {/* Chat Window — z-[60] to sit above header (z-50) */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-40 w-[400px] h-[600px] max-md:w-full max-md:h-full max-md:bottom-0 max-md:right-0 max-md:rounded-none bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-gray-100 animate-fade-in">
+        <div className="fixed bottom-24 right-6 z-[60] w-[400px] h-[600px] max-md:w-full max-md:h-full max-md:bottom-0 max-md:right-0 max-md:rounded-none bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-gray-100 animate-fade-in">
           {/* Header */}
           <div className="bg-[#001d3d] text-white p-4 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
@@ -147,7 +164,7 @@ export function ChatAssistant() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             {messages.length === 0 && (
               <div className="text-sm text-gray-600 space-y-3 p-4 bg-white rounded-xl border border-gray-100">
                 <div className="flex items-center gap-2 text-[#001d3d] font-semibold">
@@ -175,13 +192,19 @@ export function ChatAssistant() {
               </div>
             )}
 
-            {messages.map((msg) => {
+            {messages.map((msg, idx) => {
               const text = getMessageText(msg);
               if (!text) return null;
+
+              // Track last assistant message for scroll-to-start
+              const isLastAssistant =
+                msg.role === 'assistant' &&
+                idx === messages.length - 1;
 
               return (
                 <div
                   key={msg.id}
+                  ref={isLastAssistant ? lastAssistantRef : undefined}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
@@ -207,7 +230,13 @@ export function ChatAssistant() {
                           : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm shadow-sm'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap leading-relaxed">{text}</p>
+                      {msg.role === 'user' ? (
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{text}</p>
+                      ) : (
+                        <div className="chat-markdown text-sm leading-relaxed">
+                          <ReactMarkdown>{text}</ReactMarkdown>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -223,18 +252,9 @@ export function ChatAssistant() {
                   </div>
                   <div className="bg-white border border-gray-200 px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm">
                     <div className="flex items-center space-x-1.5">
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: '0ms' }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: '150ms' }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                        style={{ animationDelay: '300ms' }}
-                      />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -249,8 +269,6 @@ export function ChatAssistant() {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Input Form */}
