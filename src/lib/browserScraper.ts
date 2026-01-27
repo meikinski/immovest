@@ -1,23 +1,12 @@
 /**
- * Browser-based Scraper using Playwright with Stealth Mode
+ * Browser-based Scraper using Playwright with enhanced anti-detection
  *
  * PURPOSE:
- * This is a fallback scraper for when the AI webSearchTool fails.
- * Uses Playwright with stealth plugin to bypass aggressive anti-bot detection.
- *
- * STEALTH FEATURES:
- * - Hides webdriver property
- * - Mocks Chrome runtime
- * - Randomizes browser fingerprint
- * - Bypasses common bot detection (Cloudflare, DataDome, etc.)
+ * Fallback scraper when webSearchTool fails.
+ * Uses aggressive anti-detection measures to bypass bot detection.
  */
 
-import { chromium } from 'playwright-extra';
-import stealth from 'playwright-extra-plugin-stealth';
-
-// Add stealth plugin (with type assertion to satisfy TypeScript)
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-chromium.use(stealth() as any);
+import { chromium } from 'playwright';
 
 export type BrowserScraperResult = {
   html: string;
@@ -28,7 +17,7 @@ export type BrowserScraperResult = {
 };
 
 /**
- * Scrapes a URL using Playwright with stealth mode
+ * Scrapes a URL using Playwright with aggressive anti-detection
  */
 export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResult> {
   let browser = null;
@@ -37,7 +26,7 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
   try {
     console.log('[Browser Scraper] Launching stealth browser...');
 
-    // Launch browser with stealth mode
+    // Launch with anti-detection args
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -45,21 +34,52 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-blink-features=AutomationControlled',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
       ],
     });
 
-    // Create page with realistic settings
-    page = await browser.newPage({
+    const context = await browser.newContext({
       viewport: { width: 1920, height: 1080 },
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      locale: 'de-DE',
+      timezoneId: 'Europe/Berlin',
+    });
+
+    page = await context.newPage();
+
+    // Aggressive anti-detection scripts
+    await page.addInitScript(() => {
+      // Hide webdriver
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => false,
+      });
+
+      // Mock permissions
+      const originalQuery = window.navigator.permissions.query;
+      // @ts-ignore
+      window.navigator.permissions.query = (parameters) => (
+        parameters.name === 'notifications' ?
+          Promise.resolve({ state: Notification.permission }) :
+          originalQuery(parameters)
+      );
+
+      // Mock plugins
+      Object.defineProperty(navigator, 'plugins', {
+        get: () => [1, 2, 3, 4, 5],
+      });
+
+      // Mock languages
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['de-DE', 'de', 'en-US', 'en'],
+      });
     });
 
     console.log(`[Browser Scraper] Navigating to: ${url}`);
 
-    // Navigate with timeout
     const response = await page.goto(url, {
       waitUntil: 'domcontentloaded',
-      timeout: 20000, // 20 second timeout
+      timeout: 20000,
     });
 
     const statusCode = response?.status() || 0;
@@ -69,10 +89,9 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
       throw new Error(`HTTP ${statusCode}: Page returned error status`);
     }
 
-    // Wait for content to render
+    // Wait for content
     await page.waitForTimeout(2000);
 
-    // Extract HTML
     const html = await page.content();
 
     console.log(`[Browser Scraper] ✅ Success - extracted ${html.length} characters`);
@@ -95,7 +114,6 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
       url,
     };
   } finally {
-    // Cleanup
     try {
       if (page) await page.close();
       if (browser) await browser.close();
@@ -106,13 +124,9 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
   }
 }
 
-/**
- * Checks if browser scraping is available
- */
 export async function isBrowserScrapingAvailable(): Promise<boolean> {
   try {
-    const hasChromium = chromium !== undefined;
-    return hasChromium;
+    return chromium !== undefined;
   } catch {
     console.warn('[Browser Scraper] Playwright not available');
     return false;
