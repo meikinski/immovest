@@ -330,13 +330,19 @@ export type UrlScraperResult = z.infer<typeof ImmobilienDataSchema>;
 /**
  * Extrahiert die erste URL aus einem Text
  * Nützlich wenn User den ganzen Share-Text aus der App einfügen (z.B. "Gerade bei #Kleinanzeigen gefunden... https://...")
+ *
+ * WICHTIG: Extrahiert vollständige URLs inklusive Query-Parameter und Fragmente
+ * Beispiele:
+ * - "https://example.com/page?param=value#fragment" → "https://example.com/page?param=value#fragment"
+ * - "Schau mal: https://example.com/page mehr Text" → "https://example.com/page"
  */
 function extractUrlFromText(input: string): string {
   const trimmed = input.trim();
 
   // Check if input starts with http/https - likely already a clean URL
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    // But it might have text after the URL, so still extract
+    // Extract URL (stops at whitespace, but includes query params and fragments)
+    // The regex [^\s]+ matches everything except whitespace
     const urlMatch = trimmed.match(/https?:\/\/[^\s]+/);
     if (urlMatch) {
       return urlMatch[0];
@@ -345,6 +351,7 @@ function extractUrlFromText(input: string): string {
   }
 
   // Extract URL from text (e.g., share text from app)
+  // This handles cases like "Gerade bei #Kleinanzeigen gefunden: https://..."
   const urlRegex = /https?:\/\/[^\s]+/g;
   const urls = trimmed.match(urlRegex);
 
@@ -416,6 +423,14 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
   // Validate URL (lenient - just check basic format)
   if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
     throw new Error('❌ UNGÜLTIGE URL: Die URL muss mit http:// oder https:// beginnen.\n\nBeispiel: https://www.immobilienscout24.de/expose/123456');
+  }
+
+  // Remove URL fragments (anything after #) - they are client-side only and can cause issues
+  // Example: https://example.com/page#section → https://example.com/page
+  if (trimmedUrl.includes('#')) {
+    const urlWithoutFragment = trimmedUrl.split('#')[0];
+    console.log(`[URL Scraper] Removed fragment: ${trimmedUrl} → ${urlWithoutFragment}`);
+    trimmedUrl = urlWithoutFragment;
   }
 
   // Normalize eBay Kleinanzeigen URLs (mobile app, old domain, etc.)
