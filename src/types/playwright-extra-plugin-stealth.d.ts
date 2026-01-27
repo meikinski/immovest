@@ -1,5 +1,7 @@
 declare module 'playwright-extra-plugin-stealth' {
-  import { BrowserType } from 'playwright-extra';
+  interface StealthPlugin {
+    name: string;
+  }
 
-  export default function stealth(): any;
+  export default function stealth(): StealthPlugin;
 }

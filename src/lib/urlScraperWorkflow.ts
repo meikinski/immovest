@@ -1,7 +1,6 @@
 // src/lib/urlScraperWorkflow.ts
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
-import { scrapeWithBrowser } from './browserScraper';
 import { smartProxyFetch } from './smartProxy';
 
 export type UrlScraperInput = {

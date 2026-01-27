@@ -121,7 +121,7 @@ export function detectPortal(url: string): PortalInfo {
       reliability: 'unknown',
       warning: `⚠️ UNBEKANNTES PORTAL: ${hostname} ist nicht in unserer Liste bekannter Immobilienportale. Die KI wird versuchen, Daten zu extrahieren, aber die Erfolgsrate ist ungewiss. Bitte überprüfe alle Werte manuell sehr sorgfältig!`,
     };
-  } catch (err) {
+  } catch {
     // Invalid URL
     return {
       name: 'Ungültige URL',
