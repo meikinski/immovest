@@ -128,7 +128,9 @@ export async function POST(req: NextRequest) {
 
   } catch (err: unknown) {
     const error = err as Error;
-    console.error('[API] Scraping error:', error.message);
+    console.error('[API] ❌ Scraping error:', error.message);
+    console.error('[API] Full error:', error);
+    console.error('[API] Error stack:', error.stack);
 
     // Try to detect portal from URL even in error case
     let portalName = 'Unbekannt';
@@ -152,8 +154,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        error: 'Fehler beim Laden der Daten',
-        details: enhancedErrorMessage,
+        success: false,
+        error: enhancedErrorMessage,  // Use enhanced message directly as error
+        details: enhancedErrorMessage,  // Also provide in details for compatibility
         portal: portalName,
       },
       { status: 500 }
