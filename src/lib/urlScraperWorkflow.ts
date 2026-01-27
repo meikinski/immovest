@@ -423,7 +423,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
   // Validate URL (lenient - just check basic format)
   if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
-    throw new Error('❌ UNGÜLTIGE URL: Die URL muss mit http:// oder https:// beginnen.\n\nBeispiel: https://www.immobilienscout24.de/expose/123456');
+    throw new Error('Ungültige URL. Die URL muss mit http:// oder https:// beginnen.');
   }
 
   // Remove URL fragments (anything after #) - they are client-side only and can cause issues
@@ -494,7 +494,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
       if (!proxyResult.success || !proxyResult.html) {
         console.error('[URL Scraper] ❌ Smart Proxy failed:', proxyResult.error);
-        throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte trotz mehrerer Anti-Bot-Bypass-Strategien nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite hat sehr starke Anti-Bot-Protection (z.B. ImmobilienScout24)\n• Die Anzeige ist nicht mehr verfügbar\n• Die Seite ist hinter einem Login geschützt');
+        throw new Error('Seite konnte nicht geladen werden.\n\n💡 Lösung: Gib die Daten manuell ein.');
       }
 
       console.log(`[URL Scraper] ✅ Smart Proxy succeeded with method: ${proxyResult.method} - extracted ${proxyResult.html.length} chars of HTML`);
@@ -518,13 +518,13 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
       console.error('[URL Scraper] ❌ Smart Proxy also failed:', proxyError);
 
       // Both methods failed - provide clear guidance
-      throw new Error('❌ ZUGRIFF BLOCKIERT\n\nDas Portal blockiert automatisierte Zugriffe sehr aggressiv. Alle Anti-Bot-Bypass-Strategien wurden versucht.\n\n💡 ALTERNATIVE (funktioniert zu 100%):\n• Mache einen Screenshot der Anzeige mit deinem Smartphone\n• Nutze die "Foto scannen" Funktion\n• Oder gib die Daten manuell ein\n\nℹ️ Warum funktioniert URL-Import nicht?\nViele Portale (besonders ImmobilienScout24) haben sehr starke Anti-Bot-Maßnahmen, die Server-Zugriffe erkennen und blockieren. Die Screenshot-Methode umgeht dies komplett.');
+      throw new Error('Zugriff blockiert.\n\n💡 Lösung: Gib die Daten manuell ein oder probier ein anderes Portal (Immowelt, eBay Kleinanzeigen).');
     }
   }
 
   // Validation (same for both methods)
   if (!result.finalOutput) {
-    throw new Error('❌ KEINE DATEN GEFUNDEN\n\nDie KI konnte auf dieser Seite keine Immobilien-Exposé-Daten finden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Gründe:\n• Die Seite ist kein Immobilien-Exposé\n• Die Anzeige ist nicht mehr verfügbar (gelöscht/deaktiviert)\n• Die Seite ist hinter einem Login geschützt');
+    throw new Error('Keine Daten gefunden. Stelle sicher, dass der Link zu einem Angebot führt.\n\n💡 Lösung: Gib die Daten manuell ein.');
   }
 
   console.log('[URL Scraper] Complete (before validation):', {
@@ -548,17 +548,17 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
     if (!result.finalOutput.adresse) missing.push('Adresse');
 
-    throw new Error(`❌ UNVOLLSTÄNDIGE DATEN\n\nDie KI konnte nicht alle erforderlichen Informationen extrahieren.\n\nFehlende Informationen: ${missing.join(', ')}\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Das Portal zeigt diese Daten nicht an (z.B. private Kleinanzeige)\n• Die Seitenstruktur wird nicht erkannt\n• Die Anzeige ist unvollständig`);
+    throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}\n\n💡 Lösung: Gib die fehlenden Daten manuell ein.`);
   }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes
   const validatedOutput = validateAndFixOutput(result.finalOutput);
 
-  // Add note if Playwright was used
+  // Add note if fallback was used
   if (usedPlaywrightFallback && !validatedOutput.notes) {
-    validatedOutput.notes = '✅ Daten per Browser-Automation extrahiert (Playwright-Fallback)';
+    validatedOutput.notes = 'Daten per Fallback-Methode extrahiert';
   } else if (usedPlaywrightFallback && validatedOutput.notes) {
-    validatedOutput.notes += ' | ✅ Per Browser-Automation extrahiert';
+    validatedOutput.notes += ' | Per Fallback extrahiert';
   }
 
   console.log('[URL Scraper] After validation:', {
