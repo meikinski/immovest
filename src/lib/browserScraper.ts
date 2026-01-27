@@ -45,7 +45,7 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
   try {
     console.log('[Browser Scraper] Launching headless browser...');
 
-    // Launch browser with anti-detection settings
+    // Launch browser with enhanced anti-detection settings
     browser = await chromium.launch({
       headless: true,
       args: [
@@ -53,21 +53,45 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
         '--disable-dev-shm-usage',
         '--no-sandbox',
         '--disable-setuid-sandbox',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding',
       ],
     });
 
-    // Create page with realistic viewport
+    // Create page with realistic viewport and headers
     page = await browser.newPage({
       viewport: { width: 1920, height: 1080 },
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       extraHTTPHeaders: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'DNT': '1',
-        'Connection': 'keep-alive',
+        'Accept-Encoding': 'gzip, deflate, br, zstd',
+        'Cache-Control': 'max-age=0',
+        'Sec-Ch-Ua': '"Chromium";v="131", "Not_A Brand";v="24"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
         'Upgrade-Insecure-Requests': '1',
       },
+    });
+
+    // Additional anti-detection: Remove webdriver flag
+    await page.addInitScript(() => {
+      // Override the navigator.webdriver property
+      Object.defineProperty(navigator, 'webdriver', {
+        get: () => undefined,
+      });
+
+      // Mock plugins and languages for realistic browser fingerprint
+      Object.defineProperty(navigator, 'plugins', {
+        get: () => [1, 2, 3, 4, 5],
+      });
     });
 
     console.log(`[Browser Scraper] Navigating to: ${url}`);

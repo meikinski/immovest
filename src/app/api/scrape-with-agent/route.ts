@@ -140,9 +140,16 @@ export async function POST(req: NextRequest) {
       const portalInfo = detectPortal(url);
       portalName = portalInfo.name;
 
-      // Enhance error message based on portal support
+      // Enhance error message based on portal support and error type
       if (!portalInfo.supported) {
         enhancedErrorMessage = `❌ PORTAL NICHT UNTERSTÜTZT: ${portalName} ist noch nicht offiziell unterstützt. Die KI konnte keine verwertbaren Daten finden.\n\n💡 Tipp: Nutze einen Screenshot der Anzeige stattdessen, oder gib die Daten manuell ein.`;
+      } else if (error.message.includes('403') || error.message.includes('Forbidden') || error.message.includes('blocked') || error.message.includes('Browser-Automation ist in dieser Umgebung nicht verfügbar')) {
+        // Special handling for blocked/403 errors
+        if (portalName === 'ImmobilienScout24' || portalName.includes('immobilienscout')) {
+          enhancedErrorMessage = `🚫 IMMOBILIENSCOUT24 BLOCKIERT ZUGRIFF\n\n${portalName} hat sehr strenge Anti-Bot-Maßnahmen und blockiert automatisierte Zugriffe.\n\n✅ EINFACHE LÖSUNG:\n• Mache einen Screenshot der Anzeige mit deinem Smartphone\n• Nutze die "Foto scannen" Funktion (funktioniert zu 100%!)\n• Oder gib die Daten manuell ein\n\nℹ️ Warum funktioniert der URL-Import nicht?\nImmobilienScout24 erkennt Server-Zugriffe und blockiert diese automatisch. Die Screenshot-Methode umgeht dies komplett.`;
+        } else {
+          enhancedErrorMessage = `🚫 ZUGRIFF BLOCKIERT\n\n${portalName} blockiert automatisierte Zugriffe von Servern.\n\n✅ ALTERNATIVEN:\n• Mache einen Screenshot der Anzeige und nutze "Foto scannen"\n• Gib die Daten manuell ein\n\nℹ️ Viele Immobilienportale haben Anti-Bot-Schutz, der Server-Zugriffe blockiert.`;
+        }
       } else if (error.message.includes('Fehlende Informationen')) {
         enhancedErrorMessage = `${error.message}\n\n💡 Mögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Die Seitenstruktur von ${portalName} hat sich geändert\n\n🔄 Versuch es mit einem Screenshot oder manueller Eingabe.`;
       } else if (error.message.includes('keine Immobilien-Exposé-Daten')) {
