@@ -1,7 +1,4 @@
 declare module 'playwright-extra-plugin-stealth' {
-  interface StealthPlugin {
-    name: string;
-  }
-
-  export default function stealth(): StealthPlugin;
+  const stealth: () => unknown;
+  export default stealth;
 }
