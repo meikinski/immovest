@@ -195,7 +195,8 @@ export default function InputMethodPage() {
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.error || result.details || 'Die Daten konnten nicht geladen werden. Stelle sicher, dass die URL korrekt ist.');
+        // Prioritize 'details' over 'error' for more specific error messages
+        throw new Error(result.details || result.error || 'Die Daten konnten nicht geladen werden. Stelle sicher, dass die URL korrekt ist.');
       }
 
       // Reset form before importing new data
@@ -211,7 +212,7 @@ export default function InputMethodPage() {
         importData({ analysisId });
 
         // Show warnings if any
-        if (result.warnings.length > 0) {
+        if (result.warnings && result.warnings.length > 0) {
           setUrlWarnings(result.warnings);
         }
 
