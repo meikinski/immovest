@@ -2,6 +2,7 @@
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
 import { scrapeWithBrowser } from './browserScraper';
+import { smartProxyFetch } from './smartProxy';
 
 export type UrlScraperInput = {
   url: string;
@@ -484,19 +485,19 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
   } catch (webSearchError) {
     console.error('[URL Scraper] ❌ webSearchTool failed:', webSearchError);
 
-    // METHOD 2: Fallback to Playwright (slower but more robust)
-    console.log('[URL Scraper] 🔄 Method 2: Trying Playwright (browser automation)...');
+    // METHOD 2: Fallback to Smart Proxy (multiple strategies: direct, delayed, Playwright)
+    console.log('[URL Scraper] 🔄 Method 2: Trying Smart Proxy (anti-bot bypass)...');
 
     try {
-      // Scrape with Playwright
-      const browserResult = await scrapeWithBrowser(trimmedUrl);
+      // Use smart proxy that tries multiple strategies
+      const proxyResult = await smartProxyFetch(trimmedUrl);
 
-      if (!browserResult.success || !browserResult.html) {
-        console.error('[URL Scraper] ❌ Playwright failed:', browserResult.error);
-        throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte auch mit Browser-Automation nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection');
+      if (!proxyResult.success || !proxyResult.html) {
+        console.error('[URL Scraper] ❌ Smart Proxy failed:', proxyResult.error);
+        throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte trotz mehrerer Anti-Bot-Bypass-Strategien nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite hat sehr starke Anti-Bot-Protection (z.B. ImmobilienScout24)\n• Die Anzeige ist nicht mehr verfügbar\n• Die Seite ist hinter einem Login geschützt');
       }
 
-      console.log(`[URL Scraper] ✅ Playwright succeeded - extracted ${browserResult.html.length} chars of HTML`);
+      console.log(`[URL Scraper] ✅ Smart Proxy succeeded with method: ${proxyResult.method} - extracted ${proxyResult.html.length} chars of HTML`);
 
       // Parse HTML with AI
       console.log('[URL Scraper] 🤖 Parsing HTML with AI...');
@@ -505,19 +506,19 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
           role: 'user',
           content: [{
             type: 'input_text',
-            text: `Extrahiere Immobilien-Daten aus diesem HTML-Code:\n\n${browserResult.html.slice(0, 50000)}`  // Limit to 50k chars
+            text: `Extrahiere Immobilien-Daten aus diesem HTML-Code:\n\n${proxyResult.html.slice(0, 50000)}`  // Limit to 50k chars
           }]
         },
       ]);
 
-      usedPlaywrightFallback = true;
-      console.log('[URL Scraper] ✅ Playwright fallback succeeded');
+      usedPlaywrightFallback = true; // Flag that we used fallback (could be direct, delayed, or playwright)
+      console.log('[URL Scraper] ✅ Smart Proxy fallback succeeded');
 
-    } catch (playwrightError) {
-      console.error('[URL Scraper] ❌ Playwright also failed:', playwrightError);
+    } catch (proxyError) {
+      console.error('[URL Scraper] ❌ Smart Proxy also failed:', proxyError);
 
       // Both methods failed - provide clear guidance
-      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nWeder die Standard-Methode noch Browser-Automation konnten die Daten laden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion (sehr zuverlässig!)\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection\n• Browser-Automation ist in dieser Umgebung nicht verfügbar');
+      throw new Error('❌ ZUGRIFF BLOCKIERT\n\nDas Portal blockiert automatisierte Zugriffe sehr aggressiv. Alle Anti-Bot-Bypass-Strategien wurden versucht.\n\n💡 ALTERNATIVE (funktioniert zu 100%):\n• Mache einen Screenshot der Anzeige mit deinem Smartphone\n• Nutze die "Foto scannen" Funktion\n• Oder gib die Daten manuell ein\n\nℹ️ Warum funktioniert URL-Import nicht?\nViele Portale (besonders ImmobilienScout24) haben sehr starke Anti-Bot-Maßnahmen, die Server-Zugriffe erkennen und blockieren. Die Screenshot-Methode umgeht dies komplett.');
     }
   }
 
