@@ -126,7 +126,7 @@ export async function POST(req: Request) {
     const systemPrompt = buildSystemPrompt(userContext);
 
     const result = streamText({
-      model: anthropic('claude-3-5-haiku-20241022'),
+      model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
       messages,
       maxOutputTokens: 1000,
