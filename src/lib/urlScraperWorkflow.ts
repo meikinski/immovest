@@ -1,7 +1,7 @@
 // src/lib/urlScraperWorkflow.ts
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
-import { scrapeWithBrowser, isBrowserScrapingAvailable } from './browserScraper';
+import { scrapeWithBrowser } from './browserScraper';
 
 export type UrlScraperInput = {
   url: string;
@@ -487,38 +487,38 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     // METHOD 2: Fallback to Playwright (slower but more robust)
     console.log('[URL Scraper] 🔄 Method 2: Trying Playwright (browser automation)...');
 
-    // Check if Playwright is available
-    const isBrowserAvailable = await isBrowserScrapingAvailable();
+    try {
+      // Scrape with Playwright
+      const browserResult = await scrapeWithBrowser(trimmedUrl);
 
-    if (!isBrowserAvailable) {
-      console.error('[URL Scraper] ❌ Playwright not available - cannot use fallback');
-      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte nicht geladen werden (möglicherweise blockiert).\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein');
+      if (!browserResult.success || !browserResult.html) {
+        console.error('[URL Scraper] ❌ Playwright failed:', browserResult.error);
+        throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte auch mit Browser-Automation nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection');
+      }
+
+      console.log(`[URL Scraper] ✅ Playwright succeeded - extracted ${browserResult.html.length} chars of HTML`);
+
+      // Parse HTML with AI
+      console.log('[URL Scraper] 🤖 Parsing HTML with AI...');
+      result = await runner.run(htmlParserAgent, [
+        {
+          role: 'user',
+          content: [{
+            type: 'input_text',
+            text: `Extrahiere Immobilien-Daten aus diesem HTML-Code:\n\n${browserResult.html.slice(0, 50000)}`  // Limit to 50k chars
+          }]
+        },
+      ]);
+
+      usedPlaywrightFallback = true;
+      console.log('[URL Scraper] ✅ Playwright fallback succeeded');
+
+    } catch (playwrightError) {
+      console.error('[URL Scraper] ❌ Playwright also failed:', playwrightError);
+
+      // Both methods failed - provide clear guidance
+      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nWeder die Standard-Methode noch Browser-Automation konnten die Daten laden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion (sehr zuverlässig!)\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection\n• Browser-Automation ist in dieser Umgebung nicht verfügbar');
     }
-
-    // Scrape with Playwright
-    const browserResult = await scrapeWithBrowser(trimmedUrl);
-
-    if (!browserResult.success || !browserResult.html) {
-      console.error('[URL Scraper] ❌ Playwright failed:', browserResult.error);
-      throw new Error('❌ DATEN KONNTEN NICHT GELADEN WERDEN\n\nDie Seite konnte auch mit Browser-Automation nicht geladen werden.\n\n💡 Alternativen:\n• Mache einen Screenshot der Anzeige und nutze die Foto-Scan-Funktion\n• Gib die Daten manuell ein\n\nMögliche Ursachen:\n• Die Seite ist hinter einem Login geschützt\n• Die Anzeige ist nicht mehr verfügbar\n• Starke Anti-Bot-Protection');
-    }
-
-    console.log(`[URL Scraper] ✅ Playwright succeeded - extracted ${browserResult.html.length} chars of HTML`);
-
-    // Parse HTML with AI
-    console.log('[URL Scraper] 🤖 Parsing HTML with AI...');
-    result = await runner.run(htmlParserAgent, [
-      {
-        role: 'user',
-        content: [{
-          type: 'input_text',
-          text: `Extrahiere Immobilien-Daten aus diesem HTML-Code:\n\n${browserResult.html.slice(0, 50000)}`  // Limit to 50k chars
-        }]
-      },
-    ]);
-
-    usedPlaywrightFallback = true;
-    console.log('[URL Scraper] ✅ Playwright fallback succeeded');
   }
 
   // Validation (same for both methods)

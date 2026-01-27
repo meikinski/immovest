@@ -125,13 +125,17 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
 /**
  * Checks if browser scraping is available
  * (Playwright might not be installed in all environments)
+ *
+ * NOTE: This is a lightweight check that doesn't actually launch a browser.
+ * If Playwright is installed but browsers aren't downloaded, the actual
+ * scraping attempt will fail with a clear error message.
  */
 export async function isBrowserScrapingAvailable(): Promise<boolean> {
   try {
-    // Try to launch and immediately close browser
-    const browser = await chromium.launch({ headless: true });
-    await browser.close();
-    return true;
+    // Just check if the chromium module can be accessed
+    // Don't actually launch a browser (too slow and might fail in dev)
+    const hasChromium = chromium !== undefined;
+    return hasChromium;
   } catch {
     console.warn('[Browser Scraper] Playwright not available - browser scraping disabled');
     return false;
