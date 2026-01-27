@@ -1,5 +1,5 @@
 // src/app/api/chat/route.ts
-import { streamText } from 'ai';
+import { streamText, convertToModelMessages } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 
 export const runtime = 'edge';
@@ -125,10 +125,13 @@ export async function POST(req: Request) {
     // Build system prompt with user context
     const systemPrompt = buildSystemPrompt(userContext);
 
+    // Convert UIMessage[] from frontend to ModelMessage[] for streamText
+    const modelMessages = await convertToModelMessages(messages);
+
     const result = streamText({
       model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
-      messages,
+      messages: modelMessages,
       maxOutputTokens: 1000,
       temperature: 0.7,
     });
