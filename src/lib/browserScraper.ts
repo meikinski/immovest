@@ -15,8 +15,9 @@
 import { chromium } from 'playwright-extra';
 import stealth from 'playwright-extra-plugin-stealth';
 
-// Add stealth plugin
-chromium.use(stealth());
+// Add stealth plugin (with type assertion to satisfy TypeScript)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+chromium.use(stealth() as any);
 
 export type BrowserScraperResult = {
   html: string;
