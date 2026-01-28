@@ -57,7 +57,7 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
 
       // Mock permissions
       const originalQuery = window.navigator.permissions.query;
-      // @ts-ignore
+      // @ts-expect-error - Overriding permissions API for anti-detection
       window.navigator.permissions.query = (parameters) => (
         parameters.name === 'notifications' ?
           Promise.resolve({ state: Notification.permission }) :

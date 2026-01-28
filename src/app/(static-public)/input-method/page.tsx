@@ -30,24 +30,12 @@ export default function InputMethodPage() {
   const [urlError, setUrlError] = useState('');
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
 
-  // Scroll State for Header
-  const [isScrolled, setIsScrolled] = useState(false);
-
   // Reset form when component mounts (user starts new input)
   useEffect(() => {
     resetAnalysis();
     // Clear localStorage to prevent persistence hook from reloading old data
     localStorage.removeItem('immovest_kpi_state');
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Scroll handler
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
