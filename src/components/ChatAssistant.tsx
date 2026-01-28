@@ -4,8 +4,20 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useState, useRef, useEffect, useMemo, useCallback, FormEvent } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { useImmoStore } from '@/store/useImmoStore';
+
+/** Map route step param to human-readable description */
+function describeStep(pathname: string): string {
+  if (pathname.includes('/step/a2')) return 'Onboarding-Tour (Schritt A2)';
+  if (pathname.includes('/step/a')) return 'Kaufpreis & Nebenkosten (Schritt A)';
+  if (pathname.includes('/step/b')) return 'Miete & Bewirtschaftung (Schritt B)';
+  if (pathname.includes('/step/c')) return 'Finanzierung & Eigenkapital (Schritt C)';
+  if (pathname.includes('/step/tabs')) return 'Ergebnis-Analyse (Tabs)';
+  if (pathname.includes('/dashboard')) return 'Dashboard';
+  return 'Unbekannte Seite';
+}
 
 export function ChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +25,7 @@ export function ChatAssistant() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const lastAssistantRef = useRef<HTMLDivElement>(null);
   const prevMessageCountRef = useRef(0);
+  const pathname = usePathname();
 
   // Get user context from Zustand store
   const {
@@ -34,7 +47,7 @@ export function ChatAssistant() {
     anschaffungskosten,
   } = useImmoStore();
 
-  // Compute additional KPIs for context
+  // Compute additional KPIs
   const darlehensSumme = kaufpreis > 0 ? (anschaffungskosten || kaufpreis) - ek : 0;
   const jahresRate = darlehensSumme > 0 ? darlehensSumme * ((zins + tilgung) / 100) : 0;
   const monatsMieteNetto = miete > 0 ? miete - (hausgeld - hausgeld_umlegbar) : 0;
@@ -45,37 +58,29 @@ export function ChatAssistant() {
     ? (ek / (anschaffungskosten || kaufpreis)) * 100
     : 0;
 
-  const userContext = useMemo(() => ({
-    kaufpreis,
-    miete,
-    eigenkapital: ek,
-    zins,
-    tilgung,
-    objekttyp,
-    flaeche,
-    adresse,
-    hausgeld,
-    hausgeld_umlegbar,
-    grunderwerbsteuer_pct,
-    notar_pct,
-    makler_pct,
-    anschaffungskosten,
-    cashflow: cashflow_operativ,
-    nettomietrendite: nettorendite,
-    bruttomietrendite,
-    ekRendite,
-    ekQuote,
-    dscr,
-  }), [kaufpreis, miete, ek, zins, tilgung, objekttyp, flaeche, adresse, hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct, anschaffungskosten, cashflow_operativ, nettorendite, bruttomietrendite, ekRendite, ekQuote, dscr]);
+  // Keep latest context in a ref so the transport reads fresh data on every request
+  const contextRef = useRef({
+    kaufpreis, miete, eigenkapital: ek, zins, tilgung, objekttyp, flaeche, adresse,
+    hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct,
+    anschaffungskosten, cashflow: cashflow_operativ, nettomietrendite: nettorendite,
+    bruttomietrendite, ekRendite, ekQuote, dscr, aktuellerSchritt: describeStep(pathname),
+  });
 
+  // Update ref every render (cheap, no re-render triggered)
+  contextRef.current = {
+    kaufpreis, miete, eigenkapital: ek, zins, tilgung, objekttyp, flaeche, adresse,
+    hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct,
+    anschaffungskosten, cashflow: cashflow_operativ, nettomietrendite: nettorendite,
+    bruttomietrendite, ekRendite, ekQuote, dscr, aktuellerSchritt: describeStep(pathname),
+  };
+
+  // Transport created ONCE — body is a function that reads the ref on each request
   const transport = useMemo(() => new DefaultChatTransport({
     api: '/api/chat',
-    body: { userContext },
-  }), [userContext]);
+    body: () => ({ userContext: contextRef.current }),
+  }), []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { messages, sendMessage, status, error } = useChat({
-    transport,
-  });
+  const { messages, sendMessage, status, error } = useChat({ transport });
 
   const isLoading = status === 'submitted' || status === 'streaming';
 
@@ -91,14 +96,13 @@ export function ChatAssistant() {
     setInput(e.target.value);
   };
 
-  // Scroll to start of new assistant message when it appears
+  // Scroll to start of new assistant message
   useEffect(() => {
     if (!isOpen) return;
     const currentCount = messages.length;
     const prevCount = prevMessageCountRef.current;
     prevMessageCountRef.current = currentCount;
 
-    // New assistant message just appeared (count went from user msg to user+assistant)
     if (currentCount > prevCount && currentCount >= 2) {
       const lastMsg = messages[currentCount - 1];
       if (lastMsg.role === 'assistant' && lastAssistantRef.current) {
@@ -107,7 +111,7 @@ export function ChatAssistant() {
     }
   }, [messages.length, isOpen, messages]);
 
-  // Close on escape key
+  // Close on escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) setIsOpen(false);
@@ -116,7 +120,6 @@ export function ChatAssistant() {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen]);
 
-  // Helper to get message text content from UIMessage parts
   const getMessageText = useCallback((message: typeof messages[0]): string => {
     if (!message.parts || message.parts.length === 0) return '';
     return message.parts
@@ -125,9 +128,7 @@ export function ChatAssistant() {
       .join('');
   }, []);
 
-  const handleExampleClick = (question: string) => {
-    setInput(question);
-  };
+  const handleExampleClick = (question: string) => setInput(question);
 
   return (
     <>
@@ -140,7 +141,7 @@ export function ChatAssistant() {
         {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
 
-      {/* Chat Window — z-[60] to sit above header (z-50) */}
+      {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 z-[60] w-[400px] h-[600px] max-md:w-full max-md:h-full max-md:bottom-0 max-md:right-0 max-md:rounded-none bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border-2 border-gray-100 animate-fade-in">
           {/* Header */}
@@ -196,10 +197,8 @@ export function ChatAssistant() {
               const text = getMessageText(msg);
               if (!text) return null;
 
-              // Track last assistant message for scroll-to-start
               const isLastAssistant =
-                msg.role === 'assistant' &&
-                idx === messages.length - 1;
+                msg.role === 'assistant' && idx === messages.length - 1;
 
               return (
                 <div
@@ -212,7 +211,6 @@ export function ChatAssistant() {
                       msg.role === 'user' ? 'flex-row-reverse' : ''
                     }`}
                   >
-                    {/* Avatar */}
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
                         msg.role === 'user'
@@ -222,7 +220,6 @@ export function ChatAssistant() {
                     >
                       {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
-                    {/* Message Bubble */}
                     <div
                       className={`px-4 py-3 rounded-2xl ${
                         msg.role === 'user'
@@ -243,7 +240,7 @@ export function ChatAssistant() {
               );
             })}
 
-            {/* Loading Indicator */}
+            {/* Loading */}
             {isLoading && (
               <div className="flex justify-start">
                 <div className="flex items-start gap-2">
@@ -261,7 +258,7 @@ export function ChatAssistant() {
               </div>
             )}
 
-            {/* Error Display */}
+            {/* Error */}
             {error && (
               <div className="flex justify-center">
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg text-sm">
@@ -271,7 +268,7 @@ export function ChatAssistant() {
             )}
           </div>
 
-          {/* Input Form */}
+          {/* Input */}
           <form onSubmit={handleSubmit} className="p-4 border-t border-gray-100 bg-white shrink-0">
             <div className="flex gap-2">
               <input

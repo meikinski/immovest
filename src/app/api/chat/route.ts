@@ -25,6 +25,7 @@ type UserContext = {
   notar_pct?: number;
   makler_pct?: number;
   anschaffungskosten?: number;
+  aktuellerSchritt?: string;
 };
 
 function fmt(value: number | undefined, suffix: string = ''): string {
@@ -83,9 +84,24 @@ Antworte IMMER auf Deutsch. Halte Antworten kompakt (max. 2-3 kurze Absätze).`;
     line('DSCR', ctx.dscr ? ctx.dscr.toFixed(2) : ''),
   ].filter(Boolean).join('\n');
 
+  const stepInfo = ctx.aktuellerSchritt || 'Unbekannt';
+
   return `Du bist ein erfahrener deutscher Immobilien-Investitionsberater für imvestr.de.
 
-## AKTUELLE DATEN DES NUTZERS (aus dem Rechner):
+## WO SICH DER NUTZER GERADE BEFINDET:
+Aktuelle Seite: ${stepInfo}
+
+Der Rechner hat folgende Schritte:
+- Schritt A: Kaufpreis & Nebenkosten eingeben
+- Schritt B: Miete & Bewirtschaftungskosten eingeben
+- Schritt C: Finanzierung (Eigenkapital, Zinssatz, Tilgung) eingeben
+- Tabs: Ergebnis-Analyse mit KPIs, Markt & Lage, Prognose, Szenarien
+
+Passe deine Antworten an den aktuellen Schritt an:
+- Auf Schritt A/B/C: Der Nutzer füllt gerade das Formular aus. Hilf bei Verständnisfragen zu den Feldern auf dieser Seite. Fehlende Daten aus späteren Schritten sind normal — nicht bemängeln.
+- Auf Tabs: Alle Daten sind eingegeben. Du kannst die volle Analyse nutzen.
+
+## AKTUELLE DATEN DES NUTZERS (aus dem Rechner — live):
 ${dataLines}
 
 ## BERECHNETE KPIs:
