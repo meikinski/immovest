@@ -51,6 +51,35 @@ function line(label: string, value: string): string {
   return value ? `- ${label}: ${value}` : '';
 }
 
+function getStepContext(stepInfo: string): string {
+  if (stepInfo.includes('Schritt A')) {
+    return `Der Nutzer ist bei SCHRITT A (Kaufpreis & Nebenkosten).
+Hier gibt er ein: Kaufpreis, Adresse, Objekttyp, Wohnfläche, Grunderwerbsteuer, Notar, Makler.
+Die Anschaffungskosten = Kaufpreis + alle Nebenkosten.`;
+  }
+  if (stepInfo.includes('Schritt B')) {
+    return `Der Nutzer ist bei SCHRITT B (Miete & Bewirtschaftung).
+Hier gibt er ein: Kaltmiete, Hausgeld (gesamt + umlegbar), und die KALKULATORISCHEN KOSTEN.
+
+WICHTIG - Kalkulatorische Kosten in diesem Rechner sind:
+1. Instandhaltung (€/m²/Jahr) - für Reparaturen/Renovierung kalkuliert
+2. Mietausfall-Risiko (%) - für Leerstand kalkuliert
+
+Diese kalkulatorischen Kosten fließen in den Cashflow und DSCR ein.
+Sie haben NICHTS mit AfA oder Steuern zu tun - das kommt erst später.`;
+  }
+  if (stepInfo.includes('Schritt C')) {
+    return `Der Nutzer ist bei SCHRITT C (Finanzierung & Eigenkapital).
+Hier gibt er ein: Eigenkapital, Zinssatz, Tilgung.
+Auch: AfA-Satz, persönlicher Steuersatz für die Steuerberechnung.`;
+  }
+  if (stepInfo.includes('Analyse') || stepInfo.includes('Tabs')) {
+    return `Der Nutzer ist bei der ERGEBNIS-ANALYSE.
+Hier sieht er alle berechneten Kennzahlen: Cashflow, Renditen, DSCR, etc.`;
+  }
+  return '';
+}
+
 function buildSystemPrompt(ctx?: UserContext): string {
   if (!ctx || !ctx.kaufpreis) {
     return `Du bist ein Immobilien-Investitionsberater für imvestr.de.
@@ -62,12 +91,15 @@ WICHTIG: Verwende NIEMALS Emojis.`;
   }
 
   const stepInfo = ctx.aktuellerSchritt || 'Unbekannt';
+  const stepContext = getStepContext(stepInfo);
 
   // Pre-calculate derived values so the AI doesn't miscalculate
   const instandhaltungProQmJahr = ctx.instandhaltungskosten_pro_qm || 0;
   const flaeche = ctx.flaeche || 0;
   const instandhaltungJahr = instandhaltungProQmJahr * flaeche;
   const instandhaltungMonat = instandhaltungJahr / 12;
+  const mietausfallMonat = (ctx.miete || 0) * ((ctx.mietausfall_pct || 0) / 100);
+  const kalkKostenMonat = instandhaltungMonat + mietausfallMonat;
 
   const inputLines = [
     line('Kaufpreis', fmt(ctx.kaufpreis, ' €')),
@@ -80,11 +112,16 @@ WICHTIG: Verwende NIEMALS Emojis.`;
     line('Tilgung', ctx.tilgung ? ctx.tilgung + '%' : ''),
     line('AfA-Satz', ctx.afa ? ctx.afa + '%' : ''),
     line('Persönlicher Steuersatz', ctx.persoenlicher_steuersatz ? ctx.persoenlicher_steuersatz + '%' : ''),
-    line('Mietausfall-Risiko', ctx.mietausfall_pct ? ctx.mietausfall_pct + '%' : ''),
     line('Rücklagen', fmt(ctx.ruecklagen, ' €/Monat')),
-    // Show the per-m² rate AND the calculated totals to avoid AI miscalculation
+    // Kalkulatorische Kosten - show calculated values
     instandhaltungProQmJahr > 0 && flaeche > 0
-      ? `- Instandhaltung: ${instandhaltungProQmJahr} €/m²/Jahr = ${fmt(instandhaltungJahr, ' €/Jahr')} = ${fmt(Math.round(instandhaltungMonat), ' €/Monat')}`
+      ? `- Instandhaltung (kalk.): ${instandhaltungProQmJahr} €/m²/Jahr = ${fmt(Math.round(instandhaltungMonat), ' €/Monat')}`
+      : '',
+    mietausfallMonat > 0
+      ? `- Mietausfall (kalk.): ${ctx.mietausfall_pct}% = ${fmt(Math.round(mietausfallMonat), ' €/Monat')}`
+      : '',
+    kalkKostenMonat > 0
+      ? `- KALKULATORISCHE KOSTEN GESAMT: ${fmt(Math.round(kalkKostenMonat), ' €/Monat')}`
       : '',
     line('Objekttyp', ctx.objekttyp || ''),
     line('Wohnfläche', fmt(ctx.flaeche, ' m²')),
@@ -104,7 +141,8 @@ WICHTIG: Verwende NIEMALS Emojis.`;
 
   return `Du bist ein sachlicher Immobilien-Analyst für imvestr.de.
 
-## AKTUELLE SEITE: ${stepInfo}
+## KONTEXT - WO IST DER NUTZER GERADE?
+${stepContext || stepInfo}
 
 ## EINGABEN DES NUTZERS:
 ${inputLines}
@@ -113,8 +151,9 @@ ${inputLines}
 ${kpiLines}
 
 ## DEINE AUFGABE:
-- Beantworte die Frage des Nutzers basierend auf EXAKT diesen Daten oben.
-- Nenne konkrete Zahlen aus den Daten: "Dein Cashflow von ${fmt(ctx.cashflow, ' €')}..." statt allgemeiner Aussagen.
+- Beziehe dich auf den KONTEXT oben - was sieht der Nutzer gerade auf seinem Bildschirm?
+- Beantworte die Frage basierend auf EXAKT den Daten oben.
+- Nenne konkrete Zahlen: "Dein Cashflow von ${fmt(ctx.cashflow, ' €')}..." statt allgemeiner Aussagen.
 - Wenn der Nutzer nach einem Wert fragt, der oben steht, gib ihn direkt an.
 - Erfinde KEINE Zahlen. Wenn ein Wert nicht oben steht, sage das.
 
@@ -126,6 +165,9 @@ ${kpiLines}
 - KEINE Filler-Fragen am Ende ("Möchtest du...?", "Hast du noch Fragen?").
 - KEINE eigenen Berechnungen erfinden. Nutze NUR die Werte oben.
 - KEINE Verwechslung von Jahres- und Monatswerten. Einheiten stehen bei den Daten.
+- KEINE Begriffe durcheinanderbringen:
+  * "Kalkulatorische Kosten" = Instandhaltung + Mietausfall (NICHT AfA, NICHT Zinsen)
+  * "AfA" = Steuerliche Abschreibung (hat mit kalk. Kosten nichts zu tun)
 
 ## STIL:
 - Deutsch, duzen
