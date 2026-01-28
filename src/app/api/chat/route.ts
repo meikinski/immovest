@@ -24,7 +24,12 @@ type UserContext = {
   grunderwerbsteuer_pct?: number;
   notar_pct?: number;
   makler_pct?: number;
+  mietausfall_pct?: number;
   anschaffungskosten?: number;
+  afa?: number;
+  persoenlicher_steuersatz?: number;
+  ruecklagen?: number;
+  instandhaltungskosten_pro_qm?: number;
   aktuellerSchritt?: string;
 };
 
@@ -42,100 +47,86 @@ function fmtPct(value: number | undefined): string {
   return value.toFixed(2) + '%';
 }
 
-/** Build a bullet only when value is present */
 function line(label: string, value: string): string {
   return value ? `- ${label}: ${value}` : '';
 }
 
 function buildSystemPrompt(ctx?: UserContext): string {
-  // If no data at all, short-circuit
   if (!ctx || !ctx.kaufpreis) {
-    return `Du bist ein erfahrener deutscher Immobilien-Investitionsberater für imvestr.de.
+    return `Du bist ein Immobilien-Investitionsberater für imvestr.de.
 
-Der Nutzer hat noch keine Immobiliendaten eingegeben.
-Bitte ihn freundlich, erst Kaufpreis, Miete und Finanzierung im Rechner einzutragen, damit du konkret helfen kannst.
-Beantworte allgemeine Fragen zu Immobilien-Investment trotzdem gerne.
-Antworte IMMER auf Deutsch. Halte Antworten kompakt (max. 2-3 kurze Absätze).`;
+Der Nutzer hat noch keine Daten eingegeben. Bitte ihn, erst die Felder im Rechner auszufüllen.
+Beantworte allgemeine Fragen kurz und sachlich.
+
+WICHTIG: Verwende NIEMALS Emojis.`;
   }
 
-  // Build only lines that have real values
-  const dataLines = [
+  const stepInfo = ctx.aktuellerSchritt || 'Unbekannt';
+
+  const inputLines = [
     line('Kaufpreis', fmt(ctx.kaufpreis, ' €')),
     line('Anschaffungskosten (inkl. NK)', fmt(ctx.anschaffungskosten, ' €')),
     line('Monatl. Kaltmiete', fmt(ctx.miete, ' €')),
+    line('Hausgeld gesamt', fmt(ctx.hausgeld, ' €')),
+    line('Hausgeld umlagefähig', fmt(ctx.hausgeld_umlegbar, ' €')),
     line('Eigenkapital', fmt(ctx.eigenkapital, ' €')),
-    line('EK-Quote', fmtPct(ctx.ekQuote)),
     line('Zinssatz', ctx.zins ? ctx.zins + '%' : ''),
     line('Tilgung', ctx.tilgung ? ctx.tilgung + '%' : ''),
-    line('Hausgeld', fmt(ctx.hausgeld, ' €/Monat')),
+    line('AfA-Satz', ctx.afa ? ctx.afa + '%' : ''),
+    line('Persönlicher Steuersatz', ctx.persoenlicher_steuersatz ? ctx.persoenlicher_steuersatz + '%' : ''),
+    line('Mietausfall-Risiko', ctx.mietausfall_pct ? ctx.mietausfall_pct + '%' : ''),
+    line('Rücklagen', fmt(ctx.ruecklagen, ' €/Monat')),
+    line('Instandhaltung', ctx.instandhaltungskosten_pro_qm ? ctx.instandhaltungskosten_pro_qm + ' €/m²' : ''),
     line('Objekttyp', ctx.objekttyp || ''),
     line('Wohnfläche', fmt(ctx.flaeche, ' m²')),
-    line('Adresse', ctx.adresse || ''),
-    line('Grunderwerbsteuer', ctx.grunderwerbsteuer_pct ? ctx.grunderwerbsteuer_pct + '%' : ''),
+    line('GrESt', ctx.grunderwerbsteuer_pct ? ctx.grunderwerbsteuer_pct + '%' : ''),
     line('Notar', ctx.notar_pct ? ctx.notar_pct + '%' : ''),
     line('Makler', ctx.makler_pct ? ctx.makler_pct + '%' : ''),
   ].filter(Boolean).join('\n');
 
   const kpiLines = [
-    line('Cashflow (monatl.)', fmt(ctx.cashflow, ' €')),
+    line('Cashflow vor Steuern', fmt(ctx.cashflow, ' €/Monat')),
+    line('EK-Quote', fmtPct(ctx.ekQuote)),
     line('Bruttomietrendite', fmtPct(ctx.bruttomietrendite)),
     line('Nettomietrendite', fmtPct(ctx.nettomietrendite)),
     line('Eigenkapitalrendite', fmtPct(ctx.ekRendite)),
     line('DSCR', ctx.dscr ? ctx.dscr.toFixed(2) : ''),
   ].filter(Boolean).join('\n');
 
-  const stepInfo = ctx.aktuellerSchritt || 'Unbekannt';
+  return `Du bist ein sachlicher Immobilien-Analyst für imvestr.de.
 
-  return `Du bist ein erfahrener deutscher Immobilien-Investitionsberater für imvestr.de.
+## AKTUELLE SEITE: ${stepInfo}
 
-## WO SICH DER NUTZER GERADE BEFINDET:
-Aktuelle Seite: ${stepInfo}
+## EINGABEN DES NUTZERS:
+${inputLines}
 
-Der Rechner hat folgende Schritte:
-- Schritt A: Kaufpreis & Nebenkosten eingeben
-- Schritt B: Miete & Bewirtschaftungskosten eingeben
-- Schritt C: Finanzierung (Eigenkapital, Zinssatz, Tilgung) eingeben
-- Tabs: Ergebnis-Analyse mit KPIs, Markt & Lage, Prognose, Szenarien
-
-Passe deine Antworten an den aktuellen Schritt an:
-- Auf Schritt A/B/C: Der Nutzer füllt gerade das Formular aus. Hilf bei Verständnisfragen zu den Feldern auf dieser Seite. Fehlende Daten aus späteren Schritten sind normal — nicht bemängeln.
-- Auf Tabs: Alle Daten sind eingegeben. Du kannst die volle Analyse nutzen.
-
-## AKTUELLE DATEN DES NUTZERS (aus dem Rechner — live):
-${dataLines}
-
-## BERECHNETE KPIs:
+## BERECHNETE KENNZAHLEN:
 ${kpiLines}
 
-## KRITISCHE REGEL:
-Die Daten oben kommen direkt aus dem Rechner des Nutzers. Du HAST bereits alle eingegebenen Werte.
-- Frage NIEMALS nach Werten, die oben bereits stehen.
-- Beziehe dich IMMER konkret auf die vorhandenen Zahlen ("Dein Cashflow von X €...", "Bei deiner EK-Quote von Y%...").
-- Wenn ein Wert oben fehlt (= nicht aufgelistet), dann wurde er noch nicht eingegeben — nur dann darfst du nachfragen.
+## DEINE AUFGABE:
+- Beantworte die Frage des Nutzers basierend auf EXAKT diesen Daten oben.
+- Nenne konkrete Zahlen aus den Daten: "Dein Cashflow von ${fmt(ctx.cashflow, ' €')}..." statt allgemeiner Aussagen.
+- Wenn der Nutzer nach einem Wert fragt, der oben steht, gib ihn direkt an.
+- Erfinde KEINE Zahlen. Wenn ein Wert nicht oben steht, sage das.
 
-## BENCHMARK-WERTE DEUTSCHLAND 2025:
-- Bruttomietrendite: <3% schwach, 3-4% solide, >4% gut, >5% sehr gut
-- Nettomietrendite: <2% schwach, 2-3% solide, >3% attraktiv
-- Eigenkapitalrendite: <5% niedrig, 5-8% durchschnittlich, >8% gut, >12% sehr gut
-- DSCR: <1.0 kritisch, 1.0-1.2 knapp, >1.2 gut, >1.5 sehr gut
-- Cashflow: negativ = Zuzahlung, 0-100€ knapp, >100€ solide, >300€ stark
-- EK-Quote: <15% riskant, 15-25% normal, 25-40% konservativ, >40% sehr konservativ
-
-## KPI-FORMELN:
-- Bruttomietrendite = (Jahreskaltmiete / Kaufpreis) × 100
-- Nettomietrendite = ((Jahreskaltmiete − Bewirtschaftungskosten) / Anschaffungskosten) × 100
-- Eigenkapitalrendite = (Jahres-Cashflow / Eigenkapital) × 100
-- DSCR = Netto-Mieteinnahmen / Schuldendienst
-- Cashflow = Mieteinnahmen − Bewirtschaftungskosten − Kreditrate
+## VERBOTEN:
+- KEINE Emojis. Niemals. Auch keine Symbole wie 👍 📊 💰 🏠 ✓ ✅.
+- KEINE Rückfragen nach Daten, die oben bereits stehen.
+- KEINE erfundenen Beispielrechnungen mit anderen Zahlen.
+- KEINE langen Einleitungen ("Gerne helfe ich dir...").
+- KEINE Filler-Fragen am Ende ("Möchtest du...?", "Hast du noch Fragen?").
 
 ## STIL:
-- Antworte IMMER auf Deutsch
-- Duze den Nutzer
-- Kompakt: max. 2-3 kurze Absätze, keine langen Aufsätze
-- Direkt und ehrlich, keine Schönfärberei
+- Deutsch, duzen
+- Kurz und direkt (2-3 Absätze max)
+- Sachlich, nicht überschwänglich
 - Bei Fachbegriffen: kurz erklären
-- Keine Emojis (außer Nutzer verwendet welche)
-- Du bist kein Finanzberater im rechtlichen Sinne — bei steuerlichen/rechtlichen Fragen auf professionelle Beratung verweisen`;
+
+## STEUER-KONTEXT (falls relevant):
+- AfA senkt die steuerliche Bemessungsgrundlage, nicht den realen Cashflow
+- Cashflow nach Steuern = Cashflow vor Steuern − (zu versteuernder Gewinn × Steuersatz)
+- Zu versteuernder Gewinn = Mieteinnahmen − Werbungskosten − AfA − Zinsen
+- Bei hoher AfA kann steuerlicher Verlust entstehen, der gegen andere Einkünfte verrechnet werden kann`;
 }
 
 export async function POST(req: Request) {
@@ -153,8 +144,8 @@ export async function POST(req: Request) {
       model: anthropic('claude-haiku-4-5-20251001'),
       system: systemPrompt,
       messages: modelMessages,
-      maxOutputTokens: 600,
-      temperature: 0.7,
+      maxOutputTokens: 500,
+      temperature: 0.5,
     });
 
     return result.toUIMessageStreamResponse();

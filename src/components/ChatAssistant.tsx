@@ -42,9 +42,14 @@ export function ChatAssistant() {
     grunderwerbsteuer_pct,
     notar_pct,
     makler_pct,
+    mietausfall_pct,
     cashflow_operativ,
     nettorendite,
     anschaffungskosten,
+    afa,
+    persoenlicher_steuersatz,
+    ruecklagen,
+    instandhaltungskosten_pro_qm,
   } = useImmoStore();
 
   // Compute additional KPIs
@@ -62,6 +67,7 @@ export function ChatAssistant() {
   const contextRef = useRef({
     kaufpreis, miete, eigenkapital: ek, zins, tilgung, objekttyp, flaeche, adresse,
     hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct,
+    mietausfall_pct, afa, persoenlicher_steuersatz, ruecklagen, instandhaltungskosten_pro_qm,
     anschaffungskosten, cashflow: cashflow_operativ, nettomietrendite: nettorendite,
     bruttomietrendite, ekRendite, ekQuote, dscr, aktuellerSchritt: describeStep(pathname),
   });
@@ -70,6 +76,7 @@ export function ChatAssistant() {
   contextRef.current = {
     kaufpreis, miete, eigenkapital: ek, zins, tilgung, objekttyp, flaeche, adresse,
     hausgeld, hausgeld_umlegbar, grunderwerbsteuer_pct, notar_pct, makler_pct,
+    mietausfall_pct, afa, persoenlicher_steuersatz, ruecklagen, instandhaltungskosten_pro_qm,
     anschaffungskosten, cashflow: cashflow_operativ, nettomietrendite: nettorendite,
     bruttomietrendite, ekRendite, ekQuote, dscr, aktuellerSchritt: describeStep(pathname),
   };
