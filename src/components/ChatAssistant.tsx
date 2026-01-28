@@ -52,11 +52,21 @@ export function ChatAssistant() {
     instandhaltungskosten_pro_qm,
   } = useImmoStore();
 
-  // Compute additional KPIs
+  // Compute additional KPIs - matching the formulas from step/[step]/page.tsx
   const darlehensSumme = kaufpreis > 0 ? (anschaffungskosten || kaufpreis) - ek : 0;
-  const jahresRate = darlehensSumme > 0 ? darlehensSumme * ((zins + tilgung) / 100) : 0;
-  const monatsMieteNetto = miete > 0 ? miete - (hausgeld - hausgeld_umlegbar) : 0;
-  const dscr = jahresRate > 0 ? (monatsMieteNetto * 12) / jahresRate : 0;
+  const rateMonat = darlehensSumme > 0 ? (darlehensSumme * ((zins + tilgung) / 100)) / 12 : 0;
+
+  // DSCR calculation matching the analysis page exactly:
+  // warmmiete = miete + hausgeld_umlegbar (total tenant payment)
+  // NOI = warmmiete - hausgeld - kalkKostenMonthly
+  // DSCR = NOI / rateMonat
+  const warmmiete = miete + hausgeld_umlegbar;
+  const instandhaltungMonthly = (instandhaltungskosten_pro_qm * flaeche) / 12;
+  const mietausfallMonthly = miete * (mietausfall_pct / 100);
+  const kalkKostenMonthly = instandhaltungMonthly + mietausfallMonthly;
+  const noiMonthly = warmmiete - hausgeld - kalkKostenMonthly;
+  const dscr = rateMonat > 0 ? noiMonthly / rateMonat : 0;
+
   const ekRendite = ek > 0 ? ((cashflow_operativ * 12) / ek) * 100 : 0;
   const bruttomietrendite = kaufpreis > 0 ? ((miete * 12) / kaufpreis) * 100 : 0;
   const ekQuote = (anschaffungskosten || kaufpreis) > 0
