@@ -1,7 +1,7 @@
 // src/components/Tooltip.tsx
 'use client';
 
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useRef } from 'react';
 
 interface TooltipProps {
   text: string | ReactNode;
@@ -10,6 +10,36 @@ interface TooltipProps {
 
 export function Tooltip({ text, children }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    // Clear any pending close timeout
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Add a delay before closing to allow moving mouse to tooltip content
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, 150);
+  };
+
+  const handleTooltipMouseEnter = () => {
+    // Keep tooltip open when hovering over it
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handleTooltipMouseLeave = () => {
+    // Close tooltip when mouse leaves the tooltip content
+    setIsVisible(false);
+  };
 
   return (
     <span
@@ -18,8 +48,8 @@ export function Tooltip({ text, children }: TooltipProps) {
         e.stopPropagation();
         setIsVisible(!isVisible);
       }}
-      onMouseEnter={() => setIsVisible(true)}
-      onMouseLeave={() => setIsVisible(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {children}
       <div
@@ -30,6 +60,8 @@ export function Tooltip({ text, children }: TooltipProps) {
           whitespace-normal leading-relaxed
           w-[240px] sm:w-[280px]
           text-left ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        onMouseEnter={handleTooltipMouseEnter}
+        onMouseLeave={handleTooltipMouseLeave}
       >
         {text}
         <div

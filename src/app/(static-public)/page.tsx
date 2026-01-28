@@ -749,7 +749,7 @@ export default function LandingPage() {
 
                       {/* Benefits */}
                       <div className="mt-4 space-y-2">
-                        {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                        {['Umgeht CloudFront-Blockierung', 'Funktioniert mit den meisten Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
                           <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
                             <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
                             <span>{benefit}</span>
@@ -983,7 +983,7 @@ export default function LandingPage() {
 
                             {/* Benefits */}
                             <div className="mt-6 space-y-2">
-                              {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                              {['Umgeht CloudFront-Blockierung', 'Funktioniert mit den meisten Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
                                 <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
                                   <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                                   <span>{benefit}</span>

@@ -93,6 +93,7 @@ export interface ImmoState {
   setInvestComment: (v: string) => void;
   setAnzahlWohneinheiten: (v: number) => void;
   setVerwaltungskosten: (v: number) => void;
+  setAnalysisId: (v: string) => void;
   importData: (data: Partial<ImmoState>) => void;
 }
 
@@ -308,6 +309,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setVerwaltungskosten: (v: number) => {
     set({ verwaltungskosten: v, generatedComment: '' });
     get().updateDerived();
+  },
+  setAnalysisId: (v: string) => {
+    set({ analysisId: v });
   },
   importData: (data) => {
     // Automatically calculate AfA based on baujahr if not explicitly provided

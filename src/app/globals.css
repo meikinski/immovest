@@ -509,3 +509,183 @@ tab-btn:hover,
     transform: translateY(0);
   }
 }
+
+/* ==============================================
+   Driver.js Onboarding Tour Custom Styling
+   ============================================== */
+
+/* Popover container */
+.driver-popover {
+  background: white;
+  border-radius: 1rem !important; /* 16px rounded-2xl */
+  border: 2px solid hsl(var(--brand-2) / .30) !important; /* Orange border */
+  box-shadow: 0 10px 40px hsl(0 0% 0% / .15) !important;
+  max-width: 400px !important;
+}
+
+/* Popover title */
+.driver-popover-title {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  color: hsl(var(--brand)) !important; /* Navy */
+  margin-bottom: 8px !important;
+}
+
+/* Popover description */
+.driver-popover-description {
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+  color: hsl(var(--fg)) !important;
+}
+
+/* Progress text */
+.driver-popover-progress-text {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: hsl(var(--brand-2)) !important; /* Orange */
+}
+
+/* Navigation buttons */
+.driver-popover-next-btn,
+.driver-popover-prev-btn,
+.driver-popover-close-btn {
+  padding: 10px 16px !important;
+  border-radius: 0.75rem !important; /* 12px rounded-xl */
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Next button (primary) */
+.driver-popover-next-btn {
+  background: hsl(var(--brand-2)) !important; /* Orange */
+  color: white !important;
+  border: none !important;
+}
+
+.driver-popover-next-btn:hover {
+  background: hsl(var(--brand-2) / .9) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px hsl(var(--brand-2) / .3) !important;
+}
+
+/* Previous button (secondary) */
+.driver-popover-prev-btn {
+  background: hsl(0 0% 95%) !important;
+  color: hsl(var(--brand)) !important; /* Navy */
+  border: none !important;
+}
+
+.driver-popover-prev-btn:hover {
+  background: hsl(0 0% 90%) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Close button */
+.driver-popover-close-btn {
+  background: transparent !important;
+  color: hsl(var(--muted-foreground)) !important;
+  border: none !important;
+  padding: 8px !important;
+}
+
+.driver-popover-close-btn:hover {
+  background: hsl(0 0% 95%) !important;
+  color: hsl(var(--fg)) !important;
+}
+
+/* Highlighted element */
+.driver-active-element {
+  outline: 4px solid hsl(var(--brand-2) / .5) !important; /* Orange outline */
+  /* Padding and border-radius are now controlled via stagePadding and stageRadius in driver config */
+}
+
+/* Overlay (backdrop) */
+.driver-overlay {
+  background: hsl(0 0% 0% / .4) !important;
+  backdrop-filter: none !important; /* No blur, keep highlighted area crisp */
+}
+
+/* Arrow pointing to element */
+.driver-popover-arrow {
+  border-color: hsl(var(--brand-2) / .30) !important;
+}
+
+.driver-popover-arrow-side-top.driver-popover-arrow {
+  border-top-color: hsl(var(--brand-2) / .30) !important;
+}
+
+.driver-popover-arrow-side-bottom.driver-popover-arrow {
+  border-bottom-color: hsl(var(--brand-2) / .30) !important;
+}
+
+.driver-popover-arrow-side-left.driver-popover-arrow {
+  border-left-color: hsl(var(--brand-2) / .30) !important;
+}
+
+.driver-popover-arrow-side-right.driver-popover-arrow {
+  border-right-color: hsl(var(--brand-2) / .30) !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .driver-popover {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px !important;
+  }
+
+  .driver-popover-title {
+    font-size: 16px !important;
+  }
+
+  .driver-popover-description {
+    font-size: 14px !important;
+  }
+}
+
+/* ==============================================
+   Chat Assistant – Markdown Styling
+   ============================================== */
+
+.chat-markdown p {
+  margin-bottom: 0.5em;
+}
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+.chat-markdown strong {
+  font-weight: 600;
+  color: #001d3d;
+}
+.chat-markdown ul, .chat-markdown ol {
+  margin: 0.4em 0;
+  padding-left: 1.25em;
+}
+.chat-markdown ul {
+  list-style: disc;
+}
+.chat-markdown ol {
+  list-style: decimal;
+}
+.chat-markdown li {
+  margin-bottom: 0.2em;
+}
+.chat-markdown h1, .chat-markdown h2, .chat-markdown h3 {
+  font-weight: 700;
+  color: #001d3d;
+  margin: 0.6em 0 0.3em;
+}
+.chat-markdown h1 { font-size: 1.1em; }
+.chat-markdown h2 { font-size: 1.05em; }
+.chat-markdown h3 { font-size: 1em; }
+.chat-markdown code {
+  background: #f1f5f9;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.chat-markdown hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 0.6em 0;
+}

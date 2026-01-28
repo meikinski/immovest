@@ -37,6 +37,7 @@ import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { SignInButton, useAuth } from '@clerk/nextjs';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
+import { OnboardingWizard } from '@/components/OnboardingWizard';
 
 
 
@@ -81,6 +82,7 @@ export default function StepPage() {
   // === Common Store (Inputs & Ableitungen) ===
   const score         = useImmoStore(s => s.score);
   const updateDerived = useImmoStore(s => s.updateDerived);
+  const analysisId    = useImmoStore(s => s.analysisId);
 
   // Step A: Werte + Setter
   const kaufpreis   = useImmoStore(s => s.kaufpreis);
@@ -359,30 +361,9 @@ export default function StepPage() {
   // 3) Hausgeld gesamt (bereits umlagefähig + nicht umlagefähig)
   const hausgeldTotal = hausgeld;
 
-  // 4) Zins & Tilgung (monatlich)
-  const zinsMonthly    = (darlehensSumme * (zins / 100)) / 12;
-  const tilgungMonthly = (darlehensSumme * (tilgung / 100)) / 12;
-
-  // 5) operativer Cashflow vor Steuern
-  const cashflowVorSteuer =
-    warmmiete - hausgeldTotal - kalkKostenMonthly - zinsMonthly - tilgungMonthly;
-
-  // 6) AfA (monatlich)
+  // 4) AfA (monatlich) - needed for prognose calculation
   const gebaeudeAnteilEur = (kaufpreis * gebPct) / 100;
   const afaAnnualEur      = gebaeudeAnteilEur * (afaPct / 100);
-  const afaMonthlyEur     = afaAnnualEur / 12;
-
-  // 7) zu versteuernder Cashflow (ohne kalkulatorische Kosten)
-  const taxableCashflow =
-    warmmiete - hausgeldTotal - zinsMonthly - afaMonthlyEur;
-
-  // 8) Steuer (monatlich) – kann negativ sein (= Steuervorteil)
-  const taxMonthly = taxableCashflow * (effectiveStz / 100);
-
-  // 9) finaler Cashflow nach Steuern
-  const cashflowAfterTax = cashflowVorSteuer - taxMonthly;
-
-  const breakEvenJahre = cashflowAfterTax > 0 ? ek / (cashflowAfterTax * 12) : Infinity;
 
   const formatEur = (value: number, maximumFractionDigits = 0) =>
     value.toLocaleString('de-DE', { maximumFractionDigits });
@@ -431,6 +412,12 @@ export default function StepPage() {
       verkaufsNebenkostenPct,
     ]
   );
+
+  // Extract cashflow values from prognose year 0 to ensure consistency
+  const cashflowVorSteuer = prognose.jahre[0]?.cashflowVorSteuern ?? 0;
+  const cashflowAfterTax = prognose.jahre[0]?.cashflowMonatlich ?? 0;
+  const taxMonthly = cashflowVorSteuer - cashflowAfterTax;
+  const breakEvenJahre = cashflowAfterTax > 0 ? ek / (cashflowAfterTax * 12) : Infinity;
 
   const prognoseMilestones = useMemo(() => {
     const halbschuld = darlehensSumme / 2;
@@ -489,6 +476,105 @@ export default function StepPage() {
     });
     return breakEven?.jahr ?? null;
   }, [prognose.jahre, kaufpreis, ek]);
+
+  // Calculate scenario values
+  const scenarioCalculations = useMemo(() => {
+    const scMiete = Math.max(0, miete * (1 + mieteDeltaPct / 100));
+    const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
+    const scZins = Math.max(0, zins + zinsDeltaPp);
+    const scTilgung = Math.max(0, tilgung + tilgungDeltaPp);
+    const scEk = Math.max(0, ek * (1 + ekDeltaPct / 100));
+
+    const { nk: scNk } = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
+    const scAnschaffung = scKaufpreis + scNk + sonstigeKosten;
+    const scDarlehen = Math.max(0, scAnschaffung - scEk);
+
+    const scWarmmiete = scMiete + hausgeld_umlegbar;
+    const scJahresKalt = scMiete * 12;
+
+    const scBewJ = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
+    const scFkZinsenJahr = scDarlehen * (scZins / 100);
+
+    const scZinsMonthly = (scDarlehen * (scZins / 100)) / 12;
+    const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
+    const scSondertilgungMonthly = sondertilgungJaehrlich / 12;
+    const scGesamtTilgungMonthly = scTilgungMonthly + scSondertilgungMonthly;
+
+    const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
+    const mietausfallPctN = Number(mietausfallText.replace(',', '.')) || 0;
+    const scInstandMonthly = (instandhaltungPctN * flaeche) / 12;
+    const scMietausfallMon = scMiete * (mietausfallPctN / 100);
+    const scKalkKostenMon = scInstandMonthly + scMietausfallMon;
+
+    const scCashflowVorSt = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scGesamtTilgungMonthly;
+
+    const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
+
+    // Cashflow nach Steuern für Szenario
+    const gebPctN = Number(gebText.replace(',', '.')) || 0;
+    const afaPctN = Number(afaText.replace(',', '.')) || 0;
+    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
+    const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
+    const afaMonthlyEurSc = afaAnnualEurSc / 12;
+    const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
+    const effectiveStz = Number(persText.replace(',', '.')) || 0;
+    const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
+    const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
+
+    // DSCR für Szenario
+    const scDSCR = scRateMonat > 0 ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat : 0;
+
+    const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
+    const scNettoRendite = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
+    const scEkRendite = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
+
+    const scNoiMonthly = scWarmmiete - hausgeld - scKalkKostenMon;
+
+    // Calculate payoff year for scenario (simplified)
+    let scAbzahlungsjahr = 0;
+    if (scDarlehen > 0 && scTilgung > 0) {
+      const jahresTilgung = scDarlehen * (scTilgung / 100) + sondertilgungJaehrlich;
+      scAbzahlungsjahr = Math.ceil(scDarlehen / jahresTilgung);
+    }
+
+    return {
+      scMiete,
+      scKaufpreis,
+      scZins,
+      scTilgung,
+      scEk,
+      scNk,
+      scAnschaffung,
+      scDarlehen,
+      scWarmmiete,
+      scJahresKalt,
+      scBewJ,
+      scFkZinsenJahr,
+      scZinsMonthly,
+      scTilgungMonthly,
+      scSondertilgungMonthly,
+      scGesamtTilgungMonthly,
+      scInstandMonthly,
+      scMietausfallMon,
+      scKalkKostenMon,
+      scCashflowVorSt,
+      scRateMonat,
+      scCashflowAfterTax,
+      scDSCR,
+      scBruttoRendite,
+      scNettoRendite,
+      scEkRendite,
+      scNoiMonthly,
+      scAbzahlungsjahr,
+    };
+  }, [
+    miete, kaufpreis, zins, tilgung, ek,
+    mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct,
+    grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
+    hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm, flaeche,
+    sondertilgungJaehrlich, instandText, mietausfallText,
+    gebText, afaText, persText,
+  ]);
 
   const liquiditaetJahr = prognose.jahre[Math.min(liquiditaetJahrIndex, prognose.jahre.length - 1)] ?? prognose.jahre[0];
 
@@ -1076,28 +1162,61 @@ const exportPdf = React.useCallback(async () => {
     const taxMonthlySc        = taxableSc * (effStzN / 100);
     const scCashflowAfterTax  = scCFvSt - taxMonthlySc;
 
+    // Extract prognose data for PDF
+    const payoffYear = prognose.jahre.find(j => j.restschuld === 0)?.jahr ?? null;
+    const jahr5Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 5);
+    const jahr10Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 10);
+
     const payload = {
       address: shortAddress || adresse,
       kaufpreis, flaeche, zimmer, baujahr,
       miete, ek, zins, tilgung,
       cashflowVorSteuer,
+      cashflowNachSteuern: cashflowAfterTax,
       nettoMietrendite, bruttoMietrendite, ekRendite,
       anschaffungskosten, darlehensSumme,
+      debtServiceMonthly,
+      ekQuotePct,
+      noiMonthly: warmmiete - hausgeldTotal - kalkKostenMonthly,
+      dscr,
       lageText: strip(lageComment),
       mietvergleich: strip(mietpreisComment),
       preisvergleich: strip(qmPreisComment),
       szenario: {
-        kaufpreis: scKaufpreis, miete: scMiete, zins: scZins, tilgung: scTilgung, ek: scEk,
-        cashflowVorSteuer: scCFvSt, nettoRendite: scNetto, ekRendite: scEkR
+        kaufpreis: scKaufpreis,
+        miete: scMiete,
+        zins: scZins,
+        tilgung: scTilgung,
+        ek: scEk,
+        cashflowVorSteuer: scCFvSt,
+        cashflowNachSteuern: scCashflowAfterTax,
+        nettoRendite: scNetto,
+        bruttorendite: scBruttoRend,
+        ekRendite: scEkR,
+        noiMonthly: scNoiMonthly,
+        dscr: scDscr,
+        rateMonat: scRateMon,
+        abzahlungsjahr: scAbzahlungsjahr,
       },
-      debtServiceMonthly,
-  ekQuotePct,
-  bruttorendite: scBruttoRend,
-  noiMonthly: scNoiMonthly,
-  dscr: scDscr,
-  rateMonat: scRateMon,
-  abzahlungsjahr: scAbzahlungsjahr,
-  cashflowNachSteuern: scCashflowAfterTax
+      prognose: (jahr5Data && jahr10Data) ? {
+        payoffYear,
+        jahr5: {
+          restschuld: jahr5Data.restschuld,
+          eigenkapital: jahr5Data.eigenkapitalGesamt,
+          cashflowKumuliert: jahr5Data.cashflowKumuliert,
+        },
+        jahr10: {
+          restschuld: jahr10Data.restschuld,
+          eigenkapital: jahr10Data.eigenkapitalGesamt,
+          cashflowKumuliert: jahr10Data.cashflowKumuliert,
+        },
+        jahre: prognose.jahre.map(j => ({
+          jahr: j.jahr,
+          restschuld: j.restschuld,
+          eigenkapitalGesamt: j.eigenkapitalGesamt,
+          cashflowKumuliert: j.cashflowKumuliert,
+        })),
+      } : null,
     };
 
     const res = await fetch('/api/export/pdf', {
@@ -1151,6 +1270,7 @@ const exportPdf = React.useCallback(async () => {
   cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite,
   anschaffungskosten, darlehensSumme,
   lageComment, mietpreisComment, qmPreisComment, afaText, gebText, persText,
+  prognose, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
 ]);
 
 
@@ -1192,6 +1312,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="relative group">
               <EuroIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
+                id="kaufpreis-input"
                 type="text"
                 value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
                 onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
@@ -1207,9 +1328,9 @@ const exportPdf = React.useCallback(async () => {
 
             <div className="grid grid-cols-1 gap-6">
               {[
-                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur },
-                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur },
-                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur },
+                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur, id: 'grunderwerbsteuer-input' },
+                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur, id: 'notar-input' },
+                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur, id: 'makler-input' },
               ].map((item, i) => (
                 <div key={i} className="space-y-1.5">
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
@@ -1224,6 +1345,7 @@ const exportPdf = React.useCallback(async () => {
                       <div className="relative group">
                         <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                         <input
+                          id={item.id}
                           type="text"
                           value={item.text}
                           onChange={(e) => item.setText(e.target.value)}
@@ -1309,6 +1431,7 @@ const exportPdf = React.useCallback(async () => {
         {/* Buttons */}
         <div className="mt-8">
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="w-full bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -1338,7 +1461,7 @@ const exportPdf = React.useCallback(async () => {
           {/* Objekttyp */}
           <div className="space-y-1.5">
             <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Objekttyp</label>
-            <div className="flex gap-3">
+            <div id="objekttyp-selector" className="flex gap-3">
               <button
                 type="button"
                 onClick={() => setObjekttyp('wohnung')}
@@ -1479,6 +1602,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -1523,6 +1647,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="miete-input"
                     type="text"
                     value={miete.toString()}
                     onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
@@ -1585,6 +1710,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="hausgeld-umlegbar-input"
                     type="text"
                     value={hausUmlegText}
                     onChange={(e) => setHausUmlegText(e.target.value)}
@@ -1614,6 +1740,7 @@ const exportPdf = React.useCallback(async () => {
                   <div className="relative group">
                     <ChartBar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
+                      id="hausgeld-nicht-umlegbar-input"
                       type="text"
                       value={hausNichtText}
                       onChange={(e) => setHausNichtText(e.target.value)}
@@ -1746,6 +1873,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="mietausfall-input"
                     type="text"
                     value={mietausfallText}
                     onChange={(e) => setMietausfallText(e.target.value)}
@@ -1771,6 +1899,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="instandhaltung-input"
                     type="text"
                     value={instandText}
                     onChange={(e) => setInstandText(e.target.value)}
@@ -1803,6 +1932,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="afa-input"
                     type="text"
                     value={afaText}
                     onChange={(e) => {
@@ -1831,6 +1961,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <House className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="gebaeude-input"
                     type="text"
                     value={gebText}
                     onChange={(e) => {
@@ -1859,6 +1990,7 @@ const exportPdf = React.useCallback(async () => {
                 <div className="relative group">
                   <SquarePercent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                   <input
+                    id="steuersatz-input"
                     type="text"
                     value={persText}
                     onChange={(e) => setPersText(e.target.value)}
@@ -1880,6 +2012,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -1911,6 +2044,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="relative group">
               <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
+                id="eigenkapital-input"
                 type="text"
                 value={mounted ? ek.toLocaleString('de-DE') : '0'}
                 onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
@@ -1969,6 +2103,7 @@ const exportPdf = React.useCallback(async () => {
               <div className="relative group">
                 <Percent className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
+                  id="zins-input"
                   type="text"
                   value={zinsText}
                   onChange={(e) => setZinsText(e.target.value)}
@@ -1990,6 +2125,7 @@ const exportPdf = React.useCallback(async () => {
               <div className="relative group">
                 <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
+                  id="tilgung-input"
                   type="text"
                   value={tilgungText}
                   onChange={(e) => setTilgungText(e.target.value)}
@@ -2032,6 +2168,7 @@ const exportPdf = React.useCallback(async () => {
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
           <button
+            data-step-nav="next"
             onClick={handleNavigateToNextStep}
             className="flex-1 bg-[#001d3d] text-white rounded-2xl py-4 px-6 text-base font-bold hover:bg-[#001d3d]/90 transition-all shadow-lg"
           >
@@ -2045,7 +2182,7 @@ const exportPdf = React.useCallback(async () => {
       <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
         <div className="flex-1 overflow-y-auto">
           <div className="px-6 lg:px-10 py-6 bg-white border-b border-slate-200">
-            <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div id="results-header" className="bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-3xl p-6 shadow-lg flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div className="flex items-center gap-5">
                 <div className="w-14 h-14 bg-[#ff6b00] rounded-2xl flex items-center justify-center shadow-md">
                   <House size={28} className="text-white" />
@@ -2078,7 +2215,7 @@ const exportPdf = React.useCallback(async () => {
           </div>
 
           <div className="sticky top-4 z-40 bg-white border-b border-slate-200 shadow-sm">
-            <div className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
+            <div id="tabs-navigation" className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
               {([
                 { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
                 { id: 'markt', label: 'Marktvergleich & Investitionsanalyse', icon: ChartBar },
@@ -2114,7 +2251,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="lg:col-span-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {/* KPI Card 1 - Bruttomietrendite */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-brutto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <SquarePercent size={14} className="text-[#ff6b00]" />
@@ -2148,7 +2285,7 @@ const exportPdf = React.useCallback(async () => {
                 </div>
 
                 {/* KPI Card 2 - Nettomietrendite */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-netto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <Percent size={14} className="text-[#ff6b00]" />
@@ -2182,7 +2319,7 @@ const exportPdf = React.useCallback(async () => {
                 </div>
 
                 {/* KPI Card 3 - Cashflow vor Steuern */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
+                <div id="kpi-cashflow" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
                   <div className="flex items-center gap-1 mb-3">
                     <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
                       <Wallet size={14} className="text-[#ff6b00]" />
@@ -2244,8 +2381,8 @@ const exportPdf = React.useCallback(async () => {
                       <Info size={12} className="text-slate-400 cursor-help" />
                     </Tooltip>
                   </div>
-                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(prognose.jahre[0]?.cashflowOhneSondertilgung ?? 0).toFixed(0)}€
+                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {(prognose.jahre[0]?.cashflowMonatlich ?? 0).toFixed(0)}€
                   </div>
                 </div>
 
@@ -2490,6 +2627,11 @@ const exportPdf = React.useCallback(async () => {
                   Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
                 </p>
               </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="mt-6 flex justify-end">
+              <SaveAnalysisButton />
             </div>
           </div>
         )}
@@ -3361,55 +3503,25 @@ const exportPdf = React.useCallback(async () => {
 
     {/* Base vs Szenario */}
         {(() => {
-      const scMiete     = Math.max(0, miete * (1 + mieteDeltaPct / 100));
-      const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
-      const scZins      = Math.max(0, zins + zinsDeltaPp);
-      const scTilgung   = Math.max(0, tilgung + tilgungDeltaPp);
-      const scEk        = Math.max(0, ek * (1 + ekDeltaPct / 100));
+      // Use pre-calculated values from useMemo
+      const {
+        scMiete,
+        scKaufpreis,
+        scZins,
+        scTilgung,
+        scEk,
+        scAnschaffung,
+        scDarlehen,
+        scRateMonat,
+        scCashflowVorSt,
+        scCashflowAfterTax,
+        scDSCR,
+        scBruttoRendite,
+        scNettoRendite,
+        scEkRendite,
+      } = scenarioCalculations;
 
-      const { nk: scNk }    = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
-      const scAnschaffung   = scKaufpreis + scNk + sonstigeKosten;
-      const scDarlehen      = Math.max(0, scAnschaffung - scEk);
-
-      const scWarmmiete     = scMiete + hausgeld_umlegbar;
-      const scJahresKalt    = scMiete * 12;
-
-      const scBewJ          = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-      const scFkZinsenJahr  = scDarlehen * (scZins / 100);
-
-      const scZinsMonthly    = (scDarlehen * (scZins / 100)) / 12;
-      const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
-
-      const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
-      const mietausfallPctN    = Number(mietausfallText.replace(',', '.')) || 0;
-      const scInstandMonthly   = (instandhaltungPctN * flaeche) / 12;
-      const scMietausfallMon   = scMiete * (mietausfallPctN / 100);
-      const scKalkKostenMon    = scInstandMonthly + scMietausfallMon;
-
-      const scCashflowVorSt    = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scTilgungMonthly;
-
-      const rateMonat   = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-      const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
-
-      // Cashflow nach Steuern für Szenario
-      const gebPctN = Number(gebText.replace(',', '.')) || 0;
-      const afaPctN = Number(afaText.replace(',', '.')) || 0;
-      const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-      const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
-      const afaMonthlyEurSc = afaAnnualEurSc / 12;
-      const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
-      const effectiveStz = Number(persText.replace(',', '.')) || 0;
-      const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
-      const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
-
-      // DSCR für Szenario
-      const scDSCR = scRateMonat > 0
-        ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat
-        : 0;
-
-      const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
-      const scNettoRendite  = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
-      const scEkRendite     = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
+      const rateMonat = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
 
     // --- Szenario: Helpers & Rows (keine weitere IIFE im JSX) ---
       type Unit = "€" | "%" | "" | "pp";
@@ -3694,7 +3806,36 @@ const exportPdf = React.useCallback(async () => {
           PDF exportieren
         </button>
       )}
-      <SaveAnalysisButton />
+      <SaveAnalysisButton
+        scenarioData={{
+          mieteDeltaPct,
+          preisDeltaPct,
+          zinsDeltaPp,
+          tilgungDeltaPp,
+          ekDeltaPct,
+          sondertilgungJaehrlich,
+          wertentwicklungAktiv,
+          wertentwicklungPct,
+          darlehensTyp,
+          mietInflationPct,
+          kostenInflationPct,
+          verkaufsNebenkostenPct,
+          scenarioKaufpreis: scenarioCalculations.scKaufpreis,
+          scenarioMiete: scenarioCalculations.scMiete,
+          scenarioZins: scenarioCalculations.scZins,
+          scenarioTilgung: scenarioCalculations.scTilgung,
+          scenarioEk: scenarioCalculations.scEk,
+          scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
+          scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
+          scenarioNettorendite: scenarioCalculations.scNettoRendite,
+          scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
+          scenarioEkRendite: scenarioCalculations.scEkRendite,
+          scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
+          scenarioDscr: scenarioCalculations.scDSCR,
+          scenarioRateMonat: scenarioCalculations.scRateMonat,
+          scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
+        }}
+      />
       {pdfBusy && (
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <LoadingSpinner size="sm" />
@@ -3727,6 +3868,11 @@ const exportPdf = React.useCallback(async () => {
         onClose={() => setShowUpgradeModal(false)}
         remainingFreeUses={freeUsagesRemaining}
       />
+
+      {/* Onboarding Wizard - Auto-starts on first visit for each step */}
+      {(step === 'a' || step === 'a2' || step === 'b' || step === 'c' || step === 'tabs') && (
+        <OnboardingWizard step={step as 'a' | 'a2' | 'b' | 'c' | 'tabs'} autoStart={true} delay={500} />
+      )}
 
       {/* Upsell Banner: Show after 1st premium usage */}
       {step === 'tabs' && !isPremium && premiumUsageCount >= 1 && (

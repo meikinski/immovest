@@ -61,6 +61,13 @@ export async function POST(req: Request) {
       nettorendite: parseFloat(data.nettorendite) || 0,
       score: parseFloat(data.score) || 0,
       anschaffungskosten: parseFloat(data.anschaffungskosten) || 0,
+
+      // AI-generated comments
+      generated_comment: data.generatedComment || '',
+      lage_comment: data.lageComment || '',
+      mietpreis_comment: data.mietpreisComment || '',
+      qm_preis_comment: data.qmPreisComment || '',
+      invest_comment: data.investComment || '',
     };
 
     console.log('[ANALYSIS] Saving analysis for user:', userId);
