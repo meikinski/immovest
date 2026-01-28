@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowRight,
   ArrowDown,
-  ArrowLeft,
   BarChart3,
   Calculator,
   CheckCircle2,
@@ -34,7 +33,7 @@ import { useUser, UserButton } from '@clerk/nextjs';
 export default function LandingPage() {
   const router = useRouter();
   const { trackCTA } = useAnalytics();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn } = useUser();
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
   const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open

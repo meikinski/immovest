@@ -1,31 +1,12 @@
 /**
- * Browser-based Scraper using Playwright
+ * Browser-based Scraper using Playwright with enhanced anti-detection
  *
  * PURPOSE:
- * This is a fallback scraper for when the AI webSearchTool fails.
- * It uses Playwright to render JavaScript and bypass anti-bot protections.
- *
- * WHEN TO USE:
- * - Unknown portals (not in our supported list)
- * - Portals with heavy JavaScript rendering
- * - Portals with anti-bot protection (CloudFlare, etc.)
- *
- * HOW IT WORKS:
- * 1. Launch headless Chromium browser
- * 2. Navigate to URL with real browser headers
- * 3. Wait for page to load completely (including JavaScript)
- * 4. Extract full HTML content
- * 5. Close browser
- *
- * TRADE-OFFS:
- * ✅ Can render JavaScript
- * ✅ Bypasses many anti-bot systems
- * ✅ Works with unknown portals
- * ❌ Slower (2-5 seconds vs 0.5 seconds)
- * ❌ More resource-intensive
+ * Fallback scraper when webSearchTool fails.
+ * Uses aggressive anti-detection measures to bypass bot detection.
  */
 
-import { chromium, Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
 
 export type BrowserScraperResult = {
   html: string;
@@ -36,70 +17,69 @@ export type BrowserScraperResult = {
 };
 
 /**
- * Scrapes a URL using Playwright browser automation
+ * Scrapes a URL using Playwright with aggressive anti-detection
  */
 export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResult> {
-  let browser: Browser | null = null;
-  let page: Page | null = null;
+  let browser = null;
+  let page = null;
 
   try {
-    console.log('[Browser Scraper] Launching headless browser...');
+    console.log('[Browser Scraper] Launching stealth browser...');
 
-    // Launch browser with enhanced anti-detection settings
+    // Launch with anti-detection args
     browser = await chromium.launch({
       headless: true,
       args: [
-        '--disable-blink-features=AutomationControlled',
-        '--disable-dev-shm-usage',
         '--no-sandbox',
         '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-blink-features=AutomationControlled',
         '--disable-web-security',
         '--disable-features=IsolateOrigins,site-per-process',
-        '--disable-background-timer-throttling',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
       ],
     });
 
-    // Create page with realistic viewport and headers
-    page = await browser.newPage({
+    const context = await browser.newContext({
       viewport: { width: 1920, height: 1080 },
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      extraHTTPHeaders: {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'Accept-Language': 'de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'Cache-Control': 'max-age=0',
-        'Sec-Ch-Ua': '"Chromium";v="131", "Not_A Brand";v="24"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-      },
+      locale: 'de-DE',
+      timezoneId: 'Europe/Berlin',
     });
 
-    // Additional anti-detection: Remove webdriver flag
+    page = await context.newPage();
+
+    // Aggressive anti-detection scripts
     await page.addInitScript(() => {
-      // Override the navigator.webdriver property
+      // Hide webdriver
       Object.defineProperty(navigator, 'webdriver', {
-        get: () => undefined,
+        get: () => false,
       });
 
-      // Mock plugins and languages for realistic browser fingerprint
+      // Mock permissions
+      const originalQuery = window.navigator.permissions.query;
+      // @ts-expect-error - Overriding permissions API for anti-detection
+      window.navigator.permissions.query = (parameters) => (
+        parameters.name === 'notifications' ?
+          Promise.resolve({ state: Notification.permission }) :
+          originalQuery(parameters)
+      );
+
+      // Mock plugins
       Object.defineProperty(navigator, 'plugins', {
         get: () => [1, 2, 3, 4, 5],
+      });
+
+      // Mock languages
+      Object.defineProperty(navigator, 'languages', {
+        get: () => ['de-DE', 'de', 'en-US', 'en'],
       });
     });
 
     console.log(`[Browser Scraper] Navigating to: ${url}`);
 
-    // Navigate with timeout
     const response = await page.goto(url, {
-      waitUntil: 'domcontentloaded', // Wait for DOM to load (not full load - faster)
-      timeout: 15000, // 15 second timeout
+      waitUntil: 'domcontentloaded',
+      timeout: 20000,
     });
 
     const statusCode = response?.status() || 0;
@@ -109,10 +89,9 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
       throw new Error(`HTTP ${statusCode}: Page returned error status`);
     }
 
-    // Wait a bit for JavaScript to execute (dynamic content)
-    await page.waitForTimeout(1500);
+    // Wait for content
+    await page.waitForTimeout(2000);
 
-    // Extract HTML content
     const html = await page.content();
 
     console.log(`[Browser Scraper] ✅ Success - extracted ${html.length} characters`);
@@ -135,7 +114,6 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
       url,
     };
   } finally {
-    // Always clean up resources
     try {
       if (page) await page.close();
       if (browser) await browser.close();
@@ -146,22 +124,11 @@ export async function scrapeWithBrowser(url: string): Promise<BrowserScraperResu
   }
 }
 
-/**
- * Checks if browser scraping is available
- * (Playwright might not be installed in all environments)
- *
- * NOTE: This is a lightweight check that doesn't actually launch a browser.
- * If Playwright is installed but browsers aren't downloaded, the actual
- * scraping attempt will fail with a clear error message.
- */
 export async function isBrowserScrapingAvailable(): Promise<boolean> {
   try {
-    // Just check if the chromium module can be accessed
-    // Don't actually launch a browser (too slow and might fail in dev)
-    const hasChromium = chromium !== undefined;
-    return hasChromium;
+    return chromium !== undefined;
   } catch {
-    console.warn('[Browser Scraper] Playwright not available - browser scraping disabled');
+    console.warn('[Browser Scraper] Playwright not available');
     return false;
   }
 }

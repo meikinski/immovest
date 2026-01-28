@@ -47,8 +47,9 @@ const KNOWN_PORTALS: Record<string, PortalInfo> = {
   'immobilienscout24.de': {
     name: 'ImmobilienScout24',
     domain: 'immobilienscout24.de',
-    supported: true,
-    reliability: 'high',
+    supported: false, // Temporarily disabled due to aggressive blocking
+    reliability: 'low',
+    warning: 'ImmobilienScout24 blockiert aktuell automatische Zugriffe. Nutze stattdessen Immowelt oder eBay Kleinanzeigen.',
   },
   'immowelt.de': {
     name: 'Immowelt',
@@ -121,7 +122,7 @@ export function detectPortal(url: string): PortalInfo {
       reliability: 'unknown',
       warning: `⚠️ UNBEKANNTES PORTAL: ${hostname} ist nicht in unserer Liste bekannter Immobilienportale. Die KI wird versuchen, Daten zu extrahieren, aber die Erfolgsrate ist ungewiss. Bitte überprüfe alle Werte manuell sehr sorgfältig!`,
     };
-  } catch (err) {
+  } catch {
     // Invalid URL
     return {
       name: 'Ungültige URL',
