@@ -47,8 +47,9 @@ const KNOWN_PORTALS: Record<string, PortalInfo> = {
   'immobilienscout24.de': {
     name: 'ImmobilienScout24',
     domain: 'immobilienscout24.de',
-    supported: true,
-    reliability: 'high',
+    supported: false, // Temporarily disabled due to aggressive blocking
+    reliability: 'low',
+    warning: 'ImmobilienScout24 blockiert aktuell automatische Zugriffe. Nutze stattdessen Immowelt oder eBay Kleinanzeigen.',
   },
   'immowelt.de': {
     name: 'Immowelt',

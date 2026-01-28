@@ -51,16 +51,25 @@ export async function POST(req: NextRequest) {
 
     console.log(`[API] Portal detected: ${portalInfo.name} (supported: ${portalInfo.supported}, reliability: ${portalInfo.reliability})`);
 
+    // Early exit for unsupported portals (especially ImmobilienScout24)
+    if (!portalInfo.supported) {
+      console.warn(`[API] ❌ Portal not supported: ${portalInfo.name}`);
+      return NextResponse.json(
+        {
+          success: false,
+          error: portalInfo.warning || `Portal "${portalInfo.name}" wird aktuell nicht unterstützt.`,
+          details: portalInfo.warning || `Portal "${portalInfo.name}" wird aktuell nicht unterstützt.\n\n💡 Alternativen:\n• Gib die Daten manuell ein\n• Nutze Immowelt oder eBay Kleinanzeigen`,
+          portal: portalInfo.name,
+        },
+        { status: 400 }
+      );
+    }
+
     // Collect warnings array
     const warnings: string[] = [];
 
     // Add portal-specific warnings
-    if (!portalInfo.supported) {
-      console.warn(`[API] ⚠️ Unknown portal: ${portalInfo.name}`);
-      if (portalInfo.warning) {
-        warnings.push(portalInfo.warning);
-      }
-    } else if (portalInfo.warning) {
+    if (portalInfo.warning) {
       warnings.push(portalInfo.warning);
     }
 

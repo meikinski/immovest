@@ -300,7 +300,7 @@ export default function InputMethodPage() {
                   URL Import
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
+                  Kopiere einfach den Link von Immowelt, eBay Kleinanzeigen oder anderen Portalen
                 </p>
               </div>
 
@@ -310,7 +310,7 @@ export default function InputMethodPage() {
                   type="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://www.immobilienscout24.de/..."
+                  placeholder="https://www.immowelt.de/..."
                   className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#ff6b00] focus:outline-none focus:ring-4 focus:ring-[#ff6b00]/15 transition-all hover:border-gray-300"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') handleUrlSubmit();
@@ -353,12 +353,15 @@ export default function InputMethodPage() {
 
               {/* Benefits */}
               <div className="mt-6 space-y-2">
-                {['Umgeht CloudFront-Blockierung', 'Funktioniert mit allen Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
+                {['Funktioniert mit Immowelt', 'Funktioniert mit eBay Kleinanzeigen', 'KI extrahiert alle Daten automatisch'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
                     <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800">
+                ℹ️ <strong>Hinweis:</strong> ImmobilienScout24 blockiert aktuell automatische Zugriffe. Nutze für IS24-Anzeigen bitte die manuelle Eingabe.
               </div>
             </div>
 
