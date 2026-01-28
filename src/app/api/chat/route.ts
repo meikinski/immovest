@@ -63,12 +63,18 @@ WICHTIG: Verwende NIEMALS Emojis.`;
 
   const stepInfo = ctx.aktuellerSchritt || 'Unbekannt';
 
+  // Pre-calculate derived values so the AI doesn't miscalculate
+  const instandhaltungProQmJahr = ctx.instandhaltungskosten_pro_qm || 0;
+  const flaeche = ctx.flaeche || 0;
+  const instandhaltungJahr = instandhaltungProQmJahr * flaeche;
+  const instandhaltungMonat = instandhaltungJahr / 12;
+
   const inputLines = [
     line('Kaufpreis', fmt(ctx.kaufpreis, ' €')),
     line('Anschaffungskosten (inkl. NK)', fmt(ctx.anschaffungskosten, ' €')),
-    line('Monatl. Kaltmiete', fmt(ctx.miete, ' €')),
-    line('Hausgeld gesamt', fmt(ctx.hausgeld, ' €')),
-    line('Hausgeld umlagefähig', fmt(ctx.hausgeld_umlegbar, ' €')),
+    line('Monatl. Kaltmiete', fmt(ctx.miete, ' €/Monat')),
+    line('Hausgeld gesamt', fmt(ctx.hausgeld, ' €/Monat')),
+    line('Hausgeld umlagefähig', fmt(ctx.hausgeld_umlegbar, ' €/Monat')),
     line('Eigenkapital', fmt(ctx.eigenkapital, ' €')),
     line('Zinssatz', ctx.zins ? ctx.zins + '%' : ''),
     line('Tilgung', ctx.tilgung ? ctx.tilgung + '%' : ''),
@@ -76,7 +82,10 @@ WICHTIG: Verwende NIEMALS Emojis.`;
     line('Persönlicher Steuersatz', ctx.persoenlicher_steuersatz ? ctx.persoenlicher_steuersatz + '%' : ''),
     line('Mietausfall-Risiko', ctx.mietausfall_pct ? ctx.mietausfall_pct + '%' : ''),
     line('Rücklagen', fmt(ctx.ruecklagen, ' €/Monat')),
-    line('Instandhaltung', ctx.instandhaltungskosten_pro_qm ? ctx.instandhaltungskosten_pro_qm + ' €/m²' : ''),
+    // Show the per-m² rate AND the calculated totals to avoid AI miscalculation
+    instandhaltungProQmJahr > 0 && flaeche > 0
+      ? `- Instandhaltung: ${instandhaltungProQmJahr} €/m²/Jahr = ${fmt(instandhaltungJahr, ' €/Jahr')} = ${fmt(Math.round(instandhaltungMonat), ' €/Monat')}`
+      : '',
     line('Objekttyp', ctx.objekttyp || ''),
     line('Wohnfläche', fmt(ctx.flaeche, ' m²')),
     line('GrESt', ctx.grunderwerbsteuer_pct ? ctx.grunderwerbsteuer_pct + '%' : ''),
@@ -115,6 +124,8 @@ ${kpiLines}
 - KEINE erfundenen Beispielrechnungen mit anderen Zahlen.
 - KEINE langen Einleitungen ("Gerne helfe ich dir...").
 - KEINE Filler-Fragen am Ende ("Möchtest du...?", "Hast du noch Fragen?").
+- KEINE eigenen Berechnungen erfinden. Nutze NUR die Werte oben.
+- KEINE Verwechslung von Jahres- und Monatswerten. Einheiten stehen bei den Daten.
 
 ## STIL:
 - Deutsch, duzen
