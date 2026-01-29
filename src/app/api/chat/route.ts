@@ -182,8 +182,12 @@ Bei Schritt B: "Wofür sind die kalkulatorischen Kosten?", "Was ist umlagefähig
 Bei Schritt C: "Wie viel EK brauche ich?", "Was bringt mir die AfA?"
 Bei Analyse: "Ist die Rendite gut?", "Lohnt sich das?", "Was bedeutet der DSCR?"
 
-## AKTUELLER KONTEXT DES NUTZERS:
-${stepContext || stepInfo}
+## WICHTIG - STEP-KONTEXT IN NACHRICHTEN:
+Jede Nutzer-Nachricht beginnt mit "[Nutzer ist bei: ...]" - das zeigt dir, auf welcher Seite
+der Nutzer WAR, als er die Frage gestellt hat. Beachte das bei JEDER Nachricht separat!
+Der Nutzer kann zwischen Schritten wechseln während der Konversation.
+
+Aktueller Schritt (für diese Anfrage): ${stepInfo}
 
 ## EINGABEN DES NUTZERS:
 ${inputLines}

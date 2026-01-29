@@ -106,7 +106,10 @@ export function ChatAssistant() {
     if (!input.trim() || isLoading) return;
     const messageText = input.trim();
     setInput('');
-    await sendMessage({ text: messageText });
+    // Prefix message with current step so AI knows context for EACH message
+    const currentStep = describeStep(pathname);
+    const messageWithContext = `[Nutzer ist bei: ${currentStep}]\n\n${messageText}`;
+    await sendMessage({ text: messageWithContext });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,10 +142,15 @@ export function ChatAssistant() {
 
   const getMessageText = useCallback((message: typeof messages[0]): string => {
     if (!message.parts || message.parts.length === 0) return '';
-    return message.parts
+    let text = message.parts
       .filter((part): part is { type: 'text'; text: string } => part.type === 'text')
       .map(part => part.text)
       .join('');
+    // Strip the step context prefix from user messages for display
+    if (message.role === 'user') {
+      text = text.replace(/^\[Nutzer ist bei: [^\]]+\]\n\n/, '');
+    }
+    return text;
   }, []);
 
   const handleExampleClick = (question: string) => setInput(question);
