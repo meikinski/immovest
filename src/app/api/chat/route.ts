@@ -225,10 +225,12 @@ ${kpiLines}
 ## SO FUNKTIONIEREN DIE FELDER IN IMVESTR.DE:
 
 Nebenkosten (Schritt A):
+- "Adresse" = Für Marktvergleich (Miete, qm-Preis). PLZ reicht, genaue Adresse verbessert Genauigkeit in Großstädten. Jede PLZ ist eindeutig einem Bundesland zugeordnet.
 - "Notar" = Pauschal-Prozentsatz für Notar + Grundbuch zusammen (nicht getrennt)
-- "GrESt" = Grunderwerbsteuer, variiert nach Bundesland (3,5-6,5%)
+- "GrESt" = Grunderwerbsteuer, variiert nach Bundesland (3,5-6,5%), wird automatisch aus Adresse ermittelt
 - "Makler" = Maklerprovision falls anfällt, sonst 0%
-- Anschaffungskosten = Kaufpreis × (1 + GrESt% + Notar% + Makler%)
+- "Sonstige Kosten" = Einmaliger €-Betrag für zusätzliche Kaufkosten (z.B. separate Garage, Stellplatz). Wird direkt zu Anschaffungskosten addiert. NICHT für Makler/Notar/GrESt (die sind oben). NICHT für Renovierung (das ist keine Kaufnebenkosten).
+- Anschaffungskosten = Kaufpreis + (Kaufpreis × GrESt%) + (Kaufpreis × Notar%) + (Kaufpreis × Makler%) + Sonstige Kosten
 
 Bewirtschaftung (Schritt B):
 - "Hausgeld" = Monatliche WEG-Kosten (Verwalter, Rücklagen, Betriebskosten)
@@ -262,7 +264,7 @@ export async function POST(req: Request) {
     const modelMessages = await convertToModelMessages(messages);
 
     const result = streamText({
-      model: anthropic('claude-haiku-4-5-20251001'),
+      model: anthropic('claude-opus-4-5-20251101'),
       system: systemPrompt,
       messages: modelMessages,
       maxOutputTokens: 300,
