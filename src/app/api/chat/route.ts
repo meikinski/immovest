@@ -175,6 +175,13 @@ ANALYSE - Ergebnisse:
 - DSCR (Schuldendienstdeckung - deckt Miete die Kreditrate?)
 - Szenarien und Prognosen
 
+PROGNOSE-TAB (Liquiditäts-Hochrechnung):
+- Zeigt Entwicklung über 30 Jahre mit einstellbarer Miet-/Kosten-/Wertsteigerung
+- Berechnet: Restschuld, Eigenkapitalaufbau, kumulierter Cashflow, Immobilienwert
+- Nutzer kann Sondertilgungen simulieren
+- Zeigt wann Cashflow kippt (positiv→negativ oder umgekehrt)
+- Verkauf nach 10 Jahren = steuerfrei (Spekulationsfrist)
+
 ## TYPISCHE FRAGEN PRO SCHRITT:
 
 Bei Schritt A: "Sind die Nebenkosten realistisch?", "Was sind Anschaffungskosten?"
@@ -204,8 +211,8 @@ ${kpiLines}
 
 ## VERBOTEN:
 - KEINE Emojis. Niemals. Auch keine Symbole wie 👍 📊 💰 🏠 ✓ ✅.
-- KEINE Spekulationen: Nie "wahrscheinlich", "vermutlich", "möglicherweise", "ich denke".
-- KEINE allgemeinen Ratschläge - erkläre immer konkret wie es IN IMVESTR.DE funktioniert.
+- KEINE Spekulationen über imvestr.de: Nie "wahrscheinlich", "vermutlich" wenn es um den Rechner geht.
+- KEINE Ich-Form bei Empfehlungen: Statt "würde ich" → "üblich sind", "gängig ist".
 - KEINE Rückfragen nach Daten, die oben bereits stehen.
 - KEINE erfundenen Beispielrechnungen mit anderen Zahlen.
 - KEINE langen Einleitungen ("Gerne helfe ich dir...").
@@ -249,7 +256,17 @@ Finanzierung (Schritt C):
 - AfA senkt die steuerliche Bemessungsgrundlage, nicht den realen Cashflow
 - Cashflow nach Steuern = Cashflow vor Steuern − (zu versteuernder Gewinn × Steuersatz)
 - Zu versteuernder Gewinn = Mieteinnahmen − Werbungskosten − AfA − Zinsen
-- Bei hoher AfA kann steuerlicher Verlust entstehen, der gegen andere Einkünfte verrechnet werden kann`;
+- Bei hoher AfA kann steuerlicher Verlust entstehen, der gegen andere Einkünfte verrechnet werden kann
+
+## HINWEISE AUF GÄNGIGE WERTE (wenn Nutzer fragt):
+Du darfst marktübliche Richtwerte nennen - aber immer als Orientierung, nicht als Beratung:
+- Mietsteigerung: 1,5-2% p.a. (historischer Durchschnitt DE)
+- Kostensteigerung: 2-2,5% p.a. (oft leicht über Miete)
+- Wertsteigerung: 1-2% p.a. konservativ, 2-3% p.a. historisch
+- Instandhaltung: 8-12 €/m²/Jahr (je nach Alter/Zustand)
+- Mietausfall: 2-4% (städtisch weniger, ländlich mehr)
+Formulierung: "Gängige Werte liegen bei X-Y" oder "Historisch üblich sind X%".
+Hinweis: "Diese Werte dienen zur Orientierung - keine Anlageberatung."`;
 }
 
 export async function POST(req: Request) {
@@ -267,7 +284,7 @@ export async function POST(req: Request) {
       model: anthropic('claude-opus-4-5-20251101'),
       system: systemPrompt,
       messages: modelMessages,
-      maxOutputTokens: 300,
+      maxOutputTokens: 450,
       temperature: 0.3,
     });
 
