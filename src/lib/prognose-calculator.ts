@@ -1,3 +1,6 @@
+import { berechneAfaVerlauf, AfaParams, AfaJahresErgebnis } from './afaCalculator';
+import { AfaModell } from '@/store/useImmoStore';
+
 export interface PrognoseJahr {
   jahr: number;
   restschuld: number;
@@ -13,6 +16,13 @@ export interface PrognoseJahr {
   immobilienwert?: number;
   warmmieteAktuell?: number;
   verkaufsNebenkosten?: number;
+
+  // AfA-Turbo Erweiterungen
+  afaLinear: number;
+  afaSonder: number;
+  afaGesamt: number;
+  afaSatz: number;
+  afaRestbuchwert: number;
 }
 
 export interface PrognoseData {
@@ -39,6 +49,13 @@ export interface PrognoseInput {
   mietInflationPct?: number;
   kostenInflationPct?: number;
   verkaufsNebenkostenPct?: number;
+
+  // AfA-Turbo Erweiterungen
+  afaModell?: AfaModell;
+  nutzeSonderAfa?: boolean;
+  kaufpreis?: number;
+  grundstueckswert?: number;
+  wohnflaeche?: number;
 }
 
 export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData {
@@ -50,11 +67,29 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
   // Konfiguration
   const wertsteigerung = input.wertsteigerungPct ?? 0;
   const afaLaufzeit = input.afaLaufzeitJahre ?? 50;
-  const afaMonthly = (input.afaJaehrlich ?? 0) / 12;
   const darlehensTyp = input.darlehensTyp ?? 'degressiv';
   const mietInflation = input.mietInflationPct ?? 0;
   const kostenInflation = input.kostenInflationPct ?? 0;
   const verkaufsNebenkostenPct = input.verkaufsNebenkostenPct ?? 0;
+
+  // AfA-Turbo: Berechne den kompletten AfA-Verlauf, wenn die neuen Parameter vorhanden sind
+  let afaVerlauf: AfaJahresErgebnis[] | null = null;
+  const useAfaTurbo = input.afaModell !== undefined && input.kaufpreis !== undefined;
+
+  if (useAfaTurbo) {
+    const afaParams: AfaParams = {
+      kaufpreis: input.kaufpreis!,
+      grundstueckswert: input.grundstueckswert ?? Math.round(input.kaufpreis! * 0.2),
+      wohnflaeche: input.wohnflaeche ?? 80, // Fallback
+      modell: input.afaModell!,
+      nutzeSonderAfa: input.nutzeSonderAfa ?? false,
+      startJahr: input.startJahr,
+    };
+    afaVerlauf = berechneAfaVerlauf(afaParams, jahre + 1);
+  }
+
+  // Legacy: afaJaehrlich für Rückwärtskompatibilität
+  const legacyAfaJaehrlich = input.afaJaehrlich ?? 0;
 
   // Annuitäten-Berechnung (einmalig für konstante Rate)
   let annuitaetMonatlich = 0;
@@ -71,11 +106,32 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
   }
 
   for (let jahr = 0; jahr <= jahre; jahr += 1) {
-    // AfA-Vorteil nur innerhalb der Laufzeit
-    const afaVorteilJaehrlich =
-      jahr <= afaLaufzeit && input.afaJaehrlich && input.steuersatz
-        ? input.afaJaehrlich * (input.steuersatz / 100)
-        : 0;
+    // AfA-Daten für dieses Jahr (entweder aus AfA-Turbo oder Legacy)
+    let afaLinear = 0;
+    let afaSonder = 0;
+    let afaGesamt = 0;
+    let afaSatz = 0;
+    let afaRestbuchwert = 0;
+
+    if (useAfaTurbo && afaVerlauf && afaVerlauf[jahr]) {
+      const afaJahr = afaVerlauf[jahr];
+      afaLinear = afaJahr.linearerBetrag;
+      afaSonder = afaJahr.sonderAfaBetrag;
+      afaGesamt = afaJahr.gesamtAfA;
+      afaSatz = afaJahr.afaSatz;
+      afaRestbuchwert = afaJahr.restbuchwert;
+    } else if (legacyAfaJaehrlich > 0 && jahr <= afaLaufzeit) {
+      // Legacy-Modus: Konstanter AfA-Betrag
+      afaLinear = legacyAfaJaehrlich;
+      afaGesamt = legacyAfaJaehrlich;
+      const gebaeudewert = input.kaufpreis ? input.kaufpreis - (input.grundstueckswert ?? input.kaufpreis * 0.2) : 0;
+      afaSatz = gebaeudewert > 0 ? (afaGesamt / gebaeudewert) * 100 : 0;
+    }
+
+    // AfA-Vorteil (Steuerersparnis)
+    const afaVorteilJaehrlich = input.steuersatz
+      ? afaGesamt * (input.steuersatz / 100)
+      : 0;
 
     // Inflation: Miete und Kosten steigen
     const warmmieteAktuell = input.warmmiete * Math.pow(1 + mietInflation / 100, jahr);
@@ -118,7 +174,8 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       warmmieteAktuell - hausgeldAktuell - kalkKostenAktuell - zinsMonthly - regulareTilgungMonthlyFinal;
 
     // Steuerberechnung (für beide gleich, da Sondertilgung steuerlich nicht relevant)
-    const afaMonthlyAktuell = jahr <= afaLaufzeit ? afaMonthly : 0;
+    // Verwende die AfA-Turbo Werte wenn verfügbar, sonst Legacy
+    const afaMonthlyAktuell = afaGesamt / 12;
     const taxableCashflow = warmmieteAktuell - hausgeldAktuell - zinsMonthly - afaMonthlyAktuell;
     const taxMonthly = taxableCashflow * ((input.steuersatz ?? 0) / 100);
 
@@ -151,6 +208,12 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       cashflowKumuliertOhneSondertilgung: kumuliertCFOhneSondertilgung,
       zinslast,
       afaVorteil: afaVorteilJaehrlich,
+      // AfA-Turbo Erweiterungen
+      afaLinear,
+      afaSonder,
+      afaGesamt,
+      afaSatz,
+      afaRestbuchwert,
       ...(immobilienwert !== undefined ? { immobilienwert } : {}),
       ...(warmmieteAktuell !== input.warmmiete ? { warmmieteAktuell } : {}),
       ...(verkaufsNebenkosten !== undefined ? { verkaufsNebenkosten } : {}),

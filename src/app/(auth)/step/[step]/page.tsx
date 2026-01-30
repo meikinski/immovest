@@ -26,6 +26,7 @@ import {
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
 import Slider  from '@/components/Slider';
+import { AfaSelection } from '@/components/AfaSelection';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
@@ -143,6 +144,24 @@ export default function StepPage() {
   const setAfa      = useImmoStore(s => s.setAfa);
   const setSteuer   = useImmoStore(s => s.setSteuer);
   const steuer      = useImmoStore(s => s.steuer);
+
+  // AfA-Turbo Felder
+  const immobilienTyp = useImmoStore(s => s.immobilienTyp);
+  const setImmobilienTyp = useImmoStore(s => s.setImmobilienTyp);
+  const kaufdatum = useImmoStore(s => s.kaufdatum);
+  const setKaufdatum = useImmoStore(s => s.setKaufdatum);
+  const bauantragsdatum = useImmoStore(s => s.bauantragsdatum);
+  const setBauantragsdatum = useImmoStore(s => s.setBauantragsdatum);
+  const kfwStandard = useImmoStore(s => s.kfwStandard);
+  const setKfwStandard = useImmoStore(s => s.setKfwStandard);
+  const hatQngSiegel = useImmoStore(s => s.hatQngSiegel);
+  const setHatQngSiegel = useImmoStore(s => s.setHatQngSiegel);
+  const afaModell = useImmoStore(s => s.afaModell);
+  const setAfaModell = useImmoStore(s => s.setAfaModell);
+  const nutzeSonderAfa = useImmoStore(s => s.nutzeSonderAfa);
+  const setNutzeSonderAfa = useImmoStore(s => s.setNutzeSonderAfa);
+  const grundstueckswert = useImmoStore(s => s.grundstueckswert);
+  const setGrundstueckswert = useImmoStore(s => s.setGrundstueckswert);
 
   // Step C: Werte + Setter
   const ek          = useImmoStore(s => s.ek);
@@ -368,6 +387,9 @@ export default function StepPage() {
   const formatEur = (value: number, maximumFractionDigits = 0) =>
     value.toLocaleString('de-DE', { maximumFractionDigits });
 
+  // Grundstückswert für AfA (Fallback: 20% des Kaufpreises)
+  const effectiveGrundstueckswert = grundstueckswert > 0 ? grundstueckswert : Math.round(kaufpreis * 0.2);
+
   const prognose = useMemo(
     () =>
       berechnePrognose(
@@ -389,6 +411,12 @@ export default function StepPage() {
           mietInflationPct,
           kostenInflationPct,
           verkaufsNebenkostenPct: wertentwicklungAktiv ? verkaufsNebenkostenPct : undefined,
+          // AfA-Turbo Parameter
+          afaModell,
+          nutzeSonderAfa,
+          kaufpreis,
+          grundstueckswert: effectiveGrundstueckswert,
+          wohnflaeche: flaeche,
         },
         30
       ),
@@ -410,6 +438,11 @@ export default function StepPage() {
       mietInflationPct,
       kostenInflationPct,
       verkaufsNebenkostenPct,
+      // AfA-Turbo Abhängigkeiten
+      afaModell,
+      nutzeSonderAfa,
+      effectiveGrundstueckswert,
+      flaeche,
     ]
   );
 
@@ -1999,6 +2032,28 @@ const exportPdf = React.useCallback(async () => {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* AfA-Turbo Abschnitt */}
+            <div className="mt-8 pt-6 border-t border-slate-200">
+              <AfaSelection
+                immobilienTyp={immobilienTyp}
+                kaufdatum={kaufdatum}
+                bauantragsdatum={bauantragsdatum}
+                kfwStandard={kfwStandard}
+                hatQngSiegel={hatQngSiegel}
+                kaufpreis={kaufpreis}
+                wohnflaeche={flaeche}
+                afaModell={afaModell}
+                nutzeSonderAfa={nutzeSonderAfa}
+                onImmobilienTypChange={setImmobilienTyp}
+                onKaufdatumChange={setKaufdatum}
+                onBauantragsdatumChange={setBauantragsdatum}
+                onKfwStandardChange={setKfwStandard}
+                onHatQngSiegelChange={setHatQngSiegel}
+                onAfaModellChange={setAfaModell}
+                onNutzeSonderAfaChange={setNutzeSonderAfa}
+              />
             </div>
           </div>
         </div>
