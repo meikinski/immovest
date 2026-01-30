@@ -8,6 +8,24 @@ import {
 
 
 /**
+ * AfA-Modell Typen für verschiedene Abschreibungsmethoden
+ * - linear_2: 2% p.a. (Altimmobilien vor 2023)
+ * - linear_3: 3% p.a. (ab 2023)
+ * - degressiv_5: 5% degressiv (Neubauten 2023-2029)
+ */
+export type AfaModell = 'linear_2' | 'linear_3' | 'degressiv_5';
+
+/**
+ * Immobilientyp für AfA-Berechtigung
+ */
+export type ImmobilienTyp = 'neubau' | 'bestand' | 'sanierung';
+
+/**
+ * KfW-Standard für Energieeffizienz
+ */
+export type KfwStandard = 'EH40' | 'EH55' | 'kein' | null;
+
+/**
  * State und Setter für ImmoInvest AI Eingaben (Schritt A)
  */
 export interface ImmoState {
@@ -44,6 +62,16 @@ export interface ImmoState {
   ek: number;
   zins: number;
   tilgung: number;
+
+  // AfA-Turbo Felder (§7 Abs. 4, §7 Abs. 5a, §7b EStG)
+  immobilienTyp: ImmobilienTyp;
+  kaufdatum: string; // ISO date string
+  bauantragsdatum: string | null; // ISO date string, nur bei Neubau relevant
+  kfwStandard: KfwStandard;
+  hatQngSiegel: boolean;
+  afaModell: AfaModell;
+  nutzeSonderAfa: boolean;
+  grundstueckswert: number; // Grundstückswert für AfA-Berechnung (Gebäudewert = Kaufpreis - Grundstückswert)
 
   // Derived fields
   cashflow_operativ: number;
@@ -95,6 +123,16 @@ export interface ImmoState {
   setVerwaltungskosten: (v: number) => void;
   setAnalysisId: (v: string) => void;
   importData: (data: Partial<ImmoState>) => void;
+
+  // AfA-Turbo Setter
+  setImmobilienTyp: (v: ImmobilienTyp) => void;
+  setKaufdatum: (v: string) => void;
+  setBauantragsdatum: (v: string | null) => void;
+  setKfwStandard: (v: KfwStandard) => void;
+  setHatQngSiegel: (v: boolean) => void;
+  setAfaModell: (v: AfaModell) => void;
+  setNutzeSonderAfa: (v: boolean) => void;
+  setGrundstueckswert: (v: number) => void;
 }
 
 // Typ für die Set-Funktion: akzeptiert partielle ImmoState-Updates
@@ -108,7 +146,44 @@ const getDefaultAfa = (year: number) => {
   return 2;
 };
 
+/**
+ * Bestimmt das Standard-AfA-Modell basierend auf Kaufdatum und Immobilientyp
+ */
+const getDefaultAfaModell = (kaufdatum: string, immobilienTyp: ImmobilienTyp): AfaModell => {
+  const kaufjahr = new Date(kaufdatum).getFullYear();
+  const kaufmonat = new Date(kaufdatum).getMonth() + 1;
+
+  // Degressive AfA nur für Neubauten mit Bauantrag zwischen 01.10.2023 und 30.09.2029
+  if (immobilienTyp === 'neubau' && kaufjahr >= 2023) {
+    return 'degressiv_5';
+  }
+
+  // Lineare 3% für Kauf ab 2023
+  if (kaufjahr >= 2023 || (kaufjahr === 2022 && kaufmonat >= 10)) {
+    return 'linear_3';
+  }
+
+  return 'linear_2';
+};
+
+/**
+ * Berechnet den AfA-Satz (%) basierend auf dem gewählten Modell
+ * Für UI-Anzeige im ersten Jahr
+ */
+const getAfaSatzFromModell = (modell: AfaModell, nutzeSonderAfa: boolean): number => {
+  switch (modell) {
+    case 'linear_2':
+      return 2;
+    case 'linear_3':
+      return 3;
+    case 'degressiv_5':
+      // 5% degressiv + optional 5% Sonder-AfA = bis zu 10%
+      return nutzeSonderAfa ? 10 : 5;
+  }
+};
+
 const currentYear = new Date().getFullYear();
+const today = new Date().toISOString().split('T')[0];
 
 const initialState = {
   // Metadata
@@ -151,6 +226,16 @@ const initialState = {
   mietpreisComment: '',
   qmPreisComment: '',
   investComment: '',
+
+  // AfA-Turbo Initialwerte
+  immobilienTyp: 'bestand' as ImmobilienTyp,
+  kaufdatum: today,
+  bauantragsdatum: null as string | null,
+  kfwStandard: null as KfwStandard,
+  hatQngSiegel: false,
+  afaModell: 'linear_3' as AfaModell, // Default für 2024+
+  nutzeSonderAfa: false,
+  grundstueckswert: 0, // Wird automatisch auf ~20% des Kaufpreises berechnet
 };
 
 export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
@@ -313,12 +398,80 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setAnalysisId: (v: string) => {
     set({ analysisId: v });
   },
+
+  // AfA-Turbo Setter
+  setImmobilienTyp: (v: ImmobilienTyp) => {
+    const s = get();
+    const newAfaModell = getDefaultAfaModell(s.kaufdatum, v);
+    // Reset Sonder-AfA wenn kein Neubau mehr
+    const newNutzeSonderAfa = v === 'neubau' ? s.nutzeSonderAfa : false;
+    set({ immobilienTyp: v, afaModell: newAfaModell, nutzeSonderAfa: newNutzeSonderAfa, generatedComment: '' });
+    get().updateDerived();
+  },
+  setKaufdatum: (v: string) => {
+    const s = get();
+    const newAfaModell = getDefaultAfaModell(v, s.immobilienTyp);
+    set({ kaufdatum: v, afaModell: newAfaModell, generatedComment: '' });
+    get().updateDerived();
+  },
+  setBauantragsdatum: (v: string | null) => {
+    set({ bauantragsdatum: v, generatedComment: '' });
+    get().updateDerived();
+  },
+  setKfwStandard: (v: KfwStandard) => {
+    // Wenn kein EH40, dann keine Sonder-AfA möglich
+    const newNutzeSonderAfa = v === 'EH40' ? get().nutzeSonderAfa : false;
+    set({ kfwStandard: v, nutzeSonderAfa: newNutzeSonderAfa, generatedComment: '' });
+    get().updateDerived();
+  },
+  setHatQngSiegel: (v: boolean) => {
+    // Wenn kein QNG-Siegel, dann keine Sonder-AfA möglich
+    const newNutzeSonderAfa = v ? get().nutzeSonderAfa : false;
+    set({ hatQngSiegel: v, nutzeSonderAfa: newNutzeSonderAfa, generatedComment: '' });
+    get().updateDerived();
+  },
+  setAfaModell: (v: AfaModell) => {
+    // Update auch den afa-Satz für Rückwärtskompatibilität
+    const s = get();
+    const newAfaSatz = getAfaSatzFromModell(v, s.nutzeSonderAfa);
+    set({ afaModell: v, afa: newAfaSatz, generatedComment: '' });
+    get().updateDerived();
+  },
+  setNutzeSonderAfa: (v: boolean) => {
+    const s = get();
+    const newAfaSatz = getAfaSatzFromModell(s.afaModell, v);
+    set({ nutzeSonderAfa: v, afa: newAfaSatz, generatedComment: '' });
+    get().updateDerived();
+  },
+  setGrundstueckswert: (v: number) => {
+    set({ grundstueckswert: v, generatedComment: '' });
+    get().updateDerived();
+  },
+
   importData: (data) => {
     // Automatically calculate AfA based on baujahr if not explicitly provided
     const updates = { ...data };
     if (data.baujahr !== undefined && data.afa === undefined) {
       updates.afa = getDefaultAfa(data.baujahr);
     }
+
+    // Migration für alte Daten ohne AfA-Turbo Felder
+    if (data.afaModell === undefined) {
+      const kaufdatum = data.kaufdatum || today;
+      const immobilienTyp = data.immobilienTyp || 'bestand';
+      updates.afaModell = getDefaultAfaModell(kaufdatum, immobilienTyp as ImmobilienTyp);
+      updates.kaufdatum = kaufdatum;
+      updates.immobilienTyp = immobilienTyp;
+      updates.nutzeSonderAfa = false;
+      updates.hatQngSiegel = false;
+      updates.kfwStandard = null;
+      updates.bauantragsdatum = null;
+      // Grundstückswert auf 20% des Kaufpreises setzen wenn nicht vorhanden
+      if (data.grundstueckswert === undefined && data.kaufpreis) {
+        updates.grundstueckswert = Math.round(data.kaufpreis * 0.2);
+      }
+    }
+
     set(updates);
     get().updateDerived();
   },
@@ -389,6 +542,16 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       mietpreisComment: state.mietpreisComment,
       qmPreisComment: state.qmPreisComment,
       investComment: state.investComment,
+
+      // AfA-Turbo Felder
+      immobilienTyp: state.immobilienTyp,
+      kaufdatum: state.kaufdatum,
+      bauantragsdatum: state.bauantragsdatum,
+      kfwStandard: state.kfwStandard,
+      hatQngSiegel: state.hatQngSiegel,
+      afaModell: state.afaModell,
+      nutzeSonderAfa: state.nutzeSonderAfa,
+      grundstueckswert: state.grundstueckswert,
     };
   },
 }));
