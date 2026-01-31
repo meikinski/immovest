@@ -9,10 +9,8 @@
 
 import {
   berechneAfaVerlauf,
-  pruefeAfaBerechtigung,
   berechneAfaSteuerersparnis,
   AfaParams,
-  AfaPropertyData,
 } from '../afaCalculator';
 
 // Test-Helper
@@ -128,98 +126,9 @@ assert(result4[3].sonderAfaBetrag > 0, 'Jahr 4: Noch Sonder-AfA');
 assert(result4[4].sonderAfaBetrag === 0, 'Jahr 5: Keine Sonder-AfA mehr');
 
 // ============================================
-// TEST 5: Berechtigungsprüfung - Altbau vor 2023
+// TEST 5: Steuerersparnis-Berechnung
 // ============================================
-console.log('\n=== TEST 5: Berechtigungsprüfung - Altbau vor 2023 ===');
-
-const property1: AfaPropertyData = {
-  immobilienTyp: 'bestand',
-  kaufdatum: '2020-06-15',
-  bauantragsdatum: null,
-  kfwStandard: null,
-  hatQngSiegel: false,
-  kaufpreis: 400000,
-  wohnflaeche: 100,
-};
-
-const berechtigung1 = pruefeAfaBerechtigung(property1);
-
-assert(berechtigung1.linear_2 === true, 'Linear 2% verfügbar');
-assert(berechtigung1.linear_3 === false, 'Linear 3% NICHT verfügbar (vor 2023)');
-assert(berechtigung1.degressiv_5 === false, 'Degressiv 5% NICHT verfügbar (kein Neubau)');
-assert(berechtigung1.sonderAfa === false, 'Sonder-AfA NICHT verfügbar');
-
-// ============================================
-// TEST 6: Berechtigungsprüfung - Neubau 2024 ohne KfW
-// ============================================
-console.log('\n=== TEST 6: Berechtigungsprüfung - Neubau 2024 ohne KfW ===');
-
-const property2: AfaPropertyData = {
-  immobilienTyp: 'neubau',
-  kaufdatum: '2024-03-01',
-  bauantragsdatum: '2024-01-15',
-  kfwStandard: null,
-  hatQngSiegel: false,
-  kaufpreis: 400000,
-  wohnflaeche: 100,
-};
-
-const berechtigung2 = pruefeAfaBerechtigung(property2);
-
-assert(berechtigung2.linear_2 === true, 'Linear 2% verfügbar');
-assert(berechtigung2.linear_3 === true, 'Linear 3% verfügbar (ab 2023)');
-assert(berechtigung2.degressiv_5 === true, 'Degressiv 5% verfügbar (Neubau 2024)');
-assert(berechtigung2.sonderAfa === false, 'Sonder-AfA NICHT verfügbar (kein EH40 + QNG)');
-
-// ============================================
-// TEST 7: Berechtigungsprüfung - Neubau 2024 EH40 mit QNG
-// ============================================
-console.log('\n=== TEST 7: Berechtigungsprüfung - Neubau 2024 EH40 mit QNG (Voller Turbo) ===');
-
-const property3: AfaPropertyData = {
-  immobilienTyp: 'neubau',
-  kaufdatum: '2024-03-01',
-  bauantragsdatum: '2024-01-15',
-  kfwStandard: 'EH40',
-  hatQngSiegel: true,
-  kaufpreis: 400000,
-  wohnflaeche: 100,
-};
-
-const berechtigung3 = pruefeAfaBerechtigung(property3);
-
-assert(berechtigung3.linear_2 === true, 'Linear 2% verfügbar');
-assert(berechtigung3.linear_3 === true, 'Linear 3% verfügbar');
-assert(berechtigung3.degressiv_5 === true, 'Degressiv 5% verfügbar');
-assert(berechtigung3.sonderAfa === true, 'Sonder-AfA verfügbar (EH40 + QNG)!');
-
-// ============================================
-// TEST 8: Berechtigungsprüfung - Kaufpreis über 5.200€/m²
-// ============================================
-console.log('\n=== TEST 8: Berechtigungsprüfung - Kaufpreis über 5.200€/m² ===');
-
-const property4: AfaPropertyData = {
-  immobilienTyp: 'neubau',
-  kaufdatum: '2024-03-01',
-  bauantragsdatum: '2024-01-15',
-  kfwStandard: 'EH40',
-  hatQngSiegel: true,
-  kaufpreis: 600000, // 6.000€/m² > 5.200€/m²
-  wohnflaeche: 100,
-};
-
-const berechtigung4 = pruefeAfaBerechtigung(property4);
-
-assert(berechtigung4.sonderAfa === false, 'Sonder-AfA NICHT verfügbar (über 5.200€/m²)');
-assert(
-  berechtigung4.gruende.keineSonderAfa?.includes('5.200') === true,
-  'Grund: Obergrenze überschritten'
-);
-
-// ============================================
-// TEST 9: Steuerersparnis-Berechnung
-// ============================================
-console.log('\n=== TEST 9: Steuerersparnis-Berechnung ===');
+console.log('\n=== TEST 5: Steuerersparnis-Berechnung ===');
 
 const afaBetrag = 32000; // AfA-Turbo Jahr 1
 const steuersatz = 42; // Grenzsteuersatz

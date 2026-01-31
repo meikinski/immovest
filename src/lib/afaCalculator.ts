@@ -11,7 +11,7 @@
  * - § 7 Abs. 4, § 7 Abs. 5a, § 7b EStG
  */
 
-import { AfaModell, ImmobilienTyp, KfwStandard } from '@/store/useImmoStore';
+import { AfaModell } from '@/store/useImmoStore';
 
 /**
  * Ergebnis der AfA-Berechnung für ein einzelnes Jahr
@@ -38,33 +38,6 @@ export interface AfaParams {
   startJahr: number;
 }
 
-/**
- * Ergebnis der AfA-Berechtigungs-Prüfung
- */
-export interface AfaBerechtigungResult {
-  linear_2: boolean;
-  linear_3: boolean;
-  degressiv_5: boolean;
-  sonderAfa: boolean;
-  gruende: {
-    keineLinear3: string | null;
-    keineDegressiv: string | null;
-    keineSonderAfa: string | null;
-  };
-}
-
-/**
- * Property-Daten für die Berechtigungsprüfung
- */
-export interface AfaPropertyData {
-  immobilienTyp: ImmobilienTyp;
-  kaufdatum: string;
-  bauantragsdatum: string | null;
-  kfwStandard: KfwStandard;
-  hatQngSiegel: boolean;
-  kaufpreis: number;
-  wohnflaeche: number;
-}
 
 /**
  * Berechnet den AfA-Verlauf für 30+ Jahre nach deutschen Steuerregeln
@@ -197,100 +170,6 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
   return ergebnisse;
 }
 
-/**
- * Prüft, ob eine Immobilie für bestimmte AfA-Modelle berechtigt ist
- *
- * Kriterien nach aktuellem Steuerrecht:
- * - Linear 2%: Immer verfügbar
- * - Linear 3%: Fertigstellung/Anschaffung ab 01.01.2023
- * - Degressiv 5%: Neubauten mit Bauantrag zwischen 01.10.2023 und 30.09.2029
- * - Sonder-AfA: EH40-Standard + QNG-Siegel + max. 5.200€/m² Anschaffungskosten
- */
-export function pruefeAfaBerechtigung(property: AfaPropertyData): AfaBerechtigungResult {
-  const kaufdatum = new Date(property.kaufdatum);
-  const kaufjahr = kaufdatum.getFullYear();
-  const kaufmonat = kaufdatum.getMonth() + 1;
-
-  // Linear 3%: Ab 2023 (Anschaffung oder Fertigstellung)
-  const istNach2023 = kaufjahr >= 2023;
-
-  // Degressive AfA 5%: Neubauten mit Bauantrag zwischen 01.10.2023 und 30.09.2029
-  let istNeubau2023bis2029 = false;
-  if (property.immobilienTyp === 'neubau') {
-    // Prüfe Bauantragsdatum wenn vorhanden
-    if (property.bauantragsdatum) {
-      const bauantrag = new Date(property.bauantragsdatum);
-      const bauJahr = bauantrag.getFullYear();
-      const bauMonat = bauantrag.getMonth() + 1;
-
-      // Bauantrag muss zwischen 01.10.2023 und 30.09.2029 liegen
-      const nachOktober2023 =
-        bauJahr > 2023 || (bauJahr === 2023 && bauMonat >= 10);
-      const vorOktober2029 =
-        bauJahr < 2029 || (bauJahr === 2029 && bauMonat < 10);
-
-      istNeubau2023bis2029 = nachOktober2023 && vorOktober2029;
-    } else {
-      // Fallback: Verwende Kaufdatum als Näherung
-      istNeubau2023bis2029 =
-        kaufjahr >= 2023 &&
-        (kaufjahr < 2029 || (kaufjahr === 2029 && kaufmonat < 10));
-    }
-  }
-
-  // Sonder-AfA nach § 7b EStG
-  // Voraussetzungen:
-  // 1. Neubau-Mietwohnung
-  // 2. EH40-Standard (oder besser)
-  // 3. QNG-Siegel (Qualitätssiegel Nachhaltiges Gebäude)
-  // 4. Max. 5.200€/m² Anschaffungskosten (ab 2023)
-  const hatEH40MitQNG =
-    property.kfwStandard === 'EH40' && property.hatQngSiegel === true;
-
-  const kostenProQm =
-    property.wohnflaeche > 0
-      ? property.kaufpreis / property.wohnflaeche
-      : Infinity;
-  const istUnterObergrenze = kostenProQm <= 5200;
-
-  const sonderAfaBerechtigt =
-    istNeubau2023bis2029 && hatEH40MitQNG && istUnterObergrenze;
-
-  // Gründe für Nicht-Berechtigung
-  let keineSonderAfaGrund: string | null = null;
-  if (!sonderAfaBerechtigt) {
-    if (!istNeubau2023bis2029) {
-      keineSonderAfaGrund =
-        property.immobilienTyp !== 'neubau'
-          ? 'Kein Neubau'
-          : 'Bauantrag nicht zwischen 10/2023 und 09/2029';
-    } else if (!hatEH40MitQNG) {
-      if (property.kfwStandard !== 'EH40') {
-        keineSonderAfaGrund = 'Kein EH40-Standard';
-      } else {
-        keineSonderAfaGrund = 'Kein QNG-Siegel vorhanden';
-      }
-    } else if (!istUnterObergrenze) {
-      keineSonderAfaGrund = `Kosten ${Math.round(kostenProQm)}€/m² über Grenze von 5.200€/m²`;
-    }
-  }
-
-  return {
-    linear_2: true, // Immer verfügbar
-    linear_3: istNach2023,
-    degressiv_5: istNeubau2023bis2029,
-    sonderAfa: sonderAfaBerechtigt,
-    gruende: {
-      keineLinear3: !istNach2023 ? 'Anschaffung vor 2023' : null,
-      keineDegressiv: !istNeubau2023bis2029
-        ? property.immobilienTyp !== 'neubau'
-          ? 'Kein Neubau (nur Bestand/Sanierung)'
-          : 'Bauantrag nicht im Zeitraum 10/2023 - 09/2029'
-        : null,
-      keineSonderAfa: keineSonderAfaGrund,
-    },
-  };
-}
 
 /**
  * Berechnet die jährliche Steuerersparnis durch AfA
