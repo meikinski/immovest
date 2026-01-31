@@ -190,6 +190,11 @@ export default function StepPage() {
     setFlaecheText(flaeche.toString().replace('.', ','));
   }, [flaeche]);
 
+  const [baujahrText, setBaujahrText] = useState(baujahr.toString());
+  useEffect(() => {
+    setBaujahrText(baujahr.toString());
+  }, [baujahr]);
+
   // Update maklerText when maklerPct changes (e.g., from URL scraper)
   useEffect(() => {
     setMaklerText(maklerPct.toString().replace('.', ','));
@@ -768,6 +773,9 @@ const dscr =
     // Step A2 inputs
     const flaecheNum = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
     if (!isNaN(flaecheNum)) setFlaeche(flaecheNum);
+
+    const baujahrNum = parseInt(baujahrText, 10);
+    if (!isNaN(baujahrNum) && baujahrNum > 0) setBaujahr(baujahrNum);
 
     // Step B inputs
     const afaNum = Number(afaText.replace(',', '.'));
@@ -1564,22 +1572,20 @@ const exportPdf = React.useCallback(async () => {
               <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">
                 {objekttyp === 'mfh' ? 'Gesamtwohnfläche' : 'Fläche'}
               </label>
-              <div
-                onBlur={() => {
-                  const num = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
-                  setFlaeche(isNaN(num) ? 0 : num);
-                }}
-              >
-                <div className="relative group">
-                  <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
-                  <input
-                    type="text"
-                    value={mounted ? flaecheText : flaecheText}
-                    onChange={(e) => setFlaecheText(e.target.value)}
-                    onFocus={(e) => e.target.select()}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
-                  />
-                </div>
+              <div className="relative group">
+                <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
+                <input
+                  type="text"
+                  value={mounted ? flaecheText : flaecheText}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setFlaecheText(text);
+                    const num = Number(text.replace(/\./g, '').replace(',', '.'));
+                    if (!isNaN(num)) setFlaeche(num);
+                  }}
+                  onFocus={(e) => e.target.select()}
+                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                />
               </div>
               {objekttyp === 'mfh' && (
                 <p className="text-xs text-slate-500 ml-1">Gesamte Wohnfläche aller Einheiten</p>
@@ -1594,20 +1600,24 @@ const exportPdf = React.useCallback(async () => {
               <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
               <input
                 type="text"
-                value={baujahr.toString()}
+                value={baujahrText}
                 onChange={(e) => {
-                  const newBaujahr = Number(e.target.value);
-                  const newAfaValue = defaultAfaForBaujahr(newBaujahr);
-                  const newGebValue = defaultGebaeudeAnteil(objekttyp);
+                  const text = e.target.value;
+                  setBaujahrText(text);
+                  const newBaujahr = parseInt(text, 10);
+                  if (!isNaN(newBaujahr) && newBaujahr > 0) {
+                    const newAfaValue = defaultAfaForBaujahr(newBaujahr);
+                    const newGebValue = defaultGebaeudeAnteil(objekttyp);
 
-                  autoAfa.current = true;
-                  autoGebaeude.current = true;
+                    autoAfa.current = true;
+                    autoGebaeude.current = true;
 
-                  setAfaText(newAfaValue.toString().replace('.', ','));
-                  setAfa(newAfaValue);
-                  setGebText(newGebValue.toString().replace('.', ','));
-                  setSteuer(newGebValue);
-                  setBaujahr(newBaujahr);
+                    setAfaText(newAfaValue.toString().replace('.', ','));
+                    setAfa(newAfaValue);
+                    setGebText(newGebValue.toString().replace('.', ','));
+                    setSteuer(newGebValue);
+                    setBaujahr(newBaujahr);
+                  }
                 }}
                 onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
@@ -2665,10 +2675,6 @@ const exportPdf = React.useCallback(async () => {
               </div>
             </div>
 
-            {/* Save Button */}
-            <div className="mt-6 flex justify-end">
-              <SaveAnalysisButton />
-            </div>
           </div>
         )}
 
@@ -3678,9 +3684,12 @@ const exportPdf = React.useCallback(async () => {
         }
       ];
 
+      const hasChanges = mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0;
+
       return (
         <>
         {/* Summary Card - Alle 6 KPIs */}
+        {hasChanges && (
         <div className="card bg-gradient-to-br from-orange-50/30 to-white border-2 border-orange-100 mb-6">
           <h3 className="font-bold text-lg mb-4 text-[#001d3d]">Auswirkungen auf einen Blick</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -3722,6 +3731,7 @@ const exportPdf = React.useCallback(async () => {
             })}
           </div>
         </div>
+        )}
 
         {/* Unified Table - 4 Spalten für bessere Vergleichbarkeit */}
         <div className="card bg-white">
