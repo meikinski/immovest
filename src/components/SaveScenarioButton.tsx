@@ -15,7 +15,7 @@ interface SaveScenarioButtonProps {
     zinsDeltaPp: number;
     tilgungDeltaPp: number;
     ekDeltaPct: number;
-    sondertilgungJaehrlich: number;
+    sondertilgungJaehrlich?: number;
     wertentwicklungAktiv: boolean;
     wertentwicklungPct: number;
     darlehensTyp: 'annuitaet' | 'degressiv';
