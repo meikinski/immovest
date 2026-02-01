@@ -29,7 +29,7 @@ export type SavedScenario = {
   zinsDeltaPp: number;
   tilgungDeltaPp: number;
   ekDeltaPct: number;
-  sondertilgungJaehrlich: number;
+  sondertilgungJaehrlich?: number;
 
   // Scenario settings
   wertentwicklungAktiv: boolean;
