@@ -138,6 +138,7 @@ export default function StepPage() {
   const setInstandhaltungskostenProQm = useImmoStore(s => s.setInstandhaltungskostenProQm);
 
   const setMietausfallPct = useImmoStore(s => s.setMietausfallPct);
+  const persoenlicherSteuersatz = useImmoStore(s => s.persoenlicher_steuersatz);
   const setPersoenlicherSteuersatz = useImmoStore(s => s.setPersoenlicherSteuersatz);
 
   const afaStore    = useImmoStore(s => s.afa);
@@ -259,6 +260,33 @@ export default function StepPage() {
   // Zinssatz/Tilgung (Textfelder) für Step C
   const [zinsText,    setZinsText]    = useState((zins ?? 3.5).toString().replace('.', ','));
   const [tilgungText, setTilgungText] = useState((tilgung ?? 2.0).toString().replace('.', ','));
+
+  // Sync local text values with store values when navigating back from edit
+  useEffect(() => {
+    setZinsText(zins.toString().replace('.', ','));
+  }, [zins]);
+
+  useEffect(() => {
+    setTilgungText(tilgung.toString().replace('.', ','));
+  }, [tilgung]);
+
+  useEffect(() => {
+    if (afaStore !== undefined && afaStore !== null) {
+      setAfaText(afaStore.toString().replace('.', ','));
+    }
+  }, [afaStore]);
+
+  useEffect(() => {
+    if (steuer !== undefined && steuer !== null) {
+      setGebText(steuer.toString().replace('.', ','));
+    }
+  }, [steuer]);
+
+  useEffect(() => {
+    if (persoenlicherSteuersatz !== undefined && persoenlicherSteuersatz !== null) {
+      setPersText(persoenlicherSteuersatz.toString().replace('.', ','));
+    }
+  }, [persoenlicherSteuersatz]);
 
   // Szenarien – zusätzliche Regler
   const [mieteDeltaPct, setMieteDeltaPct]   = useState<number>(0);
@@ -2254,7 +2282,7 @@ const exportPdf = React.useCallback(async () => {
                   Bearbeiten
                 </button>
                 <button
-                  onClick={() => router.push('/step/a')}
+                  onClick={() => router.push('/input-method')}
                   className="px-5 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
                 >
                   Neue Analyse
