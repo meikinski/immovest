@@ -453,12 +453,15 @@ export default function StepPage() {
     const selbstfinanziert = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= jahr.restschuld);
     const eigenkapitalGrößerKaufpreis = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= kaufpreis);
     const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowOhneSondertilgung > 0);
+    // Kredit vollständig abbezahlt (Restschuld = 0)
+    const kreditAbbezahlt = prognose.jahre.find(jahr => jahr.restschuld <= 0);
 
     return {
       halbschuld: halbschuldJahr,
       selbstfinanziert,
       eigenkapitalGrößerKaufpreis,
       cashflowPositiv,
+      kreditAbbezahlt,
     };
   }, [darlehensSumme, prognose.jahre, kaufpreis]);
 
@@ -475,12 +478,22 @@ export default function StepPage() {
           cashflowKumuliert: 0,
           verkaufsNebenkosten: 0,
           gesamtErgebnis: 0,
+          ekRenditePa: 0,
         };
       }
       const immobilienwert = daten.immobilienwert ?? kaufpreis;
       const verkaufsNebenkosten = daten.verkaufsNebenkosten ?? 0;
       const eigenkapital = immobilienwert - verkaufsNebenkosten - daten.restschuld;
       const gesamtErgebnis = eigenkapital + daten.cashflowKumuliert - ek;
+
+      // CAGR (Compound Annual Growth Rate) = EK-Rendite p.a.
+      // Formel: ((Endwert / Startwert)^(1/Jahre) - 1) * 100
+      // Endwert = EK + gesamtErgebnis (Gesamtrückfluss bei Verkauf)
+      // Startwert = EK (eingesetztes Eigenkapital)
+      const endwert = ek + gesamtErgebnis;
+      const ekRenditePa = ek > 0 && endwert > 0
+        ? (Math.pow(endwert / ek, 1 / jahr) - 1) * 100
+        : 0;
 
       return {
         jahr: daten.jahr,
@@ -490,6 +503,7 @@ export default function StepPage() {
         cashflowKumuliert: daten.cashflowKumuliert,
         verkaufsNebenkosten,
         gesamtErgebnis,
+        ekRenditePa,
       };
     });
   }, [prognose.jahre, wertentwicklungAktiv, kaufpreis, ek]);
@@ -3197,46 +3211,63 @@ const exportPdf = React.useCallback(async () => {
                     <h3 className="text-lg font-black text-[#001d3d]">Liquiditäts-Dashboard</h3>
                     <p className="text-[10px] text-slate-500 mt-1">Werte am Ende des ausgewählten Jahres (nach Tilgung)</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Jahr</span>
-                    <select
-                      value={liquiditaetJahrIndex}
-                      onChange={(event) => setLiquiditaetJahrIndex(Number(event.target.value))}
-                      className="text-xs font-bold text-[#001d3d] bg-white border border-slate-200 rounded-xl px-3 py-2"
-                    >
-                      {prognose.jahre.map((jahr, index) => (
-                        <option key={jahr.jahr} value={index}>
-                          {jahr.jahr}
-                        </option>
-                      ))}
-                    </select>
+                  <div className="flex items-center gap-3">
+                    {(liquiditaetJahr?.restschuld ?? 1) <= 0 && (
+                      <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-green-100 text-green-700">
+                        Kredit abbezahlt
+                      </span>
+                    )}
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Jahr</span>
+                      <select
+                        value={liquiditaetJahrIndex}
+                        onChange={(event) => setLiquiditaetJahrIndex(Number(event.target.value))}
+                        className="text-xs font-bold text-[#001d3d] bg-white border border-slate-200 rounded-xl px-3 py-2"
+                      >
+                        {prognose.jahre.map((jahr, index) => (
+                          <option key={jahr.jahr} value={index}>
+                            {jahr.jahr}{jahr.restschuld <= 0 ? ' ✓' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow ohne Sondertilgung</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow vor Sondertilgung</p>
                     <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowOhneSondertilgung ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatEur(liquiditaetJahr?.cashflowOhneSondertilgung ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Monatlich verfügbar</p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {(liquiditaetJahr?.restschuld ?? 1) <= 0
+                        ? 'Monatlich frei (kein Kredit mehr)'
+                        : 'Monatlich verfügbar'}
+                    </p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow mit Sondertilgung</p>
+                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow nach Sondertilgung</p>
                     <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatEur(liquiditaetJahr?.cashflowMonatlich ?? 0)} €
                     </p>
                     <p className="text-[10px] text-slate-500 mt-1">
-                      {sondertilgungJaehrlich > 0
-                        ? `Inkl. ${formatEur(sondertilgungJaehrlich / 12)} € Sondertilgung/Monat`
-                        : 'Keine Sondertilgung eingegeben'}
+                      {(liquiditaetJahr?.restschuld ?? 1) <= 0
+                        ? 'Kredit abbezahlt, keine Sondertilgung nötig'
+                        : sondertilgungJaehrlich > 0
+                          ? `Nach ${formatEur(sondertilgungJaehrlich / 12)} € Sondertilgung/Monat`
+                          : 'Keine Sondertilgung eingegeben'}
                     </p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Restschuld</p>
-                    <p className="text-2xl font-black mt-2 text-[#001d3d]">
+                    <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.restschuld ?? 0) <= 0 ? 'text-green-600' : 'text-[#001d3d]'}`}>
                       {formatEur(liquiditaetJahr?.restschuld ?? 0)} €
                     </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Verbleibende Schuld</p>
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      {(liquiditaetJahr?.restschuld ?? 1) <= 0
+                        ? 'Vollständig getilgt'
+                        : 'Verbleibende Schuld'}
+                    </p>
                   </div>
                   <div className="bg-slate-50 rounded-2xl p-4">
                     <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">AfA Vorteil / Jahr</p>
@@ -3365,6 +3396,15 @@ const exportPdf = React.useCallback(async () => {
                     </div>
                     <p className="text-[9px] text-slate-400">Eigenkapital übersteigt Kaufpreis (volle Ownership)</p>
                   </div>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Kredit abbezahlt</span>
+                      <span className={`text-sm font-black ${prognoseMilestones.kreditAbbezahlt ? 'text-green-600' : 'text-[#001d3d]'}`}>
+                        {prognoseMilestones.kreditAbbezahlt?.jahr ?? '–'}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400">Restschuld = 0 (inkl. Sondertilgung)</p>
+                  </div>
                 </div>
               </div>
 
@@ -3375,10 +3415,13 @@ const exportPdf = React.useCallback(async () => {
                     {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 ? 'Inkl. Nebenkosten' : 'Ohne Nebenkosten'}
                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500 mb-4">
+                <p className="text-[10px] text-slate-500 mb-2">
                   <span className="font-bold text-[#001d3d]">Ergebnis =</span> Immobilienwert
                   {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 && ` − Nebenkosten (${verkaufsNebenkostenPct}%)`}
                   {' '}− Restschuld + kumulierter Cashflow − Start-EK
+                </p>
+                <p className="text-[10px] text-slate-500 mb-4">
+                  <span className="font-bold text-[#001d3d]">EK-Rendite p.a.</span> = Jährliche Verzinsung deines eingesetzten Eigenkapitals (CAGR). Vergleiche mit ETF-Renditen (~7% historisch).
                 </p>
                 {(!wertentwicklungAktiv || verkaufsNebenkostenPct === 0) && (
                   <p className="text-[9px] text-slate-400 mb-4">
@@ -3392,9 +3435,14 @@ const exportPdf = React.useCallback(async () => {
                         <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
                           Verkauf nach {szenario.jahr}
                         </span>
-                        <span className={`text-sm font-black ${szenario.gesamtErgebnis >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          {formatEur(szenario.gesamtErgebnis)} €
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className={`text-xs font-black px-2 py-1 rounded-lg ${szenario.ekRenditePa >= 7 ? 'bg-green-100 text-green-700' : szenario.ekRenditePa >= 4 ? 'bg-yellow-100 text-yellow-700' : szenario.ekRenditePa >= 0 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
+                            {formatEur(szenario.ekRenditePa, 1)} % p.a.
+                          </span>
+                          <span className={`text-sm font-black ${szenario.gesamtErgebnis >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {formatEur(szenario.gesamtErgebnis)} €
+                          </span>
+                        </div>
                       </div>
                       <div className="text-[10px] text-slate-500 space-y-1">
                         <p>Immobilienwert: {formatEur(szenario.immobilienwert)} €</p>
