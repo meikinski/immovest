@@ -102,6 +102,7 @@ WICHTIG: Verwende NIEMALS Emojis.`;
   const kalkKostenMonat = instandhaltungMonat + mietausfallMonat;
 
   const inputLines = [
+    line('Adresse/PLZ', ctx.adresse || ''),
     line('Kaufpreis', fmt(ctx.kaufpreis, ' €')),
     line('Anschaffungskosten (inkl. NK)', fmt(ctx.anschaffungskosten, ' €')),
     line('Monatl. Kaltmiete', fmt(ctx.miete, ' €/Monat')),
@@ -173,6 +174,7 @@ ANALYSE - Ergebnisse:
 - Cashflow vor/nach Steuern (monatlicher Überschuss/Fehlbetrag)
 - Renditen: Brutto, Netto, Eigenkapitalrendite
 - DSCR (Schuldendienstdeckung - deckt Miete die Kreditrate?)
+- MARKTVERGLEICH: Zeigt ortsübliche Miete und qm-Preise basierend auf der eingegebenen Adresse/PLZ
 - Szenarien und Prognosen
 
 PROGNOSE-TAB (Liquiditäts-Hochrechnung):
@@ -232,7 +234,7 @@ ${kpiLines}
 ## SO FUNKTIONIEREN DIE FELDER IN IMVESTR.DE:
 
 Nebenkosten (Schritt A):
-- "Adresse" = Für Marktvergleich (Miete, qm-Preis). PLZ reicht, genaue Adresse verbessert Genauigkeit in Großstädten. Jede PLZ ist eindeutig einem Bundesland zugeordnet.
+- "Adresse" = PLZ reicht für GrESt-Ermittlung und groben Marktvergleich. Genaue Adresse verbessert Genauigkeit in Großstädten. Der Marktvergleich (Miete, qm-Preis) erscheint in der ANALYSE, nicht in Schritt B.
 - "Notar" = Pauschal-Prozentsatz für Notar + Grundbuch zusammen (nicht getrennt)
 - "GrESt" = Grunderwerbsteuer, variiert nach Bundesland (3,5-6,5%), wird automatisch aus Adresse ermittelt
 - "Makler" = Maklerprovision falls anfällt, sonst 0%
