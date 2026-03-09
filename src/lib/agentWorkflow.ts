@@ -70,7 +70,7 @@ const webSearchPreview = webSearchTool({
 
 const analyseagent = new Agent({
   name: 'AnalyseAgent',
-  model: 'gpt-4o',
+  model: 'gpt-5.4',
   tools: [webSearchPreview],
   outputType: AnalyseOutputSchema,
   modelSettings: {
@@ -87,7 +87,7 @@ const analyseagent = new Agent({
 
 const investitionsanalyseagent = new Agent({
   name: 'InvestitionsanalyseAgent',
-  model: 'gpt-4o',
+  model: 'gpt-5.4',
   outputType: z.object({ html: z.string() }),
   modelSettings: {
     temperature: 0.5,
