@@ -261,7 +261,7 @@ BEVOR du die Daten zurückgibst, PRÜFE NOCHMAL:
 NUR wenn du diese 4 Punkte geprüft hast, darfst du das Ergebnis zurückgeben!
 
 REGEL: Nur echte Daten aus der Anzeige extrahieren. KEINE Erfindungen!`,
-  model: 'gpt-4o',  // Fast and accurate with improved prompts - fallback to gpt-5-mini if needed
+  model: 'gpt-5.4',
   tools: [webSearchForScraping],
   outputType: ImmobilienDataSchema,
   modelSettings: {
@@ -316,7 +316,7 @@ WICHTIG: Das sind ZWEI VERSCHIEDENE Werte! Kaltmiete ist IMMER höher als Hausge
 Extrahiere ALLE Felder die du findest. Falls ein Feld nicht vorhanden ist → null.
 
 REGEL: Nur echte Daten aus dem HTML extrahieren. KEINE Erfindungen!`,
-  model: 'gpt-4o',
+  model: 'gpt-5.4',
   tools: [], // No tools - just HTML parsing
   outputType: ImmobilienDataSchema,
   modelSettings: {

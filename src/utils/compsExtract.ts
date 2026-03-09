@@ -46,7 +46,7 @@ export async function parseComps(raw: RawListing[], type: 'rent'|'sale'): Promis
   ];
 
   const out = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.4',
     messages,
     temperature: 0.0,
     response_format: { type: 'json_object' }

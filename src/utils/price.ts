@@ -63,7 +63,7 @@ Nutze ausschließlich die Zahlen aus dem Datenblock. Keine weiteren Zahlen, kein
 `.trim();
 
   const res = await openai.chat.completions.create({
-    model: 'gpt-4o',
+    model: 'gpt-5.4',
     temperature: 0.1,
     messages: [
       { role: 'system', content: 'Schreibe extrem knapp für Investor:innen. Nutze nur gegebene Zahlen.' },

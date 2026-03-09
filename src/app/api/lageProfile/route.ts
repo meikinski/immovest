@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     } as LocationProfileInput);
 
     const completion = await openai.chat.completions.create({
-      model: body.model ?? 'gpt-4o-mini',
+      model: body.model ?? 'gpt-5.4',
       temperature: 0.6,
       messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
     });
