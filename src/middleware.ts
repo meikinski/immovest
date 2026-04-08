@@ -12,7 +12,8 @@ const isProtectedRoute = createRouteMatcher([
 const isStaticPublicRoute = createRouteMatcher([
   '/',
   '/pricing',
-  '/input-method',
+  '/blog',
+  '/blog/(.*)',
 ]);
 
 // Other public routes - Clerk initializes but no auth required
@@ -26,7 +27,7 @@ const isPublicRoute = createRouteMatcher([
  * Middleware for authentication
  *
  * Strategy for Google indexing (FIXED):
- * - Static public routes (/, /pricing, /input-method): SKIP Clerk entirely
+ * - Static public routes (/, /pricing, /blog, /blog/.*): SKIP Clerk entirely
  * - Other public routes: Clerk initializes but no redirects
  * - Protected routes: Full Clerk authentication
  *
