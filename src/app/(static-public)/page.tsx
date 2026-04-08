@@ -181,6 +181,7 @@ export default function LandingPage() {
               <a href="#features" className="hover:text-black transition-colors">Features</a>
               <a href="#workflow" className="hover:text-black transition-colors">Ablauf</a>
               <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
+              <Link href="/blog" className="hover:text-black transition-colors">Blog</Link>
             </nav>
 
             <div className="flex items-center gap-4">

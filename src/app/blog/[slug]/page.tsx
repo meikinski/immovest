@@ -95,49 +95,107 @@ export default async function BlogPostPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="max-w-3xl mx-auto px-4 py-16">
-        <nav className="text-sm text-gray-500 mb-8">
-          <Link href="/blog" className="hover:text-blue-600">Blog</Link>
-          <span className="mx-2">→</span>
-          <span>{post.title}</span>
-        </nav>
+      <main className="bg-white">
+        <div className="max-w-3xl mx-auto px-6 py-16">
 
-        <header className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{post.title}</h1>
-          {post.description && (
-            <p className="text-xl text-gray-600 mb-4">{post.description}</p>
-          )}
-          <div className="flex items-center gap-3 text-sm text-gray-500">
-            <span>{post.author}</span>
-            <span>·</span>
-            <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString('de-DE', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </time>
-            {post.tags && post.tags.length > 0 && (
-              <>
-                <span>·</span>
-                <span>{post.tags.join(', ')}</span>
-              </>
-            )}
+          {/* Top Logo */}
+          <div className="mb-8">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 text-xl font-extrabold tracking-tighter text-[#001d3d] hover:text-[#ff6b00] transition-colors"
+            >
+              imvestr
+            </Link>
           </div>
-        </header>
 
-        <article className="prose prose-lg prose-gray max-w-none">
-          <MDXRemote source={post.content} />
-        </article>
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-gray-400 mb-10">
+            <Link
+              href="/blog"
+              className="font-medium text-[#001d3d] hover:text-[#ff6b00] transition-colors"
+            >
+              Blog
+            </Link>
+            <span className="text-gray-300">›</span>
+            <span className="text-gray-500 truncate max-w-xs">{post.title}</span>
+          </nav>
 
-        <footer className="mt-16 pt-8 border-t border-gray-200">
-          <Link
-            href="/blog"
-            className="text-blue-600 font-medium hover:underline"
+          {/* Header */}
+          <header className="mb-10">
+            <h1 className="text-4xl font-extrabold tracking-tighter text-[#001d3d] mb-4 leading-tight">
+              {post.title}
+            </h1>
+            {post.description && (
+              <p className="text-xl text-gray-500 mb-6 leading-relaxed">
+                {post.description}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-gray-500 font-medium">{post.author}</span>
+              <span className="text-gray-300">·</span>
+              <time
+                dateTime={post.date}
+                className="text-[#ff6b00] font-semibold"
+              >
+                {new Date(post.date).toLocaleDateString('de-DE', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </time>
+              {post.tags && post.tags.length > 0 && (
+                <>
+                  <span className="text-gray-300">·</span>
+                  <span className="text-gray-400">{post.tags.join(', ')}</span>
+                </>
+              )}
+            </div>
+          </header>
+
+          {/* Article Body */}
+          <article
+            className="
+              prose prose-lg max-w-none
+              prose-headings:text-[#001d3d] prose-headings:font-extrabold prose-headings:tracking-tight
+              prose-p:text-[#1d1d1f] prose-p:leading-relaxed
+              prose-a:text-[#ff6b00] prose-a:font-medium prose-a:no-underline hover:prose-a:underline
+              prose-strong:text-[#001d3d]
+              prose-ul:text-[#1d1d1f]
+              prose-ol:text-[#1d1d1f]
+              prose-blockquote:border-l-[#ff6b00] prose-blockquote:text-gray-600
+              prose-code:text-[#001d3d] prose-code:bg-gray-50 prose-code:rounded prose-code:px-1
+            "
           >
-            ← Zurück zum Blog
-          </Link>
-        </footer>
+            <MDXRemote source={post.content} />
+          </article>
+
+          {/* CTA Block */}
+          <div className="mt-16 rounded-2xl bg-[#001d3d] px-8 py-10 text-center shadow-lg">
+            <h2 className="text-2xl font-extrabold tracking-tight text-white mb-3">
+              Bereit, dein erstes Investment zu analysieren?
+            </h2>
+            <p className="text-gray-300 mb-7 text-sm leading-relaxed max-w-md mx-auto">
+              Imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
+              Exposé-Link eingeben und loslegen.
+            </p>
+            <Link
+              href="/input-method"
+              className="inline-flex items-center gap-2 rounded-full bg-[#ff6b00] text-white px-7 py-3 text-sm font-bold hover:bg-[#e05e00] transition-colors shadow-md"
+            >
+              Immobilie jetzt analysieren →
+            </Link>
+          </div>
+
+          {/* Back to Blog */}
+          <footer className="mt-10 flex justify-start">
+            <Link
+              href="/blog"
+              className="inline-flex items-center gap-2 rounded-full border border-[#001d3d] text-[#001d3d] px-6 py-2.5 text-sm font-semibold hover:bg-[#001d3d] hover:text-white transition-colors"
+            >
+              ← Zurück zum Blog
+            </Link>
+          </footer>
+        </div>
       </main>
     </>
   )
