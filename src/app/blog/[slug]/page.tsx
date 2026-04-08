@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
@@ -96,7 +97,7 @@ export default async function BlogPostPage({ params }: Props) {
       />
       <main className="max-w-3xl mx-auto px-4 py-16">
         <nav className="text-sm text-gray-500 mb-8">
-          <a href="/blog" className="hover:text-blue-600">Blog</a>
+          <Link href="/blog" className="hover:text-blue-600">Blog</Link>
           <span className="mx-2">→</span>
           <span>{post.title}</span>
         </nav>
@@ -130,12 +131,12 @@ export default async function BlogPostPage({ params }: Props) {
         </article>
 
         <footer className="mt-16 pt-8 border-t border-gray-200">
-          <a
+          <Link
             href="/blog"
             className="text-blue-600 font-medium hover:underline"
           >
             ← Zurück zum Blog
-          </a>
+          </Link>
         </footer>
       </main>
     </>

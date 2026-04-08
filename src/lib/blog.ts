@@ -16,7 +16,7 @@ export interface BlogPost {
   content: string
 }
 
-export interface BlogPostMeta extends Omit<BlogPost, 'content'> {}
+export type BlogPostMeta = Omit<BlogPost, 'content'>
 
 function ensureBlogDir() {
   if (!fs.existsSync(BLOG_DIR)) {
