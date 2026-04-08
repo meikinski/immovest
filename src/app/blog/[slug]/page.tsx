@@ -98,6 +98,16 @@ export default async function BlogPostPage({ params }: Props) {
       <main className="bg-white">
         <div className="max-w-3xl mx-auto px-6 py-16">
 
+          {/* Top Logo */}
+          <div className="mb-8">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1 text-xl font-extrabold tracking-tighter text-[#001d3d] hover:text-[#ff6b00] transition-colors"
+            >
+              imvestr
+            </Link>
+          </div>
+
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-gray-400 mb-10">
             <Link
