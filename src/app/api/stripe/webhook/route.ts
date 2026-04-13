@@ -152,6 +152,12 @@ async function handleSubscriptionCreatedLoops(subscription: Stripe.Subscription)
     return;
   }
 
+  // Fix 1: Subscription Status-Check — nur aktive/trialing Subscriptions verarbeiten
+  if (subscription.status !== 'active' && subscription.status !== 'trialing') {
+    console.warn('[WEBHOOK] Subscription nicht aktiv, überspringe Loops-Update');
+    return;
+  }
+
   console.log('📧 [WEBHOOK] Setze Loops-Plan auf premium für:', email);
 
   // Loops-Kontakt auf "premium" aktualisieren → stoppt Onboarding-Sequenz

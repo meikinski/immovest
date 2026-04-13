@@ -41,11 +41,14 @@ export async function updateUserPlan(
         email,
         userGroup: plan,
         imvestrPlan: plan,
+        imvestrUpgradedAt: upgradedAt,
       }),
     });
 
     if (!updateResponse.ok) {
+      const errorText = await updateResponse.text();
       console.error("[Onboarding] Kontakt-Update fehlgeschlagen");
+      console.error("[Onboarding] Response:", errorText);
       return false;
     }
 
