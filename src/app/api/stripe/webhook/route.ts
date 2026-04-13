@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { updateUserPlan } from '@/lib/onboarding';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
@@ -70,6 +71,14 @@ export async function POST(req: Request) {
         break;
       }
 
+      case 'customer.subscription.created': {
+        // Neue Subscription → Loops-Kontakt auf "premium" setzen
+        // (stoppt die Onboarding-Sequenz automatisch)
+        const newSubscription = event.data.object as Stripe.Subscription;
+        await handleSubscriptionCreatedLoops(newSubscription);
+        break;
+      }
+
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription;
         await handleSubscriptionUpdated(subscription);
@@ -105,6 +114,54 @@ export async function POST(req: Request) {
       { error: 'Webhook handler failed' },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * Wenn eine neue Subscription angelegt wird:
+ * E-Mail des Stripe-Kunden holen und Loops-Kontakt auf "premium" setzen.
+ * Das filtert den Nutzer aus der Onboarding-Sequenz heraus.
+ */
+async function handleSubscriptionCreatedLoops(subscription: Stripe.Subscription) {
+  console.log('🎉 [WEBHOOK] customer.subscription.created:', subscription.id);
+
+  const customerId = subscription.customer as string;
+  if (!customerId) {
+    console.error('❌ [WEBHOOK] customer.subscription.created: keine customer-ID gefunden');
+    return;
+  }
+
+  // Stripe-Kunden abrufen, um die E-Mail-Adresse zu erhalten
+  let customer: Stripe.Customer | Stripe.DeletedCustomer;
+  try {
+    customer = await stripe.customers.retrieve(customerId);
+  } catch (err) {
+    console.error('❌ [WEBHOOK] Fehler beim Abrufen des Stripe-Kunden:', err);
+    return;
+  }
+
+  // Gelöschte Kunden haben keine E-Mail mehr
+  if (customer.deleted) {
+    console.warn('⚠️ [WEBHOOK] Stripe-Kunde ist gelöscht, überspringe Loops-Update');
+    return;
+  }
+
+  const email = customer.email;
+  if (!email) {
+    console.error('❌ [WEBHOOK] Stripe-Kunde hat keine E-Mail-Adresse:', customerId);
+    return;
+  }
+
+  console.log('📧 [WEBHOOK] Setze Loops-Plan auf premium für:', email);
+
+  // Loops-Kontakt auf "premium" aktualisieren → stoppt Onboarding-Sequenz
+  const upgradedAt = new Date().toISOString();
+  const success = await updateUserPlan(email, 'premium', upgradedAt);
+
+  if (success) {
+    console.log(`✅ [WEBHOOK] Loops-Kontakt auf premium gesetzt: ${email}`);
+  } else {
+    console.error(`❌ [WEBHOOK] Loops-Update fehlgeschlagen für: ${email}`);
   }
 }
 
