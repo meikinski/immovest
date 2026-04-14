@@ -39,7 +39,7 @@ export function PricingTeaser() {
     },
     {
       name: 'Pro',
-      price: isYearly ? '69' : '13.99',
+      price: isYearly ? '69' : '12.99',
       period: isYearly ? 'pro Jahr' : 'pro Monat',
       savings: isYearly ? 'Spare 59% (nur 5,75€/Monat)' : null,
       features: [
