@@ -23,6 +23,10 @@ export interface PrognoseJahr {
   afaGesamt: number;
   afaSatz: number;
   afaRestbuchwert: number;
+
+  // Rendite-Felder
+  eigenkapitalRendite: number; // Cash-on-Cash + Tilgung + AfA-Vorteil, in % p.a.
+  gesamtrendite: number;       // inkl. Wertsteigerung, in % p.a.
 }
 
 export interface PrognoseData {
@@ -196,6 +200,23 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       ? immobilienwert * (verkaufsNebenkostenPct / 100)
       : undefined;
 
+    // Eigenkapitalrendite: Cash-on-Cash + Tilgungsgewinn + AfA-Steuerersparnis
+    const jahresCashflow = cashflowMonatlich * 12;
+    const eigenkapitalRendite = input.ek > 0
+      ? ((jahresCashflow + regulareTilgungAllein + afaVorteilJaehrlich) / input.ek) * 100
+      : 0;
+
+    // Gesamtrendite: zusätzlich Wertsteigerung des aktuellen Jahres
+    const immobilienwertVorjahr = input.immobilienwert
+      ? input.immobilienwert * Math.pow(1 + wertsteigerung / 100, Math.max(0, jahr - 1))
+      : 0;
+    const wertsteigerungJahr = immobilienwert !== undefined && immobilienwertVorjahr > 0
+      ? immobilienwert - immobilienwertVorjahr
+      : 0;
+    const gesamtrendite = input.ek > 0
+      ? ((jahresCashflow + regulareTilgungAllein + afaVorteilJaehrlich + wertsteigerungJahr) / input.ek) * 100
+      : 0;
+
     result.push({
       jahr: input.startJahr + jahr,
       restschuld,
@@ -214,6 +235,9 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       afaGesamt,
       afaSatz,
       afaRestbuchwert,
+      // Rendite-Felder
+      eigenkapitalRendite: Math.round(eigenkapitalRendite * 100) / 100,
+      gesamtrendite: Math.round(gesamtrendite * 100) / 100,
       ...(immobilienwert !== undefined ? { immobilienwert } : {}),
       ...(warmmieteAktuell !== input.warmmiete ? { warmmieteAktuell } : {}),
       ...(verkaufsNebenkosten !== undefined ? { verkaufsNebenkosten } : {}),
