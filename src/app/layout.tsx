@@ -14,8 +14,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "KI-basierter Immobilien-Renditerechner | Imvestr – Lohnt sich diese Immobilie?",
-  description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen. Mikrolage bewerten, Mietpreis und Quadratmeterpreis vergleichen.",
+  title: "Cashflow Immobilie berechnen — KI-Renditerechner | imvestr",
+  description: "Cashflow, Nettomietrendite, DSCR und Eigenkapitalrendite automatisch berechnen. imvestr analysiert deine Kapitalanlage-Immobilie in Sekunden — kostenlos & für Einsteiger.",
   keywords: [
     "immobilien renditerechner",
     "ki immobilien analyse",
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_DE",
     url: "https://imvestr.de",
-    title: "KI-basierter Immobilien-Renditerechner | Imvestr",
+    title: "Cashflow Immobilie berechnen — KI-Renditerechner | imvestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     siteName: "Imvestr",
     images: [
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KI-basierter Immobilien-Renditerechner | Imvestr",
+    title: "Cashflow Immobilie berechnen — KI-Renditerechner | imvestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
     images: ["/og-image.png"],
   },
