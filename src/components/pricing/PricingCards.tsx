@@ -401,7 +401,7 @@ function PricingFAQ() {
     },
     {
       q: 'Wie läuft die Abrechnung?',
-      a: 'Die Zahlung erfolgt einmalig beim Abschluss über Stripe (Kreditkarte, SEPA-Lastschrift, PayPal). Du erhältst eine Rechnung per E-Mail.',
+      a: 'Die Zahlung erfolgt einmalig beim Abschluss über Stripe (Kreditkarte, SEPA-Lastschrift). Du erhältst eine Rechnung per E-Mail.',
     },
     {
       q: 'Was ist im Free-Plan enthalten?',
