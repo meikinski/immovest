@@ -490,7 +490,13 @@ export default function StepPage() {
     const jahre = [10, 20, 30];
     return jahre.map((jahr) => {
       const daten = prognose.jahre[jahr];
-      if (!daten) {
+      // FIX: +1 Offset für beide Off-by-one-Probleme:
+      // - prognose.jahre[n].restschuld = Restschuld VOR Tilgung von Jahr n
+      // - prognose.jahre[n].cashflowKumuliert enthält n+1 Jahre (0..n)
+      // → prognose.jahre[n+1] enthält Restschuld NACH Tilgung + genau n volle Cashflow-Jahre
+      const datenNachTilgung = prognose.jahre[Math.min(jahr + 1, prognose.jahre.length - 1)];
+
+      if (!daten || !datenNachTilgung) {
         return {
           jahr,
           restschuld: 0,
@@ -504,13 +510,14 @@ export default function StepPage() {
       }
       const immobilienwert = daten.immobilienwert ?? kaufpreis;
       const verkaufsNebenkosten = daten.verkaufsNebenkosten ?? 0;
-      const eigenkapital = immobilienwert - verkaufsNebenkosten - daten.restschuld;
-      const gesamtErgebnis = eigenkapital + daten.cashflowKumuliert - ek;
+
+      // FIX A: Restschuld nach Tilgung (= Anfangswert des Folgejahres)
+      const eigenkapital = immobilienwert - verkaufsNebenkosten - datenNachTilgung.restschuld;
+
+      // FIX B: Cashflow aus Folgejahr = genau `jahr` volle Cashflow-Jahre
+      const gesamtErgebnis = eigenkapital + datenNachTilgung.cashflowKumuliert - ek;
 
       // CAGR (Compound Annual Growth Rate) = EK-Rendite p.a.
-      // Formel: ((Endwert / Startwert)^(1/Jahre) - 1) * 100
-      // Endwert = EK + gesamtErgebnis (Gesamtrückfluss bei Verkauf)
-      // Startwert = EK (eingesetztes Eigenkapital)
       const endwert = ek + gesamtErgebnis;
       const ekRenditePa = ek > 0 && endwert > 0
         ? (Math.pow(endwert / ek, 1 / jahr) - 1) * 100
@@ -518,10 +525,10 @@ export default function StepPage() {
 
       return {
         jahr: daten.jahr,
-        restschuld: daten.restschuld,
+        restschuld: datenNachTilgung.restschuld, // FIX A: nach Tilgung
         immobilienwert,
         eigenkapital,
-        cashflowKumuliert: daten.cashflowKumuliert,
+        cashflowKumuliert: datenNachTilgung.cashflowKumuliert, // FIX B: volle Jahre
         verkaufsNebenkosten,
         gesamtErgebnis,
         ekRenditePa,
@@ -530,14 +537,19 @@ export default function StepPage() {
   }, [prognose.jahre, wertentwicklungAktiv, kaufpreis, ek]);
 
   const verkaufBreakEven = useMemo(() => {
-    const breakEven = prognose.jahre.find((jahr) => {
+    // FIX: Gleicher Off-by-one wie verkaufSzenarien — restschuld + cashflowKumuliert
+    // müssen aus dem Folgejahr gelesen werden (nach Tilgung, volle Cashflow-Jahre)
+    const breakEvenIdx = prognose.jahre.findIndex((_, idx) => {
+      const jahr = prognose.jahre[idx];
+      const naechstesJahr = prognose.jahre[Math.min(idx + 1, prognose.jahre.length - 1)];
+      if (!jahr || !naechstesJahr) return false;
       const immobilienwert = jahr.immobilienwert ?? kaufpreis;
       const verkaufsNebenkosten = jahr.verkaufsNebenkosten ?? 0;
-      const eigenkapitalVerkauf = immobilienwert - verkaufsNebenkosten - jahr.restschuld;
-      const gesamtErgebnis = eigenkapitalVerkauf + jahr.cashflowKumuliert - ek;
+      const eigenkapitalVerkauf = immobilienwert - verkaufsNebenkosten - naechstesJahr.restschuld;
+      const gesamtErgebnis = eigenkapitalVerkauf + naechstesJahr.cashflowKumuliert - ek;
       return gesamtErgebnis >= 0;
     });
-    return breakEven?.jahr ?? null;
+    return breakEvenIdx >= 0 ? prognose.jahre[breakEvenIdx]?.jahr ?? null : null;
   }, [prognose.jahre, kaufpreis, ek]);
 
   // Calculate scenario values
