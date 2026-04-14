@@ -97,32 +97,24 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
       linearerBetrag = gebaeudewert * 0.03;
     } else if (params.modell === 'degressiv_5') {
       // Degressive AfA 5%: 5% vom aktuellen Restbuchwert
-      // Nach § 7a Abs. 9 EStG: Wechsel zu linear, wenn linear günstiger
-
-      if (!wechselZuLinear) {
-        const degressiverBetrag = restbuchwert * 0.05;
-
-        // FIX: Dynamische Restlaufzeit statt hardcoded 33 Jahre.
-        // Bei 5% degressiv: restbuchwert sinkt auf 0.1% nach ~ln(0.001)/ln(0.95) ≈ 135 Jahren.
-        // Verbleibende Laufzeit ab aktuellem Jahr dynamisch berechnen.
-        const degressiveGesamtlaufzeit = Math.ceil(Math.log(0.001) / Math.log(0.95)); // ~135
-        const verbleibendeLaufzeit = Math.max(1, degressiveGesamtlaufzeit - jahrIndex);
-        const lineareAfaAufRestbuchwert = restbuchwert / verbleibendeLaufzeit;
-
-        // Wechsel zu linear, wenn es günstiger ist
-        if (lineareAfaAufRestbuchwert >= degressiverBetrag) {
-          wechselZuLinear = true;
-        }
-      }
+      // Nach § 7 Abs. 5a EStG: Laufzeit 20 Jahre, Wechsel zu linear wenn günstiger
 
       if (wechselZuLinear) {
-        // FIX: lineareAfaNachWechsel NICHT einmalig fixieren — jährlich neu berechnen
-        // auf Basis des aktuellen Restbuchwerts und verbleibender Laufzeit
-        const degressiveGesamtlaufzeit = Math.ceil(Math.log(0.001) / Math.log(0.95));
-        const verbleibendeLaufzeit = Math.max(1, degressiveGesamtlaufzeit - jahrIndex);
-        linearerBetrag = restbuchwert / verbleibendeLaufzeit;
+        // FIX: Betrag jährlich neu berechnen, nicht einmalig fixieren
+        const restlaufzeit = Math.max(1, 20 - jahrIndex);
+        linearerBetrag = restbuchwert / restlaufzeit;
       } else {
-        linearerBetrag = restbuchwert * 0.05;
+        const degressiverBetrag = restbuchwert * 0.05;
+        // FIX: Restlaufzeit = 20 Jahre (§ 7 Abs. 5a EStG), nicht 33
+        const restlaufzeit = Math.max(1, 20 - jahrIndex);
+        const lineareAlternative = restbuchwert / restlaufzeit;
+
+        if (lineareAlternative >= degressiverBetrag) {
+          wechselZuLinear = true;
+          linearerBetrag = lineareAlternative;
+        } else {
+          linearerBetrag = degressiverBetrag;
+        }
       }
     }
 
