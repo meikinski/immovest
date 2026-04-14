@@ -4,6 +4,11 @@ import matter from 'gray-matter'
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog')
 
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
 export interface BlogPost {
   slug: string
   title: string
@@ -14,6 +19,7 @@ export interface BlogPost {
   tags?: string[]
   draft?: boolean
   content: string
+  faq?: FaqItem[]
 }
 
 export type BlogPostMeta = Omit<BlogPost, 'content'>
@@ -43,6 +49,7 @@ export async function getAllPosts(): Promise<BlogPostMeta[]> {
       image: data.image ?? null,
       tags: data.tags ?? [],
       draft: data.draft ?? false,
+      faq: data.faq ?? [],
     } as BlogPostMeta
   })
 
@@ -73,5 +80,6 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     tags: data.tags ?? [],
     draft: data.draft ?? false,
     content,
+    faq: data.faq ?? [],
   }
 }
