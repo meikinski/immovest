@@ -62,7 +62,7 @@ export default function PricingCards({}: PricingCardsProps) {
   const plans = [
     {
       name: 'Monatsabo',
-      price: '13,99',
+      price: '12,99',
       period: 'pro Monat',
       description: 'Flexibel und monatlich kündbar',
       priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
@@ -77,7 +77,7 @@ export default function PricingCards({}: PricingCardsProps) {
       name: 'Jahresabo',
       price: '69',
       period: 'pro Jahr',
-      originalPrice: '167,88',
+      originalPrice: '155,88',
       savings: '59%',
       description: 'Spare 59% - Nur 5,75 € pro Monat',
       priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
@@ -85,7 +85,7 @@ export default function PricingCards({}: PricingCardsProps) {
       popular: true,
       features: [
         ...baseFeatures,
-        'Spare 98,88 € im Jahr',
+        'Spare 86,88 € im Jahr',
       ],
     },
   ];
@@ -359,4 +359,3 @@ export default function PricingCards({}: PricingCardsProps) {
     </div>
   );
 }
-
