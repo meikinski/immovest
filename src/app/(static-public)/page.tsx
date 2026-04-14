@@ -105,12 +105,13 @@ export default function LandingPage() {
     "name": "imvestr",
     "applicationCategory": "FinanceApplication",
     "operatingSystem": "Web",
+    "url": "https://imvestr.de",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "EUR",
     },
-    "description": "KI-basierter Immobilien-Renditerechner mit URL-Import, Foto-Analyse und automatischer Berechnung von Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR.",
+    "description": "KI-gestützter Immobilien-Renditerechner. Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR automatisch berechnen.",
     "aggregateRating": {
       "@type": "AggregateRating",
       "ratingValue": "4.9",
@@ -118,7 +119,67 @@ export default function LandingPage() {
     },
   };
 
+  // FAQPage Schema for AEO (Answer Engine Optimization)
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Was ist imvestr?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "imvestr ist ein KI-gestützter Immobilien-Renditerechner, der Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR einer Kapitalanlage-Immobilie automatisch berechnet — auf Basis echter Marktdaten."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Wie funktioniert imvestr?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Du gibst die Immobiliendaten ein (manuell, per URL-Import oder Foto-Scan). imvestr prüft die Daten gegen echte Marktdaten und liefert dir in Sekunden eine vollständige Investitionsanalyse."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Ist imvestr kostenlos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "imvestr bietet einen kostenlosen Einstieg. Für erweiterte Analysen und den Bank-Ready PDF-Report gibt es einen Premiumplan."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Für wen ist imvestr geeignet?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "imvestr richtet sich an Einsteiger und erfahrene Immobilien-Investoren, die Kapitalanlage-Immobilien schnell und datenbasiert bewerten wollen."
+        }
+      }
+    ]
+  };
+
   const faqs = [
+    {
+      question: 'Was ist imvestr?',
+      answer:
+        'imvestr ist ein KI-gestützter Immobilien-Renditerechner, der Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR einer Kapitalanlage-Immobilie automatisch berechnet — auf Basis echter Marktdaten.',
+    },
+    {
+      question: 'Wie funktioniert imvestr?',
+      answer:
+        'Du gibst die Immobiliendaten ein (manuell, per URL-Import oder Foto-Scan). imvestr prüft die Daten gegen echte Marktdaten und liefert dir in Sekunden eine vollständige Investitionsanalyse.',
+    },
+    {
+      question: 'Ist imvestr kostenlos?',
+      answer:
+        'imvestr bietet einen kostenlosen Einstieg. Für erweiterte Analysen und den Bank-Ready PDF-Report gibt es einen Premiumplan.',
+    },
+    {
+      question: 'Für wen ist imvestr geeignet?',
+      answer:
+        'imvestr richtet sich an Einsteiger und erfahrene Immobilien-Investoren, die Kapitalanlage-Immobilien schnell und datenbasiert bewerten wollen.',
+    },
     {
       question: 'Woher kommen die Daten?',
       answer:
@@ -157,6 +218,11 @@ export default function LandingPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      {/* FAQPage Schema for AEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
       />
 
       <div className="min-h-screen bg-white text-[#1d1d1f]">
@@ -287,11 +353,11 @@ export default function LandingPage() {
               {/* Left: Content */}
               <div>
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
-                  Dein persönlicher Investment-Copilot
+                  KI-Renditerechner für Immobilien
                 </span>
                 <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
-                  Berechne in <span className="text-[#ff6b00]">60 Sekunden</span><br />
-                  ob sich deine Immobilie wirklich lohnt.
+                  Immobilien Rendite berechnen: <br />
+                  Dein persönlicher <span className="text-[#ff6b00]">Investment-Copilot.</span>
                 </h1>
                 <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
                   Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
@@ -1615,7 +1681,10 @@ export default function LandingPage() {
                 />
                 <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
               </div>
-              <p className="text-slate-400 max-w-sm mb-8">
+              <p className="text-slate-400 max-w-sm mb-4">
+                imvestr ist ein KI-gestützter Immobilien-Renditerechner für den deutschen Markt. Das Tool berechnet automatisch Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR für Kapitalanlage-Immobilien — auf Basis echter Marktdaten.
+              </p>
+              <p className="text-slate-500 max-w-sm mb-8 text-xs">
                 Die intelligenteste Art, Immobilien zu bewerten und Investment-Entscheidungen auf Basis von echten Daten zu treffen.
               </p>
               <div className="flex gap-4">
