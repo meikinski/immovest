@@ -44,6 +44,13 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
           </span>
         </button>
 
+        {/* Main Nav */}
+        <nav className="hidden md:flex items-center gap-6">
+          <Link href="/blog" className="text-sm font-medium text-gray-700 hover:text-[#001d3d] transition-colors">
+            Blog
+          </Link>
+        </nav>
+
         {/* Right Side */}
         <div className="flex items-center gap-4">
           {!isSignedIn ? (
