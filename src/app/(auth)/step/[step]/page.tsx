@@ -3929,6 +3929,11 @@ const exportPdf = React.useCallback(async () => {
 
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 pt-24">
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
+        {showProgress && (
+          <p className="text-sm text-gray-500 mb-6 -mt-2">
+            Gib deine Immobiliendaten ein — wir berechnen Cashflow und Rendite sofort.
+          </p>
+        )}
         {content}
       </div>
 
