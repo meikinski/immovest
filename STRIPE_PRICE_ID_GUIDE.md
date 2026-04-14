@@ -50,7 +50,7 @@ Falls du die Price IDs nicht findest, erstelle neue Produkte:
    - **Name**: ImmoVest Premium Monatlich
    - **Description**: Unbegrenzte Markt- & Lageanalysen mit KI-Unterstützung
    - **Pricing model**: Recurring (Wiederkehrend)
-   - **Price**: 13.99 EUR
+   - **Price**: 12.99 EUR
    - **Billing period**: Monthly (Monatlich)
 3. Klicke **Save product**
 4. **Kopiere die Price ID** (z.B. `price_...`)
