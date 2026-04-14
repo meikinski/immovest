@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Crown, CheckCircle2, Sparkles, Zap } from 'lucide-react';
+import { Crown, CheckCircle2, Sparkles, Zap, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useAuth } from '@clerk/nextjs';
@@ -231,7 +231,7 @@ export default function PricingCards({}: PricingCardsProps) {
                   : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}
             >
-              {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
+              {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
             </button>
 
           </div>
@@ -321,7 +321,7 @@ export default function PricingCards({}: PricingCardsProps) {
                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
-                    {isLoading ? 'Wird geladen...' : 'Jetzt starten'}
+                    {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
                   </button>
               </div>
             </div>
@@ -343,6 +343,37 @@ export default function PricingCards({}: PricingCardsProps) {
         </div>
       </div>
 
+      {/* Free-Plan Abgrenzung */}
+      <div className="mt-10 max-w-2xl mx-auto bg-gray-50 border border-gray-200 rounded-[28px] p-6">
+        <h3 className="font-bold text-[#001d3d] mb-3">Was ist kostenlos?</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Kostenlos</p>
+            <ul className="space-y-1 text-sm text-gray-600">
+              <li>• 1 vollständige Analyse</li>
+              <li>• Cashflow-Berechnung</li>
+              <li>• Rendite-Kennzahlen</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-[#ff6b00] uppercase tracking-wider mb-2">⚡ Nur mit Premium</p>
+            <ul className="space-y-1 text-sm text-gray-600">
+              <li>• Unbegrenzte Analysen</li>
+              <li>• Markt- & Lageanalyse</li>
+              <li>• PDF-Export (Bank-ready)</li>
+              <li>• KI-Investitionsempfehlungen</li>
+              <li>• Analysen speichern</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Block */}
+      <div className="mt-10 max-w-2xl mx-auto">
+        <h3 className="font-bold text-[#001d3d] text-xl mb-6 text-center">Häufige Fragen</h3>
+        <PricingFAQ />
+      </div>
+
       {/* Trust Badges */}
       <div className="mt-12 text-center">
         <p className="text-sm text-gray-600 mb-4">
@@ -356,6 +387,49 @@ export default function PricingCards({}: PricingCardsProps) {
           <span>🇪🇺 DSGVO-konform</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// FAQ sub-component
+function PricingFAQ() {
+  const [openIdx, setOpenIdx] = React.useState<number | null>(null);
+  const faqs = [
+    {
+      q: 'Kann ich jederzeit kündigen?',
+      a: 'Ja — das Monatsabo ist monatlich kündbar, das Jahresabo zum Ablauf des Jahres. Keine Mindestlaufzeit, keine versteckten Gebühren.',
+    },
+    {
+      q: 'Wie läuft die Abrechnung?',
+      a: 'Die Zahlung erfolgt einmalig beim Abschluss über Stripe (Kreditkarte, SEPA-Lastschrift, PayPal). Du erhältst eine Rechnung per E-Mail.',
+    },
+    {
+      q: 'Was ist im Free-Plan enthalten?',
+      a: 'Du kannst eine vollständige Analyse kostenlos durchführen inkl. Cashflow-Berechnung und Rendite-Kennzahlen. Für unbegrenzte Analysen, Marktdaten, PDF-Export und KI-Empfehlungen brauchst du Premium.',
+    },
+    {
+      q: 'Gibt es eine Testphase?',
+      a: 'Ja — der Free-Plan ist deine Testphase. Du kannst imvestr vollständig testen, bevor du dich für Premium entscheidest.',
+    },
+  ];
+  return (
+    <div className="space-y-3">
+      {faqs.map((faq, idx) => (
+        <div key={idx} className="border border-gray-200 rounded-[20px] overflow-hidden">
+          <button
+            onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
+            className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-semibold text-sm text-[#001d3d]">{faq.q}</span>
+            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-3 ${openIdx === idx ? 'rotate-180' : ''}`} />
+          </button>
+          {openIdx === idx && (
+            <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+              {faq.a}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 }
