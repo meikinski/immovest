@@ -225,9 +225,9 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   Dein persönlicher Investment-Copilot
                 </span>
-                <h1 className="text-6xl md:text-7xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
-                  Investiere <br />
-                  ohne <span className="text-[#ff6b00]">Blindflug.</span>
+                <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
+                  Berechne in <span className="text-[#ff6b00]">60 Sekunden</span><br />
+                  ob sich deine Immobilie wirklich lohnt.
                 </h1>
                 <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
                   Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
@@ -235,9 +235,10 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => handleGetStarted('hero')}
-                    className="bg-[#ff6b00] text-white px-10 py-5 rounded-full font-bold text-lg shadow-lg hover:shadow-[#ff6b00]/20 transition-all hover:scale-105"
+                    className="bg-[#ff6b00] text-white px-12 py-6 rounded-full font-bold text-xl shadow-xl hover:shadow-[#ff6b00]/30 transition-all hover:scale-105 flex items-center gap-3"
                   >
-                    {isSignedIn ? 'Jetzt Investment analysieren' : 'Jetzt kostenlos starten'}
+                    <span>Immobilie jetzt analysieren</span>
+                    <ArrowRight className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => router.push(isSignedIn ? '/profile' : '/sign-in')}
@@ -245,6 +246,37 @@ export default function LandingPage() {
                   >
                     {isSignedIn ? 'Zu meinen Immobilien' : 'Anmelden / Einloggen'}
                   </button>
+                </div>
+
+                {/* Icon-Row: 3 konkrete Vorteile */}
+                <div className="flex flex-col sm:flex-row gap-6 mt-10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Calculator className="w-5 h-5 text-[#ff6b00]" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-[#001d3d]">Cashflow</div>
+                      <div className="text-xs text-gray-500">Realistisch berechnet</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <BarChart3 className="w-5 h-5 text-[#ff6b00]" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-[#001d3d]">Rendite</div>
+                      <div className="text-xs text-gray-500">EK-Rendite & Nettomietrendite</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <AlertCircle className="w-5 h-5 text-[#ff6b00]" />
+                    </div>
+                    <div>
+                      <div className="font-bold text-sm text-[#001d3d]">Risiko</div>
+                      <div className="text-xs text-gray-500">Leerstand & Marktdaten</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
