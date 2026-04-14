@@ -11,6 +11,8 @@ import {
   CheckCircle2,
   FileBarChart,
   MapPin,
+  Menu,
+  X,
   Zap,
   TrendingDown,
   AlertCircle,
@@ -39,6 +41,7 @@ export default function LandingPage() {
   const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open
   const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
   const [activeGoalIndex, setActiveGoalIndex] = React.useState<number>(1); // Default middle card active
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -177,11 +180,13 @@ export default function LandingPage() {
               <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
             </button>
 
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-500">
               <a href="#features" className="hover:text-black transition-colors">Features</a>
               <a href="#workflow" className="hover:text-black transition-colors">Ablauf</a>
               <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
               <Link href="/blog" className="hover:text-black transition-colors">Blog</Link>
+              <Link href="/pricing" className="hover:text-black transition-colors">Preise</Link>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -213,7 +218,59 @@ export default function LandingPage() {
                 </Link>
               )}
             </div>
+              {/* Mobile: Hamburger Button */}
+              <button
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Menü öffnen"
+              >
+                {mobileMenuOpen
+                  ? <X className="w-5 h-5 text-[#001d3d]" />
+                  : <Menu className="w-5 h-5 text-[#001d3d]" />
+                }
+              </button>
           </div>
+
+          {/* Mobile Menu — Slide Down */}
+          {mobileMenuOpen && (
+            <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg px-6 py-4 z-40">
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#workflow"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
+              >
+                Ablauf
+              </a>
+              <a
+                href="#faq"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
+              >
+                FAQ
+              </a>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
+              >
+                Blog
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] hover:text-[#ff6b00] transition-colors"
+              >
+                Preise
+              </Link>
+            </div>
+          )}
         </header>
 
         <main className="overflow-x-hidden">

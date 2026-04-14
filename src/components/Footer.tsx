@@ -72,6 +72,26 @@ export function Footer({ noPadding = false }: FooterProps) {
           </ul>
         </div>
         <div>
+          <h4 className="font-bold mb-6">Ressourcen</h4>
+          <ul className="space-y-4 text-slate-400">
+            <li>
+              <Link href="/blog" className="hover:text-white transition-colors">
+                Blog
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog/cashflow-immobilie-berechnen" className="hover:text-white transition-colors">
+                Cashflow berechnen
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog/nettomietrendite-berechnen" className="hover:text-white transition-colors">
+                Nettomietrendite
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div>
           <h4 className="font-bold mb-6">Rechtliches</h4>
           <ul className="space-y-4 text-slate-400">
             <li>
