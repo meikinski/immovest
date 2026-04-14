@@ -73,9 +73,8 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
   let restbuchwert = gebaeudewert;
   let kumulierteAfA = 0;
 
-  // Für degressive AfA mit Sonder-AfA: Berechne, wann der Wechsel zu linear sinnvoll ist
+  // Für degressive AfA: Flag für Wechsel zu linear nach § 7a Abs. 9 EStG
   let wechselZuLinear = false;
-  let lineareAfaNachWechsel = 0;
 
   for (let jahrIndex = 0; jahrIndex < jahre; jahrIndex++) {
     const jahr = params.startJahr + jahrIndex;
@@ -103,20 +102,25 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
       if (!wechselZuLinear) {
         const degressiverBetrag = restbuchwert * 0.05;
 
-        // Berechne lineare AfA auf Restbuchwert für verbleibende Laufzeit
-        // Restlaufzeit: 33 Jahre - bereits genutzte Jahre
-        const restlaufzeit = Math.max(1, 33 - jahrIndex);
-        const lineareAfaAufRestbuchwert = restbuchwert / restlaufzeit;
+        // FIX: Dynamische Restlaufzeit statt hardcoded 33 Jahre.
+        // Bei 5% degressiv: restbuchwert sinkt auf 0.1% nach ~ln(0.001)/ln(0.95) ≈ 135 Jahren.
+        // Verbleibende Laufzeit ab aktuellem Jahr dynamisch berechnen.
+        const degressiveGesamtlaufzeit = Math.ceil(Math.log(0.001) / Math.log(0.95)); // ~135
+        const verbleibendeLaufzeit = Math.max(1, degressiveGesamtlaufzeit - jahrIndex);
+        const lineareAfaAufRestbuchwert = restbuchwert / verbleibendeLaufzeit;
 
         // Wechsel zu linear, wenn es günstiger ist
         if (lineareAfaAufRestbuchwert >= degressiverBetrag) {
           wechselZuLinear = true;
-          lineareAfaNachWechsel = lineareAfaAufRestbuchwert;
         }
       }
 
       if (wechselZuLinear) {
-        linearerBetrag = lineareAfaNachWechsel;
+        // FIX: lineareAfaNachWechsel NICHT einmalig fixieren — jährlich neu berechnen
+        // auf Basis des aktuellen Restbuchwerts und verbleibender Laufzeit
+        const degressiveGesamtlaufzeit = Math.ceil(Math.log(0.001) / Math.log(0.95));
+        const verbleibendeLaufzeit = Math.max(1, degressiveGesamtlaufzeit - jahrIndex);
+        linearerBetrag = restbuchwert / verbleibendeLaufzeit;
       } else {
         linearerBetrag = restbuchwert * 0.05;
       }
