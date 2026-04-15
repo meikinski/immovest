@@ -203,7 +203,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
     // Eigenkapitalrendite: Cash-on-Cash + Tilgungsgewinn + AfA-Steuerersparnis
     const jahresCashflow = cashflowMonatlich * 12;
     const eigenkapitalRendite = input.ek > 0
-      ? ((jahresCashflow + regulareTilgungAllein + afaVorteilJaehrlich) / input.ek) * 100
+      ? ((jahresCashflow + regulareTilgungAllein) / input.ek) * 100
       : 0;
 
     // Gesamtrendite: zusätzlich Wertsteigerung des aktuellen Jahres
@@ -214,7 +214,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       ? immobilienwert - immobilienwertVorjahr
       : 0;
     const gesamtrendite = input.ek > 0
-      ? ((jahresCashflow + regulareTilgungAllein + afaVorteilJaehrlich + wertsteigerungJahr) / input.ek) * 100
+      ? ((jahresCashflow + regulareTilgungAllein + wertsteigerungJahr) / input.ek) * 100
       : 0;
 
     result.push({
