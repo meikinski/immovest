@@ -213,7 +213,7 @@ export default function LandingPage() {
                   </UserButton.MenuItems>
                 </UserButton>
               ) : (
-                <Link href="/sign-in" className="bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
+                <Link href="/sign-in" className="hidden md:block bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
                   Login
                 </Link>
               )}
@@ -234,6 +234,13 @@ export default function LandingPage() {
           {/* Mobile Menu — Slide Down */}
           {mobileMenuOpen && (
             <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg px-6 py-4 z-40">
+              <Link
+                href="/sign-in"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
+              >
+                🔐 Login / Registrieren
+              </Link>
               <a
                 href="#features"
                 onClick={() => setMobileMenuOpen(false)}
@@ -282,7 +289,7 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   Dein persönlicher Investment-Copilot
                 </span>
-                <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
+                <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
                   Berechne in <span className="text-[#ff6b00]">60 Sekunden</span><br />
                   ob sich deine Immobilie wirklich lohnt.
                 </h1>
@@ -292,7 +299,7 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
                     onClick={() => handleGetStarted('hero')}
-                    className="bg-[#ff6b00] text-white px-12 py-6 rounded-full font-bold text-xl shadow-xl hover:shadow-[#ff6b00]/30 transition-all hover:scale-105 flex items-center gap-3"
+                    className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-6 md:text-xl rounded-full font-bold shadow-xl hover:shadow-[#ff6b00]/30 transition-all hover:scale-105 flex items-center gap-3"
                   >
                     <span>Immobilie jetzt analysieren</span>
                     <ArrowRight className="w-5 h-5" />
@@ -306,7 +313,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Icon-Row: 3 konkrete Vorteile */}
-                <div className="flex flex-col sm:flex-row gap-6 mt-10">
+                <div className="flex flex-col sm:flex-row gap-6 mt-10 bg-gray-50 rounded-2xl px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Calculator className="w-5 h-5 text-[#ff6b00]" />
@@ -1551,14 +1558,14 @@ export default function LandingPage() {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <button
                       onClick={() => handleGetStarted('final_cta')}
-                      className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
+                      className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
                     >
                       <span>Neue Analyse starten</span>
                       <ArrowRight className="w-6 h-6" />
                     </button>
                     <Link
                       href="/dashboard"
-                      className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
+                      className="border-2 border-white text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-white hover:text-[#001d3d] transition-all"
                     >
                       Zum Dashboard
                     </Link>
@@ -1576,14 +1583,14 @@ export default function LandingPage() {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <button
                       onClick={() => handleGetStarted('final_cta')}
-                      className="bg-[#ff6b00] text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
+                      className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
                     >
                       <span>Jetzt kostenlos starten</span>
                       <ArrowRight className="w-6 h-6" />
                     </button>
                     <Link
                       href="/sign-in"
-                      className="border-2 border-white text-white px-12 py-5 rounded-full font-bold text-xl hover:bg-white hover:text-[#001d3d] transition-all"
+                      className="border-2 border-white text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-white hover:text-[#001d3d] transition-all"
                     >
                       Anmelden / Einloggen
                     </Link>
@@ -1595,7 +1602,7 @@ export default function LandingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-[#001d3d] text-white py-24 px-6">
+        <footer className="bg-[#001d3d] text-white py-24 px-6 border-t-4 border-[#ff6b00]">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-8">
