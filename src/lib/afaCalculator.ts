@@ -73,9 +73,8 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
   let restbuchwert = gebaeudewert;
   let kumulierteAfA = 0;
 
-  // Für degressive AfA mit Sonder-AfA: Berechne, wann der Wechsel zu linear sinnvoll ist
+  // Für degressive AfA: Flag für Wechsel zu linear nach § 7a Abs. 9 EStG
   let wechselZuLinear = false;
-  let lineareAfaNachWechsel = 0;
 
   for (let jahrIndex = 0; jahrIndex < jahre; jahrIndex++) {
     const jahr = params.startJahr + jahrIndex;
@@ -98,27 +97,24 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
       linearerBetrag = gebaeudewert * 0.03;
     } else if (params.modell === 'degressiv_5') {
       // Degressive AfA 5%: 5% vom aktuellen Restbuchwert
-      // Nach § 7a Abs. 9 EStG: Wechsel zu linear, wenn linear günstiger
-
-      if (!wechselZuLinear) {
-        const degressiverBetrag = restbuchwert * 0.05;
-
-        // Berechne lineare AfA auf Restbuchwert für verbleibende Laufzeit
-        // Restlaufzeit: 33 Jahre - bereits genutzte Jahre
-        const restlaufzeit = Math.max(1, 33 - jahrIndex);
-        const lineareAfaAufRestbuchwert = restbuchwert / restlaufzeit;
-
-        // Wechsel zu linear, wenn es günstiger ist
-        if (lineareAfaAufRestbuchwert >= degressiverBetrag) {
-          wechselZuLinear = true;
-          lineareAfaNachWechsel = lineareAfaAufRestbuchwert;
-        }
-      }
+      // Nach § 7 Abs. 5a EStG: Laufzeit 20 Jahre, Wechsel zu linear wenn günstiger
 
       if (wechselZuLinear) {
-        linearerBetrag = lineareAfaNachWechsel;
+        // FIX: Betrag jährlich neu berechnen, nicht einmalig fixieren
+        const restlaufzeit = Math.max(1, 33 - jahrIndex); // § 7 Abs. 4 Nr. 2a EStG Nutzungsdauer Neubau
+        linearerBetrag = restbuchwert / restlaufzeit;
       } else {
-        linearerBetrag = restbuchwert * 0.05;
+        const degressiverBetrag = restbuchwert * 0.05;
+        // FIX: Restlaufzeit = 20 Jahre (§ 7 Abs. 5a EStG), nicht 33
+        const restlaufzeit = Math.max(1, 33 - jahrIndex); // § 7 Abs. 4 Nr. 2a EStG Nutzungsdauer Neubau
+        const lineareAlternative = restbuchwert / restlaufzeit;
+
+        if (lineareAlternative >= degressiverBetrag) {
+          wechselZuLinear = true;
+          linearerBetrag = lineareAlternative;
+        } else {
+          linearerBetrag = degressiverBetrag;
+        }
       }
     }
 
