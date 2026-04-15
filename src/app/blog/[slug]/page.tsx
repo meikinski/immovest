@@ -65,7 +65,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
 
-  const jsonLd = {
+  const articleJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
     headline: post.title,
@@ -89,12 +89,34 @@ export default async function BlogPostPage({ params }: Props) {
     },
   }
 
+  const faqJsonLd =
+    post.faq && post.faq.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: post.faq.map((item) => ({
+            '@type': 'Question',
+            name: item.question,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: item.answer,
+            },
+          })),
+        }
+      : null
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <main className="bg-white">
         <div className="max-w-3xl mx-auto px-6 py-16">
 
@@ -179,7 +201,7 @@ export default async function BlogPostPage({ params }: Props) {
               Exposé-Link eingeben und loslegen.
             </p>
             <Link
-              href="/input-method"
+              href="https://imvestr.de/input-method"
               className="inline-flex items-center gap-2 rounded-full bg-[#ff6b00] text-white px-7 py-3 text-sm font-bold hover:bg-[#e05e00] transition-colors shadow-md"
             >
               Immobilie jetzt analysieren →
