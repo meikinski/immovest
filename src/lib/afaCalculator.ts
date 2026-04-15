@@ -101,12 +101,12 @@ export function berechneAfaVerlauf(params: AfaParams, jahre = 30): AfaJahresErge
 
       if (wechselZuLinear) {
         // FIX: Betrag jährlich neu berechnen, nicht einmalig fixieren
-        const restlaufzeit = Math.max(1, 20 - jahrIndex);
+        const restlaufzeit = Math.max(1, 33 - jahrIndex); // § 7 Abs. 4 Nr. 2a EStG Nutzungsdauer Neubau
         linearerBetrag = restbuchwert / restlaufzeit;
       } else {
         const degressiverBetrag = restbuchwert * 0.05;
         // FIX: Restlaufzeit = 20 Jahre (§ 7 Abs. 5a EStG), nicht 33
-        const restlaufzeit = Math.max(1, 20 - jahrIndex);
+        const restlaufzeit = Math.max(1, 33 - jahrIndex); // § 7 Abs. 4 Nr. 2a EStG Nutzungsdauer Neubau
         const lineareAlternative = restbuchwert / restlaufzeit;
 
         if (lineareAlternative >= degressiverBetrag) {
