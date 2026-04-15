@@ -196,13 +196,13 @@ export default async function BlogPostPage({ params }: Props) {
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],
                 },
-                components: {
-                  table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
-                    <div className="overflow-x-auto my-6">
-                      <table {...props} />
-                    </div>
-                  ),
-                },
+              }}
+              components={{
+                table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
+                  <div className="overflow-x-auto my-6">
+                    <table {...props} />
+                  </div>
+                ),
               }}
             />
           </article>
