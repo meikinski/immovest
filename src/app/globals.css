@@ -690,3 +690,33 @@ tab-btn:hover,
   border-top: 1px solid #e5e7eb;
   margin: 0.6em 0;
 }
+
+/* Blog: Tabellen-Styling (imvestr Brand) */
+.prose table th {
+  background-color: #001d3d;
+  color: white;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.prose table td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.prose table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.prose table tr:hover {
+  background-color: #fff7f0;
+}
+
+.prose table {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  font-size: 0.95em;
+}
+

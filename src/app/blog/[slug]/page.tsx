@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
 
 const BASE_URL = 'https://imvestr.de'
@@ -186,9 +187,24 @@ export default async function BlogPostPage({ params }: Props) {
               prose-ol:text-[#1d1d1f]
               prose-blockquote:border-l-[#ff6b00] prose-blockquote:text-gray-600
               prose-code:text-[#001d3d] prose-code:bg-gray-50 prose-code:rounded prose-code:px-1
+              prose-table:w-full
             "
           >
-            <MDXRemote source={post.content} />
+            <MDXRemote
+              source={post.content}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                },
+              }}
+              components={{
+                table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
+                  <div className="overflow-x-auto my-6">
+                    <table {...props} />
+                  </div>
+                ),
+              }}
+            />
           </article>
 
           {/* CTA Block */}
