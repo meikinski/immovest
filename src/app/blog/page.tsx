@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getAllPosts } from '@/lib/blog'
+import { Header } from '@/components/Header'
 
 export const metadata: Metadata = {
   title: 'Blog – Immobilien-Wissen & Investment-Tipps | Imvestr',
@@ -25,18 +26,10 @@ export default async function BlogPage() {
 
   return (
     <main className="bg-white">
-      {/* Top Bar */}
-      <div className="max-w-5xl mx-auto px-6 pt-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1 text-xl font-extrabold tracking-tighter text-[#001d3d] hover:text-[#ff6b00] transition-colors"
-        >
-          imvestr
-        </Link>
-      </div>
+      <Header variant="fixed" />
 
       {/* Hero */}
-      <section className="max-w-5xl mx-auto px-6 pt-14 pb-16 text-center">
+      <section className="max-w-5xl mx-auto px-6 pt-32 pb-16 text-center">
         <p className="text-sm font-semibold tracking-widest text-[#ff6b00] uppercase mb-4">
           Imvestr Blog
         </p>

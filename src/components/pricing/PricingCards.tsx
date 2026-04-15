@@ -424,7 +424,7 @@ function PricingFAQ() {
             <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ml-3 ${openIdx === idx ? 'rotate-180' : ''}`} />
           </button>
           {openIdx === idx && (
-            <div className="px-5 pb-4 text-sm text-gray-600 leading-relaxed">
+            <div className="px-4 pb-5 text-sm text-gray-600 leading-relaxed max-w-none">
               {faq.a}
             </div>
           )}
