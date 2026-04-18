@@ -156,7 +156,7 @@ export default function PricingCards({}: PricingCardsProps) {
       )}
 
       {/* Pricing Cards - Desktop Grid */}
-      <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-6">
+      <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-8">
         {plans.map((plan) => (
           <div
             key={plan.name}
@@ -239,7 +239,7 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden w-full pt-6">
+      <div className="md:hidden w-full pt-8">
         <div
           ref={scrollContainerRef}
           className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pl-4 pr-4 pb-4"
@@ -376,13 +376,10 @@ export default function PricingCards({}: PricingCardsProps) {
 
       {/* Trust Badges */}
       <div className="mt-12 text-center">
-        <p className="text-sm text-gray-600 mb-4">
-          Sichere Zahlung powered by Stripe
-        </p>
         <div className="flex items-center justify-center gap-4 text-xs text-gray-500">
-          <span>🔒 SSL-verschlüsselt</span>
+          <span>🔒 SSL-verschlüsselt via Stripe</span>
           <span>•</span>
-          <span>💳 Alle Zahlungsmethoden</span>
+          <span>💳 Kreditkarte & SEPA</span>
           <span>•</span>
           <span>🇪🇺 DSGVO-konform</span>
         </div>
