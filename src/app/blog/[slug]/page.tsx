@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
+import { Header } from '@/components/Header'
 
 const BASE_URL = 'https://imvestr.de'
 
@@ -67,39 +68,39 @@ export default async function BlogPostPage({ params }: Props) {
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
 
   const articleJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
+    "@context": "https://schema.org",
+    "@type": "Article",
     headline: post.title,
     description: post.description,
     image: ogImage,
     datePublished: post.date,
     dateModified: post.date,
     author: {
-      '@type': 'Organization',
+      "@type": "Organization",
       name: post.author,
       url: BASE_URL,
     },
     publisher: {
-      '@type': 'Organization',
-      name: 'Imvestr',
+      "@type": "Organization",
+      name: "Imvestr",
       url: BASE_URL,
     },
     mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': `${BASE_URL}/blog/${post.slug}`,
+      "@type": "WebPage",
+      "@id": `${BASE_URL}/blog/${post.slug}`,
     },
   }
 
   const faqJsonLd =
     post.faq && post.faq.length > 0
       ? {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
           mainEntity: post.faq.map((item) => ({
-            '@type': 'Question',
+            "@type": "Question",
             name: item.question,
             acceptedAnswer: {
-              '@type': 'Answer',
+              "@type": "Answer",
               text: item.answer,
             },
           })),
@@ -118,18 +119,9 @@ export default async function BlogPostPage({ params }: Props) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
         />
       )}
+      <Header variant="static" />
       <main className="bg-white">
         <div className="max-w-3xl mx-auto px-6 py-16">
-
-          {/* Top Logo */}
-          <div className="mb-8">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-1 text-xl font-extrabold tracking-tighter text-[#001d3d] hover:text-[#ff6b00] transition-colors"
-            >
-              imvestr
-            </Link>
-          </div>
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-gray-400 mb-10">
@@ -160,10 +152,10 @@ export default async function BlogPostPage({ params }: Props) {
                 dateTime={post.date}
                 className="text-[#ff6b00] font-semibold"
               >
-                {new Date(post.date).toLocaleDateString('de-DE', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                {new Date(post.date).toLocaleDateString("de-DE", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               </time>
               {post.tags && post.tags.length > 0 && (
