@@ -119,6 +119,7 @@ export default function LandingPage() {
     },
   };
 
+
   // FAQPage Schema for AEO (Answer Engine Optimization)
   const faqStructuredData = {
     "@context": "https://schema.org",
@@ -355,7 +356,7 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   KI-Renditerechner für Immobilien
                 </span>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
+                <h1 className="text-6xl md:text-7xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
                   Immobilien Rendite berechnen: <br />
                   Dein persönlicher <span className="text-[#ff6b00]">Investment-Copilot.</span>
                 </h1>
