@@ -344,25 +344,25 @@ export default function PricingCards({}: PricingCardsProps) {
       </div>
 
       {/* Free-Plan Abgrenzung */}
-      <div className="mt-10 max-w-2xl mx-auto bg-gray-50 border border-gray-200 rounded-[28px] p-6">
-        <h3 className="font-bold text-[#001d3d] mb-3">Was ist kostenlos?</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="mt-10 max-w-2xl mx-auto bg-gradient-to-br from-gray-50 to-orange-50 border border-orange-100 rounded-[28px] p-6">
+        <h3 className="font-bold text-[#001d3d] mb-1 text-lg">Kostenlos starten</h3>
+        <p className="text-sm text-gray-500 mb-4">Keine Kreditkarte. Kein Risiko.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Kostenlos</p>
-            <ul className="space-y-1 text-sm text-gray-600">
-              <li>• 1 vollständige Analyse</li>
-              <li>• Cashflow-Berechnung</li>
-              <li>• Rendite-Kennzahlen</li>
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Inklusive</p>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>✓ KPI-Berechnungen (unbegrenzt)</li>
+              <li>✓ 2 vollständige KI-Analysen</li>
+              <li>✓ Cashflow & Rendite-Kennzahlen</li>
             </ul>
           </div>
           <div>
-            <p className="text-xs font-bold text-[#ff6b00] uppercase tracking-wider mb-2">⚡ Nur mit Premium</p>
-            <ul className="space-y-1 text-sm text-gray-600">
-              <li>• Unbegrenzte Analysen</li>
-              <li>• Markt- & Lageanalyse</li>
-              <li>• PDF-Export (Bank-ready)</li>
-              <li>• KI-Investitionsempfehlungen</li>
-              <li>• Analysen speichern</li>
+            <p className="text-xs font-bold text-[#ff6b00] uppercase tracking-wider mb-2">⚡ Mit Premium</p>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li>→ Unbegrenzte KI-Analysen</li>
+              <li>→ Markt- & Lageanalyse</li>
+              <li>→ PDF-Export (Bank-ready)</li>
+              <li>→ Analysen speichern</li>
             </ul>
           </div>
         </div>
@@ -402,7 +402,7 @@ function PricingFAQ() {
     },
     {
       q: 'Was ist im Free-Plan enthalten?',
-      a: 'Du kannst eine vollständige Analyse kostenlos durchführen inkl. Cashflow-Berechnung und Rendite-Kennzahlen. Für unbegrenzte Analysen, Marktdaten, PDF-Export und KI-Empfehlungen brauchst du Premium.',
+      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich sind 2 vollständige KI-Analysen inklusive. Ab der 3. Analyse brauchst du Premium: unbegrenzte Analysen, Markt- & Lageanalyse, PDF-Export und Analysen speichern.',
     },
     {
       q: 'Gibt es eine Testphase?',
