@@ -4,6 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import PricingCards from '@/components/pricing/PricingCards';
+import { Footer } from '@/components/Footer';
 
 export default function PricingPage() {
   const router = useRouter();
@@ -33,6 +34,9 @@ export default function PricingPage() {
 
       {/* Main Content */}
       <PricingCards />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

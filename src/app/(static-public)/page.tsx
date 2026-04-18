@@ -355,7 +355,7 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   KI-Renditerechner für Immobilien
                 </span>
-                <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
                   Immobilien Rendite berechnen: <br />
                   Dein persönlicher <span className="text-[#ff6b00]">Investment-Copilot.</span>
                 </h1>
@@ -372,21 +372,21 @@ export default function LandingPage() {
                   </button>
                   <button
                     onClick={() => router.push(isSignedIn ? '/profile' : '/sign-in')}
-                    className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-10 py-5 rounded-full font-bold text-lg hover:bg-[#001d3d] hover:text-white transition-all"
+                    className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-6 py-3 text-base md:px-10 md:py-5 md:text-lg rounded-full font-bold hover:bg-[#001d3d] hover:text-white transition-all"
                   >
                     {isSignedIn ? 'Zu meinen Immobilien' : 'Anmelden / Einloggen'}
                   </button>
                 </div>
 
                 {/* Icon-Row: 3 konkrete Vorteile */}
-                <div className="flex flex-col sm:flex-row gap-6 mt-10 bg-gray-50 rounded-2xl px-6 py-4">
+                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-10 mb-6 bg-gray-50 rounded-2xl px-6 py-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Calculator className="w-5 h-5 text-[#ff6b00]" />
                     </div>
                     <div>
                       <div className="font-bold text-sm text-[#001d3d]">Cashflow</div>
-                      <div className="text-xs text-gray-500">Realistisch berechnet</div>
+                      <div className="text-xs text-gray-500">Monatlicher Überschuss auf einen Blick</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -404,7 +404,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-[#001d3d]">Risiko</div>
-                      <div className="text-xs text-gray-500">Leerstand & Marktdaten</div>
+                      <div className="text-xs text-gray-500">Leerstand & Marktrisiko einkalkuliert</div>
                     </div>
                   </div>
                 </div>
@@ -612,6 +612,7 @@ export default function LandingPage() {
 
               </div>
             </div>
+            <p className="text-center text-xs text-gray-400 mt-4 md:hidden">← Wischen um mehr zu sehen →</p>
           </section>
 
           {/* 3. Wie imvestr dir hilft */}
@@ -1598,7 +1599,7 @@ export default function LandingPage() {
                           isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                         }`}
                       >
-                        <div className="px-8 pb-8 pl-[4.5rem]">
+                        <div className="px-8 pb-8 pl-[4.5rem] max-w-none">
                           <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
                         </div>
                       </div>
@@ -1668,7 +1669,7 @@ export default function LandingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="bg-[#001d3d] text-white py-24 px-6 border-t-4 border-[#ff6b00]">
+        <footer className="bg-[#030917] text-white py-24 px-6 border-t border-white/10">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-3 mb-8">
