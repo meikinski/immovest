@@ -12,6 +12,11 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+function calcReadingTime(content: string): number {
+  const words = content.trim().split(/\s+/).length
+  return Math.max(1, Math.round(words / 200))
+}
+
 export async function generateStaticParams() {
   const posts = await getAllPosts()
   return posts.map((post) => ({ slug: post.slug }))
@@ -66,6 +71,7 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound()
 
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
+  const readingTime = calcReadingTime(post.content)
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -158,6 +164,8 @@ export default async function BlogPostPage({ params }: Props) {
                   day: "numeric",
                 })}
               </time>
+              <span className="text-gray-300">·</span>
+              <span className="text-gray-400">{readingTime} Min. Lesezeit</span>
               {post.tags && post.tags.length > 0 && (
                 <>
                   <span className="text-gray-300">·</span>
@@ -177,7 +185,7 @@ export default async function BlogPostPage({ params }: Props) {
               prose-strong:text-[#001d3d]
               prose-ul:text-[#1d1d1f]
               prose-ol:text-[#1d1d1f]
-              prose-blockquote:border-l-[#ff6b00] prose-blockquote:text-gray-600
+              prose-blockquote:border-l-4 prose-blockquote:border-l-[#ff6b00] prose-blockquote:bg-orange-50 prose-blockquote:text-gray-700 prose-blockquote:rounded-r-lg prose-blockquote:py-1
               prose-code:text-[#001d3d] prose-code:bg-gray-50 prose-code:rounded prose-code:px-1
               prose-table:w-full
             "
