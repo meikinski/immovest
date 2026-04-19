@@ -353,12 +353,15 @@ export default function LandingPage() {
               {/* Left: Content */}
               <div>
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
-                  KI-Renditerechner für Immobilien
+                  100% kostenlos starten
                 </span>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
-                  Immobilien Rendite berechnen: <br />
-                  Dein persönlicher <span className="text-[#ff6b00]">Investment-Copilot.</span>
+                  Berechne in <span className="text-[#ff6b00]">60 Sekunden</span><br />
+                  ob sich deine Immobilie wirklich lohnt.
                 </h1>
+                <p className="text-base font-semibold text-[#001d3d]/60 mb-3 tracking-tight">
+                  Cashflow, Nettomietrendite und DSCR — automatisch berechnet.
+                </p>
                 <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
                   Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
                 </p>
