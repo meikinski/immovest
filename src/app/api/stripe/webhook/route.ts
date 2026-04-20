@@ -54,12 +54,14 @@ function getCurrentPeriodEnd(subscription: StripeSubscriptionExtended): number |
  */
 async function sendGA4PurchaseServerSide({
   userId,
+  session,
   sessionId,
   amountTotal,
   currency,
   planType,
 }: {
   userId: string;
+  session: Stripe.Checkout.Session;
   sessionId: string;
   amountTotal: number;
   currency: string;
@@ -80,11 +82,14 @@ async function sendGA4PurchaseServerSide({
     ? 'Imvestr Premium – Jahresabo'
     : 'Imvestr Premium – Monatsabo';
 
+  // Use the GA4 browser client_id (_ga cookie) if captured at checkout start.
+  // Same client_id = GA4 de-duplicates via transaction_id → no double-counting.
+  // Falls back to userId if cookie wasn't captured (e.g. adblocker).
+  const gaClientId = (session as Stripe.Checkout.Session & { metadata?: Record<string, string> }).metadata?.ga_client_id;
+  const clientId = gaClientId || userId;
+
   const payload = {
-    // Use userId as client_id for server-side events.
-    // This won't stitch to an existing browser session automatically,
-    // but it guarantees the event is captured in GA4 reports.
-    client_id: userId,
+    client_id: clientId,
     user_id: userId,
     // Explicit user_properties so Jonas can segment Free→Paid in GA4 reports
     user_properties: {
@@ -115,11 +120,16 @@ async function sendGA4PurchaseServerSide({
 
   try {
     const url = `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
+    clearTimeout(timeoutId);
 
     // Measurement Protocol returns 204 on success
     if (response.status === 200 || response.status === 204) {
@@ -386,12 +396,16 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     // This is a reliable backup: client-side GTM tracking can be lost if the
     // user closes the browser before being redirected back to /profile.
     // ────────────────────────────────────────────────────────────────────────
-    const planType = session.metadata?.planType || 'monthly';
+    const planType = session.metadata?.planType || (() => {
+      console.warn('[GA4] session.metadata.planType missing — falling back to "monthly". Check checkout route metadata.');
+      return 'monthly';
+    })();
     const amountTotal = session.amount_total ?? 0;
     const currency = session.currency ?? 'eur';
 
     await sendGA4PurchaseServerSide({
       userId,
+      session,
       sessionId: session.id,
       amountTotal,
       currency,
