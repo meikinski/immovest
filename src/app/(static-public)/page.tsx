@@ -354,15 +354,14 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   100% kostenlos starten
                 </span>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-8 text-[#001d3d]">
-                  Berechne in <span className="text-[#ff6b00]">60 Sekunden</span><br />
-                  ob sich deine Immobilie wirklich lohnt.
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-6 text-[#001d3d]">
+                  Prüf dein Immobilien-Investment in Sekunden.
                 </h1>
-                <p className="text-base font-semibold text-[#001d3d]/60 mb-3 tracking-tight">
-                  Cashflow, Nettomietrendite und DSCR — automatisch berechnet.
+                <p className="text-xl font-normal text-gray-400 mb-4 tracking-tight">
+                  KI-Analyse mit echten Marktdaten — für Einsteiger und Profis.
                 </p>
-                <p className="text-xl text-gray-500 mb-10 max-w-lg leading-relaxed">
-                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und berechnet deinen Cashflow in Sekunden.
+                <p className="text-sm text-gray-400 mb-10 max-w-lg leading-relaxed">
+                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und liefert dir das Ergebnis in Sekunden.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button
@@ -387,7 +386,7 @@ export default function LandingPage() {
                       <Calculator className="w-5 h-5 text-[#ff6b00]" />
                     </div>
                     <div>
-                      <div className="font-bold text-sm text-[#001d3d]">Cashflow</div>
+                      <div className="font-bold text-sm text-[#001d3d]">Ertrag</div>
                       <div className="text-xs text-gray-500">Monatlicher Überschuss auf einen Blick</div>
                     </div>
                   </div>
@@ -420,7 +419,7 @@ export default function LandingPage() {
                 {/* Cashflow Card - Animated */}
                 <div className="absolute top-10 left-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-20 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite]">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Netto-Cashflow</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Monatsertrag</span>
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                   </div>
                   <div className="text-3xl font-black text-[#001d3d]">+ 342,50 €</div>
