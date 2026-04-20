@@ -1328,8 +1328,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Scroll Indicators */}
-              <div className="flex items-center justify-end gap-4 mt-8 pr-6">
+              {/* Scroll Indicators — nur Mobile */}
+              <div className="md:hidden flex items-center justify-end gap-4 mt-8 pr-6">
                 <button
                   onClick={() => {
                     const container = document.querySelector('#investment-goals-scroll');
