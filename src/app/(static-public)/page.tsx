@@ -258,7 +258,6 @@ export default function LandingPage() {
             <div className="flex items-center gap-4">
               {isSignedIn ? (
                 <UserButton
-                  afterSignOutUrl="/"
                   appearance={{
                     elements: {
                       avatarBox: "w-10 h-10"
