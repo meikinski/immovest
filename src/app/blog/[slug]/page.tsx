@@ -217,10 +217,10 @@ export default async function BlogPostPage({ params }: Props) {
               Exposé-Link eingeben und loslegen.
             </p>
             <Link
-              href="https://imvestr.de/input-method"
+              href="https://imvestr.de"
               className="inline-flex items-center gap-2 rounded-full bg-[#ff6b00] text-white px-7 py-3 text-sm font-bold hover:bg-[#e05e00] transition-colors shadow-md"
             >
-              Immobilie jetzt analysieren →
+              Jetzt kostenlos analysieren →
             </Link>
           </div>
 
