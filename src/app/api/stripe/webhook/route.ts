@@ -86,6 +86,11 @@ async function sendGA4PurchaseServerSide({
     // but it guarantees the event is captured in GA4 reports.
     client_id: userId,
     user_id: userId,
+    // Explicit user_properties so Jonas can segment Free→Paid in GA4 reports
+    user_properties: {
+      clerk_user_id: { value: userId },
+      subscription_plan: { value: planId },
+    },
     events: [
       {
         name: 'purchase',
