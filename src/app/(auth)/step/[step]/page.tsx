@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import { berechnePrognose } from '@/lib/prognose-calculator';
@@ -1388,17 +1389,20 @@ const exportPdf = React.useCallback(async () => {
               <input
                 id="kaufpreis-input"
                 type="text"
-                value={mounted ? kaufpreis.toLocaleString('de-DE') : kaufpreis.toString()}
+                value={mounted ? (kaufpreis === 0 ? '' : kaufpreis.toLocaleString('de-DE')) : ''}
+                placeholder="z.B. 280.000"
                 onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
                 onFocus={(e) => e.target.select()}
                 className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
               />
             </div>
+            <p className="text-xs text-slate-400 ml-1 mt-1">Gesamtkaufpreis laut Exposé</p>
           </div>
 
           {/* Kaufnebenkosten Section */}
           <div className="pt-4">
-            <h3 className="text-sm font-bold text-slate-700 mb-4">Kaufnebenkosten</h3>
+            <h3 className="text-sm font-bold text-slate-700 mb-1">Kaufnebenkosten</h3>
+            <p className="text-xs text-slate-400 mb-4">Notar, Grunderwerbsteuer, ggf. Makler</p>
 
             <div className="grid grid-cols-1 gap-6">
               {[
@@ -1725,13 +1729,16 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     id="miete-input"
                     type="text"
-                    value={miete.toString()}
+                    value={miete === 0 ? '' : miete.toString()}
+                    placeholder="z.B. 950"
                     onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
                     onFocus={(e) => e.target.select()}
                     className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                   />
                 </div>
               </div>
+
+              <p className="text-xs text-slate-400 ml-1 mt-1">Nettokaltmiete ohne Nebenkosten</p>
 
               {/* Kaltmiete pro qm */}
               <div className="space-y-1.5">
@@ -3945,6 +3952,17 @@ const exportPdf = React.useCallback(async () => {
           <p className="text-sm text-gray-500 mb-6 -mt-2">
             Gib deine Immobiliendaten ein — wir berechnen Cashflow und Rendite sofort.
           </p>
+        )}
+        {step === 'tabs' && mounted && kaufpreis === 0 && (
+          <div className="mb-6 bg-orange-50 border border-orange-200 rounded-2xl px-5 py-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-[#001d3d]">Du schaust auf ein leeres Ergebnis.</p>
+              <p className="text-xs text-gray-500 mt-0.5">Starte eine eigene Analyse — kostenlos und in 60 Sekunden.</p>
+            </div>
+            <Link href="/input-method" className="bg-[#ff6b00] text-white px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap flex-shrink-0">
+              Jetzt starten →
+            </Link>
+          </div>
         )}
         {content}
       </div>
