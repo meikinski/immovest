@@ -864,6 +864,14 @@ const dscr =
     router.push(`/step/${nextStep}`);
   };
 
+  // Redirect /step/tabs → /step/a when store is empty (unqualified direct traffic)
+  useEffect(() => {
+    if (!mounted) return;
+    if (step === 'tabs' && kaufpreis <= 0) {
+      router.replace('/step/a');
+    }
+  }, [step, mounted, kaufpreis, router]);
+
   // Bei Wechsel in die Tabs einmalig Derived erzwingen (ersetzt "result")
   useEffect(() => {
     if (step === 'tabs') updateDerived();
