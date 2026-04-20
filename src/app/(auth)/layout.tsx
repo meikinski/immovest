@@ -27,6 +27,7 @@ export default function AuthLayout({
       telemetry={false}
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"
+      afterSignOutUrl="/"
     >
       <SignupTracker />
       <PaywallProvider>
