@@ -10,6 +10,9 @@ Disallow: /sign-up
 Disallow: /profile
 Disallow: /api/
 
+# Disallow wizard result page (no standalone value for search engines)
+Disallow: /step/tabs
+
 # Allow legal pages
 Allow: /impressum
 Allow: /datenschutz
