@@ -15,5 +15,18 @@ Allow: /impressum
 Allow: /datenschutz
 Allow: /agb
 
+# Explicit AI crawler permissions (AEO best practice)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: GoogleExtendedBot
+Allow: /
+
 # Sitemap location
 Sitemap: https://imvestr.de/sitemap.xml
