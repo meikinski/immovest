@@ -354,8 +354,8 @@ export default function LandingPage() {
                 <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
                   100% kostenlos starten
                 </span>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-6 text-[#001d3d]">
-                  Prüf dein Immobilien-Investment in Sekunden.
+                <h1 className="text-5xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-6 text-[#001d3d]">
+                  Prüf dein Immobilien-Investment in <span className="text-[#ff6b00]">Sekunden.</span>
                 </h1>
                 <p className="text-xl font-normal text-gray-400 mb-4 tracking-tight">
                   KI-Analyse mit echten Marktdaten — für Einsteiger und Profis.
@@ -387,7 +387,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-[#001d3d]">Ertrag</div>
-                      <div className="text-xs text-gray-500">Monatlicher Überschuss auf einen Blick</div>
+                      <div className="text-xs text-gray-500">Lohnt sich der Kauf?</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -396,7 +396,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-[#001d3d]">Rendite</div>
-                      <div className="text-xs text-gray-500">EK-Rendite & Nettomietrendite</div>
+                      <div className="text-xs text-gray-500">Wie viel bleibt am Ende übrig?</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -405,7 +405,7 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="font-bold text-sm text-[#001d3d]">Risiko</div>
-                      <div className="text-xs text-gray-500">Leerstand & Marktrisiko einkalkuliert</div>
+                      <div className="text-xs text-gray-500">Wo lauern versteckte Kosten?</div>
                     </div>
                   </div>
                 </div>
@@ -469,7 +469,7 @@ export default function LandingPage() {
               </div>
 
               {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 md:max-w-6xl md:mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide pl-4 pr-4 md:pl-0 md:pr-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <div id="failures-scroll" className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 md:max-w-6xl md:mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide pl-4 pr-4 md:pl-0 md:pr-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
 
                 {/* Problem 1: Versteckte Kosten */}
                 <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
@@ -613,7 +613,27 @@ export default function LandingPage() {
 
               </div>
             </div>
-            <p className="text-center text-xs text-gray-400 mt-4 md:hidden">← Wischen um mehr zu sehen →</p>
+            {/* Mobile Nav Buttons */}
+            <div className="md:hidden flex items-center justify-end gap-4 mt-8 pr-6">
+              <button
+                onClick={() => {
+                  const container = document.querySelector('#failures-scroll');
+                  if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+                }}
+                className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => {
+                  const container = document.querySelector('#failures-scroll');
+                  if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+                }}
+                className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
           </section>
 
           {/* 3. Wie imvestr dir hilft */}
