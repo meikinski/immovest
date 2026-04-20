@@ -94,10 +94,10 @@ export default async function BlogPage() {
                     </p>
                   )}
 
-                  {/* Weiterlesen */}
+                  {/* Weiterlesen — Pill Button */}
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#ff6b00] hover:text-[#e05e00] transition-colors mt-auto"
+                    className="inline-flex items-center gap-1.5 self-start mt-auto rounded-full border border-[#ff6b00] text-[#ff6b00] px-4 py-1.5 text-sm font-semibold hover:bg-[#ff6b00] hover:text-white transition-colors"
                   >
                     Weiterlesen
                     <span aria-hidden="true">→</span>
@@ -106,6 +106,25 @@ export default async function BlogPage() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* CTA — Jetzt kostenlos analysieren */}
+        <section className="bg-[#001d3d] py-16 px-6">
+          <div className="max-w-2xl mx-auto text-center">
+            <h2 className="text-2xl font-extrabold tracking-tight text-white mb-3">
+              Bereit, dein Investment zu analysieren?
+            </h2>
+            <p className="text-gray-300 text-sm leading-relaxed mb-7 max-w-md mx-auto">
+              Imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
+              Exposé-Link eingeben und loslegen.
+            </p>
+            <Link
+              href="https://imvestr.de"
+              className="inline-flex items-center gap-2 rounded-full bg-[#ff6b00] text-white px-7 py-3 text-sm font-bold hover:bg-[#e05e00] transition-colors shadow-md"
+            >
+              Jetzt kostenlos analysieren →
+            </Link>
+          </div>
         </section>
       </main>
     </>
