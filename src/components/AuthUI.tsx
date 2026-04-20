@@ -43,7 +43,7 @@ export function AuthUI({ variant = 'light' }: AuthUIProps) {
   // Client-side: Show full Clerk UserButton for signed-in users
   if (isSignedIn) {
     return (
-      <UserButton afterSignOutUrl="/">
+      <UserButton>
         <UserButton.MenuItems>
           <UserButton.Link
             label="Profil & Einstellungen"
