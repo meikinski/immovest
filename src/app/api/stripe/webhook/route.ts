@@ -40,6 +40,95 @@ function getCurrentPeriodEnd(subscription: StripeSubscriptionExtended): number |
   return undefined;
 }
 
+/**
+ * Server-side GA4 Measurement Protocol — reliable fallback for purchase events.
+ *
+ * Why server-side? Client-side GTM/dataLayer tracking can be lost if the user
+ * closes the browser before being redirected back to /profile after checkout.
+ * This function fires the GA4 `purchase` event directly from the Stripe webhook,
+ * guaranteeing the event is tracked regardless of browser behaviour.
+ *
+ * Requires env vars:
+ *   GA4_MEASUREMENT_ID  — GA4 Measurement ID (G-XXXXXXXXXX)
+ *   GA4_API_SECRET      — Measurement Protocol API Secret (from GA4 Admin > Data Streams)
+ */
+async function sendGA4PurchaseServerSide({
+  userId,
+  sessionId,
+  amountTotal,
+  currency,
+  planType,
+}: {
+  userId: string;
+  sessionId: string;
+  amountTotal: number;
+  currency: string;
+  planType: string;
+}) {
+  const measurementId = process.env.GA4_MEASUREMENT_ID;
+  const apiSecret = process.env.GA4_API_SECRET;
+
+  if (!measurementId || !apiSecret) {
+    console.log('[GA4] Measurement Protocol not configured — skipping server-side event. Set GA4_MEASUREMENT_ID + GA4_API_SECRET to enable.');
+    return;
+  }
+
+  const value = amountTotal / 100; // Stripe amounts are in cents
+  const isYearly = planType === 'yearly';
+  const planId = isYearly ? 'premium_yearly' : 'premium_monthly';
+  const itemName = isYearly
+    ? 'Imvestr Premium – Jahresabo'
+    : 'Imvestr Premium – Monatsabo';
+
+  const payload = {
+    // Use userId as client_id for server-side events.
+    // This won't stitch to an existing browser session automatically,
+    // but it guarantees the event is captured in GA4 reports.
+    client_id: userId,
+    user_id: userId,
+    events: [
+      {
+        name: 'purchase',
+        params: {
+          transaction_id: sessionId,
+          value,
+          currency: currency.toUpperCase(),
+          subscription_plan_id: planId,
+          subscription_interval: isYearly ? 'year' : 'month',
+          items: [
+            {
+              item_id: planId,
+              item_name: itemName,
+              price: value,
+              quantity: 1,
+            },
+          ],
+        },
+      },
+    ],
+  };
+
+  try {
+    const url = `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    // Measurement Protocol returns 204 on success
+    if (response.status === 200 || response.status === 204) {
+      console.log(`✅ [GA4] Server-side purchase event sent — transaction: ${sessionId}, value: ${value} ${currency.toUpperCase()}, plan: ${planId}`);
+    } else {
+      const text = await response.text().catch(() => '');
+      console.error(`❌ [GA4] Measurement Protocol returned HTTP ${response.status}: ${text}`);
+    }
+  } catch (err) {
+    // Non-critical — do not throw, webhook must still return 200 to Stripe
+    console.error('❌ [GA4] Failed to send server-side purchase event:', err);
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.text();
@@ -285,6 +374,24 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   } else {
     console.log(`✅ [WEBHOOK] Premium activated for user ${userId} until ${premiumUntil}`);
     console.log('[WEBHOOK] Database updated successfully!');
+
+    // ────────────────────────────────────────────────────────────────────────
+    // GA4 Server-Side Purchase Event (Measurement Protocol)
+    // Fires AFTER the DB is confirmed, so data is consistent.
+    // This is a reliable backup: client-side GTM tracking can be lost if the
+    // user closes the browser before being redirected back to /profile.
+    // ────────────────────────────────────────────────────────────────────────
+    const planType = session.metadata?.planType || 'monthly';
+    const amountTotal = session.amount_total ?? 0;
+    const currency = session.currency ?? 'eur';
+
+    await sendGA4PurchaseServerSide({
+      userId,
+      sessionId: session.id,
+      amountTotal,
+      currency,
+      planType,
+    });
   }
 }
 
