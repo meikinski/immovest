@@ -30,5 +30,8 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: GoogleExtendedBot
+Allow: /
+
 # Sitemap location
 Sitemap: https://imvestr.de/sitemap.xml
