@@ -2263,6 +2263,22 @@ const exportPdf = React.useCallback(async () => {
           </div>
         </div>
 
+        {/* Upgrade CTA */}
+        {!isPremium && (
+          <div className="mt-6 flex items-center justify-between gap-4 bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-[2rem] px-6 py-5 shadow-lg">
+            <div>
+              <p className="text-sm font-black text-white">Volle Analyse freischalten</p>
+              <p className="text-[11px] text-white/60 mt-0.5">KI-Einschätzung, Marktvergleich & Szenarien</p>
+            </div>
+            <a
+              href="/pricing"
+              className="flex-shrink-0 px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white text-sm font-bold rounded-xl transition-all shadow-lg whitespace-nowrap"
+            >
+              Jetzt upgraden
+            </a>
+          </div>
+        )}
+
         {/* Buttons */}
         <div className="mt-8 flex gap-4">
           <button
