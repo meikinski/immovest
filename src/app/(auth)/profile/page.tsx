@@ -253,7 +253,7 @@ function ProfileContent() {
                 </p>
               </div>
             </div>
-            <UserButton afterSignOutUrl="/">
+            <UserButton>
               <UserButton.MenuItems>
                 <UserButton.Link
                   label="Profil & Einstellungen"

@@ -8,6 +8,28 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
 });
 
+/**
+ * Parse the GA4 client_id from the _ga cookie.
+ * Format: GA1.1.<client_id> → we extract the numeric part after the second dot.
+ * Used to stitch server-side Measurement Protocol events with browser sessions in GA4.
+ */
+function parseGaClientId(cookieHeader: string | null): string {
+  if (!cookieHeader) return '';
+  const gaCookie = cookieHeader
+    .split(';')
+    .map(c => c.trim())
+    .find(c => c.startsWith('_ga='));
+  if (!gaCookie) return '';
+  // _ga cookie value: GA1.1.XXXXXXXXXX.XXXXXXXXXX → client_id is last two segments
+  const value = gaCookie.split('=')[1] || '';
+  const parts = value.split('.');
+  if (parts.length >= 4) {
+    // client_id format expected by GA4 Measurement Protocol: "XXXXXXXXXX.XXXXXXXXXX"
+    return `${parts[2]}.${parts[3]}`;
+  }
+  return '';
+}
+
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
@@ -45,6 +67,10 @@ export async function POST(req: Request) {
     // Determine plan type for analytics
     const planType = finalPriceId === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ? 'yearly' : 'monthly';
 
+    // Extract GA4 client_id from _ga cookie so the server-side Measurement Protocol
+    // event in the webhook uses the same client_id as the browser → prevents double-counting.
+    const gaClientId = parseGaClientId(req.headers.get('cookie'));
+
     // Check if user already has a Stripe customer ID
     const supabase = getSupabaseServerClient();
     let stripeCustomerId: string | undefined;
@@ -74,6 +100,9 @@ export async function POST(req: Request) {
       metadata: {
         userId,
         planType,
+        // Pass GA4 client_id so the Stripe webhook can use it for the server-side
+        // Measurement Protocol event — same client_id = proper de-duplication in GA4.
+        ga_client_id: gaClientId,
       },
       client_reference_id: userId,
       billing_address_collection: 'required',

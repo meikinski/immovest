@@ -10,12 +10,17 @@ Disallow: /sign-up
 Disallow: /profile
 Disallow: /api/
 
+# Disallow wizard result page (no standalone value for search engines)
+Disallow: /step/tabs
+
 # Allow legal pages
 Allow: /impressum
 Allow: /datenschutz
 Allow: /agb
 
-# Explicit AI crawler permissions (AEO best practice)
+# --- AI Crawlers (AEO) ---
+# Explicitly allow AI crawlers for Answer Engine Optimization
+
 User-agent: GPTBot
 Allow: /
 

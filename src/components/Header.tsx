@@ -58,7 +58,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
               Login
             </Link>
           ) : (
-            <UserButton afterSignOutUrl="/">
+            <UserButton>
               <UserButton.MenuItems>
                 <UserButton.Link
                   label="Profil & Einstellungen"
