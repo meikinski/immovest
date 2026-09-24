@@ -7,6 +7,8 @@ import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
 import { berechnePrognose } from '@/lib/prognose-calculator';
 import HtmlContent from '@/components/HtmlContent';
+import { KpiTile, type KpiRating } from '@/components/KpiTile';
+import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
@@ -2367,226 +2369,115 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {renderFormulaDrawer()}
+            {(() => {
+              const fmtNum = (n: number, fd = 0) =>
+                n.toLocaleString('de-DE', { minimumFractionDigits: fd, maximumFractionDigits: fd });
+              const cfVor = prognose.jahre[0]?.cashflowVorSteuern ?? 0;
+              const cfNach = prognose.jahre[0]?.cashflowMonatlich ?? 0;
+              const rateCf = (v: number): [KpiRating, string] =>
+                v > 10 ? ['good', 'Positiv'] : v >= -10 ? ['ok', 'Ausgeglichen'] : ['bad', 'Negativ'];
+              const bruttoRating: [KpiRating, string] =
+                bruttoMietrendite >= 5 ? ['good', 'Stark'] : bruttoMietrendite >= 4 ? ['ok', 'Solide'] : ['bad', 'Niedrig'];
+              const nettoRating: [KpiRating, string] =
+                nettoMietrendite >= 4 ? ['good', 'Stark'] : nettoMietrendite >= 3 ? ['good', 'Solide'] : nettoMietrendite >= 2 ? ['ok', 'Moderat'] : ['bad', 'Niedrig'];
+              const ekRating: [KpiRating, string] =
+                ekRendite >= 6 ? ['good', 'Stark'] : ekRendite >= 3 ? ['ok', 'Moderat'] : ['bad', 'Niedrig'];
+              const dscrRating: [KpiRating, string] =
+                dscr >= 1.2 ? ['good', 'Komfortabel'] : dscr >= 1.0 ? ['ok', 'Knapp'] : ['bad', 'Kritisch'];
+              const cfVorRating = rateCf(cfVor);
+              const cfNachRating = rateCf(cfNach);
+
+              const ekQuote = anschaffungskosten > 0 ? Math.min(100, Math.max(0, (ek / anschaffungskosten) * 100)) : 0;
+              const breakEvenYear = isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : null;
+              const payoffYear = zins + tilgung > 0 ? new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)) : null;
+
+              return (
+                <>
             {/* Main KPI Cards */}
             <div className="lg:col-span-8 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {/* KPI Card 1 - Bruttomietrendite */}
-                <div id="kpi-brutto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <SquarePercent size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Brutto</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Anteil der Jahresmiete am Kaufpreis (ohne Kosten). Je höher, desto besser.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('brutto');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className="text-3xl font-black text-[#001d3d]">
-                    {bruttoMietrendite.toFixed(1)}%
-                  </div>
-                </div>
-
-                {/* KPI Card 2 - Nettomietrendite */}
-                <div id="kpi-netto" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <Percent size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Netto</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Rendite nach laufenden Kosten. Zeigt realistischer, was vom Investment bleibt.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('netto');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className="text-3xl font-black text-[#001d3d]">
-                    {nettoMietrendite.toFixed(1)}%
-                  </div>
-                </div>
-
-                {/* KPI Card 3 - Cashflow vor Steuern */}
-                <div id="kpi-cashflow" className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <Wallet size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF vor St.</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Monatlicher Überschuss vor Steuern. Rücklagen sind bereits eingeplant.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('cfVor');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowVorSteuern ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(prognose.jahre[0]?.cashflowVorSteuern ?? 0).toFixed(0)}€
-                  </div>
-                </div>
-
-                {/* KPI Card 4 - Cashflow nach Steuern */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <ReceiptText size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">CF nach St.</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Cashflow nach Steuern. Das ist das Geld, das am Monatsende übrig bleibt.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('cfNach');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className={`text-3xl font-black ${(prognose.jahre[0]?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {(prognose.jahre[0]?.cashflowMonatlich ?? 0).toFixed(0)}€
-                  </div>
-                </div>
-
-                {/* KPI Card 5 - EK-Rendite */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <TrendingUp size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Rendite</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Je höher, desto effizienter arbeitet dein Eigenkapital.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('ek');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className="text-3xl font-black text-[#001d3d]">
-                    {ekRendite.toFixed(1)}%
-                  </div>
-                </div>
-
-                {/* KPI Card 6 - DSCR */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#ff6b00]/30 transition-all flex flex-col justify-center items-center text-center min-h-[140px]">
-                  <div className="flex items-center gap-1 mb-3">
-                    <div className="w-6 h-6 bg-slate-50 rounded-lg flex items-center justify-center">
-                      <ShieldCheck size={14} className="text-[#ff6b00]" />
-                    </div>
-                    <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">DSCR</span>
-                    <Tooltip
-                      text={(
-                        <div className="space-y-2">
-                          <p className="text-xs text-slate-700">
-                            Zeigt, ob die Miete die Kreditrate deckt. Über 1,2 ist stark, unter 1,0 kritisch.
-                          </p>
-                          <button
-                            type="button"
-                            className="text-xs font-bold text-[#ff6b00] hover:text-[#ff8c00] underline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenFormulaKey('dscr');
-                            }}
-                          >
-                            Wie wird das berechnet?
-                          </button>
-                        </div>
-                      )}
-                    >
-                      <Info size={12} className="text-slate-400 cursor-help" />
-                    </Tooltip>
-                  </div>
-                  <div className={`text-3xl font-black ${dscr >= 1.2 ? 'text-green-600' : dscr >= 1.0 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {dscr.toFixed(2)}
-                  </div>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                <KpiTile
+                  id="kpi-brutto"
+                  icon={SquarePercent}
+                  label="Bruttorendite"
+                  value={fmtNum(bruttoMietrendite, 1)}
+                  unit="%"
+                  caption="Jahreskaltmiete / Kaufpreis"
+                  rating={bruttoRating[0]}
+                  ratingLabel={bruttoRating[1]}
+                  help="Anteil der Jahresmiete am Kaufpreis (ohne Kosten). Je höher, desto besser."
+                  onShowFormula={() => setOpenFormulaKey('brutto')}
+                />
+                <KpiTile
+                  id="kpi-netto"
+                  icon={Percent}
+                  label="Nettorendite"
+                  value={fmtNum(nettoMietrendite, 1)}
+                  unit="%"
+                  caption="Nach laufenden Kosten"
+                  rating={nettoRating[0]}
+                  ratingLabel={nettoRating[1]}
+                  help="Rendite nach laufenden Kosten. Zeigt realistischer, was vom Investment bleibt."
+                  onShowFormula={() => setOpenFormulaKey('netto')}
+                />
+                <KpiTile
+                  id="kpi-cashflow"
+                  icon={Wallet}
+                  label="Cashflow"
+                  value={fmtNum(cfVor)}
+                  unit="€"
+                  caption="pro Monat, vor Steuern"
+                  rating={cfVorRating[0]}
+                  ratingLabel={cfVorRating[1]}
+                  colorValue
+                  help="Monatlicher Überschuss vor Steuern. Rücklagen sind bereits eingeplant."
+                  onShowFormula={() => setOpenFormulaKey('cfVor')}
+                />
+                <KpiTile
+                  icon={ReceiptText}
+                  label="Cashflow"
+                  value={fmtNum(cfNach)}
+                  unit="€"
+                  caption="pro Monat, nach Steuern"
+                  rating={cfNachRating[0]}
+                  ratingLabel={cfNachRating[1]}
+                  colorValue
+                  help="Cashflow nach Steuern. Das ist das Geld, das am Monatsende übrig bleibt."
+                  onShowFormula={() => setOpenFormulaKey('cfNach')}
+                />
+                <KpiTile
+                  icon={TrendingUp}
+                  label="EK-Rendite"
+                  value={fmtNum(ekRendite, 1)}
+                  unit="%"
+                  caption="Auf eingesetztes Eigenkapital"
+                  rating={ekRating[0]}
+                  ratingLabel={ekRating[1]}
+                  help="Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Je höher, desto effizienter arbeitet dein Eigenkapital."
+                  onShowFormula={() => setOpenFormulaKey('ek')}
+                />
+                <KpiTile
+                  icon={ShieldCheck}
+                  label="DSCR"
+                  value={fmtNum(dscr, 2)}
+                  caption="Schuldendienstdeckung"
+                  rating={dscrRating[0]}
+                  ratingLabel={dscrRating[1]}
+                  help="Zeigt, ob die Miete die Kreditrate deckt. Über 1,2 ist stark, unter 1,0 kritisch."
+                  onShowFormula={() => setOpenFormulaKey('dscr')}
+                />
               </div>
 
-              {/* KI-Kurzkommentar - Modernisiert */}
-              <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl min-h-[480px] flex flex-col justify-center border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
-
+              {/* KI-Strategie-Check */}
+              <div className={`relative bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 overflow-hidden ${isCommentLocked && !isLoadingComment ? 'min-h-[320px]' : ''}`}>
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
-                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-[2.5rem] p-6">
-                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
-                      <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
-                        <Lock className="w-7 h-7 text-white" />
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm p-6">
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border border-slate-100">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                        <Lock className="w-6 h-6 text-white" />
                       </div>
-                      <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
+                      <h3 className="text-lg font-bold mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
                       <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                         Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
                       </p>
@@ -2600,34 +2491,42 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                 )}
 
-                {/* Content (geblurred wenn locked) */}
-                <div className={`relative z-10 ${isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}`}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                      <Sparkles size={20} className="text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold tracking-tight">imvestr KI-Strategie-Check</h3>
-                  </div>
+                <div className={isCommentLocked && !isLoadingComment ? 'blur-sm pointer-events-none select-none' : ''}>
                   {isLoadingComment ? (
-                    <LoadingSpinner
-                      size="sm"
-                      messages={[
-                        'Analysiere Cashflow und Rendite...',
-                        'Bewerte Eigenkapitalquote...',
-                        'Prüfe Schuldendienstdeckung...',
-                        'Erstelle Investment-Einschätzung...',
-                      ]}
-                    />
+                    <>
+                      <StrategyCheckHeader />
+                      <div className="mt-6">
+                        <LoadingSpinner
+                          size="sm"
+                          messages={[
+                            'Analysiere Cashflow und Rendite...',
+                            'Bewerte Eigenkapitalquote...',
+                            'Prüfe Schuldendienstdeckung...',
+                            'Erstelle Investment-Einschätzung...',
+                          ]}
+                        />
+                      </div>
+                    </>
+                  ) : isCommentLocked ? (
+                    <>
+                      <StrategyCheckHeader verdict="Einschätzung" tone="neutral" />
+                      <div className="mt-6 space-y-3" aria-hidden>
+                        <div className="h-3 rounded bg-slate-200 w-11/12" />
+                        <div className="h-3 rounded bg-slate-200 w-4/5" />
+                        <div className="grid grid-cols-2 gap-4 pt-4">
+                          <div className="h-24 rounded-xl bg-emerald-50" />
+                          <div className="h-24 rounded-xl bg-amber-50" />
+                        </div>
+                      </div>
+                    </>
                   ) : (
-                    <div className="space-y-6 text-slate-700 leading-relaxed">
-                      <HtmlContent className="text-lg" html={generatedComment || '<p>–</p>'} />
-                    </div>
+                    <StrategyCheckBody raw={generatedComment || ''} />
                   )}
                 </div>
               </div>
 
               {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
-              <div className={`relative mt-8 mb-16 ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+              <div className={`relative mt-2 mb-16 ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                 <button
                   onClick={() => {
                     if (!isSignedIn || !canAccessPremium) {
@@ -2645,109 +2544,70 @@ const exportPdf = React.useCallback(async () => {
             </div>
 
             {/* Sidebar with Details */}
-            <div className="lg:col-span-4 space-y-6 sticky top-4 self-start">
-              <div className="bg-white p-8 rounded-xl border border-gray-100 shadow-sm">
-                <h4 className="text-[10px] font-black uppercase text-slate-600 mb-8 tracking-widest flex items-center gap-2">
-                  <BarChart3 size={16} className="text-[#ff6b00]" /> Finanzierungsübersicht
+            <div className="lg:col-span-4 space-y-4 sticky top-20 self-start">
+              <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                <h4 className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
+                  <BarChart3 size={16} className="text-[#ff6b00]" /> Finanzierung
                 </h4>
-                <div className="space-y-6">
-                  {/* Gesamtinvestition */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Gesamtinvestition</span>
-                      <span className="text-xl font-black text-[#001d3d]">
-                        {anschaffungskosten.toLocaleString('de-DE')}€
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-500">
-                      Inkl. Nebenkosten
-                    </p>
-                  </div>
 
-                  {/* Darlehenssumme */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Darlehenssumme</span>
-                      <span className="text-xl font-black text-[#001d3d]">
-                        {darlehensSumme.toLocaleString('de-DE')}€
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-500">
-                      Finanzierungsbetrag
-                    </p>
-                  </div>
+                {/* Gesamtinvestition */}
+                <div className="mt-5">
+                  <p className="text-xs text-slate-500">Gesamtinvestition inkl. Nebenkosten</p>
+                  <p className="mt-1 text-2xl font-bold tracking-tight text-[#001d3d] tabular-nums">
+                    {fmtNum(anschaffungskosten)} €
+                  </p>
+                </div>
 
-                  {/* Eigenkapital */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Eigenkapital</span>
-                      <span className="text-xl font-black text-[#001d3d]">
-                        {ek.toLocaleString('de-DE')}€
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-500">
-                      Eingesetztes Kapital
-                    </p>
+                {/* EK / Darlehen Aufteilung */}
+                <div className="mt-5">
+                  <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-slate-100">
+                    <div className="bg-[#ff6b00] h-full transition-all" style={{ width: `${ekQuote}%` }} />
+                    <div className="bg-[#001d3d] h-full transition-all" style={{ width: `${100 - ekQuote}%` }} />
                   </div>
+                  <dl className="mt-4 space-y-3 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="flex items-center gap-2 text-slate-600">
+                        <span className="w-2.5 h-2.5 rounded-sm bg-[#ff6b00]" /> Eigenkapital
+                      </dt>
+                      <dd className="font-semibold text-[#001d3d] tabular-nums">
+                        {fmtNum(ek)} € <span className="ml-1 text-xs font-medium text-slate-400">{fmtNum(ekQuote, 1)} %</span>
+                      </dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="flex items-center gap-2 text-slate-600">
+                        <span className="w-2.5 h-2.5 rounded-sm bg-[#001d3d]" /> Darlehen
+                      </dt>
+                      <dd className="font-semibold text-[#001d3d] tabular-nums">
+                        {fmtNum(darlehensSumme)} € <span className="ml-1 text-xs font-medium text-slate-400">{fmtNum(100 - ekQuote, 1)} %</span>
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
 
-                  {/* EK-Quote */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">EK-Quote</span>
-                      <span className="text-xl font-black text-[#001d3d]">
-                        {anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100).toFixed(1) : '0.0'}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-[#ff6b00] to-[#001d3d] h-full rounded-full transition-all"
-                        style={{ width: `${Math.min(100, anschaffungskosten > 0 ? ((ek / anschaffungskosten) * 100) : 0)}%` }}
-                      />
-                    </div>
+                {/* Zeitachse */}
+                <div className="mt-6 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">EK zurück</p>
+                    <p className="mt-0.5 text-lg font-bold text-[#001d3d] tabular-nums">{breakEvenYear ?? '–'}</p>
                   </div>
-
-                  {/* Break-Even */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Break-Even</span>
-                      <span className="text-lg font-black text-[#001d3d]">
-                        {isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-500">
-                      Jahr der EK-Rückgewinnung
-                    </p>
-                  </div>
-
-                  {/* Abzahlungsjahr */}
-                  <div className="border-t border-slate-100 pt-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Abzahlungsjahr</span>
-                      <span className="text-lg font-black text-[#001d3d]">
-                        {new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100))}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-500">
-                      Voraussichtliche Entschuldung
-                    </p>
+                  <div className="rounded-xl bg-slate-50 p-3">
+                    <p className="text-xs text-slate-500">Schuldenfrei</p>
+                    <p className="mt-0.5 text-lg font-bold text-[#001d3d] tabular-nums">{payoffYear ?? '–'}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Compact Info Card */}
-              <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <Info size={16} className="text-[#ff6b00]" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Hinweis</span>
-                </div>
-                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  Alle Berechnungen beziehen sich auf das erste Jahr nach Anschaffung der Immobilie.
-                </p>
-                <p className="text-[10px] leading-relaxed opacity-90">
-                  Die KPIs basieren auf Ihren Eingaben. Für detaillierte Marktvergleiche und Szenarien nutzen Sie die Premium-Features.
+              {/* Hinweis */}
+              <div className="flex gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
+                <Info size={16} className="mt-0.5 shrink-0 text-slate-400" />
+                <p className="text-xs leading-relaxed text-slate-500">
+                  Alle Werte beziehen sich auf das erste Jahr nach Kauf und basieren auf deinen Eingaben. Marktvergleiche und Szenarien findest du in den Premium-Tabs.
                 </p>
               </div>
             </div>
+                </>
+              );
+            })()}
 
           </div>
         )}
