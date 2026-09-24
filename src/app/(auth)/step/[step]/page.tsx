@@ -9,6 +9,8 @@ import { berechnePrognose } from '@/lib/prognose-calculator';
 import HtmlContent from '@/components/HtmlContent';
 import { KpiTile, type KpiRating } from '@/components/KpiTile';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
+import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard } from '@/components/MarketAnalysis';
+import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
@@ -310,9 +312,11 @@ export default function StepPage() {
   const [verkaufsNebenkostenPct, setVerkaufsNebenkostenPct] = useState<number>(5);
   const [zeigeErweiterteOptionen, setZeigeErweiterteOptionen] = useState<boolean>(false);
 
-  // Markt-Deltas von Agent (für Badges)
-  const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
-  const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
+  // Markt-Recherche vom Agent (Vergleichs-Karten, Lage-Fakten, Quellen) – im Store, damit sie mitgespeichert wird
+  const marktFacts = useImmoStore(s => s.marktFacts);
+  const mietMarktDelta = useImmoStore(s => s.mietMarktDelta);
+  const kaufMarktDelta = useImmoStore(s => s.kaufMarktDelta);
+  const setMarktResearch = useImmoStore(s => s.setMarktResearch);
 
   // Live-Update Indikator für Szenario-Berechnungen
   useEffect(() => {
@@ -1027,13 +1031,14 @@ const dscr =
         setQmPreisComment('');
         setInvestComment('');
       }
+      setMarktResearch({ facts: null, mietDelta: null, kaufDelta: null });
     }
 
     lastMarktInputs.current = inputFingerprint;
   }, [adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
       miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
       lageComment, mietpreisComment, qmPreisComment, investComment,
-      setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment]);
+      setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment, setMarktResearch]);
 
   // Main effect to fetch comments
   useEffect(() => {
@@ -1054,6 +1059,14 @@ const dscr =
   // If comments exist and we already fetched them this session, skip reload
   if (hasExistingComments && marktFetched.current) {
     console.log('[Markt] Skipping reload - comments already loaded and cache valid');
+    return;
+  }
+
+  // Gespeicherte/geladene Analyse mit vollständiger Recherche → nicht erneut abrufen
+  // (marktFacts wird nur von echten Agent-Ergebnissen gesetzt, nie von Platzhaltern)
+  if (hasExistingComments && marktFacts) {
+    console.log('[Markt] Skipping reload - loaded analysis already has research data');
+    marktFetched.current = true;
     return;
   }
 
@@ -1108,7 +1121,7 @@ const dscr =
           lage: { html: string };
           miete: { html: string; delta_psqm: number | null };
           kauf: { html: string; delta_psqm: number | null };
-          facts: unknown;
+          facts: MarketFacts | null;
         };
         invest: { html: string };
         error?: boolean;
@@ -1124,13 +1137,11 @@ const dscr =
       setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
       setInvestComment(data.invest?.html?.trim() || '<p>Investitionsanalyse derzeit nicht verfügbar.</p>');
 
-      // Store delta values if available
-      if (data.analyse?.miete?.delta_psqm != null) {
-        setMietMarktDelta(data.analyse.miete.delta_psqm);
-      }
-      if (data.analyse?.kauf?.delta_psqm != null) {
-        setKaufMarktDelta(data.analyse.kauf.delta_psqm);
-      }
+      setMarktResearch({
+        facts: data.analyse?.facts ?? null,
+        mietDelta: data.analyse?.miete?.delta_psqm ?? null,
+        kaufDelta: data.analyse?.kauf?.delta_psqm ?? null,
+      });
 
       // Mark as successfully fetched only AFTER successful API call
       marktFetched.current = true;
@@ -2656,102 +2667,51 @@ const exportPdf = React.useCallback(async () => {
             {/* Content (blurred when locked) */}
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
 
-            {/* Block 1: Objekt- & Marktanalyse - Modernisiert */}
-            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl mb-8 border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                    <Sparkles size={20} className="text-[#001d3d]" />
-                  </div>
-                  <h3 className="text-xl font-bold tracking-tight">Objekt- & Marktanalyse</h3>
-                </div>
-
-              {loadingDetails ? (
+            {loadingDetails ? (
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8">
                 <LoadingSpinner
                   messages={[
                     'Analysiere Lage und Umgebung...',
                     'Recherchiere Marktdaten...',
                     'Vergleiche Miet- und Kaufpreise...',
-                    'Bewerte Marktposition...',
+                    'Erstelle Investment-Bewertung...',
                     'Gleich fertig...'
                   ]}
                 />
-              ) : (
-                <div className="space-y-6 text-slate-700 leading-relaxed">
-                  {/* Lage */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-[#001d3d] mb-2">Lage & Umgebung</h3>
-                    <HtmlContent className="text-slate-700" html={lageComment || '<p>–</p>'} />
-                  </div>
-
-                  {/* Mietpreis */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-[#001d3d]">Mietpreis-Vergleich</h3>
-                      {mietMarktDelta != null && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          mietMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
-                          mietMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
-                          mietMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
-                          'bg-blue-500/20 text-blue-300'
-                        }`}>
-                          {mietMarktDelta > 0 ? '+' : ''}{mietMarktDelta.toFixed(1)}%
-                        </span>
-                      )}
-                    </div>
-                    <HtmlContent className="text-slate-700" html={mietpreisComment || '<p>–</p>'} />
-                  </div>
-
-                  {/* Kaufpreis */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <h3 className="text-sm font-semibold text-[#001d3d]">Kaufpreis-Vergleich</h3>
-                      {kaufMarktDelta != null && (
-                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                          kaufMarktDelta > 10 ? 'bg-red-500/20 text-red-300' :
-                          kaufMarktDelta > 0 ? 'bg-yellow-500/20 text-yellow-300' :
-                          kaufMarktDelta > -10 ? 'bg-green-500/20 text-green-300' :
-                          'bg-blue-500/20 text-blue-300'
-                        }`}>
-                          {kaufMarktDelta > 0 ? '+' : ''}{kaufMarktDelta.toFixed(1)}%
-                        </span>
-                      )}
-                    </div>
-                    <HtmlContent className="text-slate-700" html={qmPreisComment || '<p>–</p>'} />
-                  </div>
-                </div>
-              )}
               </div>
-            </div>
-
-            {/* Block 2: Investment-Empfehlung - Modernisiert */}
-            <div className="bg-slate-50 rounded-[2.5rem] p-8 md:p-10 text-[#001d3d] relative overflow-hidden shadow-xl border border-slate-200 hover:shadow-[0_0_40px_rgba(100,116,139,0.3)] hover:border-slate-300 transition-all duration-300">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-slate-300 opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-full flex items-center justify-center shadow-lg shadow-orange-500/40">
-                    <Sparkles size={20} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold tracking-tight">Investment-Empfehlung</h3>
-                </div>
-                {loadingDetails ? (
-                  <LoadingSpinner
-                    messages={[
-                      'Konsolidiere alle Daten...',
-                      'Erstelle Investment-Bewertung...',
-                      'Prüfe Optimierungspotenzial...',
-                      'Formuliere Empfehlung...',
-                      'Fast geschafft...'
-                    ]}
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <MarketCompareCard
+                    kind="miete"
+                    own={flaeche > 0 ? miete / flaeche : 0}
+                    delta={mietMarktDelta}
+                    facts={marktFacts?.rent}
+                    html={mietpreisComment}
                   />
-                ) : (
-                  <div className="space-y-6 text-slate-700 leading-relaxed">
-                    <HtmlContent className="text-lg" html={investComment || '<p>–</p>'} />
+                  <MarketCompareCard
+                    kind="kauf"
+                    own={flaeche > 0 ? kaufpreis / flaeche : 0}
+                    delta={kaufMarktDelta}
+                    facts={marktFacts?.price}
+                    html={qmPreisComment}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <div className={marktFacts?.citations?.length ? 'lg:col-span-8' : 'lg:col-span-12'}>
+                    <LocationCard html={lageComment} facts={marktFacts} />
                   </div>
-                )}
+                  {!!marktFacts?.citations?.length && (
+                    <div className="lg:col-span-4">
+                      <SourcesCard citations={marktFacts.citations} />
+                    </div>
+                  )}
+                </div>
+
+                <InvestRecommendation html={investComment} />
               </div>
-            </div>
+            )}
 <div className="mt-8 mb-16">
     <button
       onClick={() => setActiveTab('szenarien')}

@@ -30,7 +30,7 @@ export function LoadScenariosDialog({ analysisId, onLoadScenario }: LoadScenario
     setIsLoading(true);
     try {
       // Try to load from Supabase first
-      const response = await fetch(`/api/scenarios?analysisId=${analysisId}`);
+      const response = await fetch(`/api/scenarios?analysisId=${encodeURIComponent(analysisId)}`);
 
       if (response.ok) {
         const data = await response.json();

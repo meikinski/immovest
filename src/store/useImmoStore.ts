@@ -5,6 +5,7 @@ import {
     berechneNettomietrendite,
     berechneScore
   } from '@/lib/calculations';
+import type { MarketFacts } from '@/lib/marketFacts';
 
 
 /**
@@ -72,6 +73,11 @@ export interface ImmoState {
   qmPreisComment: string;
   investComment: string;
 
+  // Markt-Recherche (Tab 2)
+  marktFacts: MarketFacts | null;
+  mietMarktDelta: number | null;
+  kaufMarktDelta: number | null;
+
   // Methods
   updateDerived: () => void;
   resetAnalysis: () => void;
@@ -105,6 +111,7 @@ export interface ImmoState {
   setMietpreisComment: (v: string) => void;
   setQmPreisComment: (v: string) => void;
   setInvestComment: (v: string) => void;
+  setMarktResearch: (v: { facts: MarketFacts | null; mietDelta: number | null; kaufDelta: number | null }) => void;
   setAnzahlWohneinheiten: (v: number) => void;
   setVerwaltungskosten: (v: number) => void;
   setAnalysisId: (v: string) => void;
@@ -197,6 +204,9 @@ const initialState = {
   mietpreisComment: '',
   qmPreisComment: '',
   investComment: '',
+  marktFacts: null,
+  mietMarktDelta: null,
+  kaufMarktDelta: null,
 
   // AfA-Turbo Initialwerte (vereinfacht)
   afaModell: 'linear_3' as AfaModell, // Default für Baujahr >= 2023
@@ -353,6 +363,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   setInvestComment: (v: string) => {
     set({ investComment: v });
   },
+  setMarktResearch: ({ facts, mietDelta, kaufDelta }) => {
+    set({ marktFacts: facts, mietMarktDelta: mietDelta, kaufMarktDelta: kaufDelta });
+  },
   setAnzahlWohneinheiten: (v: number) => {
     set({ anzahl_wohneinheiten: v, generatedComment: '' });
     get().updateDerived();
@@ -411,20 +424,26 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
 
   loadAnalysis: async (id: string, userId: string | null = null) => {
     try {
-      // For now, load from localStorage
-      // TODO: Load from Supabase when implemented
       if (typeof window === 'undefined') return false;
 
       const { loadAnalysis: loadFromStorage } = await import('@/lib/storage');
 
-      const data = loadFromStorage(userId, id);
+      // 1) Lokale Kopie (schnell, auch offline)
+      let data: Record<string, unknown> | null = loadFromStorage(userId, id);
+
+      // 2) Sonst aus Supabase (anderes Gerät, gelöschte Browserdaten)
+      if (!data && userId) {
+        const res = await fetch(`/api/analysis/${encodeURIComponent(id)}`);
+        if (res.ok) {
+          const json = (await res.json()) as { analysis?: Record<string, unknown> };
+          data = json.analysis ?? null;
+        }
+      }
       if (!data) return false;
 
-      set({
-        ...data,
-        analysisId: id,
-      });
-      get().updateDerived();
+      // Vorherigen Zustand verwerfen, damit keine Felder der zuletzt geöffneten Analyse übrig bleiben
+      set({ ...initialState });
+      get().importData({ ...(data as Partial<ImmoState>), analysisId: id });
       return true;
     } catch (error) {
       console.error('Failed to load analysis:', error);
@@ -471,6 +490,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       mietpreisComment: state.mietpreisComment,
       qmPreisComment: state.qmPreisComment,
       investComment: state.investComment,
+      marktFacts: state.marktFacts,
+      mietMarktDelta: state.mietMarktDelta,
+      kaufMarktDelta: state.kaufMarktDelta,
 
       // AfA-Turbo Felder (vereinfacht)
       afaModell: state.afaModell,

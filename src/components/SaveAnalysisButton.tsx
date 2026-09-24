@@ -52,6 +52,10 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
 
     try {
       const stateData = exportState();
+      // Stabile ID vor dem ersten Speichern vergeben – Supabase und localStorage nutzen dieselbe
+      if (!stateData.analysisId) {
+        stateData.analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      }
 
       // Save to Supabase via API
       const response = await fetch('/api/analysis', {
@@ -73,7 +77,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
       setAnalysisId(result.analysisId);
 
       // Also save to localStorage as backup
-      saveAnalysis(userId || null, stateData);
+      saveAnalysis(userId || null, { ...stateData, analysisId: result.analysisId });
 
       // Save scenario if there are any changes
       if (scenarioData) {
