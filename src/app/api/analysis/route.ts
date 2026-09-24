@@ -68,15 +68,32 @@ export async function POST(req: Request) {
       mietpreis_comment: data.mietpreisComment || '',
       qm_preis_comment: data.qmPreisComment || '',
       invest_comment: data.investComment || '',
+
+      // Markt-Recherche (Vergleichswerte, Lage-Fakten, Quellen)
+      markt_facts: data.marktFacts
+        ? { facts: data.marktFacts, mietDelta: data.mietMarktDelta ?? null, kaufDelta: data.kaufMarktDelta ?? null }
+        : null,
     };
 
     console.log('[ANALYSIS] Saving analysis for user:', userId);
 
-    const { data: savedAnalysis, error } = await supabase
+    let { data: savedAnalysis, error } = await supabase
       .from('analyses')
       .insert(analysisData)
       .select()
       .single();
+
+    // Spalte markt_facts noch nicht migriert → ohne sie speichern, statt komplett zu scheitern
+    if (error && /markt_facts/.test(error.message ?? '')) {
+      console.warn('[ANALYSIS] Column markt_facts missing – saving without it. Run the migration in supabase-schema.sql.');
+      const { markt_facts: _omit, ...withoutFacts } = analysisData;
+      void _omit;
+      ({ data: savedAnalysis, error } = await supabase
+        .from('analyses')
+        .insert(withoutFacts)
+        .select()
+        .single());
+    }
 
     if (error) {
       console.error('❌ [ANALYSIS] Error saving to Supabase:', error);

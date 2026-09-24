@@ -9,7 +9,8 @@ import { berechnePrognose } from '@/lib/prognose-calculator';
 import HtmlContent from '@/components/HtmlContent';
 import { KpiTile, type KpiRating } from '@/components/KpiTile';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
-import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, type MarketFacts } from '@/components/MarketAnalysis';
+import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard } from '@/components/MarketAnalysis';
+import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
@@ -311,10 +312,11 @@ export default function StepPage() {
   const [verkaufsNebenkostenPct, setVerkaufsNebenkostenPct] = useState<number>(5);
   const [zeigeErweiterteOptionen, setZeigeErweiterteOptionen] = useState<boolean>(false);
 
-  // Markt-Deltas von Agent (für Badges)
-  const [mietMarktDelta, setMietMarktDelta] = useState<number | null>(null);
-  const [kaufMarktDelta, setKaufMarktDelta] = useState<number | null>(null);
-  const [marktFacts, setMarktFacts] = useState<MarketFacts | null>(null);
+  // Markt-Recherche vom Agent (Vergleichs-Karten, Lage-Fakten, Quellen) – im Store, damit sie mitgespeichert wird
+  const marktFacts = useImmoStore(s => s.marktFacts);
+  const mietMarktDelta = useImmoStore(s => s.mietMarktDelta);
+  const kaufMarktDelta = useImmoStore(s => s.kaufMarktDelta);
+  const setMarktResearch = useImmoStore(s => s.setMarktResearch);
 
   // Live-Update Indikator für Szenario-Berechnungen
   useEffect(() => {
@@ -1029,16 +1031,14 @@ const dscr =
         setQmPreisComment('');
         setInvestComment('');
       }
-      setMarktFacts(null);
-      setMietMarktDelta(null);
-      setKaufMarktDelta(null);
+      setMarktResearch({ facts: null, mietDelta: null, kaufDelta: null });
     }
 
     lastMarktInputs.current = inputFingerprint;
   }, [adresse, objekttyp, kaufpreis, flaeche, zimmer, baujahr,
       miete, hausgeld, hausgeld_umlegbar, ek, zins, tilgung,
       lageComment, mietpreisComment, qmPreisComment, investComment,
-      setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment]);
+      setLageComment, setMietpreisComment, setQmPreisComment, setInvestComment, setMarktResearch]);
 
   // Main effect to fetch comments
   useEffect(() => {
@@ -1059,6 +1059,14 @@ const dscr =
   // If comments exist and we already fetched them this session, skip reload
   if (hasExistingComments && marktFetched.current) {
     console.log('[Markt] Skipping reload - comments already loaded and cache valid');
+    return;
+  }
+
+  // Gespeicherte/geladene Analyse mit vollständiger Recherche → nicht erneut abrufen
+  // (marktFacts wird nur von echten Agent-Ergebnissen gesetzt, nie von Platzhaltern)
+  if (hasExistingComments && marktFacts) {
+    console.log('[Markt] Skipping reload - loaded analysis already has research data');
+    marktFetched.current = true;
     return;
   }
 
@@ -1129,15 +1137,11 @@ const dscr =
       setQmPreisComment(data.analyse?.kauf?.html?.trim() || '<p>Für diese Adresse liegen aktuell zu wenige belastbare Kaufpreisdaten vor.</p>');
       setInvestComment(data.invest?.html?.trim() || '<p>Investitionsanalyse derzeit nicht verfügbar.</p>');
 
-      setMarktFacts(data.analyse?.facts ?? null);
-
-      // Store delta values if available
-      if (data.analyse?.miete?.delta_psqm != null) {
-        setMietMarktDelta(data.analyse.miete.delta_psqm);
-      }
-      if (data.analyse?.kauf?.delta_psqm != null) {
-        setKaufMarktDelta(data.analyse.kauf.delta_psqm);
-      }
+      setMarktResearch({
+        facts: data.analyse?.facts ?? null,
+        mietDelta: data.analyse?.miete?.delta_psqm ?? null,
+        kaufDelta: data.analyse?.kauf?.delta_psqm ?? null,
+      });
 
       // Mark as successfully fetched only AFTER successful API call
       marktFetched.current = true;

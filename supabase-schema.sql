@@ -49,8 +49,14 @@ CREATE TABLE IF NOT EXISTS analyses (
   lage_comment TEXT DEFAULT '',
   mietpreis_comment TEXT DEFAULT '',
   qm_preis_comment TEXT DEFAULT '',
-  invest_comment TEXT DEFAULT ''
+  invest_comment TEXT DEFAULT '',
+
+  -- Markt-Recherche: { facts, mietDelta, kaufDelta } (Vergleichswerte, Lage-Fakten, Quellen)
+  markt_facts JSONB DEFAULT NULL
 );
+
+-- Migration für bestehende Datenbanken
+ALTER TABLE analyses ADD COLUMN IF NOT EXISTS markt_facts JSONB DEFAULT NULL;
 
 -- Create index on user_id for faster queries
 CREATE INDEX IF NOT EXISTS idx_analyses_user_id ON analyses(user_id);

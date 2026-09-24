@@ -6,15 +6,9 @@ import {
 } from 'lucide-react';
 import HtmlContent from '@/components/HtmlContent';
 
-// Teilmenge von facts aus /api/agent/run (siehe ResearchSchema in src/lib/agentWorkflow.ts)
-export type MarketFacts = {
-  location?: { postal_code: string | null; district: string | null; notes: string | null };
-  rent?: { median_psqm: number | null; range_psqm: { low: number; high: number } | null };
-  price?: { median_psqm: number | null; range_psqm: { low: number; high: number } | null };
-  vacancy?: { risk: 'niedrig' | 'mittel' | 'hoch' | null; rate: number | null };
-  demand?: { drivers: string[] };
-  citations?: Array<{ title: string; url: string; domain: string }>;
-};
+import type { MarketFacts } from '@/lib/marketFacts';
+
+export type { MarketFacts };
 
 type Tone = 'good' | 'neutral' | 'warn' | 'bad';
 
