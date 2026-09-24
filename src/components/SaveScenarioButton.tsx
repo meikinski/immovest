@@ -67,7 +67,8 @@ export function SaveScenarioButton({ analysisId, scenarioData }: SaveScenarioBut
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save scenario');
+        const { error } = await response.json().catch(() => ({ error: null }));
+        throw new Error(error || 'Failed to save scenario');
       }
 
       const result = await response.json();
@@ -84,7 +85,11 @@ export function SaveScenarioButton({ analysisId, scenarioData }: SaveScenarioBut
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error('❌ Fehler beim Speichern:', error);
-      toast.error('Fehler beim Speichern des Szenarios');
+      toast.error(
+        error instanceof Error && error.message !== 'Failed to save scenario'
+          ? error.message
+          : 'Fehler beim Speichern des Szenarios'
+      );
     } finally {
       setIsSaving(false);
     }

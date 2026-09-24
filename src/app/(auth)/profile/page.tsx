@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import { usePaywall } from '@/contexts/PaywallContext';
-import { getAllAnalyses, SavedAnalysis } from '@/lib/storage';
+import { deleteAnalysis, getAllAnalyses, SavedAnalysis } from '@/lib/storage';
+import { duplicateKey } from '@/lib/analysisDb';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { toast } from 'sonner';
@@ -26,6 +27,7 @@ import {
   ArrowRight,
   Save,
   GraduationCap,
+  Trash2,
 } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
@@ -141,6 +143,9 @@ function PurchaseTracker() {
   return null;
 }
 
+const sortByDate = (list: SavedAnalysis[]) =>
+  [...list].sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')));
+
 function ProfileContent() {
   const router = useRouter();
   const { isLoaded, isSignedIn, userId } = useAuth();
@@ -159,11 +164,56 @@ function ProfileContent() {
 
     if (isSignedIn) {
       loadPremiumDetails();
-      // Load analyses
-      const loadedAnalyses = getAllAnalyses(userId);
-      setAnalyses(loadedAnalyses);
+      loadAnalyses();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, isSignedIn, userId, router]);
+
+  // Lokale Analysen sofort zeigen, dann mit Supabase zusammenführen (andere Geräte, gelöschte Browserdaten)
+  const loadAnalyses = async () => {
+    const local = getAllAnalyses(userId ?? null);
+    setAnalyses(sortByDate(local));
+
+    try {
+      const res = await fetch('/api/analysis');
+      if (!res.ok) return;
+      const { analyses: cloud } = (await res.json()) as { analyses?: Array<SavedAnalysis & { legacy?: boolean }> };
+      if (!cloud?.length) return;
+
+      const merged = new Map<string, SavedAnalysis>();
+      for (const a of local) merged.set(a.analysisId, a);
+      const localKeys = new Set(local.map(duplicateKey));
+
+      for (const a of cloud) {
+        // Alte Supabase-Zeilen hatten andere IDs als die lokale Kopie → über Adresse + Kaufpreis erkennen
+        if (a.legacy && localKeys.has(duplicateKey(a))) continue;
+        const existing = merged.get(a.analysisId);
+        if (!existing || String(a.updatedAt) > String(existing.updatedAt ?? '')) {
+          merged.set(a.analysisId, existing ? { ...existing, ...a } : a);
+        }
+      }
+      setAnalyses(sortByDate([...merged.values()]));
+    } catch (error) {
+      console.error('Error loading analyses from server:', error);
+    }
+  };
+
+  const handleDeleteAnalysis = async (e: React.MouseEvent, analysis: SavedAnalysis) => {
+    e.stopPropagation();
+    const name = analysis.analysisName || analysis.adresse || 'diese Analyse';
+    if (!window.confirm(`„${name}“ wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+
+    try {
+      const res = await fetch(`/api/analysis/${encodeURIComponent(analysis.analysisId)}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('delete failed');
+      deleteAnalysis(userId || null, analysis.analysisId);
+      setAnalyses(prev => prev.filter(a => a.analysisId !== analysis.analysisId));
+      toast.success('Analyse gelöscht');
+    } catch (error) {
+      console.error('Error deleting analysis:', error);
+      toast.error('Fehler beim Löschen der Analyse');
+    }
+  };
 
   const loadPremiumDetails = async () => {
     try {
@@ -461,10 +511,21 @@ function ProfileContent() {
                   >
                     <div className="flex items-start justify-between mb-3">
                       <MapPin className="w-5 h-5 text-[hsl(var(--brand))]" />
-                      <span className="text-xs text-gray-500 flex items-center gap-1">
-                        <Calendar size={12} />
-                        {new Date(analysis.createdAt || Date.now()).toLocaleDateString('de-DE')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500 flex items-center gap-1">
+                          <Calendar size={12} />
+                          {new Date(analysis.createdAt || Date.now()).toLocaleDateString('de-DE')}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => handleDeleteAnalysis(e, analysis)}
+                          className="p-1 -m-1 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition"
+                          aria-label="Analyse löschen"
+                          title="Analyse löschen"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
 
                     <h3 className="font-semibold mb-2 line-clamp-2">

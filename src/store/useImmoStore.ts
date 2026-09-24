@@ -424,20 +424,26 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
 
   loadAnalysis: async (id: string, userId: string | null = null) => {
     try {
-      // For now, load from localStorage
-      // TODO: Load from Supabase when implemented
       if (typeof window === 'undefined') return false;
 
       const { loadAnalysis: loadFromStorage } = await import('@/lib/storage');
 
-      const data = loadFromStorage(userId, id);
+      // 1) Lokale Kopie (schnell, auch offline)
+      let data: Record<string, unknown> | null = loadFromStorage(userId, id);
+
+      // 2) Sonst aus Supabase (anderes Gerät, gelöschte Browserdaten)
+      if (!data && userId) {
+        const res = await fetch(`/api/analysis/${encodeURIComponent(id)}`);
+        if (res.ok) {
+          const json = (await res.json()) as { analysis?: Record<string, unknown> };
+          data = json.analysis ?? null;
+        }
+      }
       if (!data) return false;
 
-      set({
-        ...data,
-        analysisId: id,
-      });
-      get().updateDerived();
+      // Vorherigen Zustand verwerfen, damit keine Felder der zuletzt geöffneten Analyse übrig bleiben
+      set({ ...initialState });
+      get().importData({ ...(data as Partial<ImmoState>), analysisId: id });
       return true;
     } catch (error) {
       console.error('Failed to load analysis:', error);

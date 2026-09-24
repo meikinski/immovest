@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { resolveAnalysisRowId } from '@/lib/analysisDb';
 
 // Save scenario
 export async function POST(req: Request) {
@@ -25,10 +26,20 @@ export async function POST(req: Request) {
       );
     }
 
+    // analysisId kann die Client-ID oder die UUID sein → DB-Zeile auflösen
+    const analysisRowId =
+      typeof data.analysisId === 'string' ? await resolveAnalysisRowId(supabase, userId, data.analysisId) : null;
+    if (!analysisRowId) {
+      return NextResponse.json(
+        { error: 'Bitte speichere zuerst die Analyse' },
+        { status: 400 }
+      );
+    }
+
     // Prepare data for database
     const scenarioData = {
       user_id: userId,
-      analysis_id: data.analysisId,
+      analysis_id: analysisRowId,
       scenario_name: data.scenarioName || 'Unbenanntes Szenario',
 
       // Scenario deltas/adjustments
@@ -123,11 +134,16 @@ export async function GET(req: Request) {
 
     console.log('[SCENARIOS] Fetching scenarios for user:', userId, 'analysis:', analysisId);
 
+    const analysisRowId = await resolveAnalysisRowId(supabase, userId, analysisId);
+    if (!analysisRowId) {
+      return NextResponse.json({ scenarios: [] });
+    }
+
     const { data: scenarios, error } = await supabase
       .from('scenarios')
       .select('*')
       .eq('user_id', userId)
-      .eq('analysis_id', analysisId)
+      .eq('analysis_id', analysisRowId)
       .order('created_at', { ascending: false });
 
     if (error) {

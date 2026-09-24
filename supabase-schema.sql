@@ -52,11 +52,20 @@ CREATE TABLE IF NOT EXISTS analyses (
   invest_comment TEXT DEFAULT '',
 
   -- Markt-Recherche: { facts, mietDelta, kaufDelta } (Vergleichswerte, Lage-Fakten, Quellen)
-  markt_facts JSONB DEFAULT NULL
+  markt_facts JSONB DEFAULT NULL,
+
+  -- Stabile ID aus dem Client (Store/localStorage), damit erneutes Speichern aktualisiert statt dupliziert
+  client_id TEXT DEFAULT NULL,
+
+  -- Kompletter Store-Zustand zum Laden auf anderen Geräten (enthält auch Felder ohne eigene Spalte)
+  state JSONB DEFAULT NULL
 );
 
 -- Migration für bestehende Datenbanken
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS markt_facts JSONB DEFAULT NULL;
+ALTER TABLE analyses ADD COLUMN IF NOT EXISTS client_id TEXT DEFAULT NULL;
+ALTER TABLE analyses ADD COLUMN IF NOT EXISTS state JSONB DEFAULT NULL;
+CREATE INDEX IF NOT EXISTS idx_analyses_user_client ON analyses(user_id, client_id);
 
 -- Create index on user_id for faster queries
 CREATE INDEX IF NOT EXISTS idx_analyses_user_id ON analyses(user_id);

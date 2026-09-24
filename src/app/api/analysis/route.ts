@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { dedupeRows, isMissingColumnError, resolveAnalysisRowId, rowToListItem } from '@/lib/analysisDb';
 
 // Save analysis
 export async function POST(req: Request) {
@@ -68,34 +69,45 @@ export async function POST(req: Request) {
       mietpreis_comment: data.mietpreisComment || '',
       qm_preis_comment: data.qmPreisComment || '',
       invest_comment: data.investComment || '',
+    };
 
+    // Stabile Client-ID (siehe src/lib/analysisDb.ts)
+    const clientId: string =
+      typeof data.analysisId === 'string' && data.analysisId
+        ? data.analysisId
+        : `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+    const fullRow = {
+      ...analysisData,
+      client_id: clientId,
+      // Kompletter Store-Zustand – damit beim Laden kein Feld verloren geht
+      state: { ...data, analysisId: clientId },
       // Markt-Recherche (Vergleichswerte, Lage-Fakten, Quellen)
       markt_facts: data.marktFacts
         ? { facts: data.marktFacts, mietDelta: data.mietMarktDelta ?? null, kaufDelta: data.kaufMarktDelta ?? null }
         : null,
     };
 
-    console.log('[ANALYSIS] Saving analysis for user:', userId);
+    console.log('[ANALYSIS] Saving analysis for user:', userId, 'client_id:', clientId);
 
-    let { data: savedAnalysis, error } = await supabase
-      .from('analyses')
-      .insert(analysisData)
-      .select()
-      .single();
+    // Bereits gespeichert? → aktualisieren statt neue Zeile anlegen
+    const existingId = await resolveAnalysisRowId(supabase, userId, clientId);
 
-    // Spalte markt_facts noch nicht migriert → ohne sie speichern, statt komplett zu scheitern
-    if (error && /markt_facts/.test(error.message ?? '')) {
-      console.warn('[ANALYSIS] Column markt_facts missing – saving without it. Run the migration in supabase-schema.sql.');
-      const { markt_facts: _omit, ...withoutFacts } = analysisData;
-      void _omit;
+    let { data: savedAnalysis, error } = existingId
+      ? await supabase.from('analyses').update(fullRow).eq('id', existingId).eq('user_id', userId).select('id').single()
+      : await supabase.from('analyses').insert(fullRow).select('id').single();
+
+    // Neue Spalten noch nicht migriert → wie früher ohne sie speichern, statt komplett zu scheitern
+    if (error && isMissingColumnError(error)) {
+      console.warn('[ANALYSIS] New columns missing – saving legacy row. Run the migration in supabase-schema.sql.');
       ({ data: savedAnalysis, error } = await supabase
         .from('analyses')
-        .insert(withoutFacts)
-        .select()
+        .insert(analysisData)
+        .select('id')
         .single());
     }
 
-    if (error) {
+    if (error || !savedAnalysis) {
       console.error('❌ [ANALYSIS] Error saving to Supabase:', error);
       return NextResponse.json(
         { error: 'Fehler beim Speichern in der Datenbank' },
@@ -107,7 +119,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      analysisId: savedAnalysis.id,
+      analysisId: clientId,     // stabile ID für Store/localStorage
+      dbId: savedAnalysis.id,   // UUID (z. B. für scenarios.analysis_id)
       message: 'Analyse gespeichert',
     });
   } catch (error) {
@@ -136,11 +149,25 @@ export async function GET() {
 
     console.log('[ANALYSIS] Fetching analyses for user:', userId);
 
-    const { data: analyses, error } = await supabase
+    const listColumns =
+      'id, analysis_name, created_at, updated_at, kaufpreis, adresse, flaeche, zimmer, nettorendite, cashflow_operativ';
+
+    let { data: rows, error } = await supabase
       .from('analyses')
-      .select('*')
+      .select(`${listColumns}, client_id`)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+      .order('updated_at', { ascending: false });
+
+    // client_id noch nicht migriert
+    if (error && isMissingColumnError(error)) {
+      ({ data: rows, error } = await supabase
+        .from('analyses')
+        .select(listColumns)
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false }) as unknown as { data: typeof rows; error: typeof error });
+    }
+
+    const analyses = dedupeRows((rows ?? []) as Record<string, unknown>[]).map(rowToListItem);
 
     if (error) {
       console.error('❌ [ANALYSIS] Error fetching from Supabase:', error);
