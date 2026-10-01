@@ -5,32 +5,23 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
-import { berechnePrognose } from '@/lib/prognose-calculator';
+import { berechnePrognose, berechneAbzahlungsjahr } from '@/lib/prognose-calculator';
+import { berechneSzenario, type SzenarioBasis, type SzenarioDeltas } from '@/lib/szenario';
 import HtmlContent from '@/components/HtmlContent';
 import { KpiTile, type KpiRating } from '@/components/KpiTile';
+import { PrognoseTab } from '@/components/PrognoseTab';
+import { SzenarienTab } from '@/components/SzenarienTab';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
-import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard } from '@/components/MarketAnalysis';
+import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, splitSections } from '@/components/MarketAnalysis';
+import { baueReportDaten } from '@/lib/report-daten';
 import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
   EuroIcon, House, Info, MapPin, ReceiptText, Ruler, SkipForward, SquarePercent, Wallet, WrenchIcon, Lock,
-  TrendingUp, Percent, ShieldCheck, Sparkles, RotateCcw
+  TrendingUp, Percent, ShieldCheck, Sparkles
 } from 'lucide-react';
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip as ChartTooltip,
-  XAxis,
-  YAxis,
-  ReferenceDot,
-  Label,
-} from 'recharts';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 import { Tooltip } from '@/components/Tooltip';
-import Slider  from '@/components/Slider';
 import { AfaSelection } from '@/components/AfaSelection';
 import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -297,20 +288,13 @@ export default function StepPage() {
   const [mieteDeltaPct, setMieteDeltaPct]   = useState<number>(0);
   const [preisDeltaPct, setPreisDeltaPct]   = useState<number>(0);
   const [zinsDeltaPp,   setZinsDeltaPp]     = useState<number>(0);
-  const [isCalculating, setIsCalculating]   = useState<boolean>(false);
-  const [wertentwicklungAktiv, setWertentwicklungAktiv] = useState<boolean>(false);
   const [wertentwicklungPct, setWertentwicklungPct] = useState<number>(1.5);
-  const [liquiditaetJahrIndex, setLiquiditaetJahrIndex] = useState<number>(0);
-  // Kurvendiagramm Toggle-Optionen
-  const [zeigeEigenkapitalAufbau, setZeigeEigenkapitalAufbau] = useState<boolean>(false);
-  const [zeigeCashflowKumuliert, setZeigeCashflowKumuliert] = useState<boolean>(true);
 
-  // Erweiterte Prognose-Optionen
+  // Prognose-Annahmen
   const [darlehensTyp, setDarlehensTyp] = useState<'annuitaet' | 'degressiv'>('annuitaet');
   const [mietInflationPct, setMietInflationPct] = useState<number>(0);
   const [kostenInflationPct, setKostenInflationPct] = useState<number>(0);
   const [verkaufsNebenkostenPct, setVerkaufsNebenkostenPct] = useState<number>(5);
-  const [zeigeErweiterteOptionen, setZeigeErweiterteOptionen] = useState<boolean>(false);
 
   // Markt-Recherche vom Agent (Vergleichs-Karten, Lage-Fakten, Quellen) – im Store, damit sie mitgespeichert wird
   const marktFacts = useImmoStore(s => s.marktFacts);
@@ -318,18 +302,6 @@ export default function StepPage() {
   const kaufMarktDelta = useImmoStore(s => s.kaufMarktDelta);
   const setMarktResearch = useImmoStore(s => s.setMarktResearch);
 
-  // Live-Update Indikator für Szenario-Berechnungen
-  useEffect(() => {
-    // Set calculating state when any slider changes
-    setIsCalculating(true);
-
-    // Clear calculating state after a short delay
-    const timer = setTimeout(() => {
-      setIsCalculating(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct]);
 
   const formulaDetails = {
     brutto: {
@@ -418,9 +390,10 @@ export default function StepPage() {
   // Grundstückswert für AfA (Fallback: 20% des Kaufpreises)
   const effectiveGrundstueckswert = grundstueckswert > 0 ? grundstueckswert : Math.round(kaufpreis * 0.2);
 
-  const prognose = useMemo(
-    () =>
-      berechnePrognose(
+  // Abzahlung kann länger als die 30 angezeigten Jahre dauern, daher 60 Jahre rechnen
+  const { prognose, abzahlungsjahr } = useMemo(
+    () => {
+      const lang = berechnePrognose(
         {
           startJahr: new Date().getFullYear(),
           darlehensSumme,
@@ -432,12 +405,12 @@ export default function StepPage() {
           kalkKostenMonthly,
           afaJaehrlich: afaAnnualEur,
           steuersatz: effectiveStz,
-          immobilienwert: wertentwicklungAktiv ? kaufpreis : undefined,
-          wertsteigerungPct: wertentwicklungAktiv ? wertentwicklungPct : undefined,
+          immobilienwert: kaufpreis,
+          wertsteigerungPct: wertentwicklungPct,
           darlehensTyp,
           mietInflationPct,
           kostenInflationPct,
-          verkaufsNebenkostenPct: wertentwicklungAktiv ? verkaufsNebenkostenPct : undefined,
+          verkaufsNebenkostenPct,
           // AfA-Turbo Parameter
           afaModell,
           nutzeSonderAfa,
@@ -445,8 +418,13 @@ export default function StepPage() {
           grundstueckswert: effectiveGrundstueckswert,
           wohnflaeche: flaeche,
         },
-        30
-      ),
+        60
+      );
+      return {
+        prognose: { jahre: lang.jahre.slice(0, 31) },
+        abzahlungsjahr: berechneAbzahlungsjahr(lang.jahre),
+      };
+    },
     [
       darlehensSumme,
       ek,
@@ -457,7 +435,6 @@ export default function StepPage() {
       kalkKostenMonthly,
       afaAnnualEur,
       effectiveStz,
-      wertentwicklungAktiv,
       wertentwicklungPct,
       kaufpreis,
       darlehensTyp,
@@ -478,183 +455,31 @@ export default function StepPage() {
   const taxMonthly = cashflowVorSteuer - cashflowAfterTax;
   const breakEvenJahre = cashflowAfterTax > 0 ? ek / (cashflowAfterTax * 12) : Infinity;
 
-  const prognoseMilestones = useMemo(() => {
-    const halbschuld = darlehensSumme / 2;
-    const halbschuldJahr = prognose.jahre.find(jahr => jahr.restschuld <= halbschuld);
-    const selbstfinanziert = prognose.jahre.find(jahr => jahr.cashflowKumuliert >= jahr.restschuld);
-    const eigenkapitalGrößerKaufpreis = prognose.jahre.find(jahr => jahr.eigenkapitalGesamt >= kaufpreis);
-    const cashflowPositiv = prognose.jahre.find(jahr => jahr.cashflowMonatlich > 0);
-
-    return {
-      halbschuld: halbschuldJahr,
-      selbstfinanziert,
-      eigenkapitalGrößerKaufpreis,
-      cashflowPositiv,
-    };
-  }, [darlehensSumme, prognose.jahre, kaufpreis]);
-
-  const verkaufSzenarien = useMemo(() => {
-    const jahre = [10, 20, 30];
-    return jahre.map((jahr) => {
-      const daten = prognose.jahre[jahr];
-      // FIX: +1 Offset für beide Off-by-one-Probleme:
-      // - prognose.jahre[n].restschuld = Restschuld VOR Tilgung von Jahr n
-      // - prognose.jahre[n].cashflowKumuliert enthält n+1 Jahre (0..n)
-      // → prognose.jahre[n+1] enthält Restschuld NACH Tilgung + genau n volle Cashflow-Jahre
-      const datenNachTilgung = prognose.jahre[Math.min(jahr + 1, prognose.jahre.length - 1)];
-
-      if (!daten || !datenNachTilgung) {
-        return {
-          jahr,
-          restschuld: 0,
-          immobilienwert: wertentwicklungAktiv ? kaufpreis : 0,
-          eigenkapital: 0,
-          cashflowKumuliert: 0,
-          verkaufsNebenkosten: 0,
-          gesamtErgebnis: 0,
-          ekRenditePa: 0,
-        };
-      }
-      const immobilienwert = daten.immobilienwert ?? kaufpreis;
-      const verkaufsNebenkosten = daten.verkaufsNebenkosten ?? 0;
-
-      // FIX A: Restschuld nach Tilgung (= Anfangswert des Folgejahres)
-      const eigenkapital = immobilienwert - verkaufsNebenkosten - datenNachTilgung.restschuld;
-
-      // FIX B: Cashflow aus Folgejahr = genau `jahr` volle Cashflow-Jahre
-      const gesamtErgebnis = eigenkapital + datenNachTilgung.cashflowKumuliert - ek;
-
-      // CAGR (Compound Annual Growth Rate) = EK-Rendite p.a.
-      const endwert = ek + gesamtErgebnis;
-      const ekRenditePa = ek > 0 && endwert > 0
-        ? (Math.pow(endwert / ek, 1 / jahr) - 1) * 100
-        : 0;
-
-      return {
-        jahr: daten.jahr,
-        restschuld: datenNachTilgung.restschuld, // FIX A: nach Tilgung
-        immobilienwert,
-        eigenkapital,
-        cashflowKumuliert: datenNachTilgung.cashflowKumuliert, // FIX B: volle Jahre
-        verkaufsNebenkosten,
-        gesamtErgebnis,
-        ekRenditePa,
-      };
-    });
-  }, [prognose.jahre, wertentwicklungAktiv, kaufpreis, ek]);
-
-  const verkaufBreakEven = useMemo(() => {
-    // FIX: Gleicher Off-by-one wie verkaufSzenarien — restschuld + cashflowKumuliert
-    // müssen aus dem Folgejahr gelesen werden (nach Tilgung, volle Cashflow-Jahre)
-    const breakEvenIdx = prognose.jahre.findIndex((_, idx) => {
-      const jahr = prognose.jahre[idx];
-      const naechstesJahr = prognose.jahre[Math.min(idx + 1, prognose.jahre.length - 1)];
-      if (!jahr || !naechstesJahr) return false;
-      const immobilienwert = jahr.immobilienwert ?? kaufpreis;
-      const verkaufsNebenkosten = jahr.verkaufsNebenkosten ?? 0;
-      const eigenkapitalVerkauf = immobilienwert - verkaufsNebenkosten - naechstesJahr.restschuld;
-      const gesamtErgebnis = eigenkapitalVerkauf + naechstesJahr.cashflowKumuliert - ek;
-      return gesamtErgebnis >= 0;
-    });
-    return breakEvenIdx >= 0 ? prognose.jahre[breakEvenIdx]?.jahr ?? null : null;
-  }, [prognose.jahre, kaufpreis, ek]);
-
-  // Calculate scenario values
-  const scenarioCalculations = useMemo(() => {
-    const scMiete = Math.max(0, miete * (1 + mieteDeltaPct / 100));
-    const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
-    const scZins = Math.max(0, zins + zinsDeltaPp);
-    const scTilgung = Math.max(0, tilgung + tilgungDeltaPp);
-    const scEk = Math.max(0, ek * (1 + ekDeltaPct / 100));
-
-    const { nk: scNk } = berechneNebenkosten(scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct);
-    const scAnschaffung = scKaufpreis + scNk + sonstigeKosten;
-    const scDarlehen = Math.max(0, scAnschaffung - scEk);
-
-    const scWarmmiete = scMiete + hausgeld_umlegbar;
-    const scJahresKalt = scMiete * 12;
-
-    const scBewJ = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-    const scFkZinsenJahr = scDarlehen * (scZins / 100);
-
-    const scZinsMonthly = (scDarlehen * (scZins / 100)) / 12;
-    const scTilgungMonthly = (scDarlehen * (scTilgung / 100)) / 12;
-
-    const instandhaltungPctN = Number(instandText.replace(',', '.')) || 0;
-    const mietausfallPctN = Number(mietausfallText.replace(',', '.')) || 0;
-    const scInstandMonthly = (instandhaltungPctN * flaeche) / 12;
-    const scMietausfallMon = scMiete * (mietausfallPctN / 100);
-    const scKalkKostenMon = scInstandMonthly + scMietausfallMon;
-
-    const scCashflowVorSt = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scTilgungMonthly;
-
-    const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
-
-    // Cashflow nach Steuern für Szenario
-    const gebPctN = Number(gebText.replace(',', '.')) || 0;
-    const afaPctN = Number(afaText.replace(',', '.')) || 0;
-    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-    const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
-    const afaMonthlyEurSc = afaAnnualEurSc / 12;
-    const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
-    const effectiveStz = Number(persText.replace(',', '.')) || 0;
-    const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
-    const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
-
-    // DSCR für Szenario
-    const scDSCR = scRateMonat > 0 ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat : 0;
-
-    const scBruttoRendite = scAnschaffung > 0 ? (scJahresKalt - 0) / scAnschaffung * 100 : 0;
-    const scNettoRendite = scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0;
-    const scEkRendite = scEk > 0 ? ((scJahresKalt - scBewJ - scFkZinsenJahr) / scEk) * 100 : 0;
-
-    const scNoiMonthly = scWarmmiete - hausgeld - scKalkKostenMon;
-
-    // Calculate payoff year for scenario (simplified)
-    let scAbzahlungsjahr = 0;
-    if (scDarlehen > 0 && scTilgung > 0) {
-      const jahresTilgung = scDarlehen * (scTilgung / 100);
-      scAbzahlungsjahr = Math.ceil(scDarlehen / jahresTilgung);
-    }
-
-    return {
-      scMiete,
-      scKaufpreis,
-      scZins,
-      scTilgung,
-      scEk,
-      scNk,
-      scAnschaffung,
-      scDarlehen,
-      scWarmmiete,
-      scJahresKalt,
-      scBewJ,
-      scFkZinsenJahr,
-      scZinsMonthly,
-      scTilgungMonthly,
-      scInstandMonthly,
-      scMietausfallMon,
-      scKalkKostenMon,
-      scCashflowVorSt,
-      scRateMonat,
-      scCashflowAfterTax,
-      scDSCR,
-      scBruttoRendite,
-      scNettoRendite,
-      scEkRendite,
-      scNoiMonthly,
-      scAbzahlungsjahr,
-    };
-  }, [
-    miete, kaufpreis, zins, tilgung, ek,
-    mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct,
-    grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
-    hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm, flaeche,
-    instandText, mietausfallText,
-    gebText, afaText, persText,
+  // Szenario: gleiche Rechnung für Szenarien-Tab, Speichern und PDF
+  const szenarioBasis = useMemo<SzenarioBasis>(() => ({
+    kaufpreis, miete, ek, zins, tilgung,
+    grunderwerbsteuerPct: grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
+    hausgeld: hausgeldTotal, hausgeldUmlegbar: hausgeld_umlegbar,
+    instandhaltungProQmJahr: instandhaltungskostenProQm, instandKalkProQmJahr: instandhaltungPct,
+    mietausfallPct, flaeche,
+    afaJaehrlich: afaAnnualEur, steuersatzPct: effectiveStz, darlehensTyp,
+    afaModell, nutzeSonderAfa, grundstueckswert: effectiveGrundstueckswert,
+  }), [
+    kaufpreis, miete, ek, zins, tilgung, grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
+    hausgeldTotal, hausgeld_umlegbar, instandhaltungskostenProQm, instandhaltungPct, mietausfallPct, flaeche,
+    afaAnnualEur, effectiveStz, darlehensTyp, afaModell, nutzeSonderAfa, effectiveGrundstueckswert,
   ]);
-
-  const liquiditaetJahr = prognose.jahre[Math.min(liquiditaetJahrIndex, prognose.jahre.length - 1)] ?? prognose.jahre[0];
+  const szenarioDeltas = useMemo<SzenarioDeltas>(() => ({
+    preisPct: preisDeltaPct, mietePct: mieteDeltaPct, ekPct: ekDeltaPct, zinsPp: zinsDeltaPp, tilgungPp: tilgungDeltaPp,
+  }), [preisDeltaPct, mieteDeltaPct, ekDeltaPct, zinsDeltaPp, tilgungDeltaPp]);
+  const scenarioCalculations = useMemo(() => berechneSzenario(szenarioBasis, szenarioDeltas), [szenarioBasis, szenarioDeltas]);
+  const setSzenarioDeltas = (d: SzenarioDeltas) => {
+    setPreisDeltaPct(d.preisPct);
+    setMieteDeltaPct(d.mietePct);
+    setEkDeltaPct(d.ekPct);
+    setZinsDeltaPp(d.zinsPp);
+    setTilgungDeltaPp(d.tilgungPp);
+  };
 
   // Store-Ableitungen aktualisieren, wenn sich Kernwerte ändern
   useEffect(() => {
@@ -1206,114 +1031,32 @@ const exportPdf = React.useCallback(async () => {
   setPdfBusy(true);
   pdfAbortController.current = new AbortController();
   try {
-    // HTML → Plaintext lokal, damit ESLint ruhig bleibt
-    const strip = (html: string) =>
-      (html || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-
-    // Szenario-Werte berechnen (aus aktuellen UI-States)
-    const scMiete     = Math.max(0, miete * (1 + mieteDeltaPct / 100));
-    const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
-    const scZins      = Math.max(0, zins + zinsDeltaPp);
-    const scTilgung   = Math.max(0, tilgung + tilgungDeltaPp);
-    const scEk        = Math.max(0, ek * (1 + ekDeltaPct / 100));
-    
-
-    const { nk: scNk } = berechneNebenkosten(
-      scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct
-    );
-    const scAnsch    = scKaufpreis + scNk;
-    const scDarl     = Math.max(0, scAnsch - scEk);
-    const scZMon     = (scDarl * (scZins / 100)) / 12;
-    const scTMon     = (scDarl * (scTilgung / 100)) / 12;
-    const scInstand  = (Number(instandText.replace(',', '.')) || 0) * flaeche / 12;
-    const scMietausf = scMiete * ((Number(mietausfallText.replace(',', '.')) || 0) / 100);
-    const scKalk     = scInstand + scMietausf;
-    const scWarm     = scMiete + hausgeld_umlegbar;
-
-    const scCFvSt = scWarm - hausgeld - scKalk - scZMon - scTMon;
-    const scBewJ  = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-    const scNetto = scAnsch > 0 ? ((scMiete * 12 - scBewJ) / scAnsch) * 100 : 0;
-    const debtServiceMonthly = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-
-    const ekQuotePct = anschaffungskosten > 0 ? (ek / anschaffungskosten) * 100 : 0;
-    const scEkR   = scEk > 0 ? ((scMiete * 12 - scBewJ - (scDarl * (scZins / 100))) / scEk) * 100 : 0;
-
-    const scRateMon    = (scDarl * ((scZins + scTilgung) / 100)) / 12;
-    const scNoiMonthly = (scWarm) - hausgeld - scKalk;                 // wie im App-Tab
-    const scDscr       = scRateMon > 0 ? (scNoiMonthly / scRateMon) : 0;
-    const scBruttoRend = scAnsch > 0 ? ((scMiete * 12) / scAnsch) * 100 : 0;
-    
-    // Abzahlungsjahr (≈) wie in der App: aktuelles Jahr + 1/(zins+tilgung)
-    const payoffYearsApprox = (scZins + scTilgung) > 0 ? Math.round(1 / ((scZins + scTilgung) / 100)) : 0;
-    const scAbzahlungsjahr  = payoffYearsApprox ? new Date().getFullYear() + payoffYearsApprox : null;
-
-    // (optional) Cashflow nach Steuern (wie Basis, aber mit Szenariowerten)
-    const gebPctN = Number(gebText.replace(',', '.')) || 0;
-    const afaPctN = Number(afaText.replace(',', '.')) || 0;
-    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-    const afaAnnualEurSc      = gebaeudeAnteilEurSc * (afaPctN / 100);
-    const afaMonthlyEurSc     = afaAnnualEurSc / 12;
-    const effStzN             = Number(persText.replace(',', '.')) || 0;
-    const taxableSc           = scWarm - hausgeld - scKalk - scZMon - afaMonthlyEurSc;
-    const taxMonthlySc        = taxableSc * (effStzN / 100);
-    const scCashflowAfterTax  = scCFvSt - taxMonthlySc;
-
-    // Extract prognose data for PDF
-    const payoffYear = prognose.jahre.find(j => j.restschuld === 0)?.jahr ?? null;
-    const jahr5Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 5);
-    const jahr10Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 10);
-
-    const payload = {
-      address: shortAddress || adresse,
-      kaufpreis, flaeche, zimmer, baujahr,
-      miete, ek, zins, tilgung,
-      cashflowVorSteuer,
-      cashflowNachSteuern: cashflowAfterTax,
-      nettoMietrendite, bruttoMietrendite, ekRendite,
-      anschaffungskosten, darlehensSumme,
-      debtServiceMonthly,
-      ekQuotePct,
-      noiMonthly: warmmiete - hausgeldTotal - kalkKostenMonthly,
-      dscr,
-      lageText: strip(lageComment),
-      mietvergleich: strip(mietpreisComment),
-      preisvergleich: strip(qmPreisComment),
-      szenario: {
-        kaufpreis: scKaufpreis,
-        miete: scMiete,
-        zins: scZins,
-        tilgung: scTilgung,
-        ek: scEk,
-        cashflowVorSteuer: scCFvSt,
-        cashflowNachSteuern: scCashflowAfterTax,
-        nettoRendite: scNetto,
-        bruttorendite: scBruttoRend,
-        ekRendite: scEkR,
-        noiMonthly: scNoiMonthly,
-        dscr: scDscr,
-        rateMonat: scRateMon,
-        abzahlungsjahr: scAbzahlungsjahr,
+    const fazitHtml = splitSections(investComment || '').find(sec => /fazit/i.test(sec.title))?.html ?? '';
+    const payload = baueReportDaten({
+      adresse: shortAddress || adresse || '',
+      objekttyp,
+      flaeche,
+      zimmer,
+      baujahr,
+      nebenkosten: {
+        grunderwerbsteuer: grunderwerbsteuer_eur, notar: notar_eur, makler: makler_eur,
+        grunderwerbsteuerPct: grunderwerbsteuer_pct, notarPct, maklerPct,
       },
-      prognose: (jahr5Data && jahr10Data) ? {
-        payoffYear,
-        jahr5: {
-          restschuld: jahr5Data.restschuld,
-          eigenkapital: jahr5Data.eigenkapitalGesamt,
-          cashflowKumuliert: jahr5Data.cashflowKumuliert,
-        },
-        jahr10: {
-          restschuld: jahr10Data.restschuld,
-          eigenkapital: jahr10Data.eigenkapitalGesamt,
-          cashflowKumuliert: jahr10Data.cashflowKumuliert,
-        },
-        jahre: prognose.jahre.map(j => ({
-          jahr: j.jahr,
-          restschuld: j.restschuld,
-          eigenkapitalGesamt: j.eigenkapitalGesamt,
-          cashflowKumuliert: j.cashflowKumuliert,
-        })),
-      } : null,
-    };
+      basis: szenarioBasis,
+      deltas: szenarioDeltas,
+      anschaffungskosten,
+      prognoseJahre: prognose.jahre,
+      annahmen: { wertsteigerungPct: wertentwicklungPct, mietInflationPct, kostenInflationPct, verkaufsNebenkostenPct },
+      markt: {
+        facts: marktFacts ?? null,
+        mietDelta: mietMarktDelta ?? null,
+        kaufDelta: kaufMarktDelta ?? null,
+        mietHtml: mietpreisComment,
+        kaufHtml: qmPreisComment,
+        lageHtml: lageComment,
+        fazitHtml,
+      },
+    });
 
     const res = await fetch('/api/export/pdf', {
       method: 'POST',
@@ -1332,7 +1075,7 @@ const exportPdf = React.useCallback(async () => {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = 'immo_analyse.pdf';
+    a.download = 'investment-report.pdf';
     a.style.display = 'none';
     a.target = '_self';  // Prevent opening in new tab
     document.body.appendChild(a);
@@ -1356,17 +1099,11 @@ const exportPdf = React.useCallback(async () => {
     setPdfBusy(false);
   }
 }, [
-  // Exhaustive deps aller verwendeten States/Variablen, die oben genutzt werden
-  mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct,
-  miete, kaufpreis, zins, tilgung, ek,
-  grunderwerbsteuer_pct, notarPct, maklerPct,
-  instandText, mietausfallText, flaeche,
-  hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm,
-  shortAddress, adresse, zimmer, baujahr,
-  cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite,
-  anschaffungskosten, darlehensSumme,
-  lageComment, mietpreisComment, qmPreisComment, afaText, gebText, persText,
-  prognose, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
+  shortAddress, adresse, objekttyp, flaeche, zimmer, baujahr,
+  grunderwerbsteuer_eur, notar_eur, makler_eur, grunderwerbsteuer_pct, notarPct, maklerPct,
+  szenarioBasis, szenarioDeltas, anschaffungskosten, prognose,
+  wertentwicklungPct, mietInflationPct, kostenInflationPct, verkaufsNebenkostenPct,
+  marktFacts, mietMarktDelta, kaufMarktDelta, mietpreisComment, qmPreisComment, lageComment, investComment,
 ]);
 
 
@@ -2400,7 +2137,7 @@ const exportPdf = React.useCallback(async () => {
 
               const ekQuote = anschaffungskosten > 0 ? Math.min(100, Math.max(0, (ek / anschaffungskosten) * 100)) : 0;
               const breakEvenYear = isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : null;
-              const payoffYear = zins + tilgung > 0 ? new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)) : null;
+              const payoffYear = abzahlungsjahr;
 
               return (
                 <>
@@ -2767,539 +2504,25 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Content (blurred when locked) */}
             <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-8 space-y-6">
-              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-6">
-                  <div>
-                    <h3 className="text-lg font-black text-[#001d3d]">Entwicklung über 30 Jahre</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Restschuld, Eigenkapital und kumulierter Cashflow im Zeitverlauf.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={zeigeEigenkapitalAufbau}
-                        onChange={(event) => setZeigeEigenkapitalAufbau(event.target.checked)}
-                        className="accent-[#ff6b00]"
-                      />
-                      EK-Aufbau (zusätzlich)
-                    </label>
-                    <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={zeigeCashflowKumuliert}
-                        onChange={(event) => setZeigeCashflowKumuliert(event.target.checked)}
-                        className="accent-[#ff6b00]"
-                      />
-                      Cashflow kumuliert
-                    </label>
-                  </div>
-                </div>
-
-                {/* Erweiterte Optionen */}
-                <div className="mb-6">
-                  <button
-                    onClick={() => setZeigeErweiterteOptionen(!zeigeErweiterteOptionen)}
-                    className="w-full flex items-center justify-between gap-2 px-4 py-3 text-sm font-bold bg-gradient-to-r from-slate-50 to-slate-100 hover:from-[#ff6b00]/10 hover:to-[#ff6b00]/5 rounded-xl border border-slate-200 transition-all shadow-sm"
-                  >
-                    <span className="flex items-center gap-2 text-[#001d3d]">
-                      {zeigeErweiterteOptionen ? '▼' : '▶'} Erweiterte Optionen
-                      <span className="text-[9px] font-normal text-slate-500">(Annuität, Inflation, Immobilienwert)</span>
-                    </span>
-                    {!zeigeErweiterteOptionen && (
-                      <span className="px-2 py-1 bg-[#ff6b00] text-white text-[9px] font-black rounded-full">
-                        NEU
-                      </span>
-                    )}
-                  </button>
-                  {zeigeErweiterteOptionen && (
-                    <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                      {/* Darlehenstyp */}
-                      <div className="mb-4">
-                        <label className="text-xs font-bold text-slate-600 mb-2 block">Darlehenstyp</label>
-                        <div className="flex gap-3">
-                          <label className="flex items-center gap-2 text-xs text-slate-600">
-                            <input
-                              type="radio"
-                              value="degressiv"
-                              checked={darlehensTyp === 'degressiv'}
-                              onChange={(e) => setDarlehensTyp(e.target.value as 'degressiv')}
-                              className="accent-[#ff6b00]"
-                            />
-                            Degressiv
-                          </label>
-                          <label className="flex items-center gap-2 text-xs text-slate-600">
-                            <input
-                              type="radio"
-                              value="annuitaet"
-                              checked={darlehensTyp === 'annuitaet'}
-                              onChange={(e) => setDarlehensTyp(e.target.value as 'annuitaet')}
-                              className="accent-[#ff6b00]"
-                            />
-                            Annuität ⭐
-                          </label>
-                        </div>
-                        <p className="text-[9px] text-slate-400 mt-1">
-                          {darlehensTyp === 'degressiv'
-                            ? 'Rate sinkt mit Restschuld (selten)'
-                            : 'Konstante Rate, wie bei echten Immobilienkrediten'}
-                        </p>
-                      </div>
-
-                      {/* Inflation Slider in Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <Slider
-                          label="Mietinflation p.a."
-                          value={mietInflationPct}
-                          onChange={setMietInflationPct}
-                          min={0}
-                          max={5}
-                          step={0.1}
-                          suffix="%"
-                        />
-                        <Slider
-                          label="Kosteninflation p.a."
-                          value={kostenInflationPct}
-                          onChange={setKostenInflationPct}
-                          min={0}
-                          max={5}
-                          step={0.1}
-                          suffix="%"
-                        />
-                      </div>
-
-                      {/* Immobilienwert & Wertentwicklung */}
-                      <div className="mt-4 border-t border-slate-200 pt-4">
-                        <label className="flex items-center gap-2 text-xs font-bold text-slate-600 mb-3">
-                          <input
-                            type="checkbox"
-                            checked={wertentwicklungAktiv}
-                            onChange={(event) => setWertentwicklungAktiv(event.target.checked)}
-                            className="accent-[#ff6b00]"
-                          />
-                          Immobilienwert im Chart anzeigen
-                        </label>
-                        {wertentwicklungAktiv && (
-                          <div className="pl-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Slider
-                              label="Wertentwicklung p.a."
-                              value={wertentwicklungPct}
-                              onChange={setWertentwicklungPct}
-                              min={-5}
-                              max={5}
-                              step={0.1}
-                              suffix="%"
-                            />
-                            <Slider
-                              label="Verkaufsnebenkosten"
-                              value={verkaufsNebenkostenPct}
-                              onChange={setVerkaufsNebenkostenPct}
-                              min={0}
-                              max={15}
-                              step={0.5}
-                              suffix="%"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="h-[360px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={prognose.jahre} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                      <XAxis dataKey="jahr" tick={{ fontSize: 10 }} />
-                      <YAxis
-                        tick={{ fontSize: 10 }}
-                        tickFormatter={(value) => `${formatEur(value / 1000)}k`}
-                      />
-                      <ChartTooltip
-                        content={({ active, payload, label }) => {
-                          if (!active || !payload || !payload.length) return null;
-
-                          const jahr = label;
-
-                          // Check if this is a milestone year
-                          let milestoneInfo: { title: string; description: string } | null = null;
-
-                          if (prognoseMilestones.halbschuld?.jahr === jahr) {
-                            milestoneInfo = {
-                              title: '🎯 50% getilgt!',
-                              description: 'Du hast die Hälfte deines Darlehens abbezahlt. Deine Zinslast wird ab jetzt deutlich sinken.'
-                            };
-                          } else if (prognoseMilestones.selbstfinanziert?.jahr === jahr) {
-                            milestoneInfo = {
-                              title: '💰 Selbstfinanziert!',
-                              description: 'Dein kumulierter Cashflow deckt die Restschuld. Du könntest theoretisch alles selbst abbezahlen.'
-                            };
-                          } else if (prognoseMilestones.eigenkapitalGrößerKaufpreis?.jahr === jahr) {
-                            milestoneInfo = {
-                              title: '🏆 Eigenkapital > Kaufpreis!',
-                              description: 'Dein Eigenkapital überschreitet den ursprünglichen Kaufpreis. Du hast mehr Vermögen aufgebaut als investiert.'
-                            };
-                          } else if (prognoseMilestones.cashflowPositiv?.jahr === jahr) {
-                            milestoneInfo = {
-                              title: '✅ Cashflow positiv!',
-                              description: 'Ab jetzt erwirtschaftet deine Immobilie monatlich Überschuss - selbstfinanzierter Vermögensaufbau beginnt!'
-                            };
-                          }
-
-                          return (
-                            <div className="bg-white border-2 border-slate-200 rounded-xl p-3 shadow-xl max-w-xs">
-                              <p className="text-xs font-black text-slate-700 mb-2">Jahr {jahr}</p>
-                              {milestoneInfo && (
-                                <div className="mb-3 pb-3 border-b-2 border-[#ff6b00]">
-                                  <p className="text-sm font-black text-[#ff6b00] mb-1">{milestoneInfo.title}</p>
-                                  <p className="text-[10px] text-slate-600 leading-relaxed">{milestoneInfo.description}</p>
-                                </div>
-                              )}
-                              <div className="space-y-1">
-                                {payload.map((entry, index: number) => (
-                                  <div key={index} className="flex justify-between gap-3">
-                                    <span className="text-[10px] font-bold" style={{ color: entry.color as string }}>
-                                      {entry.name}:
-                                    </span>
-                                    <span className="text-[10px] font-black text-slate-700">
-                                      {formatEur(Number(entry.value))} €
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        }}
-                      />
-                      <Legend wrapperStyle={{ fontSize: 10 }} />
-                      <Line
-                        type="monotone"
-                        dataKey="restschuld"
-                        name="Restschuld"
-                        stroke="#ef4444"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      {zeigeEigenkapitalAufbau && (
-                        <Line
-                          type="monotone"
-                          dataKey="eigenkapitalAufbau"
-                          name="EK-Aufbau (ohne Start-EK)"
-                          stroke="#22c55e"
-                          strokeWidth={2}
-                          strokeDasharray="3 3"
-                          dot={false}
-                        />
-                      )}
-                      <Line
-                        type="monotone"
-                        dataKey="eigenkapitalGesamt"
-                        name="Eigenkapital gesamt"
-                        stroke="#16a34a"
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      {zeigeCashflowKumuliert && (
-                        <Line
-                          type="monotone"
-                          dataKey="cashflowKumuliert"
-                          name="Cashflow kumuliert"
-                          stroke="#0ea5e9"
-                          strokeWidth={2}
-                          dot={false}
-                        />
-                      )}
-                      {wertentwicklungAktiv && (
-                        <Line
-                          type="monotone"
-                          dataKey="immobilienwert"
-                          name="Immobilienwert"
-                          stroke="#8b5cf6"
-                          strokeWidth={2}
-                          dot={false}
-                        />
-                      )}
-
-                      {/* Highlight intersection points */}
-                      {prognoseMilestones.halbschuld && (
-                        <ReferenceDot
-                          x={prognoseMilestones.halbschuld.jahr}
-                          y={prognoseMilestones.halbschuld.restschuld}
-                          r={6}
-                          fill="#ff6b00"
-                          stroke="#fff"
-                          strokeWidth={2}
-                        >
-                          <Label
-                            value="50% getilgt"
-                            position="top"
-                            fill="#001d3d"
-                            fontSize={10}
-                            fontWeight="bold"
-                          />
-                        </ReferenceDot>
-                      )}
-
-                      {zeigeCashflowKumuliert && prognoseMilestones.selbstfinanziert && (
-                        <ReferenceDot
-                          x={prognoseMilestones.selbstfinanziert.jahr}
-                          y={prognoseMilestones.selbstfinanziert.restschuld}
-                          r={6}
-                          fill="#0ea5e9"
-                          stroke="#fff"
-                          strokeWidth={2}
-                        >
-                          <Label
-                            value="Selbstfinanziert"
-                            position="top"
-                            fill="#001d3d"
-                            fontSize={10}
-                            fontWeight="bold"
-                          />
-                        </ReferenceDot>
-                      )}
-
-                      {wertentwicklungAktiv && prognoseMilestones.eigenkapitalGrößerKaufpreis && (
-                        <ReferenceDot
-                          x={prognoseMilestones.eigenkapitalGrößerKaufpreis.jahr}
-                          y={prognoseMilestones.eigenkapitalGrößerKaufpreis.eigenkapitalGesamt}
-                          r={6}
-                          fill="#16a34a"
-                          stroke="#fff"
-                          strokeWidth={2}
-                        >
-                          <Label
-                            value="EK > Kaufpreis"
-                            position="top"
-                            fill="#001d3d"
-                            fontSize={10}
-                            fontWeight="bold"
-                          />
-                        </ReferenceDot>
-                      )}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
-                  <div>
-                    <h3 className="text-lg font-black text-[#001d3d]">Liquiditäts-Dashboard</h3>
-                    <p className="text-[10px] text-slate-500 mt-1">Werte am Ende des ausgewählten Jahres (nach Tilgung)</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Jahr</span>
-                    <select
-                      value={liquiditaetJahrIndex}
-                      onChange={(event) => setLiquiditaetJahrIndex(Number(event.target.value))}
-                      className="text-xs font-bold text-[#001d3d] bg-white border border-slate-200 rounded-xl px-3 py-2"
-                    >
-                      {prognose.jahre.map((jahr, index) => (
-                        <option key={jahr.jahr} value={index}>
-                          {jahr.jahr}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Cashflow nach Steuern</p>
-                    <p className={`text-2xl font-black mt-2 ${(liquiditaetJahr?.cashflowMonatlich ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatEur(liquiditaetJahr?.cashflowMonatlich ?? 0)} €
-                    </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Monatlich verfügbar</p>
-                  </div>
-                  <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Restschuld</p>
-                    <p className="text-2xl font-black mt-2 text-[#001d3d]">
-                      {formatEur(liquiditaetJahr?.restschuld ?? 0)} €
-                    </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Verbleibende Schuld</p>
-                  </div>
-                  <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">AfA Vorteil / Jahr</p>
-                    <p className="text-2xl font-black mt-2 text-[#001d3d]">
-                      {formatEur(liquiditaetJahr?.afaVorteil ?? 0)} €
-                    </p>
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      {(liquiditaetJahr?.afaVorteil ?? 0) > 0
-                        ? 'Steuerersparnis durch Abschreibung'
-                        : 'AfA-Zeitraum abgelaufen'}
-                    </p>
-                  </div>
-                  <div className="bg-slate-50 rounded-2xl p-4">
-                    <p className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Eigenkapital gesamt</p>
-                    <p className="text-2xl font-black mt-2 text-[#001d3d]">
-                      {formatEur(liquiditaetJahr?.eigenkapitalGesamt ?? 0)} €
-                    </p>
-                    <p className="text-[10px] text-slate-500 mt-1">Start-EK + Tilgungsfortschritt</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 space-y-6">
-              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Info size={16} className="text-[#ff6b00]" />
-                  <h4 className="text-sm font-black text-[#001d3d]">So liest du die Kurven</h4>
-                </div>
-                <ul className="space-y-3 text-[11px] text-slate-600">
-                  <li>
-                    <span className="font-bold text-red-600">Restschuld</span> (rot) sinkt jedes Jahr durch deine Tilgung.
-                  </li>
-                  <li>
-                    <span className="font-bold text-green-700">Eigenkapital gesamt</span> (grün) zeigt dein Start-EK plus den
-                    Tilgungsfortschritt. Es wächst automatisch mit jeder Kreditrate.
-                  </li>
-                  <li>
-                    <span className="font-bold text-green-600">EK-Aufbau</span> (hellgrün gestrichelt, optional) zeigt nur die
-                    abgezahlte Schuld – ohne dein eingesetztes Start-EK.
-                  </li>
-                  <li>
-                    <span className="font-bold text-blue-500">Cashflow kumuliert</span> (blau, optional) summiert deinen jährlichen
-                    Überschuss nach Steuern. Kann anfangs negativ sein.
-                  </li>
-                  <li>
-                    <span className="font-bold text-purple-600">Immobilienwert</span> (lila, optional) zeigt die simulierte
-                    Wertentwicklung deiner Immobilie basierend auf der gewählten Wertsteigerungsrate.
-                  </li>
-                </ul>
-              </div>
-
-              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-2 mb-4">
-                  <Calendar size={16} className="text-[#ff6b00]" />
-                  <h4 className="text-sm font-black text-[#001d3d]">Meilensteine</h4>
-                </div>
-                <p className="text-[10px] text-slate-500 mb-4">
-                  Wichtige Zeitpunkte in deiner Immobilieninvestition
-                </p>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Cashflow positiv</span>
-                      <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.cashflowPositiv?.jahr ?? '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">Monatlicher Überschuss nach Steuern</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Restschuld &lt; 50%</span>
-                      <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.halbschuld?.jahr ?? '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">Hälfte des Kredits abbezahlt</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">Selbstfinanziert</span>
-                      <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.selbstfinanziert?.jahr ?? '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">Cashflow kumuliert ≥ Restschuld (Schnittpunkt im Chart)</p>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">EK &gt; Kaufpreis</span>
-                      <span className="text-sm font-black text-[#001d3d]">
-                        {prognoseMilestones.eigenkapitalGrößerKaufpreis?.jahr ?? '–'}
-                      </span>
-                    </div>
-                    <p className="text-[9px] text-slate-400">Eigenkapital übersteigt Kaufpreis (volle Ownership)</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-black text-[#001d3d]">Verkaufsszenarien</h4>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                    {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 ? 'Inkl. Nebenkosten' : 'Ohne Nebenkosten'}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mb-2">
-                  <span className="font-bold text-[#001d3d]">Ergebnis =</span> Immobilienwert
-                  {wertentwicklungAktiv && verkaufsNebenkostenPct > 0 && ` − Nebenkosten (${verkaufsNebenkostenPct}%)`}
-                  {' '}− Restschuld + kumulierter Cashflow − Start-EK
-                </p>
-                <p className="text-[10px] text-slate-500 mb-4">
-                  <span className="font-bold text-[#001d3d]">EK-Rendite p.a.</span> = Jährliche Verzinsung deines eingesetzten Eigenkapitals (CAGR). Vergleiche mit ETF-Renditen (~7% historisch).
-                </p>
-                {(!wertentwicklungAktiv || verkaufsNebenkostenPct === 0) && (
-                  <p className="text-[9px] text-slate-400 mb-4">
-                    💡 Aktiviere &quot;Erweiterte Optionen&quot; → &quot;Verkaufsnebenkosten&quot;, um Maklerkosten (~3-7%) und Vorfälligkeitsentschädigung zu berücksichtigen
-                  </p>
-                )}
-                <div className="space-y-4">
-                  {verkaufSzenarien.map((szenario) => (
-                    <div key={szenario.jahr} className="bg-slate-50 rounded-2xl p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.15em]">
-                          Verkauf nach {szenario.jahr}
-                        </span>
-                        <div className="flex items-center gap-3">
-                          <span className={`text-xs font-black px-2 py-1 rounded-lg ${szenario.ekRenditePa >= 7 ? 'bg-green-100 text-green-700' : szenario.ekRenditePa >= 4 ? 'bg-yellow-100 text-yellow-700' : szenario.ekRenditePa >= 0 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'}`}>
-                            {formatEur(szenario.ekRenditePa, 1)} % p.a.
-                          </span>
-                          <span className={`text-sm font-black ${szenario.gesamtErgebnis >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {formatEur(szenario.gesamtErgebnis)} €
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-[10px] text-slate-500 space-y-1">
-                        <p>Immobilienwert: {formatEur(szenario.immobilienwert)} €</p>
-                        {szenario.verkaufsNebenkosten > 0 && (
-                          <p className="text-red-600">− Verkaufsnebenkosten: {formatEur(szenario.verkaufsNebenkosten)} €</p>
-                        )}
-                        <p>− Restschuld: {formatEur(szenario.restschuld)} €</p>
-                        <p className={szenario.cashflowKumuliert >= 0 ? 'text-green-600' : 'text-red-600'}>
-                          {szenario.cashflowKumuliert >= 0 ? '+ ' : ''}Cashflow kumuliert: {formatEur(szenario.cashflowKumuliert)} €
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] text-slate-500 mt-4">
-                  {verkaufBreakEven
-                    ? `Erster Verkauf ohne Verlust voraussichtlich ab ${verkaufBreakEven}.`
-                    : 'In diesem Modell wird der Break-Even durch Verkauf nicht erreicht.'}
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-[#001d3d] to-[#003366] p-6 rounded-[2rem] text-white shadow-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <Info size={16} className="text-[#ff6b00]" />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Prognose-Hinweis</span>
-                </div>
-                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  <span className="font-bold">Darlehensmodell:</span> {darlehensTyp === 'degressiv'
-                    ? 'Degressives Modell – Zins und Tilgung werden prozentual auf die Restschuld berechnet. Die Rate sinkt mit der Zeit.'
-                    : 'Annuitätendarlehen – Die monatliche Rate bleibt konstant. Der Zinsanteil sinkt, der Tilgungsanteil steigt mit der Zeit.'}
-                </p>
-                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  <span className="font-bold">AfA-Abschreibung:</span> Der steuerliche Vorteil durch AfA wird standardmäßig für 50 Jahre berechnet. Danach entfällt der Steuervorteil.
-                </p>
-                <p className="text-[10px] leading-relaxed opacity-90 mb-3">
-                  <span className="font-bold">Inflation:</span> {mietInflationPct > 0 || kostenInflationPct > 0
-                    ? `Miete steigt um ${mietInflationPct}% p.a., Kosten steigen um ${kostenInflationPct}% p.a.`
-                    : 'Miete und Kosten bleiben konstant (0% Inflation).'}
-                </p>
-                <p className="text-[10px] leading-relaxed opacity-90">
-                  <span className="font-bold">Erweiterte Optionen:</span> Nutze &quot;Erweiterte Optionen&quot; für realitätsnahe Simulationen (Annuitätendarlehen, Inflation, Verkaufsnebenkosten).
-                </p>
-              </div>
-            </div>
-          </div>
+          <PrognoseTab
+              jahre={prognose.jahre}
+              ek={ek}
+              kaufpreis={kaufpreis}
+              anschaffungskosten={anschaffungskosten}
+              darlehensSumme={darlehensSumme}
+              steuersatzPct={effectiveStz}
+              wertsteigerungPct={wertentwicklungPct}
+              setWertsteigerungPct={setWertentwicklungPct}
+              mietInflationPct={mietInflationPct}
+              setMietInflationPct={setMietInflationPct}
+              kostenInflationPct={kostenInflationPct}
+              setKostenInflationPct={setKostenInflationPct}
+              verkaufsNebenkostenPct={verkaufsNebenkostenPct}
+              setVerkaufsNebenkostenPct={setVerkaufsNebenkostenPct}
+              darlehensTyp={darlehensTyp}
+              setDarlehensTyp={setDarlehensTyp}
+              onWeiter={() => setActiveTab('szenarien')}
+            />
             </div>
           </div>
         )}
@@ -3347,408 +2570,45 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Content (blurred when locked) */}
             <div className={''}>
-  <>
-    <div className="flex items-center gap-3 mb-2">
-      <h2 className="text-2xl font-bold text-[#001d3d]">Was-wäre-wenn Analyse</h2>
-      {isCalculating && (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold animate-pulse">
-          <span className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping" />
-          Berechnet...
-        </span>
-      )}
-    </div>
-<p className="text-gray-600 mt-1 pb-6">
-  Wähle die Parameter und nutze die Regler, um verschiedene Szenarien durchzuspielen und deren Auswirkungen auf deine Immobilien-Investition zu analysieren.
-</p>
-
-    {/* Reset All Button */}
-    {(mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0) && (
-      <div className="mb-4 flex justify-end">
-        <button
-          type="button"
-          onClick={() => {
-            setMieteDeltaPct(0);
-            setPreisDeltaPct(0);
-            setZinsDeltaPp(0);
-            setTilgungDeltaPp(0);
-            setEkDeltaPct(0);
-          }}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
-        >
-          <RotateCcw className="w-4 h-4" />
-          Alle zurücksetzen
-        </button>
-      </div>
-    )}
-
-    {/* Grouped Sliders by Category */}
-    <div className="mb-6 space-y-6">
-      {/* Immobilie Category */}
-      <div>
-        <h3 className="text-sm font-bold text-[#001d3d] mb-3 uppercase tracking-wider">Immobilie</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Slider label="Kaufpreis" value={preisDeltaPct} onChange={setPreisDeltaPct} onReset={() => setPreisDeltaPct(0)} min={-30} max={30} step={0.5} suffix="%" />
-          <Slider label="Kaltmiete" value={mieteDeltaPct} onChange={setMieteDeltaPct} onReset={() => setMieteDeltaPct(0)} min={-30} max={30} step={0.5} suffix="%" />
-        </div>
-      </div>
-
-      {/* Finanzierung Category */}
-      <div>
-        <h3 className="text-sm font-bold text-[#001d3d] mb-3 uppercase tracking-wider">Finanzierung</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Slider label="Eigenkapital" value={ekDeltaPct} onChange={setEkDeltaPct} onReset={() => setEkDeltaPct(0)} min={-100} max={100} step={1} suffix="%" />
-          <Slider label="Zins" value={zinsDeltaPp} onChange={setZinsDeltaPp} onReset={() => setZinsDeltaPp(0)} min={-3} max={3} step={0.1} suffix="pp" />
-          <Slider label="Tilgung" value={tilgungDeltaPp} onChange={setTilgungDeltaPp} onReset={() => setTilgungDeltaPp(0)} min={-3} max={3} step={0.1} suffix="pp" />
-        </div>
-      </div>
-    </div>
-
-    {/* Base vs Szenario */}
-        {(() => {
-      // Use pre-calculated values from useMemo
-      const {
-        scMiete,
-        scKaufpreis,
-        scZins,
-        scTilgung,
-        scEk,
-        scAnschaffung,
-        scDarlehen,
-        scRateMonat,
-        scCashflowVorSt,
-        scCashflowAfterTax,
-        scDSCR,
-        scBruttoRendite,
-        scNettoRendite,
-        scEkRendite,
-      } = scenarioCalculations;
-
-      const rateMonat = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-
-    // --- Szenario: Helpers & Rows (keine weitere IIFE im JSX) ---
-      type Unit = "€" | "%" | "" | "pp";
-      type Row = {
-        label: string;
-        base: number;
-        sc: number;
-        unit?: Unit;
-        higherIsBetter?: boolean;      // default: true
-        fractionDigits?: number;       // default: 0 for €, 1 für %
-        renderMain?: () => React.ReactNode;  // z.B. für "Zins / Tilgung"
-        renderDelta?: () => React.ReactNode; // eigener Delta-Renderer
-      };
-
-      const nz = (x:number) => Math.abs(x) < 1e-9;
-      const nowrap = "whitespace-nowrap";
-      const fmt = (v:number, unit?:Unit, fd?:number) => {
-        const digits = fd ?? (unit === "%" ? 1 : unit === "€" ? 0 : 0);
-        const core = v.toLocaleString("de-DE", {
-          maximumFractionDigits: digits,
-          minimumFractionDigits: digits,
-        });
-        if (unit === "%") return core + " %";
-        if (unit === "€") return <span className={nowrap}>{core} €</span>;
-        if (unit === "pp") return core + " pp";
-        return core;
-      };
-
-      // Zins/Tilgung: Delta über die SUMME (niedriger ist besser)
-      const sumBaseZT  = (zins ?? 0) + (tilgung ?? 0);
-      const sumScZT    = (scZins ?? 0) + (scTilgung ?? 0);
-      const deltaSumZT = sumScZT - sumBaseZT;
-      const ztBetter   = deltaSumZT < 0;
-      const ztDeltaColor = nz(deltaSumZT) ? "text-gray-600"
-                           : ztBetter ? "text-[hsl(var(--success))]"
-                                      : "text-[hsl(var(--danger))]";
-
-      const rows: Row[] = [
-        { label: "Kaufpreis",          base: kaufpreis,          sc: scKaufpreis,       unit: "€", higherIsBetter: false, fractionDigits: 0 },
-        { label: "Gesamtinvestition",  base: anschaffungskosten, sc: scAnschaffung,     unit: "€", higherIsBetter: false, fractionDigits: 0 },
-        { label: "Eigenkapital",       base: ek,                 sc: scEk,              unit: "€", higherIsBetter: true,  fractionDigits: 0 },
-        { label: "Darlehenssumme",     base: darlehensSumme,     sc: scDarlehen,        unit: "€", higherIsBetter: false, fractionDigits: 0 },
-        {
-          label: "Zins / Tilgung",
-          base: sumBaseZT,
-          sc: sumScZT,
-          unit: "%",
-          higherIsBetter: false,
-          fractionDigits: 2,
-          renderMain: () => (
-            <span className={nowrap}>{scZins.toFixed(2)} % / {scTilgung.toFixed(2)} %</span>
-          ),
-          renderDelta: () => (
-            <div className={`text-xs mt-0.5 ${ztDeltaColor}`}>
-              Δ gesamt: {nz(deltaSumZT) ? "±0" : (deltaSumZT > 0 ? "+" : "−") + Math.abs(deltaSumZT).toFixed(2) + " pp"}
-            </div>
-          ),
-        },
-        { label: "Monatliche Rate",    base: rateMonat,          sc: scRateMonat,       unit: "€", higherIsBetter: false, fractionDigits: 2 },
-        { label: "Kaltmiete",          base: miete,              sc: scMiete,           unit: "€", higherIsBetter: true,  fractionDigits: 0 },
-        { label: "Cashflow (vor St.)", base: cashflowVorSteuer,  sc: scCashflowVorSt,   unit: "€", higherIsBetter: true,  fractionDigits: 0 },
-        { label: "Cashflow (nach St.)", base: cashflowAfterTax,  sc: scCashflowAfterTax, unit: "€", higherIsBetter: true,  fractionDigits: 0 },
-        { label: "DSCR",               base: dscr,               sc: scDSCR,            unit: "",  higherIsBetter: true,  fractionDigits: 2 },
-        { label: "Nettomietrendite",   base: nettoMietrendite,   sc: scNettoRendite,    unit: "%", higherIsBetter: true,  fractionDigits: 1 },
-        { label: "Bruttomietrendite",  base: bruttoMietrendite,  sc: scBruttoRendite,   unit: "%", higherIsBetter: true,  fractionDigits: 1 },
-        { label: "EK-Rendite",         base: ekRendite,          sc: scEkRendite,       unit: "%", higherIsBetter: true,  fractionDigits: 1 },
-      ];
-
-      // Summary KPIs - Alle 6 wichtigsten KPIs
-      const summaryKpis = [
-        {
-          label: "Bruttomietrendite",
-          base: bruttoMietrendite,
-          sc: scBruttoRendite,
-          delta: scBruttoRendite - bruttoMietrendite,
-          unit: "%",
-          icon: SquarePercent
-        },
-        {
-          label: "Nettomietrendite",
-          base: nettoMietrendite,
-          sc: scNettoRendite,
-          delta: scNettoRendite - nettoMietrendite,
-          unit: "%",
-          icon: Percent
-        },
-        {
-          label: "Cashflow vor Steuern",
-          base: cashflowVorSteuer,
-          sc: scCashflowVorSt,
-          delta: scCashflowVorSt - cashflowVorSteuer,
-          unit: "€",
-          icon: Wallet
-        },
-        {
-          label: "Cashflow nach Steuern",
-          base: cashflowAfterTax,
-          sc: scCashflowAfterTax,
-          delta: scCashflowAfterTax - cashflowAfterTax,
-          unit: "€",
-          icon: ReceiptText
-        },
-        {
-          label: "EK-Rendite",
-          base: ekRendite,
-          sc: scEkRendite,
-          delta: scEkRendite - ekRendite,
-          unit: "%",
-          icon: TrendingUp
-        },
-        {
-          label: "DSCR",
-          base: dscr,
-          sc: scDSCR,
-          delta: scDSCR - dscr,
-          unit: "",
-          icon: ShieldCheck
-        }
-      ];
-
-      const hasChanges = mieteDeltaPct !== 0 || preisDeltaPct !== 0 || zinsDeltaPp !== 0 || tilgungDeltaPp !== 0 || ekDeltaPct !== 0;
-
-      return (
-        <>
-        {/* Summary Card - Alle 6 KPIs */}
-        {hasChanges && (
-        <div className="card bg-gradient-to-br from-orange-50/30 to-white border-2 border-orange-100 mb-6">
-          <h3 className="font-bold text-lg mb-4 text-[#001d3d]">Auswirkungen auf einen Blick</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {summaryKpis.map((kpi) => {
-              const isZero = Math.abs(kpi.delta) < 1e-9;
-              const isPositive = !isZero && kpi.delta > 0;
-              const deltaColor = isZero ? "text-gray-500" : isPositive ? "text-green-600" : "text-red-600";
-              const bgColor = isZero ? "bg-gray-50" : isPositive ? "bg-green-50" : "bg-red-50";
-              const IconComponent = kpi.icon;
-
-              return (
-                <div key={kpi.label} className={`p-3 rounded-xl ${bgColor} border border-gray-200`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-5 h-5 bg-white/70 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <IconComponent size={12} className="text-[#ff6b00]" />
-                    </div>
-                    <div className="text-[10px] font-bold text-gray-600 uppercase tracking-wider">{kpi.label}</div>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <div className="text-xl font-bold text-[#001d3d]">
-                      {kpi.unit === "€"
-                        ? kpi.sc.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + " €"
-                        : kpi.unit === "%"
-                        ? kpi.sc.toFixed(1) + " %"
-                        : kpi.sc.toFixed(2)
-                      }
-                    </div>
-                  </div>
-                  <div className={`text-xs font-semibold mt-1 ${deltaColor}`}>
-                    {isZero
-                      ? "Keine Änderung"
-                      : `${isPositive ? "+" : "−"}${Math.abs(kpi.delta).toLocaleString('de-DE', {
-                          maximumFractionDigits: kpi.unit === "%" ? 1 : kpi.unit === "€" ? 0 : 2
-                        })} ${kpi.unit}`
-                    }
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        )}
-
-        {/* Unified Table - 4 Spalten für bessere Vergleichbarkeit */}
-        <div className="card bg-white">
-          <h3 className="font-semibold mb-4 text-lg">Detaillierter Vergleich</h3>
-
-          {/* Responsive wrapper with horizontal scroll on mobile */}
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <table className="w-full min-w-[600px] text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 bg-gray-50/50">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Metrik</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Basis</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Szenario</th>
-                  <th className="text-right py-3 px-4 font-semibold text-gray-700">Änderung</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => {
-                  const delta = r.sc - r.base;
-                  const isZero = nz(delta);
-                  const better = !isZero && (r.higherIsBetter !== false ? delta > 0 : delta < 0);
-                  const deltaColor = isZero ? "text-gray-600"
-                    : better ? "text-green-600"
-                    : "text-red-600";
-                  const bgColor = isZero ? ""
-                    : better ? "bg-green-50/30"
-                    : "bg-red-50/30";
-                  const fd = r.fractionDigits ?? (r.unit === "%" ? 1 : r.unit === "€" ? 0 : 0);
-
-                  // Separator before "Cashflow (vor St.)"
-                  const showSeparator = r.label === "Cashflow (vor St.)";
-
-                  // Format delta text
-                  const deltaText = isZero
-                    ? "±0"
-                    : (delta > 0 ? "+" : "−") + (
-                        r.unit === "€"
-                          ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " €"
-                          : r.unit === "%"
-                            ? Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd }) + " %"
-                            : Math.abs(delta).toLocaleString("de-DE", { maximumFractionDigits: fd, minimumFractionDigits: fd })
-                      );
-
-                  // Arrow icon
-                  const arrow = isZero ? "" : delta > 0 ? "↑" : "↓";
-
-                  return (
-                    <React.Fragment key={r.label}>
-                      {/* Separator row */}
-                      {showSeparator && (
-                        <tr>
-                          <td colSpan={4} className="py-0">
-                            <div className="border-t border-gray-300 my-2" />
-                          </td>
-                        </tr>
-                      )}
-
-                      {/* Data row */}
-                      <tr className={`border-b border-gray-100 hover:bg-gray-50/50 transition-colors ${showSeparator ? "font-medium" : ""}`}>
-                        {/* Metric name */}
-                        <td className="py-3 px-4 text-gray-700">{r.label}</td>
-
-                        {/* Basis value */}
-                        <td className="py-3 px-4 text-right text-gray-800">
-                          {r.renderMain
-                            ? (r.label === "Zins / Tilgung"
-                                ? <span className="whitespace-nowrap">{zins.toFixed(2)} % / {tilgung.toFixed(2)} %</span>
-                                : r.renderMain())
-                            : fmt(r.base, r.unit, fd)
-                          }
-                        </td>
-
-                        {/* Szenario value */}
-                        <td className="py-3 px-4 text-right text-gray-800">
-                          {r.renderMain ? r.renderMain() : fmt(r.sc, r.unit, fd)}
-                        </td>
-
-                        {/* Delta with arrow and color */}
-                        <td className={`py-3 px-4 text-right font-medium ${bgColor}`}>
-                          {r.renderDelta ? (
-                            <div className={deltaColor}>
-                              {r.renderDelta()}
-                            </div>
-                          ) : (
-                            <span className={deltaColor}>
-                              {arrow && <span className="mr-1">{arrow}</span>}
-                              {deltaText}
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        </>
-      );
-    })()}
-
-
-    {/* Actions unten – modern, ohne Bullet-Liste */}
-    <div className="mt-8 mb-16 flex flex-col sm:flex-row gap-3">
-      {pdfBusy ? (
-        <button
-          className="btn-secondary flex items-center gap-2"
-          onClick={cancelPdfExport}
-        >
-          Abbrechen
-        </button>
-      ) : (
-        <button
-          className="btn-primary flex items-center gap-2"
-          onClick={exportPdf}
-        >
-          PDF exportieren
-        </button>
-      )}
-      <SaveAnalysisButton
-        scenarioData={{
-          mieteDeltaPct,
-          preisDeltaPct,
-          zinsDeltaPp,
-          tilgungDeltaPp,
-          ekDeltaPct,
-          wertentwicklungAktiv,
-          wertentwicklungPct,
-          darlehensTyp,
-          mietInflationPct,
-          kostenInflationPct,
-          verkaufsNebenkostenPct,
-          scenarioKaufpreis: scenarioCalculations.scKaufpreis,
-          scenarioMiete: scenarioCalculations.scMiete,
-          scenarioZins: scenarioCalculations.scZins,
-          scenarioTilgung: scenarioCalculations.scTilgung,
-          scenarioEk: scenarioCalculations.scEk,
-          scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
-          scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
-          scenarioNettorendite: scenarioCalculations.scNettoRendite,
-          scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
-          scenarioEkRendite: scenarioCalculations.scEkRendite,
-          scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
-          scenarioDscr: scenarioCalculations.scDSCR,
-          scenarioRateMonat: scenarioCalculations.scRateMonat,
-          scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
-        }}
-      />
-      {pdfBusy && (
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <LoadingSpinner size="sm" />
-          PDF wird erstellt...
-        </div>
-      )}
-    </div>
-  </>
+              <SzenarienTab
+                basis={szenarioBasis}
+                deltas={szenarioDeltas}
+                setDeltas={setSzenarioDeltas}
+                pdfBusy={pdfBusy}
+                onPdfExport={exportPdf}
+                onPdfCancel={cancelPdfExport}
+                speichern={
+                <SaveAnalysisButton
+                  scenarioData={{
+                    mieteDeltaPct,
+                    preisDeltaPct,
+                    zinsDeltaPp,
+                    tilgungDeltaPp,
+                    ekDeltaPct,
+                    wertentwicklungAktiv: true,
+                    wertentwicklungPct,
+                    darlehensTyp,
+                    mietInflationPct,
+                    kostenInflationPct,
+                    verkaufsNebenkostenPct,
+                    scenarioKaufpreis: scenarioCalculations.scKaufpreis,
+                    scenarioMiete: scenarioCalculations.scMiete,
+                    scenarioZins: scenarioCalculations.scZins,
+                    scenarioTilgung: scenarioCalculations.scTilgung,
+                    scenarioEk: scenarioCalculations.scEk,
+                    scenarioCashflowVorSteuer: scenarioCalculations.scCashflowVorSt,
+                    scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
+                    scenarioNettorendite: scenarioCalculations.scNettoRendite,
+                    scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
+                    scenarioEkRendite: scenarioCalculations.scEkRendite,
+                    scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
+                    scenarioDscr: scenarioCalculations.scDSCR,
+                    scenarioRateMonat: scenarioCalculations.scRateMonat,
+                    scenarioAbzahlungsjahr: scenarioCalculations.scAbzahlungsjahr,
+                  }}
+                />
+                }
+              />
             </div>
           </div>
         )}

@@ -17,6 +17,13 @@ export interface PrognoseJahr {
   warmmieteAktuell?: number;
   verkaufsNebenkosten?: number;
 
+  // Jahreswerte für die Aufschlüsselung im Prognose-Tab
+  mieteinnahmenJaehrlich: number;
+  hausgeldJaehrlich: number;
+  kalkKostenJaehrlich: number;
+  tilgungJaehrlich: number;
+  steuerJaehrlich: number; // negativ = Erstattung
+
   // AfA-Turbo Erweiterungen
   afaLinear: number;
   afaSonder: number;
@@ -95,19 +102,8 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
   // Legacy: afaJaehrlich für Rückwärtskompatibilität
   const legacyAfaJaehrlich = input.afaJaehrlich ?? 0;
 
-  // Annuitäten-Berechnung (einmalig für konstante Rate)
-  let annuitaetMonatlich = 0;
-  if (darlehensTyp === 'annuitaet') {
-    const zinsMonatlich = input.zins / 100 / 12;
-    const laufzeitMonate = jahre * 12;
-    if (zinsMonatlich > 0) {
-      annuitaetMonatlich =
-        (input.darlehensSumme * zinsMonatlich * Math.pow(1 + zinsMonatlich, laufzeitMonate)) /
-        (Math.pow(1 + zinsMonatlich, laufzeitMonate) - 1);
-    } else {
-      annuitaetMonatlich = input.darlehensSumme / laufzeitMonate;
-    }
-  }
+  // Annuität: konstante Jahresrate = Darlehen × (Zins + anfängliche Tilgung)
+  const annuitaetJaehrlich = input.darlehensSumme * ((input.zins + input.tilgung) / 100);
 
   for (let jahr = 0; jahr <= jahre; jahr += 1) {
     // AfA-Daten für dieses Jahr (entweder aus AfA-Turbo oder Legacy)
@@ -150,9 +146,8 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
     if (darlehensTyp === 'annuitaet') {
       // Annuitätendarlehen: Konstante monatliche Rate
       zinslast = restschuld * (input.zins / 100);
-      const zinsMonthly = zinslast / 12;
-      regulareTilgungMonthly = Math.max(0, annuitaetMonatlich - zinsMonthly);
-      regulareTilgung = regulareTilgungMonthly * 12;
+      regulareTilgung = Math.max(0, annuitaetJaehrlich - zinslast);
+      regulareTilgungMonthly = regulareTilgung / 12;
     } else {
       // Degressives Darlehen: Rate sinkt mit Restschuld
       zinslast = restschuld * (input.zins / 100);
@@ -229,6 +224,11 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       cashflowKumuliertOhneSondertilgung: kumuliertCFOhneSondertilgung,
       zinslast,
       afaVorteil: afaVorteilJaehrlich,
+      mieteinnahmenJaehrlich: warmmieteAktuell * 12,
+      hausgeldJaehrlich: hausgeldAktuell * 12,
+      kalkKostenJaehrlich: kalkKostenAktuell * 12,
+      tilgungJaehrlich: tilgung,
+      steuerJaehrlich: taxMonthly * 12,
       // AfA-Turbo Erweiterungen
       afaLinear,
       afaSonder,
@@ -250,4 +250,10 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
   }
 
   return { jahre: result };
+}
+
+/** Kalenderjahr, in dem der Kredit vollständig getilgt ist (Restschuld am Jahresende = 0), sonst null */
+export function berechneAbzahlungsjahr(jahre: PrognoseJahr[]): number | null {
+  const idx = jahre.findIndex(j => j.restschuld <= 0.5);
+  return idx > 0 ? jahre[idx - 1].jahr : null;
 }

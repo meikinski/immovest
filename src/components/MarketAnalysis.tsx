@@ -239,7 +239,7 @@ export function SourcesCard({ citations }: { citations: NonNullable<MarketFacts[
 type Section = { title: string; html: string };
 
 /** Zerlegt das Agent-HTML (<h3>Titel</h3><p>…</p>…) in Abschnitte. */
-function splitSections(html: string): Section[] {
+export function splitSections(html: string): Section[] {
   const parts = html.split(/<h3[^>]*>/i).slice(1);
   return parts.map(part => {
     const [rawTitle, ...rest] = part.split(/<\/h3>/i);

@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     return new NextResponse(Buffer.from(pdfBuffer), {
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="immobilien_analyse.pdf"',
+        'Content-Disposition': 'attachment; filename="investment-report.pdf"',
       },
     });
   } catch (e) {
