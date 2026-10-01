@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
-import { berechnePrognose } from '@/lib/prognose-calculator';
+import { berechnePrognose, berechneAbzahlungsjahr } from '@/lib/prognose-calculator';
 import HtmlContent from '@/components/HtmlContent';
 import { KpiTile, type KpiRating } from '@/components/KpiTile';
 import { PrognoseTab } from '@/components/PrognoseTab';
@@ -401,9 +401,10 @@ export default function StepPage() {
   // Grundstückswert für AfA (Fallback: 20% des Kaufpreises)
   const effectiveGrundstueckswert = grundstueckswert > 0 ? grundstueckswert : Math.round(kaufpreis * 0.2);
 
-  const prognose = useMemo(
-    () =>
-      berechnePrognose(
+  // Abzahlung kann länger als die 30 angezeigten Jahre dauern, daher 60 Jahre rechnen
+  const { prognose, abzahlungsjahr } = useMemo(
+    () => {
+      const lang = berechnePrognose(
         {
           startJahr: new Date().getFullYear(),
           darlehensSumme,
@@ -428,8 +429,13 @@ export default function StepPage() {
           grundstueckswert: effectiveGrundstueckswert,
           wohnflaeche: flaeche,
         },
-        30
-      ),
+        60
+      );
+      return {
+        prognose: { jahre: lang.jahre.slice(0, 31) },
+        abzahlungsjahr: berechneAbzahlungsjahr(lang.jahre),
+      };
+    },
     [
       darlehensSumme,
       ek,
@@ -487,20 +493,34 @@ export default function StepPage() {
     const scMietausfallMon = scMiete * (mietausfallPctN / 100);
     const scKalkKostenMon = scInstandMonthly + scMietausfallMon;
 
-    const scCashflowVorSt = scWarmmiete - hausgeld - scKalkKostenMon - scZinsMonthly - scTilgungMonthly;
-
-    const scRateMonat = (scDarlehen * ((scZins + scTilgung) / 100)) / 12;
-
-    // Cashflow nach Steuern für Szenario
-    const gebPctN = Number(gebText.replace(',', '.')) || 0;
-    const afaPctN = Number(afaText.replace(',', '.')) || 0;
-    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-    const afaAnnualEurSc = gebaeudeAnteilEurSc * (afaPctN / 100);
-    const afaMonthlyEurSc = afaAnnualEurSc / 12;
-    const taxableCashflowSc = scWarmmiete - hausgeld - scZinsMonthly - afaMonthlyEurSc;
-    const effectiveStz = Number(persText.replace(',', '.')) || 0;
-    const taxMonthlySc = taxableCashflowSc * (effectiveStz / 100);
-    const scCashflowAfterTax = scCashflowVorSt - taxMonthlySc;
+    // Cashflow über dieselbe Prognose-Rechnung wie die Basis (gleiche Rate, gleiche AfA),
+    // damit Basis und Szenario ohne Änderung identisch sind
+    const kaufpreisFaktor = kaufpreis > 0 ? scKaufpreis / kaufpreis : 1;
+    const scPrognose = berechnePrognose(
+      {
+        startJahr: new Date().getFullYear(),
+        darlehensSumme: scDarlehen,
+        ek: scEk,
+        zins: scZins,
+        tilgung: scTilgung,
+        warmmiete: scWarmmiete,
+        hausgeld: hausgeldTotal,
+        kalkKostenMonthly: scKalkKostenMon,
+        afaJaehrlich: afaAnnualEur * kaufpreisFaktor,
+        steuersatz: effectiveStz,
+        darlehensTyp,
+        afaModell,
+        nutzeSonderAfa,
+        kaufpreis: scKaufpreis,
+        grundstueckswert: effectiveGrundstueckswert * kaufpreisFaktor,
+        wohnflaeche: flaeche,
+      },
+      60
+    ).jahre;
+    const scJahr0 = scPrognose[0];
+    const scCashflowVorSt = scJahr0?.cashflowVorSteuern ?? 0;
+    const scCashflowAfterTax = scJahr0?.cashflowMonatlich ?? 0;
+    const scRateMonat = scJahr0 ? (scJahr0.zinslast + scJahr0.tilgungJaehrlich) / 12 : 0;
 
     // DSCR für Szenario
     const scDSCR = scRateMonat > 0 ? (scWarmmiete - hausgeld - scKalkKostenMon) / scRateMonat : 0;
@@ -512,11 +532,7 @@ export default function StepPage() {
     const scNoiMonthly = scWarmmiete - hausgeld - scKalkKostenMon;
 
     // Calculate payoff year for scenario (simplified)
-    let scAbzahlungsjahr = 0;
-    if (scDarlehen > 0 && scTilgung > 0) {
-      const jahresTilgung = scDarlehen * (scTilgung / 100);
-      scAbzahlungsjahr = Math.ceil(scDarlehen / jahresTilgung);
-    }
+    const scAbzahlungsjahr = berechneAbzahlungsjahr(scPrognose) ?? 0;
 
     return {
       scMiete,
@@ -552,7 +568,7 @@ export default function StepPage() {
     grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
     hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm, flaeche,
     instandText, mietausfallText,
-    gebText, afaText, persText,
+    hausgeldTotal, afaAnnualEur, effectiveStz, darlehensTyp, afaModell, nutzeSonderAfa, effectiveGrundstueckswert,
   ]);
 
 
@@ -1110,56 +1126,18 @@ const exportPdf = React.useCallback(async () => {
     const strip = (html: string) =>
       (html || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
 
-    // Szenario-Werte berechnen (aus aktuellen UI-States)
-    const scMiete     = Math.max(0, miete * (1 + mieteDeltaPct / 100));
-    const scKaufpreis = Math.max(0, kaufpreis * (1 + preisDeltaPct / 100));
-    const scZins      = Math.max(0, zins + zinsDeltaPp);
-    const scTilgung   = Math.max(0, tilgung + tilgungDeltaPp);
-    const scEk        = Math.max(0, ek * (1 + ekDeltaPct / 100));
-    
-
-    const { nk: scNk } = berechneNebenkosten(
-      scKaufpreis, grunderwerbsteuer_pct, notarPct, maklerPct
-    );
-    const scAnsch    = scKaufpreis + scNk;
-    const scDarl     = Math.max(0, scAnsch - scEk);
-    const scZMon     = (scDarl * (scZins / 100)) / 12;
-    const scTMon     = (scDarl * (scTilgung / 100)) / 12;
-    const scInstand  = (Number(instandText.replace(',', '.')) || 0) * flaeche / 12;
-    const scMietausf = scMiete * ((Number(mietausfallText.replace(',', '.')) || 0) / 100);
-    const scKalk     = scInstand + scMietausf;
-    const scWarm     = scMiete + hausgeld_umlegbar;
-
-    const scCFvSt = scWarm - hausgeld - scKalk - scZMon - scTMon;
-    const scBewJ  = (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-    const scNetto = scAnsch > 0 ? ((scMiete * 12 - scBewJ) / scAnsch) * 100 : 0;
-    const debtServiceMonthly = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
-
+    // Szenario-Werte: dieselbe Rechnung wie im Szenarien-Tab
+    const {
+      scMiete, scKaufpreis, scZins, scTilgung, scEk,
+      scCashflowVorSt: scCFvSt, scCashflowAfterTax, scNettoRendite: scNetto, scBruttoRendite: scBruttoRend,
+      scEkRendite: scEkR, scNoiMonthly, scDSCR: scDscr, scRateMonat: scRateMon, scAbzahlungsjahr: scAbzahlung,
+    } = scenarioCalculations;
+    const scAbzahlungsjahr = scAbzahlung || null;
+    const debtServiceMonthly = prognose.jahre[0] ? (prognose.jahre[0].zinslast + prognose.jahre[0].tilgungJaehrlich) / 12 : 0;
     const ekQuotePct = anschaffungskosten > 0 ? (ek / anschaffungskosten) * 100 : 0;
-    const scEkR   = scEk > 0 ? ((scMiete * 12 - scBewJ - (scDarl * (scZins / 100))) / scEk) * 100 : 0;
-
-    const scRateMon    = (scDarl * ((scZins + scTilgung) / 100)) / 12;
-    const scNoiMonthly = (scWarm) - hausgeld - scKalk;                 // wie im App-Tab
-    const scDscr       = scRateMon > 0 ? (scNoiMonthly / scRateMon) : 0;
-    const scBruttoRend = scAnsch > 0 ? ((scMiete * 12) / scAnsch) * 100 : 0;
-    
-    // Abzahlungsjahr (≈) wie in der App: aktuelles Jahr + 1/(zins+tilgung)
-    const payoffYearsApprox = (scZins + scTilgung) > 0 ? Math.round(1 / ((scZins + scTilgung) / 100)) : 0;
-    const scAbzahlungsjahr  = payoffYearsApprox ? new Date().getFullYear() + payoffYearsApprox : null;
-
-    // (optional) Cashflow nach Steuern (wie Basis, aber mit Szenariowerten)
-    const gebPctN = Number(gebText.replace(',', '.')) || 0;
-    const afaPctN = Number(afaText.replace(',', '.')) || 0;
-    const gebaeudeAnteilEurSc = (scKaufpreis * gebPctN) / 100;
-    const afaAnnualEurSc      = gebaeudeAnteilEurSc * (afaPctN / 100);
-    const afaMonthlyEurSc     = afaAnnualEurSc / 12;
-    const effStzN             = Number(persText.replace(',', '.')) || 0;
-    const taxableSc           = scWarm - hausgeld - scKalk - scZMon - afaMonthlyEurSc;
-    const taxMonthlySc        = taxableSc * (effStzN / 100);
-    const scCashflowAfterTax  = scCFvSt - taxMonthlySc;
 
     // Extract prognose data for PDF
-    const payoffYear = prognose.jahre.find(j => j.restschuld === 0)?.jahr ?? null;
+    const payoffYear = abzahlungsjahr;
     const jahr5Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 5);
     const jahr10Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 10);
 
@@ -1257,16 +1235,13 @@ const exportPdf = React.useCallback(async () => {
   }
 }, [
   // Exhaustive deps aller verwendeten States/Variablen, die oben genutzt werden
-  mieteDeltaPct, preisDeltaPct, zinsDeltaPp, tilgungDeltaPp, ekDeltaPct,
-  miete, kaufpreis, zins, tilgung, ek,
-  grunderwerbsteuer_pct, notarPct, maklerPct,
-  instandText, mietausfallText, flaeche,
-  hausgeld_umlegbar, hausgeld, instandhaltungskostenProQm,
+  scenarioCalculations,
+  miete, kaufpreis, zins, tilgung, ek, flaeche,
   shortAddress, adresse, zimmer, baujahr,
   cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite,
   anschaffungskosten, darlehensSumme,
-  lageComment, mietpreisComment, qmPreisComment, afaText, gebText, persText,
-  prognose, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
+  lageComment, mietpreisComment, qmPreisComment,
+  prognose, abzahlungsjahr, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
 ]);
 
 
@@ -2300,7 +2275,7 @@ const exportPdf = React.useCallback(async () => {
 
               const ekQuote = anschaffungskosten > 0 ? Math.min(100, Math.max(0, (ek / anschaffungskosten) * 100)) : 0;
               const breakEvenYear = isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : null;
-              const payoffYear = zins + tilgung > 0 ? new Date().getFullYear() + Math.round(1 / ((zins + tilgung) / 100)) : null;
+              const payoffYear = abzahlungsjahr;
 
               return (
                 <>
@@ -2809,7 +2784,7 @@ const exportPdf = React.useCallback(async () => {
         scEkRendite,
       } = scenarioCalculations;
 
-      const rateMonat = (darlehensSumme * ((zins + tilgung) / 100)) / 12;
+      const rateMonat = prognose.jahre[0] ? (prognose.jahre[0].zinslast + prognose.jahre[0].tilgungJaehrlich) / 12 : 0;
 
     // --- Szenario: Helpers & Rows (keine weitere IIFE im JSX) ---
       type Unit = "€" | "%" | "" | "pp";

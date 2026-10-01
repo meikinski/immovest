@@ -4,7 +4,7 @@
  * Ausführen mit `npx tsx src/lib/__tests__/prognose-view.test.ts`
  */
 
-import { berechnePrognose } from '../prognose-calculator';
+import { berechneAbzahlungsjahr, berechnePrognose } from '../prognose-calculator';
 import { baueMeilensteine, baueVerlauf, SPEKULATIONSFRIST_JAHRE } from '../prognose-view';
 
 function assert(condition: boolean, message: string) {
@@ -72,5 +72,16 @@ assert(!!halb && verlauf.find(j => j.jahr === halb.jahr)!.restschuld <= 47500, '
 
 const ohneKredit = baueMeilensteine(verlauf, { ek: 20000, darlehensSumme: 0 });
 assert(!ohneKredit.some(m => m.key === 'schuldenfrei' || m.key === 'haelfte'), 'Ohne Kredit keine Kredit-Meilensteine');
+
+// Annuität: Jahresrate = Darlehen × (Zins + Tilgung), konstant
+const ersteRate = jahre[0].zinslast + jahre[0].tilgungJaehrlich;
+assert(near(ersteRate, 95000 * 0.055), 'Annuität im ersten Jahr = Darlehen × (Zins + Tilgung)');
+assert(near(jahre[5].zinslast + jahre[5].tilgungJaehrlich, ersteRate), 'Annuität bleibt konstant');
+const lang = berechnePrognose(input, 60).jahre;
+const abzahlung = berechneAbzahlungsjahr(lang);
+assert(abzahlung !== null && abzahlung >= 2053 && abzahlung <= 2056, `Bei 3,5 % Zins und 2 % Tilgung schuldenfrei nach ca. 28–30 Jahren (${abzahlung})`);
+const wenigTilgung = berechneAbzahlungsjahr(berechnePrognose({ ...input, tilgung: 1 }, 60).jahre);
+assert(wenigTilgung !== null && wenigTilgung > abzahlung!, 'Weniger Tilgung → später schuldenfrei');
+assert(berechneAbzahlungsjahr(berechnePrognose({ ...input, tilgung: 0 }, 60).jahre) === null, 'Ohne Tilgung nie schuldenfrei');
 
 console.log('\nAlle Prognose-Ansicht-Tests bestanden.');
