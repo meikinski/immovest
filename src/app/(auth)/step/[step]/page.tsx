@@ -12,7 +12,8 @@ import { KpiTile, type KpiRating } from '@/components/KpiTile';
 import { PrognoseTab } from '@/components/PrognoseTab';
 import { SzenarienTab } from '@/components/SzenarienTab';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
-import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard } from '@/components/MarketAnalysis';
+import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, splitSections } from '@/components/MarketAnalysis';
+import { baueReportDaten } from '@/lib/report-daten';
 import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
@@ -1030,76 +1031,32 @@ const exportPdf = React.useCallback(async () => {
   setPdfBusy(true);
   pdfAbortController.current = new AbortController();
   try {
-    // HTML → Plaintext lokal, damit ESLint ruhig bleibt
-    const strip = (html: string) =>
-      (html || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-
-    // Szenario-Werte: dieselbe Rechnung wie im Szenarien-Tab
-    const {
-      scMiete, scKaufpreis, scZins, scTilgung, scEk,
-      scCashflowVorSt: scCFvSt, scCashflowAfterTax, scNettoRendite: scNetto, scBruttoRendite: scBruttoRend,
-      scEkRendite: scEkR, scNoiMonthly, scDSCR: scDscr, scRateMonat: scRateMon, scAbzahlungsjahr: scAbzahlung,
-    } = scenarioCalculations;
-    const scAbzahlungsjahr = scAbzahlung || null;
-    const debtServiceMonthly = prognose.jahre[0] ? (prognose.jahre[0].zinslast + prognose.jahre[0].tilgungJaehrlich) / 12 : 0;
-    const ekQuotePct = anschaffungskosten > 0 ? (ek / anschaffungskosten) * 100 : 0;
-
-    // Extract prognose data for PDF
-    const payoffYear = abzahlungsjahr;
-    const jahr5Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 5);
-    const jahr10Data = prognose.jahre.find(j => j.jahr === new Date().getFullYear() + 10);
-
-    const payload = {
-      address: shortAddress || adresse,
-      kaufpreis, flaeche, zimmer, baujahr,
-      miete, ek, zins, tilgung,
-      cashflowVorSteuer,
-      cashflowNachSteuern: cashflowAfterTax,
-      nettoMietrendite, bruttoMietrendite, ekRendite,
-      anschaffungskosten, darlehensSumme,
-      debtServiceMonthly,
-      ekQuotePct,
-      noiMonthly: warmmiete - hausgeldTotal - kalkKostenMonthly,
-      dscr,
-      lageText: strip(lageComment),
-      mietvergleich: strip(mietpreisComment),
-      preisvergleich: strip(qmPreisComment),
-      szenario: {
-        kaufpreis: scKaufpreis,
-        miete: scMiete,
-        zins: scZins,
-        tilgung: scTilgung,
-        ek: scEk,
-        cashflowVorSteuer: scCFvSt,
-        cashflowNachSteuern: scCashflowAfterTax,
-        nettoRendite: scNetto,
-        bruttorendite: scBruttoRend,
-        ekRendite: scEkR,
-        noiMonthly: scNoiMonthly,
-        dscr: scDscr,
-        rateMonat: scRateMon,
-        abzahlungsjahr: scAbzahlungsjahr,
+    const fazitHtml = splitSections(investComment || '').find(sec => /fazit/i.test(sec.title))?.html ?? '';
+    const payload = baueReportDaten({
+      adresse: shortAddress || adresse || '',
+      objekttyp,
+      flaeche,
+      zimmer,
+      baujahr,
+      nebenkosten: {
+        grunderwerbsteuer: grunderwerbsteuer_eur, notar: notar_eur, makler: makler_eur,
+        grunderwerbsteuerPct: grunderwerbsteuer_pct, notarPct, maklerPct,
       },
-      prognose: (jahr5Data && jahr10Data) ? {
-        payoffYear,
-        jahr5: {
-          restschuld: jahr5Data.restschuld,
-          eigenkapital: jahr5Data.eigenkapitalGesamt,
-          cashflowKumuliert: jahr5Data.cashflowKumuliert,
-        },
-        jahr10: {
-          restschuld: jahr10Data.restschuld,
-          eigenkapital: jahr10Data.eigenkapitalGesamt,
-          cashflowKumuliert: jahr10Data.cashflowKumuliert,
-        },
-        jahre: prognose.jahre.map(j => ({
-          jahr: j.jahr,
-          restschuld: j.restschuld,
-          eigenkapitalGesamt: j.eigenkapitalGesamt,
-          cashflowKumuliert: j.cashflowKumuliert,
-        })),
-      } : null,
-    };
+      basis: szenarioBasis,
+      deltas: szenarioDeltas,
+      anschaffungskosten,
+      prognoseJahre: prognose.jahre,
+      annahmen: { wertsteigerungPct: wertentwicklungPct, mietInflationPct, kostenInflationPct, verkaufsNebenkostenPct },
+      markt: {
+        facts: marktFacts ?? null,
+        mietDelta: mietMarktDelta ?? null,
+        kaufDelta: kaufMarktDelta ?? null,
+        mietHtml: mietpreisComment,
+        kaufHtml: qmPreisComment,
+        lageHtml: lageComment,
+        fazitHtml,
+      },
+    });
 
     const res = await fetch('/api/export/pdf', {
       method: 'POST',
@@ -1118,7 +1075,7 @@ const exportPdf = React.useCallback(async () => {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
     a.href = url;
-    a.download = 'immo_analyse.pdf';
+    a.download = 'investment-report.pdf';
     a.style.display = 'none';
     a.target = '_self';  // Prevent opening in new tab
     document.body.appendChild(a);
@@ -1142,14 +1099,11 @@ const exportPdf = React.useCallback(async () => {
     setPdfBusy(false);
   }
 }, [
-  // Exhaustive deps aller verwendeten States/Variablen, die oben genutzt werden
-  scenarioCalculations,
-  miete, kaufpreis, zins, tilgung, ek, flaeche,
-  shortAddress, adresse, zimmer, baujahr,
-  cashflowVorSteuer, nettoMietrendite, bruttoMietrendite, ekRendite,
-  anschaffungskosten, darlehensSumme,
-  lageComment, mietpreisComment, qmPreisComment,
-  prognose, abzahlungsjahr, warmmiete, hausgeldTotal, kalkKostenMonthly, cashflowAfterTax, dscr,
+  shortAddress, adresse, objekttyp, flaeche, zimmer, baujahr,
+  grunderwerbsteuer_eur, notar_eur, makler_eur, grunderwerbsteuer_pct, notarPct, maklerPct,
+  szenarioBasis, szenarioDeltas, anschaffungskosten, prognose,
+  wertentwicklungPct, mietInflationPct, kostenInflationPct, verkaufsNebenkostenPct,
+  marktFacts, mietMarktDelta, kaufMarktDelta, mietpreisComment, qmPreisComment, lageComment, investComment,
 ]);
 
 
