@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
         confidence: result.confidence,
         notes: result.notes,
         warnings: result.warnings || [],
-        method: 'ai-agent-web-search'
+        method: portalInfo.name === 'ImmobilienScout24' ? 'immoscout-mobile-api' : 'ai-agent-web-search'
       }
     };
 
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       } else if (error.message.includes('403') || error.message.includes('Forbidden') || error.message.includes('blocked') || error.message.includes('Browser-Automation ist in dieser Umgebung nicht verfügbar')) {
         // Special handling for blocked/403 errors
         if (portalName === 'ImmobilienScout24' || portalName.includes('immobilienscout')) {
-          enhancedErrorMessage = `ImmobilienScout24 blockiert aktuell automatische Zugriffe.\n\n💡 Alternativen:\n• Gib die Daten manuell ein\n• Probier's mit Immowelt oder eBay Kleinanzeigen (funktionieren meist besser)`;
+          enhancedErrorMessage = `ImmobilienScout24 hat den Zugriff gerade blockiert.\n\n💡 Alternativen:\n• Versuch es in ein paar Minuten nochmal\n• Gib die Daten manuell ein`;
         } else {
           enhancedErrorMessage = `${portalName} blockiert den Zugriff.\n\n💡 Alternativen:\n• Gib die Daten manuell ein\n• Probier's mit einem anderen Portal`;
         }

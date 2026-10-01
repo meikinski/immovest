@@ -2,6 +2,12 @@
 import { z } from 'zod';
 import { webSearchTool, Agent, Runner } from '@openai/agents';
 import { smartProxyFetch } from './smartProxy';
+import {
+  extractImmoscoutExposeId,
+  fetchImmoscoutExpose,
+  isImmoscoutUrl,
+  mapImmoscoutExpose,
+} from './immoscoutMobileApi';
 
 export type UrlScraperInput = {
   url: string;
@@ -443,6 +449,27 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     console.log('[URL Scraper] Domain:', urlObj.hostname);
   } catch {
     // URL parse failed, but continue anyway
+  }
+
+  // ImmobilienScout24: website blocks bots, use the mobile app API instead (no AI needed)
+  if (isImmoscoutUrl(trimmedUrl)) {
+    const exposeId = extractImmoscoutExposeId(trimmedUrl);
+    if (!exposeId) {
+      throw new Error('Keine ImmoScout24-Anzeige erkannt. Der Link muss zu einem einzelnen Exposé führen (…/expose/123456789).\n\n💡 Lösung: Öffne die Anzeige und kopiere den Link erneut.');
+    }
+
+    console.log(`[URL Scraper] 🏠 ImmobilienScout24 detected – fetching expose ${exposeId} via mobile API`);
+    const mapped = mapImmoscoutExpose(await fetchImmoscoutExpose(exposeId));
+
+    if (!mapped.kaufpreis || !mapped.flaeche || !mapped.adresse) {
+      const missing = [];
+      if (!mapped.kaufpreis) missing.push('Kaufpreis');
+      if (!mapped.flaeche) missing.push('Wohnfläche');
+      if (!mapped.adresse) missing.push('Adresse');
+      throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}\n\n💡 Lösung: Gib die fehlenden Daten manuell ein.`);
+    }
+
+    return validateAndFixOutput(mapped);
   }
 
   const runner = new Runner({
