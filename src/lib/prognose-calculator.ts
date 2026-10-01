@@ -17,6 +17,13 @@ export interface PrognoseJahr {
   warmmieteAktuell?: number;
   verkaufsNebenkosten?: number;
 
+  // Jahreswerte für die Aufschlüsselung im Prognose-Tab
+  mieteinnahmenJaehrlich: number;
+  hausgeldJaehrlich: number;
+  kalkKostenJaehrlich: number;
+  tilgungJaehrlich: number;
+  steuerJaehrlich: number; // negativ = Erstattung
+
   // AfA-Turbo Erweiterungen
   afaLinear: number;
   afaSonder: number;
@@ -229,6 +236,11 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       cashflowKumuliertOhneSondertilgung: kumuliertCFOhneSondertilgung,
       zinslast,
       afaVorteil: afaVorteilJaehrlich,
+      mieteinnahmenJaehrlich: warmmieteAktuell * 12,
+      hausgeldJaehrlich: hausgeldAktuell * 12,
+      kalkKostenJaehrlich: kalkKostenAktuell * 12,
+      tilgungJaehrlich: tilgung,
+      steuerJaehrlich: taxMonthly * 12,
       // AfA-Turbo Erweiterungen
       afaLinear,
       afaSonder,
