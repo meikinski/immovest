@@ -1,0 +1,98 @@
+{
+  "_comment": "Gekürzte Antwort von GET https://api.mobile.immobilienscout24.de/expose/169364993 (01.10.2026). MEDIA, Kontakt-, Werbe- und Anbieter-Abschnitte entfernt.",
+  "header": {
+    "id": "169364993",
+    "title": "Beschreibung",
+    "publicationState": "active",
+    "isTenantNetwork": false,
+    "realEstateType": "apartmentbuy"
+  },
+  "sections": [
+    {
+      "type": "TOP_ATTRIBUTES",
+      "attributes": [
+        { "label": "Kaufpreis 3.595 €/m²", "highlighted": true, "text": "399.000 €", "type": "TEXT" },
+        { "label": "Zimmer", "text": "3", "type": "TEXT" },
+        { "label": "Wohnfläche", "text": "111 m²", "type": "TEXT" }
+      ]
+    },
+    { "type": "TITLE", "title": "Tolle Erdgeschosswohnung in Köln-Heimersdorf" },
+    {
+      "type": "MAP",
+      "title": "Karte",
+      "addressLine1": "Die vollständige Adresse der Immobilie erhältst du vom Anbieter.",
+      "addressLine2": "50767 Heimersdorf, Köln",
+      "zipCodeShapes": [],
+      "enableEnterFullAddressAction": true
+    },
+    {
+      "type": "ATTRIBUTE_LIST",
+      "title": "Hauptkriterien",
+      "attributes": [
+        { "type": "TEXT", "label": "Wohnungstyp:", "text": "Erdgeschosswohnung" },
+        { "type": "TEXT", "label": "Wohnfläche ca.:", "text": "111 m²" },
+        { "type": "TEXT", "label": "Schlafzimmer:", "text": "1" },
+        { "type": "TEXT", "label": "Badezimmer:", "text": "1" },
+        { "type": "CHECK", "label": "Einbauküche:" },
+        { "type": "CHECK", "label": "Keller:" },
+        { "type": "TEXT", "label": "Garage/Stellplatz:", "text": "Garage" },
+        { "type": "TEXT", "label": "Anzahl Garage/Stellplatz:", "text": "1" },
+        { "type": "TEXT", "label": "Bezugsfrei ab:", "text": "sofort" }
+      ]
+    },
+    {
+      "type": "ATTRIBUTE_LIST",
+      "title": "Kosten",
+      "attributes": [
+        { "type": "TEXT", "label": "Kaufpreis:", "text": "399.000 €" },
+        { "type": "TEXT", "label": "Preis/m²:", "text": "3.595 €/m²", "additionalInfoText": "Kalkuliert von ImmoScout24" },
+        { "type": "TEXT", "label": "Provision für Käufer:", "text": "3,57% inkl. MwSt." }
+      ]
+    },
+    {
+      "type": "FINANCE_COSTS",
+      "title": "Kaufkosten",
+      "purchasePrice": { "label": "Kaufpreis", "text": "399.000 €", "value": 399000 },
+      "brokerCommission": { "label": "Maklerprovision", "percentage": "3,57 %", "amount": "14.244 €", "value": 14244 }
+    },
+    {
+      "type": "ATTRIBUTE_LIST",
+      "title": "Bausubstanz & Energieausweis",
+      "attributes": [
+        { "type": "TEXT", "label": "Baujahr:", "text": "1969" },
+        { "type": "TEXT", "label": "Heizungsart:", "text": "Gas-Heizung" },
+        { "type": "TEXT", "label": "Energieausweistyp:", "text": "Verbrauchsausweis" },
+        { "type": "TEXT", "label": "Baujahr laut Energieausweis:", "text": "2004" }
+      ]
+    },
+    { "type": "OBJECT_INFO", "text": "Scout-ID: 169364993 | Objekt-Nr.: 1010740#yv5Vwr" }
+  ],
+  "adTargetingParameters": {
+    "obj_regio1": "Nordrhein_Westfalen",
+    "obj_heatingType": "gas_heating",
+    "obj_newlyConst": "n",
+    "obj_balcony": "n",
+    "obj_yearConstructed": "1969",
+    "geo_ot": "heimersdorf",
+    "obj_privateOffer": "false",
+    "obj_scoutId": "169364993",
+    "obj_noParkSpaces": "1",
+    "obj_hasKitchen": "y",
+    "obj_courtage": "y",
+    "obj_cellar": "y",
+    "obj_houseNumber": "no_information",
+    "obj_livingSpace": "111",
+    "obj_zipCode": "50767",
+    "obj_condition": "no_information",
+    "obj_street": "no_information",
+    "obj_streetPlain": "no_information",
+    "obj_typeOfFlat": "ground_floor",
+    "obj_noRooms": "3",
+    "obj_immotype": "wohnung_kauf",
+    "obj_rented": "n",
+    "obj_purchasePrice": "399000",
+    "obj_regio4": "Heimersdorf",
+    "obj_regio3": "Chorweiler_Bezirk",
+    "obj_regio2": "Köln"
+  }
+}

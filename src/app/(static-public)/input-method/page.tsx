@@ -353,15 +353,12 @@ export default function InputMethodPage() {
 
               {/* Benefits */}
               <div className="mt-6 space-y-2">
-                {['Funktioniert mit Immowelt', 'Funktioniert mit eBay Kleinanzeigen', 'KI extrahiert alle Daten automatisch'].map((benefit, idx) => (
+                {['Funktioniert mit ImmoScout24 & Immowelt', 'Funktioniert mit eBay Kleinanzeigen', 'KI extrahiert alle Daten automatisch'].map((benefit, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
                     <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
                     <span>{benefit}</span>
                   </div>
                 ))}
-              </div>
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800">
-                ℹ️ <strong>Hinweis:</strong> ImmobilienScout24 blockiert aktuell automatische Zugriffe. Nutze für IS24-Anzeigen bitte die manuelle Eingabe.
               </div>
             </div>
 
