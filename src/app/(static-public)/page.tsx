@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
-  AlertTriangle, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
+  AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
   Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
@@ -210,12 +210,28 @@ export default function LandingPage() {
 
               {/* Ausschnitt einer Analyse */}
               <div className="relative min-w-0" aria-label="Beispiel einer Analyse">
+                {/* Mobile: Überleitung, damit das Beispiel an H1 und CTA anknüpft */}
+                <div className="mb-4 flex items-center gap-3 lg:hidden">
+                  <span className="h-px flex-1 bg-slate-200" />
+                  <Eyebrow>So sieht dein Ergebnis aus</Eyebrow>
+                  <span className="h-px flex-1 bg-slate-200" />
+                </div>
+                <div className="rounded-[28px] border border-slate-200 bg-slate-50/70 p-3.5 pb-5 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0">
+                <p className="mb-2 flex items-center gap-2 text-xs font-bold text-slate-500 lg:hidden">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6b00] text-[11px] text-white">1</span>
+                  Link aus dem Portal einfügen
+                </p>
                 <div className="flex max-w-[420px] items-center gap-2.5 rounded-2xl border border-slate-200 bg-white py-2.5 pl-3.5 pr-2.5 text-[13px] text-slate-500 shadow-lg shadow-slate-900/5">
                   <LinkIcon size={16} className="shrink-0 text-[#ff6b00]" />
                   <span className="min-w-0 flex-1 truncate">immobilienscout24.de/expose/1489…</span>
                   <span className="rounded-lg bg-[#ff6b00] px-3 py-1.5 text-xs font-bold text-white">Analysieren</span>
                 </div>
-                <div className="mt-3.5 rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-[#001d3d]/15">
+                <div className="mt-2 flex justify-center text-slate-300 lg:hidden" aria-hidden="true"><ArrowDown size={18} /></div>
+                <p className="mb-2 mt-1 flex items-center gap-2 text-xs font-bold text-slate-500 lg:hidden">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ff6b00] text-[11px] text-white">2</span>
+                  Ergebnis in Klartext
+                </p>
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl lg:mt-3.5 shadow-[#001d3d]/15">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-bold">2-Zimmer-Wohnung, Leipzig-Süd</p>
@@ -249,6 +265,7 @@ export default function LandingPage() {
                     <span className="absolute left-[88%] top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-red-600 shadow" />
                   </div>
                   <p className="mt-2 text-[11px] text-slate-400">20,00 €/m² statt 9,50 €. Bei Neuvermietung sinkt die Miete wahrscheinlich.</p>
+                </div>
                 </div>
               </div>
             </div>
