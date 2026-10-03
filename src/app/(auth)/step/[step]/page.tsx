@@ -2079,7 +2079,7 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-          <div className="sticky top-4 z-40 bg-white border-b border-slate-200 shadow-sm">
+          <div className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
             <div id="tabs-navigation" className="px-6 lg:px-10 flex gap-10 overflow-x-auto no-scrollbar">
               {([
                 { id: 'kpi', label: 'KPI Analyse', icon: BarChart3 },
@@ -2133,6 +2133,24 @@ const exportPdf = React.useCallback(async () => {
               const ekQuote = anschaffungskosten > 0 ? Math.min(100, Math.max(0, (ek / anschaffungskosten) * 100)) : 0;
               const breakEvenYear = isFinite(breakEvenJahre) ? new Date().getFullYear() + Math.round(breakEvenJahre) : null;
               const payoffYear = abzahlungsjahr;
+
+              const renderWeiterButton = (visibility: string) => (
+                <div className={`relative mt-2 mb-16 ${visibility} ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
+                  <button
+                    onClick={() => {
+                      if (!isSignedIn || !canAccessPremium) {
+                        setShowUpgradeModal(true);
+                      } else {
+                        setActiveTab('markt');
+                      }
+                    }}
+                    className={`btn-primary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
+                  >
+                    {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
+                    Weiter zu Marktvergleich & Lage →
+                  </button>
+                </div>
+              );
 
               return (
                 <>
@@ -2268,26 +2286,12 @@ const exportPdf = React.useCallback(async () => {
                 </div>
               </div>
 
-              {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar */}
-              <div className={`relative mt-2 mb-16 ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
-                <button
-                  onClick={() => {
-                    if (!isSignedIn || !canAccessPremium) {
-                      setShowUpgradeModal(true);
-                    } else {
-                      setActiveTab('markt');
-                    }
-                  }}
-                  className={`btn-primary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
-                >
-                  {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
-                  Weiter zu Marktvergleich & Lage →
-                </button>
-              </div>
+              {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar (Desktop: unter dem KI-Kommentar) */}
+              {renderWeiterButton('hidden lg:block')}
             </div>
 
             {/* Sidebar with Details */}
-            <div className="lg:col-span-4 space-y-4 sticky top-20 self-start">
+            <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 lg:self-start">
               <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
                 <h4 className="text-sm font-bold text-[#001d3d] flex items-center gap-2">
                   <BarChart3 size={16} className="text-[#ff6b00]" /> Finanzierung
@@ -2348,6 +2352,9 @@ const exportPdf = React.useCallback(async () => {
                 </p>
               </div>
             </div>
+
+            {/* Mobile: Weiter Button unter der Finanzierung-Card */}
+            {renderWeiterButton('lg:hidden')}
                 </>
               );
             })()}
