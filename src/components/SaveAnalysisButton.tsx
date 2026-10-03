@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Save, Check } from 'lucide-react';
+import { Save, Check, Crown } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 import { saveAnalysis, saveScenario } from '@/lib/storage';
 import { toast } from 'sonner';
+import { usePaywall } from '@/contexts/PaywallContext';
 
 interface ScenarioData {
   mieteDeltaPct: number;
@@ -46,6 +48,8 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
   const setAnalysisId = useImmoStore((s) => s.setAnalysisId);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const { isPremium } = usePaywall();
+  const router = useRouter();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -122,7 +126,10 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
       }
 
       setSaved(true);
-      toast.success('Analyse erfolgreich gespeichert');
+      toast.success('Analyse gespeichert', {
+        description: 'Du findest sie unter „Meine Analysen“.',
+        action: { label: 'Öffnen', onClick: () => router.push('/analysen') },
+      });
       setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error('❌ Fehler beim Speichern:', error);
@@ -131,6 +138,20 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
       setIsSaving(false);
     }
   };
+
+  // Speichern gehört zu Premium
+  if (!isPremium) {
+    return (
+      <button
+        type="button"
+        onClick={() => router.push('/abo')}
+        className="btn-primary flex items-center gap-2"
+      >
+        <Crown size={18} />
+        Speichern mit Premium
+      </button>
+    );
+  }
 
   return (
     <button
@@ -149,7 +170,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
       ) : (
         <>
           <Save size={18} />
-          {isSaving ? 'Speichere...' : 'Immobilie speichern'}
+          {isSaving ? 'Speichere …' : 'Analyse speichern'}
         </>
       )}
     </button>

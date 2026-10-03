@@ -95,8 +95,8 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get('origin')}/profile?success=true&session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
-      cancel_url: `${req.headers.get('origin')}/profile?canceled=true`,
+      success_url: `${req.headers.get('origin')}/abo?success=true&session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
+      cancel_url: `${req.headers.get('origin')}/abo?canceled=true`,
       metadata: {
         userId,
         planType,

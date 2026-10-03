@@ -6,6 +6,7 @@ import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { toast } from 'sonner';
+import { ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, PREIS_MONAT_AUF_JAHR, preis } from '@/lib/preise';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -128,7 +129,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
             {/* Yearly Plan - Recommended */}
             <div className="relative border-2 border-[#ff6b00] rounded-[2rem] p-6 bg-gradient-to-br from-orange-50/50 to-white shadow-lg">
               <div className="absolute -top-3 left-6 px-4 py-1.5 bg-[#ff6b00] text-white text-[10px] font-black uppercase tracking-wider rounded-full shadow-lg">
-                Spare 59%
+                Spare {ERSPARNIS_JAHR_PCT}%
               </div>
 
               <div className="flex items-start justify-between mb-4">
@@ -138,12 +139,12 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
                   </div>
                   <div>
                     <h4 className="font-black text-xl text-[#001d3d]">Jahresabo</h4>
-                    <p className="text-sm text-slate-600 font-semibold">Nur 5,75 € pro Monat</p>
+                    <p className="text-sm text-slate-600 font-semibold">Nur {preis(PREIS_JAHR_PRO_MONAT)} € pro Monat</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-black text-[#ff6b00]">69 €</div>
-                  <div className="text-xs text-slate-500 line-through font-semibold">167,88 €</div>
+                  <div className="text-3xl font-black text-[#ff6b00]">{preis(PREIS_JAHR)} €</div>
+                  <div className="text-xs text-slate-500 line-through font-semibold">{preis(PREIS_MONAT_AUF_JAHR)} €</div>
                 </div>
               </div>
 
@@ -179,7 +180,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-black text-[#001d3d]">13,99 €</div>
+                  <div className="text-3xl font-black text-[#001d3d]">{preis(PREIS_MONAT)} €</div>
                   <div className="text-xs text-slate-500 font-semibold">pro Monat</div>
                 </div>
               </div>

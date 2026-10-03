@@ -74,7 +74,7 @@ export async function POST(req: Request) {
           // Create portal session with found customer
           const session = await stripe.billingPortal.sessions.create({
             customer: matchingCustomer.id,
-            return_url: `${req.headers.get('origin')}/profile`,
+            return_url: `${req.headers.get('origin')}/abo`,
           });
 
           console.log('[Portal] Portal session created successfully with fallback customer');
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
     // Create billing portal session
     const session = await stripe.billingPortal.sessions.create({
       customer: data.stripe_customer_id,
-      return_url: `${req.headers.get('origin')}/profile`,
+      return_url: `${req.headers.get('origin')}/abo`,
     });
 
     console.log('[Portal] Portal session created successfully');

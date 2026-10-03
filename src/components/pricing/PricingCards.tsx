@@ -6,6 +6,7 @@ import { Crown, CheckCircle2, Sparkles, Zap, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useAuth } from '@clerk/nextjs';
+import { ERSPARNIS_JAHR, ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, PREIS_MONAT_AUF_JAHR, preis } from '@/lib/preise';
 
 interface PricingCardsProps {
   onClose?: () => void;
@@ -62,7 +63,7 @@ export default function PricingCards({}: PricingCardsProps) {
   const plans = [
     {
       name: 'Monatsabo',
-      price: '12,99',
+      price: preis(PREIS_MONAT),
       period: 'pro Monat',
       description: 'Flexibel und monatlich kündbar',
       priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID!,
@@ -75,17 +76,17 @@ export default function PricingCards({}: PricingCardsProps) {
     },
     {
       name: 'Jahresabo',
-      price: '69',
+      price: preis(PREIS_JAHR),
       period: 'pro Jahr',
-      originalPrice: '155,88',
-      savings: '59%',
-      description: 'Spare 59% - Nur 5,75 € pro Monat',
+      originalPrice: preis(PREIS_MONAT_AUF_JAHR),
+      savings: `${ERSPARNIS_JAHR_PCT}%`,
+      description: `Spare ${ERSPARNIS_JAHR_PCT}% - Nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`,
       priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID!,
       icon: <Crown className="w-6 h-6" />,
       popular: true,
       features: [
         ...baseFeatures,
-        'Spare 86,88 € im Jahr',
+        `Spare ${preis(ERSPARNIS_JAHR)} € im Jahr`,
       ],
     },
   ];

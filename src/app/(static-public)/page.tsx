@@ -1,1786 +1,555 @@
 'use client';
 
-import React from 'react';
-import Image from 'next/image';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import {
-  ArrowRight,
-  ArrowDown,
-  BarChart3,
-  Calculator,
-  CheckCircle2,
-  FileBarChart,
-  MapPin,
-  Menu,
-  X,
-  Zap,
-  TrendingDown,
-  AlertCircle,
-  Camera,
-  Link as LinkIcon,
-  Edit3,
-  Sparkles,
-  Search,
-  Lightbulb,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Keyboard,
+  AlertTriangle, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
+  Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
 } from 'lucide-react';
-import Link from 'next/link';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { useUser, UserButton } from '@clerk/nextjs';
+import {
+  ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
+} from '@/lib/preise';
+
+const FAQS: Array<{ frage: string; antwort: string }> = [
+  {
+    frage: 'Brauche ich Vorwissen?',
+    antwort: 'Nein. Jeder Fachbegriff ist erklärt, und das Ergebnis steht immer zuerst in einem Satz. Profis finden alle Kennzahlen und Formeln in der Detailansicht.',
+  },
+  {
+    frage: 'Woher kommen die Marktdaten?',
+    antwort: 'Aus einer aktuellen Recherche zu Angeboten und Vergleichsdaten für die Lage der Wohnung. Die Quellen werden in der Analyse angezeigt.',
+  },
+  {
+    frage: 'Was ist kostenlos, was kostet Premium?',
+    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${GRATIS_ANALYSEN} vollständige Analysen mit Markt und Prognose sind gratis. Danach kostet Premium ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+  },
+  {
+    frage: 'Kann ich den Report bei der Bank vorlegen?',
+    antwort: 'Ja. Er fasst Kaufpreis, Finanzierung, Monatsrechnung, Kapitaldienstfähigkeit und einen Stresstest zusammen. Er ersetzt keine Unterlagen wie Grundbuchauszug oder Wertgutachten.',
+  },
+  {
+    frage: 'Kann ich jederzeit kündigen?',
+    antwort: 'Das Monatsabo ist monatlich kündbar, das Jahresabo zum Ende der Laufzeit.',
+  },
+];
+
+const strukturDaten = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'imvestr',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  url: 'https://imvestr.de',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+  description: 'Immobilien-Renditerechner für Kapitalanleger: Cashflow nach Steuern, Rendite, DSCR, Marktvergleich, 30-Jahres-Prognose und PDF-Report für die Bank.',
+};
+
+const faqDaten = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQS.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
+};
+
+const eur = (v: number) => `${Math.round(v).toLocaleString('de-DE')} €`;
+
+function Eyebrow({ children, hell = false }: { children: React.ReactNode; hell?: boolean }) {
+  return <span className={`text-xs font-extrabold uppercase tracking-[0.12em] ${hell ? 'text-[#ffb07a]' : 'text-[#ff6b00]'}`}>{children}</span>;
+}
+
+function H2({ children, hell = false }: { children: React.ReactNode; hell?: boolean }) {
+  return (
+    <h2 className={`mt-2.5 text-balance text-3xl font-extrabold leading-tight tracking-tight md:text-[42px] ${hell ? 'text-white' : 'text-[#001d3d]'}`}>
+      {children}
+    </h2>
+  );
+}
+
+function Orange({ children }: { children: React.ReactNode }) {
+  return <span className="text-[#ff6b00]">{children}</span>;
+}
+
+function Balken({ zeilen }: { zeilen: Array<[string, number, string, string]> }) {
+  return (
+    <div className="mt-5 grid grid-cols-[64px_1fr_auto] items-center gap-x-3 gap-y-2 rounded-xl bg-slate-50 px-4 py-3.5 text-xs">
+      {zeilen.map(([label, breite, wert, farbe]) => (
+        <React.Fragment key={label}>
+          <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</span>
+          <span className="h-2 overflow-hidden rounded-full bg-slate-200/70"><span className="block h-full rounded-full" style={{ width: `${breite}%`, background: farbe }} /></span>
+          <b className="tabular-nums" style={{ color: farbe === '#94a3b8' ? '#001d3d' : farbe }}>{wert}</b>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+}
+
+function SchnellCheck({ onStart }: { onStart: () => void }) {
+  const [kaufpreis, setKaufpreis] = useState(130000);
+  const [miete, setMiete] = useState(720);
+  const [ek, setEk] = useState(35000);
+
+  // Grobe Schätzung: 10 % Nebenkosten, 3,8 % Zins + 2 % Tilgung, 18 % der Miete für nicht umlegbare Kosten und Rücklagen
+  const invest = kaufpreis * 1.1;
+  const kredit = Math.max(0, invest - ek);
+  const rate = (kredit * 0.058) / 12;
+  const cf = miete - miete * 0.18 - rate;
+  const brutto = ((miete * 12) / invest) * 100;
+  const farbe = cf >= 50 ? 'text-emerald-600' : cf >= 0 ? 'text-amber-600' : 'text-red-600';
+
+  const regler = (id: string, label: string, wert: number, set: (v: number) => void, min: number, max: number, step: number) => (
+    <div>
+      <label htmlFor={id} className="flex justify-between text-sm font-bold text-[#001d3d]">
+        {label}<span className="font-semibold tabular-nums text-slate-600">{eur(wert)}</span>
+      </label>
+      <input id={id} type="range" min={min} max={max} step={step} value={wert} onChange={e => set(Number(e.target.value))} className="range-input mt-3 w-full" />
+    </div>
+  );
+
+  return (
+    <div className="rounded-3xl bg-white p-6 text-[#001d3d] shadow-2xl md:p-7">
+      <div className="flex flex-col gap-5">
+        {regler('sc-kaufpreis', 'Kaufpreis', kaufpreis, setKaufpreis, 50000, 600000, 5000)}
+        {regler('sc-miete', 'Kaltmiete pro Monat', miete, setMiete, 300, 2500, 10)}
+        {regler('sc-ek', 'Eigenkapital', ek, setEk, 0, 200000, 5000)}
+      </div>
+      <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl bg-slate-50 p-4" aria-live="polite">
+        <div>
+          <p className="text-xs text-slate-600">Überschuss pro Monat (grob)</p>
+          <p className={`text-2xl font-extrabold tabular-nums md:text-[26px] ${farbe}`}>{cf >= 0 ? '+' : '−'}{eur(Math.abs(cf))}</p>
+        </div>
+        <div>
+          <p className="text-xs text-slate-600">Bruttomietrendite</p>
+          <p className="text-2xl font-extrabold tabular-nums md:text-[26px]">{brutto.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %</p>
+        </div>
+        <p className="col-span-2 text-xs text-slate-500">
+          {cf >= 50
+            ? 'Sieht gut aus. Ob es nach Steuern und mit der Miete vor Ort so bleibt, zeigt die vollständige Analyse.'
+            : cf >= 0
+              ? 'Knapp. Die vollständige Analyse zeigt, ob Steuervorteile den Unterschied machen.'
+              : 'Du würdest monatlich draufzahlen. Mit mehr Eigenkapital oder einem besseren Preis sieht es anders aus.'}
+        </p>
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-3">
+        {['Steuern & AfA', 'Marktvergleich', '30-Jahres-Prognose'].map(t => (
+          <span key={t} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 px-3 py-2"><Lock size={13} className="text-slate-400" />{t}</span>
+        ))}
+      </div>
+      <button type="button" onClick={onStart} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
+        Vollständig analysieren, kostenlos <ArrowRight size={18} />
+      </button>
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const router = useRouter();
-  const { trackCTA } = useAnalytics();
   const { isSignedIn } = useUser();
-  const [isScrolled, setIsScrolled] = React.useState(false);
-  const [activeFaqIndex, setActiveFaqIndex] = React.useState<number | null>(null);
-  const [activeWorkflowIndex, setActiveWorkflowIndex] = React.useState<number | null>(0); // Default first open
-  const [selectedImportMethod, setSelectedImportMethod] = React.useState<'url' | 'photo' | 'manual'>('url');
-  const [activeGoalIndex, setActiveGoalIndex] = React.useState<number>(1); // Default middle card active
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const { trackCTA } = useAnalytics();
 
-  React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Scroll-based active card detection for Investment Goal cards
-  React.useEffect(() => {
-    const container = document.querySelector('#investment-goals-scroll');
-    if (!container) return;
-
-    const handleScroll = () => {
-      const cards = container.querySelectorAll('[data-goal-index]');
-      const containerRect = container.getBoundingClientRect();
-
-      let mostVisibleCard = 0;
-      let maxVisibleArea = 0;
-
-      cards.forEach((card, index) => {
-        const cardRect = card.getBoundingClientRect();
-
-        // Berechne wie viel von der Card sichtbar ist
-        const visibleLeft = Math.max(cardRect.left, containerRect.left);
-        const visibleRight = Math.min(cardRect.right, containerRect.right);
-        const visibleWidth = Math.max(0, visibleRight - visibleLeft);
-        const visiblePercentage = visibleWidth / cardRect.width;
-
-        if (visiblePercentage > maxVisibleArea) {
-          maxVisibleArea = visiblePercentage;
-          mostVisibleCard = index;
-        }
-      });
-
-      setActiveGoalIndex(mostVisibleCard);
-    };
-
-    handleScroll(); // Initial call
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleGetStarted = (location: string = 'hero') => {
-    trackCTA('start_analysis', location);
+  const starten = (ort: string) => {
+    trackCTA('start_analysis', ort);
     router.push('/input-method');
   };
-
-  const handleFaqToggle = (faqQuestion: string, isOpening: boolean) => {
-    if (isOpening) {
-      trackCTA('faq_opened', 'faq_section');
-    }
+  const premiumWaehlen = (ort: string) => {
+    trackCTA('choose_premium', ort);
+    router.push(isSignedIn ? '/abo' : '/sign-up?redirect_url=/abo');
   };
 
-  // Structured Data for SEO (JSON-LD)
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "imvestr",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web",
-    "url": "https://imvestr.de",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "EUR",
-    },
-    "description": "KI-gestützter Immobilien-Renditerechner. Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR automatisch berechnen.",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.9",
-      "ratingCount": "127",
-    },
-  };
-
-  // FAQPage Schema for AEO (Answer Engine Optimization)
-  const faqStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Was ist imvestr?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "imvestr ist ein KI-gestützter Immobilien-Renditerechner, der Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR einer Kapitalanlage-Immobilie automatisch berechnet — auf Basis echter Marktdaten."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Wie funktioniert imvestr?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Du gibst die Immobiliendaten ein (manuell, per URL-Import oder Foto-Scan). imvestr prüft die Daten gegen echte Marktdaten und liefert dir in Sekunden eine vollständige Investitionsanalyse."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Ist imvestr kostenlos?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "imvestr bietet einen kostenlosen Einstieg. Für erweiterte Analysen und den Bank-Ready PDF-Report gibt es einen Premiumplan."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Für wen ist imvestr geeignet?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "imvestr richtet sich an Einsteiger und erfahrene Immobilien-Investoren, die Kapitalanlage-Immobilien schnell und datenbasiert bewerten wollen."
-        }
-      }
-    ]
-  };
-
-  const faqs = [
-    {
-      question: 'Was ist imvestr?',
-      answer:
-        'imvestr ist ein KI-gestützter Immobilien-Renditerechner, der Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR einer Kapitalanlage-Immobilie automatisch berechnet — auf Basis echter Marktdaten.',
-    },
-    {
-      question: 'Wie funktioniert imvestr?',
-      answer:
-        'Du gibst die Immobiliendaten ein (manuell, per URL-Import oder Foto-Scan). imvestr prüft die Daten gegen echte Marktdaten und liefert dir in Sekunden eine vollständige Investitionsanalyse.',
-    },
-    {
-      question: 'Ist imvestr kostenlos?',
-      answer:
-        'imvestr bietet einen kostenlosen Einstieg. Für erweiterte Analysen und den Bank-Ready PDF-Report gibt es einen Premiumplan.',
-    },
-    {
-      question: 'Für wen ist imvestr geeignet?',
-      answer:
-        'imvestr richtet sich an Einsteiger und erfahrene Immobilien-Investoren, die Kapitalanlage-Immobilien schnell und datenbasiert bewerten wollen.',
-    },
-    {
-      question: 'Woher kommen die Daten?',
-      answer:
-        'Wir nutzen Live-Daten von Immobilienportalen wie ImmoScout24 und Immowelt für Marktvergleiche. Die Mikrolage-Bewertung basiert auf KI-Analysen lokaler Infrastruktur und Nachfrage.',
-    },
-    {
-      question: 'Ist das für Anfänger geeignet?',
-      answer:
-        'Absolut. imvestr wurde speziell für Einsteiger entwickelt. Du musst kein Immobilien-Experte sein – wir erklären jede Kennzahl und jeden Schritt.',
-    },
-    {
-      question: 'Was kostet es?',
-      answer:
-        'Der erste Check ist komplett kostenlos. Für unbegrenzten Zugang zu allen Premium-Features (Markt- & Investitionsanalyse, PDF-Export, KI-Empfehlungen) gibt es ein Monatsabo für 13,99€/Monat oder ein Jahresabo für 69€/Jahr (nur 5,75€/Monat).',
-    },
-    {
-      question: 'Kann ich den Report für die Bank nutzen?',
-      answer:
-        'Ja! Der PDF-Report enthält alle banküblichen KPIs (DSCR, Eigenkapitalrendite, Cashflow) sowie Marktvergleiche und Szenarien.',
-    },
-    {
-      question: 'Welche Portale werden unterstützt?',
-      answer:
-        'Aktuell unterstützen wir ImmoScout24, Immowelt, Immonet und Ebay Kleinanzeigen für den URL-Import. Du kannst aber auch Exposés fotografieren oder Daten manuell eingeben.',
-    },
-    {
-      question: 'Was ist der Unterschied zu anderen Rechnern?',
-      answer:
-        'Die meisten Rechner arbeiten nur mit deinen Eingaben. Wir gehen weiter: Live-Marktdaten, KI-Lagebewertung, versteckte Kosten-Analyse und Szenario-Planung.',
-    },
-  ];
+  const HauptCta = ({ ort, className = '' }: { ort: string; className?: string }) => (
+    <button
+      type="button"
+      data-cta="main"
+      onClick={() => starten(ort)}
+      className={`inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#ff6b00] px-7 py-4 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-px hover:bg-[#ff6b00]/95 ${className}`}
+    >
+      Erste Wohnung kostenlos prüfen <ArrowRight size={18} />
+    </button>
+  );
 
   return (
     <>
-      {/* Structured Data for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      {/* FAQPage Schema for AEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqStructuredData) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(strukturDaten) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqDaten) }} />
 
-      <div className="min-h-screen bg-white text-[#1d1d1f]">
-        {/* Header - Glass Effect */}
-        <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/80 backdrop-blur-2xl shadow-sm' : 'bg-white/60 backdrop-blur-lg'}`}>
-          <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-            <button
-              onClick={() => router.push('/')}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <div className="w-12 h-12 relative">
-                <Image
-                  src="/logo.png"
-                  alt="imvestr Logo"
-                  width={48}
-                  height={48}
-                  className="rounded-lg"
-                  priority
-                />
+      <div className="min-h-screen bg-white text-[#001d3d]">
+        <Header variant="sticky" />
+
+        <main>
+          {/* Hero */}
+          <section className="bg-[radial-gradient(1200px_500px_at_85%_10%,#fff7f0,transparent_60%)] px-5 pb-20 pt-10 md:pb-28 md:pt-16">
+            <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
+              <div className="min-w-0">
+                <Eyebrow>Für Kapitalanleger · Einsteiger und Profis</Eyebrow>
+                <h1 className="mt-3.5 text-balance text-[40px] font-black leading-[1.04] tracking-[-0.035em] md:text-[58px]">
+                  Lohnt sich diese Wohnung? <Orange>Du weißt es in 2 Minuten.</Orange>
+                </h1>
+                <p className="mt-5 max-w-[60ch] text-lg leading-relaxed text-slate-600">
+                  Link aus dem Portal einfügen. imvestr rechnet Cashflow, Rendite und Steuern, vergleicht Kaufpreis und Miete mit dem Markt vor Ort und sagt dir in einem Satz, ob sich der Kauf trägt.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <HauptCta ort="hero" />
+                  <a href="#ablauf" className="inline-flex items-center justify-center gap-2.5 rounded-2xl border-[1.5px] border-slate-200 bg-white px-6 py-4 font-bold text-[#001d3d] transition hover:border-[#001d3d]">
+                    <CirclePlay size={18} /> So funktioniert&apos;s
+                  </a>
+                </div>
+                <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-slate-600">
+                  {[`${GRATIS_ANALYSEN} vollständige Analysen gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar'].map(t => (
+                    <span key={t} className="flex items-center gap-1.5"><Check size={15} strokeWidth={2.6} className="text-emerald-600" />{t}</span>
+                  ))}
+                </div>
               </div>
-              <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
-            </button>
 
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-500">
-              <a href="#features" className="hover:text-black transition-colors">Features</a>
-              <a href="#workflow" className="hover:text-black transition-colors">Ablauf</a>
-              <a href="#faq" className="hover:text-black transition-colors">FAQ</a>
-              <Link href="/blog" className="hover:text-black transition-colors">Blog</Link>
-              <Link href="/pricing" className="hover:text-black transition-colors">Preise</Link>
-            </nav>
-
-            <div className="flex items-center gap-4">
-              {isSignedIn ? (
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox: "w-10 h-10"
-                    }
-                  }}
-                >
-                  <UserButton.MenuItems>
-                    <UserButton.Link
-                      label="Meine Immobilien"
-                      labelIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>}
-                      href="/profile"
-                    />
-                    <UserButton.Link
-                      label="Profil & Einstellungen"
-                      labelIcon={<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
-                      href="/profile"
-                    />
-                  </UserButton.MenuItems>
-                </UserButton>
-              ) : (
-                <Link href="/sign-in" className="hidden md:block bg-[#001d3d] text-white px-6 py-3 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg">
-                  Login
-                </Link>
-              )}
+              {/* Ausschnitt einer Analyse */}
+              <div className="relative min-w-0" aria-label="Beispiel einer Analyse">
+                <div className="flex max-w-[420px] items-center gap-2.5 rounded-2xl border border-slate-200 bg-white py-2.5 pl-3.5 pr-2.5 text-[13px] text-slate-500 shadow-lg shadow-slate-900/5">
+                  <LinkIcon size={16} className="shrink-0 text-[#ff6b00]" />
+                  <span className="min-w-0 flex-1 truncate">immobilienscout24.de/expose/1489…</span>
+                  <span className="rounded-lg bg-[#ff6b00] px-3 py-1.5 text-xs font-bold text-white">Analysieren</span>
+                </div>
+                <div className="mt-3.5 rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-[#001d3d]/15">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-bold">2-Zimmer-Wohnung, Leipzig-Süd</p>
+                      <p className="text-xs text-slate-400">48 m² · 100.000 € · Baujahr 1995</p>
+                    </div>
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">Beispiel</span>
+                  </div>
+                  <div className="mt-4 flex gap-3 rounded-2xl bg-emerald-50 px-3.5 py-3">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white"><Check size={17} strokeWidth={3} className="text-emerald-600" /></span>
+                    <div>
+                      <p className="text-sm font-bold text-emerald-700">Trägt sich ab dem ersten Monat</p>
+                      <p className="text-[13px] text-slate-600">Nach Kredit, Kosten und Steuern bleiben 227 € im Monat.</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {[['Cashflow', '227', '€', 'text-emerald-600'], ['Nettorendite', '9,5', '%', ''], ['DSCR', '2,06', '', '']].map(([k, v, u, f]) => (
+                      <div key={k} className="rounded-xl border border-slate-200 px-3 py-2.5">
+                        <p className="text-[11px] font-semibold text-slate-500">{k}</p>
+                        <p className={`text-lg font-bold tabular-nums md:text-xl ${f}`}>{v}<span className="ml-0.5 text-xs text-slate-400">{u}</span></p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="relative mx-4 -mt-3 rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xl shadow-[#001d3d]/15 lg:absolute lg:-bottom-20 lg:-right-3 lg:mx-0 lg:mt-0 lg:w-60">
+                  <div className="flex items-center justify-between gap-2 text-xs font-bold">
+                    <span>Miete vs. Markt</span>
+                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-[11px] text-red-600">111 % drüber</span>
+                  </div>
+                  <div className="relative mt-3.5 h-[7px] rounded-full bg-slate-100">
+                    <span className="absolute inset-y-0 left-[18%] w-[30%] rounded-full bg-slate-300" />
+                    <span className="absolute left-[88%] top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-red-600 shadow" />
+                  </div>
+                  <p className="mt-2 text-[11px] text-slate-400">20,00 €/m² statt 9,50 €. Bei Neuvermietung sinkt die Miete wahrscheinlich.</p>
+                </div>
+              </div>
             </div>
-              {/* Mobile: Hamburger Button */}
-              <button
-                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                aria-label="Menü öffnen"
-              >
-                {mobileMenuOpen
-                  ? <X className="w-5 h-5 text-[#001d3d]" />
-                  : <Menu className="w-5 h-5 text-[#001d3d]" />
-                }
-              </button>
+          </section>
+
+          <div className="border-y border-slate-100 px-5 py-5">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm font-bold text-slate-400">
+              <span className="font-medium text-slate-600">Import aus</span>
+              <span>ImmoScout24</span><span>Immowelt</span><span>Kleinanzeigen</span><span>Exposé-Foto</span><span>Manuelle Eingabe</span>
+            </div>
           </div>
 
-          {/* Mobile Menu — Slide Down */}
-          {mobileMenuOpen && (
-            <div className="md:hidden absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-lg px-6 py-4 z-40">
-              <Link
-                href="/sign-in"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
-              >
-                🔐 Login / Registrieren
-              </Link>
-              <a
-                href="#features"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#workflow"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
-              >
-                Ablauf
-              </a>
-              <a
-                href="#faq"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
-              >
-                FAQ
-              </a>
-              <Link
-                href="/blog"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] border-b border-gray-100 hover:text-[#ff6b00] transition-colors"
-              >
-                Blog
-              </Link>
-              <Link
-                href="/pricing"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block py-3 text-sm font-semibold text-[#001d3d] hover:text-[#ff6b00] transition-colors"
-              >
-                Preise
-              </Link>
-            </div>
-          )}
-        </header>
-
-        <main className="overflow-x-hidden">
-          {/* 1. Hero Sektion - Interaktiver Hero mit Floating UI */}
-          <section className="min-h-screen flex items-center justify-center bg-white px-6 relative overflow-hidden pt-24">
-            <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
-              {/* Left: Content */}
-              <div>
-                <span className="bg-orange-100 text-[#ff6b00] px-4 py-1.5 rounded-full text-sm font-bold mb-6 inline-block">
-                  100% kostenlos starten
-                </span>
-                <h1 className="text-5xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter leading-tight mb-6 text-[#001d3d]">
-                  Prüf dein Immobilien-Investment in <span className="text-[#ff6b00]">Sekunden.</span>
-                </h1>
-                <p className="text-xl font-normal text-gray-400 mb-4 tracking-tight">
-                  KI-Analyse mit echten Marktdaten — für Einsteiger und Profis.
-                </p>
-                <p className="text-sm text-gray-400 mb-10 max-w-lg leading-relaxed">
-                  Egal ob URL-Import, Foto-Scan oder manuelle Eingabe – imvestr prüft deinen Deal gegen echte Marktdaten und liefert dir das Ergebnis in Sekunden.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <button
-                    onClick={() => handleGetStarted('hero')}
-                    className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-6 md:text-xl rounded-full font-bold shadow-xl hover:shadow-[#ff6b00]/30 transition-all hover:scale-105 flex items-center gap-3"
-                  >
-                    <span>Immobilie jetzt analysieren</span>
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                  <button
-                    onClick={() => router.push(isSignedIn ? '/profile' : '/sign-in')}
-                    className="bg-white border-2 border-[#001d3d] text-[#001d3d] px-6 py-3 text-base md:px-10 md:py-5 md:text-lg rounded-full font-bold hover:bg-[#001d3d] hover:text-white transition-all"
-                  >
-                    {isSignedIn ? 'Zu meinen Immobilien' : 'Anmelden / Einloggen'}
-                  </button>
-                </div>
-
-                {/* Icon-Row: 3 konkrete Vorteile */}
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mt-10 mb-6 bg-gray-50 rounded-2xl px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calculator className="w-5 h-5 text-[#ff6b00]" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-[#001d3d]">Ertrag</div>
-                      <div className="text-xs text-gray-500">Lohnt sich der Kauf?</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <BarChart3 className="w-5 h-5 text-[#ff6b00]" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-[#001d3d]">Rendite</div>
-                      <div className="text-xs text-gray-500">Wie viel bleibt am Ende übrig?</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-5 h-5 text-[#ff6b00]" />
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-[#001d3d]">Risiko</div>
-                      <div className="text-xs text-gray-500">Wo lauern versteckte Kosten?</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right: Floating Dashboard Cards */}
-              <div className="relative h-[500px] hidden md:block">
-                {/* Background Shape */}
-                <div className="absolute top-0 right-0 w-full h-full bg-orange-50 rounded-[60px] -rotate-3"></div>
-
-                {/* Cashflow Card - Animated */}
-                <div className="absolute top-10 left-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-20 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite]">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Monatsertrag</span>
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  </div>
-                  <div className="text-3xl font-black text-[#001d3d]">+ 342,50 €</div>
-                  <div className="text-[10px] text-green-600 mt-2 font-bold uppercase tracking-wider">
-                    Monatlich Überschuss
-                  </div>
-                </div>
-
-                {/* Leerstandsrisiko Card - Animated */}
-                <div className="absolute bottom-20 right-0 bg-white rounded-[32px] p-8 w-64 shadow-2xl z-10 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite_1.5s]">
-                  <div className="text-xs font-bold text-[#001d3d] mb-2 uppercase tracking-wider">Leerstandsrisiko</div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-3xl font-black text-green-600">Niedrig</div>
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <ArrowDown className="w-6 h-6 text-green-600" />
-                    </div>
-                  </div>
-                  <div className="mt-4 text-xs text-gray-500">
-                    Hohe Nachfrage in dieser Lage
-                  </div>
-                </div>
-
-                {/* Rendite Card - Animated (delayed) */}
-                <div className="absolute top-1/2 right-12 bg-white rounded-[24px] p-6 w-48 shadow-xl z-15 border-2 border-gray-100 animate-[float_6s_ease-in-out_infinite_3s] opacity-0 animate-[fadeIn_0.5s_ease-in_1s_forwards]">
-                  <div className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Rendite</div>
-                  <div className="text-2xl font-black text-[#ff6b00]">8,2%</div>
-                  <div className="text-[10px] text-gray-500 mt-2 font-bold uppercase tracking-wider">
-                    EK-Rendite p.a.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 2. Warum die meisten Immobilien-Investments scheitern */}
-          <section className="py-16 md:py-32 px-0 md:px-6 bg-[#fbfbfd]">
-            <div className="max-w-6xl mx-auto px-0 md:px-6">
-              {/* Sektions-Header */}
-              <div className="text-center mb-8 md:mb-20 px-4">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">Warum die meisten</span> <br className="hidden md:block" />
-                  <span className="text-[#ff6b00]">Immobilien-Investments scheitern.</span>
-                </h2>
-                <p className="text-gray-500 text-sm md:text-xl max-w-3xl mx-auto leading-relaxed">
-                  Die häufigsten Fehler, die dich tausende Euro kosten können – und wie imvestr dich davor schützt.
+          {/* Problem */}
+          <section className="bg-slate-50 px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <div className="mx-auto max-w-3xl text-center">
+                <Eyebrow>Das Problem</Eyebrow>
+                <H2>Die Rechnung im Exposé <Orange>geht fast immer auf.</Orange> Deine nicht unbedingt.</H2>
+                <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
+                  Verkäufer rechnen ohne Rücklagen, mit Wunschmiete und ohne Steuern. Drei Fehler, die Käufer am häufigsten teuer bezahlen:
                 </p>
               </div>
-
-              {/* Mobile: Carousel, Desktop: 2x2 Grid */}
-              <div id="failures-scroll" className="flex md:grid md:grid-cols-2 gap-4 md:gap-8 md:max-w-6xl md:mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide pl-4 pr-4 md:pl-0 md:pr-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-
-                {/* Problem 1: Versteckte Kosten */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
-                  <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
-                      <AlertCircle className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
-                    Versteckte Kosten übersehen
-                  </h3>
-
-                  <p className="text-gray-500 leading-relaxed mb-8">
-                    Makler rechnen oft ohne Instandhaltungsrücklage, Nebenkosten oder realistische Mietausfälle. Das Ergebnis: Negativer Cashflow.
-                  </p>
-
-                  <div className="mt-auto bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-gray-400 uppercase w-24">Makler</span>
-                        <div className="h-3 flex-1 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-emerald-500 w-full" />
-                        </div>
-                        <span className="text-xs font-black text-emerald-600">+ 450€</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-gray-400 uppercase w-24">Realität</span>
-                        <div className="h-3 flex-1 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#ff6b00] w-1/4" />
-                        </div>
-                        <span className="text-xs font-black text-[#ff6b00]">+ 120€</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Problem 2: Zu teuer gekauft */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
-                  <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
-                      <Search className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
-                    Zu teuer gekauft
-                  </h3>
-
-                  <p className="text-gray-500 leading-relaxed mb-8">
-                    Ohne Marktvergleich zahlst du schnell 10-20% über Wert. Das schmälert deine Rendite für Jahre.
-                  </p>
-
-                  <div className="mt-auto bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <div className="flex items-end justify-center gap-8 h-32">
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 bg-gray-400 h-28 rounded-t-xl"></div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase">Portal</span>
-                      </div>
-                      <div className="flex flex-col items-center gap-3">
-                        <div className="w-16 bg-[#ff6b00] h-20 rounded-t-xl"></div>
-                        <span className="text-[10px] font-bold text-[#ff6b00] uppercase">Fair</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Problem 3: Schlechte Lage */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
-                  <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
-                      <MapPin className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
-                    Schlechte Lage
-                  </h3>
-
-                  <p className="text-gray-500 leading-relaxed mb-8">
-                    Die Wohnung sieht toll aus, aber die Lage? Ohne lokale Nachfrage-Analyse riskierst du Leerstand.
-                  </p>
-
-                  <div className="mt-auto bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-400 uppercase">Nachfrage</span>
-                        <span className="text-xs font-bold text-[#ff6b00] uppercase">Niedrig</span>
-                      </div>
-                      <div className="h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-emerald-500 via-orange-400 to-[#ff6b00] w-[35%]" />
-                      </div>
-                      <div className="flex items-center justify-between text-[9px] font-bold text-gray-400 uppercase">
-                        <span>A-Lage</span>
-                        <span className="text-[#ff6b00]">← Risiko</span>
-                        <span>C-Lage</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Problem 4: Miete überschätzt */}
-                <div className="bg-white rounded-[32px] p-6 md:p-10 border border-gray-100 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300 group flex flex-col h-full w-[calc(100vw-32px)] md:w-auto snap-start flex-shrink-0">
-                  <div className="flex justify-between items-start mb-4 md:mb-6">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center shadow-sm">
-                      <TrendingDown className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">
-                    Miete überschätzt
-                  </h3>
-
-                  <p className="text-gray-500 leading-relaxed mb-8">
-                    Makler zeigen optimistische Mietpreise. In Realität liegen sie oft 10-15% darunter. Das killt deine Rendite.
-                  </p>
-
-                  <div className="mt-auto bg-gray-50 rounded-2xl p-6 border border-gray-100">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-gray-400 uppercase w-24">Angebot</span>
-                        <div className="h-3 flex-1 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-gray-400 w-full" />
-                        </div>
-                        <span className="text-xs font-black text-gray-600">1.200€</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-bold text-gray-400 uppercase w-24">Markt</span>
-                        <div className="h-3 flex-1 bg-gray-200 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#ff6b00] w-[85%]" />
-                        </div>
-                        <span className="text-xs font-black text-[#ff6b00]">1.020€</span>
-                      </div>
-                      <div className="text-center pt-2">
-                        <span className="text-lg font-black text-[#ff6b00]">-15%</span>
-                        <span className="text-xs text-gray-400 ml-2">Rendite-Verlust</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
+              <div className="mt-11 grid gap-5 md:grid-cols-3">
+                {[
+                  { icon: AlertTriangle, titel: 'Vergessene Kosten', text: 'Instandhaltung, Mietausfall und nicht umlagefähiges Hausgeld fehlen in vielen Exposés.',
+                    balken: [['Exposé', 90, '+450 €', '#059669'], ['Realität', 28, '+120 €', '#ff6b00']] as Array<[string, number, string, string]> },
+                  { icon: TrendingDown, titel: 'Wunschmiete', text: 'Angesetzte Mieten liegen oft über dem, was Mieter vor Ort zahlen. Bei Neuvermietung fehlt die Differenz.',
+                    balken: [['Exposé', 92, '1.200 €', '#94a3b8'], ['Markt', 78, '1.020 €', '#ff6b00']] as Array<[string, number, string, string]> },
+                  { icon: MapPin, titel: 'Zu teuer gekauft', text: 'Ohne Vergleich mit ähnlichen Wohnungen zahlst du schnell 10–20 % zu viel, und das für Jahrzehnte.',
+                    balken: [['Angebot', 85, '3.400 €/m²', '#94a3b8'], ['Markt', 70, '2.900 €/m²', '#ff6b00']] as Array<[string, number, string, string]> },
+                ].map(k => (
+                  <article key={k.titel} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                    <k.icon size={20} className="text-[#ff6b00]" />
+                    <h3 className="mt-4 text-[19px] font-extrabold">{k.titel}</h3>
+                    <p className="mt-2 text-[15px] text-slate-600">{k.text}</p>
+                    <Balken zeilen={k.balken} />
+                  </article>
+                ))}
               </div>
-            </div>
-            {/* Mobile Nav Buttons */}
-            <div className="md:hidden flex items-center justify-end gap-4 mt-8 pr-6">
-              <button
-                onClick={() => {
-                  const container = document.querySelector('#failures-scroll');
-                  if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
-                }}
-                className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                onClick={() => {
-                  const container = document.querySelector('#failures-scroll');
-                  if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
-                }}
-                className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
             </div>
           </section>
 
-          {/* 3. Wie imvestr dir hilft */}
-          <section id="features" className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="mb-8 md:mb-20 overflow-visible">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">Wie imvestr</span> <span className="text-[#ff6b00]">dir hilft.</span>
-                </h2>
-                <p className="text-gray-500 text-sm md:text-xl max-w-2xl leading-relaxed px-2">
-                  imvestr ist mehr als ein Rechner. Wir nutzen Live-Marktdaten, um dir die Wahrheit über dein Investment zu sagen.
+          {/* Ablauf */}
+          <section id="ablauf" className="scroll-mt-20 px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <div className="text-center">
+                <Eyebrow>So funktioniert&apos;s</Eyebrow>
+                <H2>Vom Exposé zur Entscheidung <Orange>in drei Schritten.</Orange></H2>
+              </div>
+              <div className="mt-12 grid gap-6 md:grid-cols-3">
+                <Schritt nr={1} kurz="Eingeben" titel="Link, Foto oder von Hand"
+                  text="Füg den Link aus dem Portal ein oder fotografier das Exposé. Die KI liest Preis, Fläche, Miete und Hausgeld aus. Du prüfst und ergänzt.">
+                  <div className="flex gap-1.5">
+                    {['Link', 'Foto', 'Manuell'].map((t, i) => (
+                      <span key={t} className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${i === 0 ? 'border-[#ff6b00] bg-[#fff3e8] text-[#ff6b00]' : 'border-slate-200 bg-white'}`}>{t}</span>
+                    ))}
+                  </div>
+                  <span className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs text-slate-400">https://www.immobilienscout24.de/expose/…</span>
+                  <span className="rounded-lg bg-[#ff6b00] py-2.5 text-center text-xs font-bold text-white">Daten auslesen</span>
+                  <span className="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-xs">✓ Kaufpreis 100.000 € · 48 m² · Miete 960 €</span>
+                </Schritt>
+                <Schritt nr={2} kurz="Verstehen" titel="Ergebnis in Klartext"
+                  text="Cashflow nach Steuern, Rendite und Kreditdeckung mit Ampel. Dazu der Vergleich mit Kaufpreisen und Mieten vor Ort.">
+                  {[['Cashflow nach Steuern', 'Positiv', '227 €', 'good'], ['Kaufpreis pro m²', '28 % unter Markt', '2.083 €', 'good'], ['Kaltmiete pro m²', '111 % über Markt', '20,00 €', 'bad']].map(([k, p, v, t]) => (
+                    <span key={k} className="rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+                      <span className="flex justify-between gap-2 text-[11px] font-semibold text-slate-500">{k}
+                        <span className={`rounded-full px-2 text-[10px] font-bold ${t === 'good' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>{p}</span>
+                      </span>
+                      <b className={`mt-1 block tabular-nums ${k.startsWith('Cashflow') ? 'text-emerald-600' : ''}`}>{v}</b>
+                    </span>
+                  ))}
+                </Schritt>
+                <Schritt nr={3} kurz="Absichern" titel="Durchspielen und zur Bank"
+                  text="Was, wenn die Zinsen steigen? Ein Klick zeigt es. Danach exportierst du einen Report, den du zum Bankgespräch mitnimmst.">
+                  <div className="flex gap-1.5">
+                    <span className="rounded-lg border border-[#ff6b00] bg-[#fff3e8] px-2.5 py-1.5 text-xs font-semibold text-[#ff6b00]">Zinsen +2 %</span>
+                    <span className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold">Miete −10 %</span>
+                  </div>
+                  <span className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs">
+                    <span className="flex justify-between border-b border-slate-100 py-1">Überschuss<b><s className="mr-1.5 font-normal text-slate-400">227 €</s>138 €</b></span>
+                    <span className="flex justify-between py-1">Zins bis<b>8,6 %</b></span>
+                  </span>
+                  <span className="rounded-lg bg-[#001d3d] py-2.5 text-center text-xs font-bold text-white">PDF-Report herunterladen</span>
+                </Schritt>
+              </div>
+            </div>
+          </section>
+
+          {/* Schnell-Check */}
+          <section id="ausprobieren" className="scroll-mt-20 bg-[#001d3d] px-5 py-20 text-white md:py-24">
+            <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+              <div className="min-w-0">
+                <Eyebrow>Probier&apos;s aus</Eyebrow>
+                <H2 hell>Schnell-Check: <Orange>trägt sich deine Wohnung?</Orange></H2>
+                <p className="mt-4 max-w-[60ch] text-lg text-slate-300">
+                  Drei Regler, eine grobe Schätzung. Die vollständige Analyse rechnet zusätzlich Steuern, Rücklagen und den Markt vor Ort mit ein.
+                </p>
+                <ul className="mt-7 flex flex-col gap-3 text-slate-200">
+                  {[`Kostenlos anmelden und ${GRATIS_ANALYSEN} vollständige Analysen machen`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
+                    <li key={t} className="flex gap-3"><Check size={20} strokeWidth={2.4} className="mt-0.5 shrink-0 text-[#ff6b00]" />{t}</li>
+                  ))}
+                </ul>
+              </div>
+              <SchnellCheck onStart={() => starten('schnell_check')} />
+            </div>
+          </section>
+
+          {/* Premium */}
+          <section className="px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <div className="mx-auto max-w-3xl text-center">
+                <Eyebrow>Mit Premium</Eyebrow>
+                <H2>Mehr als ein Rechner: <Orange>deine Entscheidung, zu Ende gedacht.</Orange></H2>
+                <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
+                  Die Kennzahlen sind immer kostenlos. Premium zeigt dir, was in 10, 20 und 30 Jahren passiert, und bereitet dich auf die Bank vor.
                 </p>
               </div>
-
-              {/* Bento Box Grid: Mobile Stack, Desktop Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
-                {/* Marktdaten-Check - Large Box */}
-                <div className="md:col-span-8 bg-white rounded-[32px] p-6 md:p-10 flex flex-col md:flex-row items-center gap-4 md:gap-8 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-full md:w-1/2">
-                    <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
-                      <BarChart3 className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-bold mb-2 md:mb-4 text-[#001d3d]">Marktdaten-Check</h3>
-                    <p className="text-gray-500 text-sm md:text-base leading-relaxed mb-3 md:mb-4">
-                      Wir prüfen Kauf- und Mietpreise am Standort und checken wie die Nachfrage ist.
-                    </p>
-                    <p className="text-xs md:text-sm text-[#ff6b00] font-semibold">
-                      → Verhindert Fehlkäufe durch objektive Marktdaten
-                    </p>
+              <div className="mt-11 grid gap-5 md:grid-cols-3">
+                <PremiumKarte icon={TrendingUp} titel="Prognose nach deinem Ziel"
+                  text="Vermögen aufbauen, monatlich Geld übrig, Steuern sparen oder später verkaufen: Du wählst, die Prognose antwortet.">
+                  <div className="mb-2.5 grid grid-cols-2 gap-1.5">
+                    {['Vermögen aufbauen', 'Monatlich Geld übrig', 'Steuern sparen', 'Später verkaufen'].map((t, i) => (
+                      <span key={t} className={`rounded-lg border px-2 py-1.5 text-[11px] font-bold ${i === 0 ? 'border-[#ff6b00] bg-[#fff3e8]' : 'border-slate-200 bg-white'}`}>{t}</span>
+                    ))}
                   </div>
-                  <div className="hidden md:flex md:w-1/2 h-full bg-orange-50 rounded-2xl items-center justify-center p-12">
-                    <BarChart3 className="w-32 h-32 text-orange-200" />
+                  <svg viewBox="0 0 260 80" className="block h-auto w-full" aria-hidden>
+                    <path d="M0 80 L0 66 L260 18 L260 80 Z" fill="#cbd5e1" />
+                    <path d="M0 80 L0 76 L130 52 L260 22 L260 80 Z" fill="#14946a" />
+                    <path d="M0 80 L0 78 L130 62 L260 42 L260 80 Z" fill="#1f63c9" />
+                    <path d="M0 76 L130 52 L260 22" fill="none" stroke="#001d3d" strokeWidth="2" />
+                  </svg>
+                </PremiumKarte>
+                <PremiumKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
+                  text="Zinsen steigen, Miete sinkt, Preis verhandelt. Und du siehst, wie viel Puffer die Wohnung hat, bevor du draufzahlst.">
+                  <span className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs">
+                    {[['Zinssatz bis', '8,6 %'], ['Kaltmiete bis', '555 €'], ['Leerstand bis', '4,2 Monate']].map(([k, v], i) => (
+                      <span key={k} className={`flex justify-between py-1.5 ${i < 2 ? 'border-b border-slate-100' : ''}`}>{k}<b>{v}</b></span>
+                    ))}
+                  </span>
+                </PremiumKarte>
+                <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
+                  text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
+                  <div className="flex items-end justify-center gap-2.5" aria-hidden>
+                    {[0, 1, 2].map(i => (
+                      <span key={i} className={`flex aspect-[210/297] w-[76px] flex-col gap-1 rounded border border-slate-200 bg-white p-1.5 shadow-md ${i === 0 ? '-rotate-3' : i === 2 ? 'rotate-3' : ''}`}>
+                        <span className={`h-4 rounded-sm ${i === 0 ? 'bg-[#001d3d]' : 'bg-slate-200'}`} />
+                        <span className="h-0.5 rounded bg-slate-100" /><span className="h-0.5 w-2/3 rounded bg-slate-100" />
+                        <span className={`flex-1 rounded-sm ${i === 1 ? 'bg-gradient-to-t from-blue-200 to-transparent' : 'bg-slate-50'}`} />
+                      </span>
+                    ))}
                   </div>
-                </div>
-
-                {/* KPI-Berechnung - Small Navy Box */}
-                <div className="md:col-span-4 bg-[#001d3d] text-white rounded-[32px] p-6 md:p-10 shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
-                    <Calculator className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">KPI-Berechnung</h3>
-                  <p className="text-blue-100 text-xs md:text-sm opacity-80 leading-relaxed mb-3 md:mb-4">
-                    Wichtige KPIs inkl. Cashflow unter Berücksichtigung deines persönlichen Steuersatzes, AfA und kalkulatorischer Kosten.
-                  </p>
-                  <p className="text-sm text-[#ff6b00] font-semibold">
-                    → Realistische Rendite statt Schönrechnung
-                  </p>
-                </div>
-
-                {/* Investitionsanalyse - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
-                    <Lightbulb className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Investitionsanalyse</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                    Unsere KI gibt eine verständliche Erklärung über die Investition in einfachen Worten – auch für Einsteiger.
-                  </p>
-                  <p className="text-sm text-[#ff6b00] font-semibold">
-                    → Verstehe jeden Aspekt deines Deals
-                  </p>
-                </div>
-
-                {/* Szenarien - Small Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 shadow-lg border border-gray-100 hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-gray-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6 shadow-sm">
-                    <Zap className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Szenarien</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                    Was passiert bei 4,5% Zinsen? Ein Klick, sofortige Antwort.
-                  </p>
-                  <p className="text-sm text-[#ff6b00] font-semibold">
-                    → Teste dein Investment gegen Risiken ab
-                  </p>
-                </div>
-
-                {/* Bank-Ready PDF - Small Highlighted Box */}
-                <div className="md:col-span-4 bg-white rounded-[32px] p-6 md:p-10 border-2 border-[#ff6b00] shadow-lg hover:-translate-y-2 hover:shadow-2xl transition-all duration-300">
-                  <div className="w-10 h-10 md:w-14 md:h-14 bg-orange-100 rounded-xl md:rounded-2xl flex items-center justify-center mb-4 md:mb-6">
-                    <FileBarChart className="w-5 h-5 md:w-7 md:h-7 text-[#ff6b00]" />
-                  </div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-[#001d3d]">Bank-Ready PDF</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                    Exportiere deine Analyse als professionelles Exposé für deine Bankanfrage.
-                  </p>
-                  <p className="text-sm text-[#ff6b00] font-semibold">
-                    → Überzeuge deine Bank mit Daten statt Bauchgefühl
-                  </p>
-                </div>
+                </PremiumKarte>
               </div>
             </div>
           </section>
 
-          {/* 4. So funktioniert imvestr */}
-          <section id="workflow" className="py-16 md:py-32 px-4 md:px-6 bg-[#f5f5f7] overflow-visible">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="mb-8 md:mb-20 overflow-visible text-center md:text-right">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">So funktioniert</span> <span className="text-[#ff6b00]">imvestr.</span>
-                </h2>
-                <p className="text-gray-500 text-sm md:text-xl leading-relaxed px-2">
-                  In 3 einfachen Schritten von der Exposé-URL zum vollständigen Investment-Report.
+          {/* Preise */}
+          <section id="preise" className="scroll-mt-20 bg-slate-50 px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <div className="mx-auto max-w-3xl text-center">
+                <Eyebrow>Preise</Eyebrow>
+                <H2>Erst ausprobieren, <Orange>dann entscheiden.</Orange></H2>
+                <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
+                  Starte kostenlos. Wenn du mehr als zwei Wohnungen prüfst oder zur Bank gehst, lohnt sich Premium.
                 </p>
               </div>
+              <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
+                <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
+                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${GRATIS_ANALYSEN} vollständige Analysen mit Markt & Prognose`, true], ['KI-Einschätzung', true], ['PDF-Report', false], ['Analysen speichern', false]]}
+                  knopf="Kostenlos starten" onClick={() => starten('preise_kostenlos')} />
+                <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
+                  hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
+                  merkmale={[['Unbegrenzte Analysen', true], ['Markt- & Lageanalyse', true], ['Prognose & Stresstests', true], ['PDF-Report für die Bank', true], ['Analysen speichern', true]]}
+                  knopf={`Premium für ${preis(PREIS_JAHR)} € im Jahr`} onClick={() => premiumWaehlen('preise_jahr')} />
+                <Plan titel="Premium Monat" wer="Für eine konkrete Wohnung" preisText={`${preis(PREIS_MONAT)} €`} zeitraum="pro Monat"
+                  hinweis="monatlich kündbar"
+                  merkmale={[['Alles aus Premium Jahr', true], ['Jederzeit zum Monatsende kündbar', true]]}
+                  knopf="Monatlich starten" onClick={() => premiumWaehlen('preise_monat')} />
+              </div>
+              <p className="mt-6 text-center text-[13px] text-slate-600">Sichere Zahlung über Stripe · Monatsabo monatlich kündbar</p>
+            </div>
+          </section>
 
-              {/* Mobile: Accordion, Desktop: 3-Col Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-                {/* Schritt 1 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
-                  {/* Mobile: Clickable Header */}
-                  <button
-                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 0 ? null : 0)}
-                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
-                  >
-                    <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
-                        <svg className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                        </svg>
-                      </div>
-                      <div>
-                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 1</div>
-                        <h3 className="text-lg md:text-2xl font-bold">Import</h3>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 0 ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {/* Mobile: Collapsible Content, Desktop: Always Visible */}
-                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 0 ? 'block' : 'hidden md:block'}`}>
-                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
-                      Kopiere einfach den Link von ImmoScout24 oder einem anderen Portal, fotografiere das Exposé mit deinem Smartphone oder gib die Daten manuell ein. Unsere KI extrahiert automatisch alle relevanten Informationen – von Kaufpreis über Wohnfläche bis zur Miete. In Sekunden startklar.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">URL-Import</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Foto-Scan</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Manuelle Eingabe</span>
-                    </div>
-                  </div>
-                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">01</div>
-                </div>
-
-                {/* Schritt 2 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
-                  <button
-                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 1 ? null : 1)}
-                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
-                  >
-                    <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
-                        <BarChart3 className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
-                      </div>
-                      <div>
-                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 2</div>
-                        <h3 className="text-lg md:text-2xl font-bold">Markt- & Investitionsanalyse</h3>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 1 ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 1 ? 'block' : 'hidden md:block'}`}>
-                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
-                      Unsere KI analysiert Kaufpreis und Miete gegen echte Angebote in der Nachbarschaft. Du siehst sofort, ob die Zahlen im Exposé realistisch sind oder Wunschdenken. Keine vagen Bewertungen – nur harte Fakten und Marktvergleiche.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Kauf-Vergleich</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Miet-Vergleich</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Investitionsanalyse</span>
-                    </div>
-                  </div>
-                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">02</div>
-                </div>
-
-                {/* Schritt 3 */}
-                <div className="bg-white border-2 border-gray-100 rounded-[32px] md:rounded-[40px] overflow-hidden md:hover:shadow-2xl md:hover:-translate-y-2 md:hover:border-[#ff6b00]/30 transition-all duration-300 group md:relative">
-                  <button
-                    onClick={() => setActiveWorkflowIndex(activeWorkflowIndex === 2 ? null : 2)}
-                    className="w-full p-6 md:p-10 flex items-center justify-between md:block text-left"
-                  >
-                    <div className="flex items-center gap-4 md:block">
-                      <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gray-100 flex items-center justify-center md:mb-8 md:group-hover:scale-110 transition-transform shadow-sm">
-                        <FileBarChart className="w-5 h-5 md:w-8 md:h-8 text-[#ff6b00]" />
-                      </div>
-                      <div>
-                        <div className="text-[#ff6b00] text-xs font-semibold uppercase tracking-wider mb-1 md:mb-3">Schritt 3</div>
-                        <h3 className="text-lg md:text-2xl font-bold">Simulation & Report</h3>
-                      </div>
-                    </div>
-                    <ChevronDown className={`w-5 h-5 md:hidden transition-transform ${activeWorkflowIndex === 2 ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  <div className={`px-6 pb-6 md:px-10 md:pb-10 md:block ${activeWorkflowIndex === 2 ? 'block' : 'hidden md:block'}`}>
-                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mb-4 md:mb-6">
-                      Spiele verschiedene Finanzierungsszenarien durch und sieh sofort, wie sich Zinsänderungen auf deine Rendite auswirken. Mit einem Klick exportierst du einen professionellen PDF-Report – perfekt vorbereitet für deine Bank. Alle Zahlen, alle Fakten, auf den Punkt gebracht.
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Szenarien</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">Rendite-Effekte</span>
-                      <span className="px-3 py-1 bg-[#f5f5f7] rounded-full text-xs font-medium">PDF-Export</span>
-                    </div>
-                  </div>
-                  <div className="hidden md:block absolute bottom-0 right-4 text-[140px] font-extrabold text-[#001d3d] opacity-[0.03] leading-none">03</div>
-                </div>
+          {/* Transparenz */}
+          <section className="px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-6xl">
+              <div className="text-center">
+                <Eyebrow>Transparenz</Eyebrow>
+                <H2>Warum du den Zahlen <Orange>trauen kannst.</Orange></H2>
+              </div>
+              <div className="mt-11 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                <Vertrauen icon={Calculator} titel="Jede Formel offen" text="Bei jeder Kennzahl siehst du, wie sie berechnet wird.">
+                  <code className="mt-3.5 block rounded-lg bg-slate-50 p-2.5 font-mono text-xs text-[#001d3d]">DSCR = Überschuss vor Kredit ÷ Kreditrate</code>
+                </Vertrauen>
+                <Vertrauen icon={BookOpen} titel="Quellen genannt" text="Marktvergleiche zeigen, woher die Daten stammen. Du kannst jede Quelle selbst öffnen." />
+                <Vertrauen icon={Scale} titel="Deutsches Steuerrecht" text="AfA nach Baujahr, absetzbare Zinsen, 10-Jahres-Frist beim Verkauf. Vereinfacht, aber nach deutschen Regeln." />
+                <Vertrauen icon={CreditCard} titel="Ehrlich statt schön" text="Wenn die Miete über dem Markt liegt oder die Rate knapp wird, steht das ganz oben. Keine Anlageberatung, sondern ein Rechenwerkzeug." />
               </div>
             </div>
           </section>
 
-          {/* 5. Wie funktioniert der Import? - Sticky Workflow */}
-          <section className="py-16 md:py-32 bg-white px-4 md:px-6">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="text-center mb-12 md:mb-20">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">Wie funktioniert</span> <span className="text-[#ff6b00]">der Import?</span>
-                </h2>
-                <p className="text-gray-500 text-base md:text-xl max-w-3xl mx-auto leading-relaxed">
-                  Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen.
-                </p>
-              </div>
-
-              {/* Mobile: Tabs */}
-              <div className="md:hidden">
-                {/* Tabs Navigation */}
-                <div className="flex flex-wrap justify-center gap-3 mb-8">
-                  <button
-                    onClick={() => setSelectedImportMethod('url')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'url'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+          {/* FAQ */}
+          <section id="faq" className="scroll-mt-20 bg-slate-50 px-5 py-20 md:py-24">
+            <div className="mx-auto max-w-3xl">
+              <div className="text-center"><Eyebrow>FAQ</Eyebrow><H2>Häufige Fragen</H2></div>
+              <div className="mt-10 flex flex-col gap-2.5">
+                {FAQS.map(f => (
+                  <details
+                    key={f.frage}
+                    className="group rounded-2xl border border-slate-200 bg-white"
+                    onToggle={e => { if ((e.target as HTMLDetailsElement).open) trackCTA('faq_opened', 'faq_section'); }}
                   >
-                    <LinkIcon size={18} />
-                    URL-Import
-                  </button>
-                  <button
-                    onClick={() => setSelectedImportMethod('photo')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'photo'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Camera size={18} />
-                    Foto-Scan
-                  </button>
-                  <button
-                    onClick={() => setSelectedImportMethod('manual')}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold transition-all ${
-                      selectedImportMethod === 'manual'
-                        ? 'bg-[#ff6b00] text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    <Edit3 size={18} />
-                    Manuell
-                  </button>
-                </div>
-
-                {/* Selected Card in Navy Container */}
-                <div className="px-4">
-                  <div className="bg-[#001d3d] rounded-[32px] min-h-[400px] flex items-center justify-center p-6 shadow-2xl border-4 border-gray-100">
-                    {/* URL Import Card */}
-                    {selectedImportMethod === 'url' && (
-                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
-                        {/* KI Badge */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
-                        <Sparkles size={14} />
-                        <span>KI-Power</span>
-                      </div>
-
-                      <div className="text-center mb-6">
-                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                          <LinkIcon className="w-7 h-7 text-[#ff6b00]" />
-                        </div>
-                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                          URL Import
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
-                        </p>
-                      </div>
-
-                      {/* URL Input (disabled) */}
-                      <div className="space-y-3">
-                        <input
-                          type="url"
-                          placeholder="https://www.immobilienscout24.de/..."
-                          disabled
-                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default text-sm"
-                        />
-
-                        <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
-                          <Sparkles size={18} />
-                          <span>Mit KI analysieren</span>
-                        </button>
-                      </div>
-
-                      {/* Benefits */}
-                      <div className="mt-4 space-y-2">
-                        {['Umgeht CloudFront-Blockierung', 'Funktioniert mit den meisten Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                            <span>{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                    {/* Photo Scan Card */}
-                    {selectedImportMethod === 'photo' && (
-                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
-                        {/* KI Badge */}
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1 animate-bounce">
-                        <Sparkles size={14} />
-                        <span>KI-Power</span>
-                      </div>
-
-                      <div className="text-center mb-6">
-                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                          <Camera className="w-7 h-7 text-[#ff6b00]" />
-                        </div>
-                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                          Foto scannen
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          Fotografiere das Exposé mit deinem Smartphone
-                        </p>
-                      </div>
-
-                      {/* Camera Upload Area (visual only) */}
-                      <div className="text-center mb-4">
-                        <div className="w-full py-10 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
-                          <Camera className="w-10 h-10 text-[#ff6b00] mx-auto mb-2" />
-                          <p className="text-sm font-bold text-gray-900 mb-1">
-                            Foto aufnehmen
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Klicken um Kamera zu öffnen
-                          </p>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2">
-                          Max. 10 MB • PNG, JPG, WebP
-                        </p>
-                      </div>
-
-                      {/* Benefits */}
-                      <div className="mt-4 space-y-2">
-                        {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                            <span>{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-                      </div>
-                    )}
-
-                    {/* Manual Entry Card */}
-                    {selectedImportMethod === 'manual' && (
-                      <div className="relative bg-white rounded-[32px] border border-gray-100 p-6 shadow-lg animate-[fadeIn_0.3s_ease-in] w-full">
-                      <div className="text-center mb-6">
-                        <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                          <Keyboard className="w-7 h-7 text-[#ff6b00]" />
-                        </div>
-                        <h3 className="text-xl font-bold text-[#001d3d] mb-2">
-                          Manuelle Eingabe
-                        </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                          Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
-                        </p>
-                      </div>
-
-                      <button className="w-full py-3 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default text-sm">
-                        <span>Jetzt starten</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
-
-                      {/* Benefits */}
-                      <div className="mt-4 space-y-2">
-                        {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs text-gray-600">
-                            <CheckCircle2 className="w-3 h-3 text-[#ff6b00]" />
-                            <span>{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Desktop: Sticky Border-Left Design */}
-              <div className="hidden md:flex flex-col md:flex-row items-start gap-20">
-                {/* Left: Sticky Text */}
-                <div className="md:w-1/2">
-                  <div className="sticky top-40 space-y-12">
-                    {/* Step 1: URL-Import */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'url'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('url')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <LinkIcon className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">1. Link einfügen</h4>
-                      </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen. Unsere KI liest alle relevanten Daten automatisch aus.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Alle Objektdaten in Sekunden erfasst</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Unterstützt alle großen Portale</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Step 2: Foto-Scan */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'photo'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('photo')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <Camera className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">2. Foto scannen</h4>
-                      </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Fotografiere das Exposé mit deinem Smartphone. Unsere OCR-KI extrahiert alle wichtigen Zahlen automatisch.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>98% Genauigkeit durch OCR + GPT-4 Vision</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Perfekt für Besichtigungen vor Ort</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Step 3: Manuelle Eingabe */}
-                    <div
-                      className={`border-l-4 pl-8 transition-all duration-300 cursor-pointer ${
-                        selectedImportMethod === 'manual'
-                          ? 'border-[#ff6b00] opacity-100'
-                          : 'border-gray-200 opacity-40 hover:opacity-100 hover:border-[#ff6b00]'
-                      }`}
-                      onClick={() => setSelectedImportMethod('manual')}
-                    >
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center shadow-sm">
-                          <Edit3 className="w-6 h-6 text-[#ff6b00]" />
-                        </div>
-                        <h4 className="text-3xl font-bold text-[#001d3d]">3. Manuell eingeben</h4>
-                      </div>
-                      <p className="text-gray-500 text-lg leading-relaxed">
-                        Trage die Daten selbst ein mit intelligenten Vorschlägen und Auto-Vervollständigung.
-                      </p>
-                      <div className="mt-6 space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Smartes Formular mit Validierung</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                          <span>Volle Kontrolle über alle Details</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Visual Mockup with Real Cards */}
-                <div className="md:w-1/2">
-                  <div className="bg-[#001d3d] rounded-[48px] min-h-[600px] flex items-center justify-center p-8 shadow-2xl border-4 border-gray-100">
-                    <div className="w-full max-w-md">
-                      {/* URL Import Card */}
-                      {selectedImportMethod === 'url' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
-                            {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
-                              <Sparkles size={16} />
-                              <span>KI-Power</span>
-                            </div>
-
-                            <div className="text-center mb-8">
-                              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                                <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
-                              </div>
-                              <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                                URL Import
-                              </h3>
-                              <p className="text-gray-600 leading-relaxed">
-                                Kopiere einfach den Link von ImmoScout24, Immowelt oder anderen Portalen
-                              </p>
-                            </div>
-
-                            {/* URL Input (disabled) */}
-                            <div className="space-y-4">
-                              <input
-                                type="url"
-                                placeholder="https://www.immobilienscout24.de/..."
-                                disabled
-                                className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl bg-gray-50 text-gray-400 cursor-default"
-                              />
-
-                              <button className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default">
-                                <Sparkles size={20} />
-                                <span>Mit KI analysieren</span>
-                              </button>
-                            </div>
-
-                            {/* Benefits */}
-                            <div className="mt-6 space-y-2">
-                              {['Umgeht CloudFront-Blockierung', 'Funktioniert mit den meisten Portalen', 'KI extrahiert alle Daten'].map((benefit, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                  <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                                  <span>{benefit}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Photo Scan Card */}
-                      {selectedImportMethod === 'photo' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
-                            {/* KI Badge */}
-                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
-                              <Sparkles size={16} />
-                              <span>KI-Power</span>
-                            </div>
-
-                            <div className="text-center mb-8">
-                              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                                <Camera className="w-8 h-8 text-[#ff6b00]" />
-                              </div>
-                              <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                                Foto scannen
-                              </h3>
-                              <p className="text-gray-600 leading-relaxed">
-                                Fotografiere das Exposé mit deinem Smartphone
-                              </p>
-                            </div>
-
-                            {/* Camera Upload Area (visual only) */}
-                            <div className="text-center mb-6">
-                              <div className="w-full py-12 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white cursor-default">
-                                <Camera className="w-12 h-12 text-[#ff6b00] mx-auto mb-3" />
-                                <p className="text-sm font-bold text-gray-900 mb-1">
-                                  Foto aufnehmen
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  Klicken um Kamera zu öffnen
-                                </p>
-                              </div>
-                              <p className="text-xs text-gray-400 mt-3">
-                                Max. 10 MB • PNG, JPG, WebP
-                              </p>
-                            </div>
-
-                            {/* Benefits */}
-                            <div className="mt-6 space-y-2">
-                              {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                  <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                                  <span>{benefit}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Manual Entry Card */}
-                      {selectedImportMethod === 'manual' && (
-                        <div className="animate-[fadeIn_0.3s_ease-in]">
-                          <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 shadow-lg">
-                            <div className="text-center mb-8">
-                              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                                <Keyboard className="w-8 h-8 text-[#ff6b00]" />
-                              </div>
-                              <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                                Manuelle Eingabe
-                              </h3>
-                              <p className="text-gray-600 leading-relaxed">
-                                Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
-                              </p>
-                            </div>
-
-                            <button className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full shadow-lg transition-all flex items-center justify-center gap-2 cursor-default">
-                              <span>Jetzt starten</span>
-                              <ArrowRight className="w-5 h-5" />
-                            </button>
-
-                            {/* Benefits */}
-                            <div className="mt-6 space-y-2">
-                              {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
-                                <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                  <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                                  <span>{benefit}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-          {/* 6. Was ist dein Investment-Ziel? */}
-          <section className="py-16 md:py-32 px-4 md:px-6 bg-[#f5f5f7]">
-            <div className="max-w-6xl mx-auto px-2 md:px-6">
-              <div className="mb-8 md:mb-20 overflow-visible text-center md:text-right">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">Was ist dein </span>
-                  <span className="text-[#ff6b00]">Investment-Ziel?</span>
-                </h2>
-                <p className="text-sm md:text-xl text-gray-600 max-w-2xl mx-auto md:ml-auto leading-relaxed px-2">
-                  Jeder Anlegertyp kann sich die für ihn wichtigen Infos rausholen.
-                </p>
-              </div>
-
-              <div id="investment-goals-scroll" className="flex gap-4 overflow-x-auto pb-8 md:pb-16 snap-x snap-mandatory scrollbar-hide pl-2 md:pl-16 pr-2 md:pr-16" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                {/* Karte 1: Steuern */}
-                <div
-                  data-goal-index="0"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
-                    activeGoalIndex === 0
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
-                  }`}
-                >
-                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">01</div>
-                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 0 ? 'text-white' : 'text-[#001d3d]'}`}>Steuern sparen</h3>
-                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 0 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Wandle deine Steuerlast in privates Vermögen um. Wir berechnen den Netto-Effekt nach AfA und Zinsen.
-                  </p>
-                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 0 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ AfA-Berechnung mit deinem Steuersatz</li>
-                    <li>✓ Steuerersparnis durch Zinskosten</li>
-                    <li>✓ Netto-Rendite nach Steuern</li>
-                  </ul>
-                </div>
-
-                {/* Karte 2: Vorsorge */}
-                <div
-                  data-goal-index="1"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
-                    activeGoalIndex === 1
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
-                  }`}
-                >
-                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">02</div>
-                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 1 ? 'text-white' : 'text-[#001d3d]'}`}>Altersvorsorge</h3>
-                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 1 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Baue dir ein Portfolio auf, das im Alter für dich sorgt. Wir prüfen die Langzeit-Rendite und Sicherheit.
-                  </p>
-                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 1 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ Langfristige Wertsteigerung</li>
-                    <li>✓ Inflationsschutz durch Sachwerte</li>
-                    <li>✓ Altersrente aus Mieteinnahmen</li>
-                  </ul>
-                </div>
-
-                {/* Karte 3: Cashflow */}
-                <div
-                  data-goal-index="2"
-                  className={`rounded-[40px] p-6 md:p-8 w-[calc(100vw-64px)] md:w-[650px] h-auto snap-start border-2 cursor-pointer transition-all duration-300 flex-shrink-0 flex flex-col ${
-                    activeGoalIndex === 2
-                      ? 'bg-[#001d3d] border-[#001d3d] text-white shadow-xl'
-                      : 'bg-white border-gray-100 text-[#001d3d] shadow-lg'
-                  }`}
-                >
-                  <div className="text-[#ff6b00] font-bold mb-6 text-4xl">03</div>
-                  <h3 className={`text-2xl font-bold mb-3 ${activeGoalIndex === 2 ? 'text-white' : 'text-[#001d3d]'}`}>Passives Einkommen</h3>
-                  <p className={`text-sm leading-relaxed mb-4 ${activeGoalIndex === 2 ? 'text-slate-300' : 'text-gray-600'}`}>
-                    Maximiere deinen monatlichen Cashflow. Wir finden die &quot;Haken&quot; in den Mietkalkulationen der Makler.
-                  </p>
-                  <ul className={`space-y-2 text-xs ${activeGoalIndex === 2 ? 'text-slate-400' : 'text-gray-500'}`}>
-                    <li>✓ Realistische Mieteinnahmen-Prognose</li>
-                    <li>✓ Alle Nebenkosten berücksichtigt</li>
-                    <li>✓ Monatlicher Netto-Cashflow</li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Scroll Indicators — nur Mobile */}
-              <div className="md:hidden flex items-center justify-end gap-4 mt-8 pr-6">
-                <button
-                  onClick={() => {
-                    const container = document.querySelector('#investment-goals-scroll');
-                    if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
-                  }}
-                  className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={() => {
-                    const container = document.querySelector('#investment-goals-scroll');
-                    if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
-                  }}
-                  className="w-12 h-12 rounded-full bg-[#001d3d] text-white flex items-center justify-center hover:bg-[#ff6b00] transition-all shadow-lg"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-bold [&::-webkit-details-marker]:hidden">
+                      {f.frage}
+                      <span className="text-xl leading-none text-[#ff6b00] group-open:hidden">+</span>
+                      <span className="hidden text-xl leading-none text-[#ff6b00] group-open:inline">−</span>
+                    </summary>
+                    <p className="px-5 pb-5 text-[15px] text-slate-600">{f.antwort}</p>
+                  </details>
+                ))}
               </div>
             </div>
           </section>
 
-          {/* 7. Testimonials (SEPARATE SECTION) */}
-          <section className="py-16 md:py-32 px-4 md:px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-0 md:px-6">
-              <div className="text-center mb-8 md:mb-16 overflow-visible">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-8 leading-tight tracking-tight">
-                  <span className="text-[#001d3d]">Was unsere</span> <span className="text-[#ff6b00]">Nutzer sagen</span>
-                </h2>
-                <p className="text-sm md:text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                  Echte Erfahrungen von Immobilien-Investoren, die imvestr erfolgreich nutzen.
-                </p>
-              </div>
-
-              {/* Responsive: Mobile Carousel, Tablet 2x2, Desktop 1x4 */}
-              <div className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 md:max-w-6xl md:mx-auto overflow-x-auto md:overflow-visible pb-4 md:pb-0 snap-x snap-mandatory md:snap-none scrollbar-hide pl-4 pr-4 md:pl-0 md:pr-0" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
-                {/* Testimonial 1 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 w-[calc(100vw-32px)] md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                    L
-                  </div>
-                  <p className="font-bold text-[#001d3d] text-base mb-2">Lisa</p>
-                  <p className="text-sm text-gray-500 mb-5">Einsteigerin, 28</p>
-                  <p className="text-gray-700 leading-relaxed italic text-sm">
-                    &quot;Als Anfängerin war ich überfordert. imvestr erklärt mir alles in einfachen Worten.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 2 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 w-[calc(100vw-32px)] md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                    M
-                  </div>
-                  <p className="font-bold text-[#001d3d] text-base mb-2">Michael</p>
-                  <p className="text-sm text-gray-500 mb-5">Ingenieur, 42</p>
-                  <p className="text-gray-700 leading-relaxed italic text-sm">
-                    &quot;Die Marktdaten-Checks geben mir die Sicherheit, die ich brauche.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 3 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 w-[calc(100vw-32px)] md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#ff6b00] to-[#ff8533] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                    S
-                  </div>
-                  <p className="font-bold text-[#001d3d] text-base mb-2">Sarah</p>
-                  <p className="text-sm text-gray-500 mb-5">Lehrerin, 35</p>
-                  <p className="text-gray-700 leading-relaxed italic text-sm">
-                    &quot;Endlich sehe ich schwarz auf weiß, wie viel passives Einkommen wirklich bleibt.&quot;
-                  </p>
-                </div>
-
-                {/* Testimonial 4 */}
-                <div className="bg-white rounded-[40px] p-6 md:p-8 border-2 border-gray-100 w-[calc(100vw-32px)] md:w-auto shadow-lg hover:shadow-2xl hover:-translate-y-2 hover:border-[#ff6b00]/30 transition-all duration-300 flex flex-col items-center text-center snap-start flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#001d3d] to-[#003d7d] flex items-center justify-center text-white font-bold text-xl shadow-lg mb-4">
-                    T
-                  </div>
-                  <p className="font-bold text-[#001d3d] text-base mb-2">Thomas</p>
-                  <p className="text-sm text-gray-500 mb-5">Selbstständig, 39</p>
-                  <p className="text-gray-700 leading-relaxed italic text-sm">
-                    &quot;Die KI-Empfehlungen und Szenario-Analysen geben mir die Sicherheit für meine Investments.&quot;
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 8. PDF Export - Bank-Ready */}
-          <section className="py-32 px-6 bg-[#001d3d] text-white relative overflow-x-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff6b00] opacity-10 rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#ff6b00] opacity-5 rounded-full blur-3xl" />
-
-            <div className="max-w-6xl mx-auto px-6 relative z-10">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                {/* Links: Text */}
-                <div>
-                  <div className="inline-block px-4 py-2 bg-orange-500/20 rounded-full text-[#ff6b00] text-xs font-semibold uppercase tracking-widest mb-6">
-                    Bank-Ready PDF
-                  </div>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight tracking-tight">
-                    <span className="text-white">Von der Analyse zum</span> <span className="text-[#ff6b00]">Bankgespräch</span> <span className="text-white">in 60 Sekunden.</span>
-                  </h2>
-                  <p className="text-xl text-slate-300 mb-10 leading-relaxed">
-                    Erhalte einen professionellen PDF-Report mit allen relevanten KPIs, Marktvergleichen und Szenarien – perfekt für dein Finanzierungsgespräch.
-                  </p>
-
-                  <div className="space-y-4 mb-12">
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#ff6b00] flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold mb-1">Alle KPIs auf einen Blick</h4>
-                        <p className="text-slate-400 text-sm">Cashflow, Nettomietrendite, Eigenkapitalrendite, DSCR und mehr</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#ff6b00] flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold mb-1">Marktdaten-Vergleiche</h4>
-                        <p className="text-slate-400 text-sm">Kauf- und Mietpreisvergleich mit lokalen Angeboten</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-4">
-                      <div className="w-8 h-8 rounded-full bg-[#ff6b00] flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold mb-1">Szenario-Übersicht</h4>
-                        <p className="text-slate-400 text-sm">Mehrere Finanzierungsvarianten zum direkten Vergleich</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => handleGetStarted('bank_ready')}
-                    className="bg-[#ff6b00] text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-[#ff6b00]/90 transition-all shadow-xl hover:shadow-2xl flex items-center gap-3"
-                  >
-                    <span>Jetzt Report erstellen</span>
-                    <FileBarChart className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Rechts: PDF Preview Mockup */}
-                <div className="relative">
-                  <div className="bg-white rounded-3xl shadow-2xl p-8 transform hover:rotate-0 transition-transform">
-                    <div className="space-y-4">
-                      {/* Header */}
-                      <div className="flex items-center justify-between pb-4 border-b-2 border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-[#001d3d] rounded flex items-center justify-center">
-                            <span className="text-white font-bold text-xs">i</span>
-                          </div>
-                          <span className="text-[#001d3d] font-bold">imvestr</span>
-                        </div>
-                        <span className="text-xs text-gray-400 font-medium">Investment-Report</span>
-                      </div>
-
-                      {/* Object Info */}
-                      <div className="bg-gray-50 rounded-2xl p-4">
-                        <div className="text-xs text-gray-500 mb-1">Objektadresse</div>
-                        <div className="font-bold text-[#001d3d] text-sm">Musterstraße 123, 80331 München</div>
-                        <div className="grid grid-cols-3 gap-3 mt-3">
-                          <div>
-                            <div className="text-xs text-gray-400">Kaufpreis</div>
-                            <div className="font-bold text-sm">450.000 €</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-400">Wohnfläche</div>
-                            <div className="font-bold text-sm">75 m²</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-gray-400">Baujahr</div>
-                            <div className="font-bold text-sm">1995</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* KPIs */}
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-orange-50 rounded-xl p-3">
-                          <div className="text-xs text-[#ff6b00] font-semibold mb-1">Cashflow</div>
-                          <div className="text-xl font-bold text-[#001d3d]">+185 €/Monat</div>
-                        </div>
-                        <div className="bg-[#001d3d]/5 rounded-xl p-3">
-                          <div className="text-xs text-[#001d3d] font-semibold mb-1">Nettomietrendite</div>
-                          <div className="text-xl font-bold text-[#001d3d]">4.2%</div>
-                        </div>
-                        <div className="bg-[#001d3d]/5 rounded-xl p-3">
-                          <div className="text-xs text-[#001d3d] font-semibold mb-1">EK-Rendite</div>
-                          <div className="text-xl font-bold text-[#001d3d]">8.5%</div>
-                        </div>
-                        <div className="bg-[#001d3d]/5 rounded-xl p-3">
-                          <div className="text-xs text-[#001d3d] font-semibold mb-1">DSCR</div>
-                          <div className="text-xl font-bold text-[#001d3d]">1.25</div>
-                        </div>
-                      </div>
-
-                      {/* Chart Placeholder */}
-                      <div className="bg-gradient-to-br from-[#001d3d]/10 to-[#ff6b00]/10 rounded-xl p-4 h-32 flex items-end justify-between gap-1">
-                        <div className="bg-[#001d3d]/30 w-1/12 rounded" style={{ height: '40%' }} />
-                        <div className="bg-[#001d3d]/40 w-1/12 rounded" style={{ height: '55%' }} />
-                        <div className="bg-[#ff6b00]/50 w-1/12 rounded" style={{ height: '70%' }} />
-                        <div className="bg-[#ff6b00]/60 w-1/12 rounded" style={{ height: '85%' }} />
-                        <div className="bg-[#ff6b00]/70 w-1/12 rounded" style={{ height: '95%' }} />
-                        <div className="bg-[#ff6b00] w-1/12 rounded" style={{ height: '100%' }} />
-                        <div className="bg-[#ff6b00] w-1/12 rounded" style={{ height: '90%' }} />
-                        <div className="bg-[#ff6b00]/80 w-1/12 rounded" style={{ height: '75%' }} />
-                      </div>
-
-                      {/* Footer */}
-                      <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                        <div className="text-xs text-gray-400">Erstellt am: 15.01.2026</div>
-                        <div className="text-xs text-gray-400">Seite 1 von 8</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Badge */}
-                  <div className="absolute -top-6 -right-6 bg-[#ff6b00] text-white rounded-2xl px-6 py-3 shadow-xl transform rotate-12">
-                    <div className="text-xs font-bold">Bank-ready</div>
-                    <div className="text-2xl font-bold">✓</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* 9. FAQ */}
-          <section id="faq" className="py-32 px-6 bg-white overflow-visible">
-            <div className="max-w-6xl mx-auto px-6">
-              <div className="text-center mb-16 overflow-visible">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                  <span className="text-[#001d3d]">Häufig gestellte</span> <span className="text-[#ff6b00]">Fragen</span>
-                </h2>
-                <p className="text-gray-500 text-xl">Alles, was du über imvestr wissen musst.</p>
-              </div>
-
-              <div className="space-y-6 max-w-4xl mx-auto">
-                {faqs.map((faq, idx) => {
-                  const isOpen = activeFaqIndex === idx;
-                  return (
-                    <div
-                      key={faq.question}
-                      className="bg-white border-2 border-gray-100 rounded-[40px] overflow-hidden hover:border-[#ff6b00]/30 hover:shadow-lg transition-all duration-300"
-                    >
-                      <button
-                        onClick={() => {
-                          handleFaqToggle(faq.question, !isOpen);
-                          setActiveFaqIndex(isOpen ? null : idx);
-                        }}
-                        className="w-full flex items-start justify-between p-8 text-left hover:bg-gray-50 transition-all duration-300"
-                      >
-                        <div className="flex gap-3 flex-1">
-                          <span className="text-[#ff6b00] font-bold text-xl flex-shrink-0">Q:</span>
-                          <h3 className="text-xl font-bold">{faq.question}</h3>
-                        </div>
-                        <div className={`flex-shrink-0 ml-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                          <svg className="w-6 h-6 text-[#001d3d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      </button>
-                      <div
-                        className={`overflow-hidden transition-all duration-300 ${
-                          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                        }`}
-                      >
-                        <div className="px-8 pb-8 pl-[4.5rem] max-w-none">
-                          <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-
-          {/* 10. Final CTA */}
-          <section className="py-32 px-6 bg-[#001d3d] text-white">
-            <div className="max-w-6xl mx-auto px-6 text-center">
-              {isSignedIn ? (
-                <>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                    <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">nächsten Check?</span>
-                  </h2>
-                  <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-                    Starte eine neue Analyse und erhalte in Minuten eine vollständige Bewertung deines Immobilien-Deals.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <button
-                      onClick={() => handleGetStarted('final_cta')}
-                      className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
-                    >
-                      <span>Neue Analyse starten</span>
-                      <ArrowRight className="w-6 h-6" />
-                    </button>
-                    <Link
-                      href="/dashboard"
-                      className="border-2 border-white text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-white hover:text-[#001d3d] transition-all"
-                    >
-                      Zum Dashboard
-                    </Link>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-8 leading-tight tracking-tight px-4">
-                    <span className="text-white">Bereit für deinen</span> <span className="text-[#ff6b00]">ersten Check?</span>
-                  </h2>
-                  <p className="text-lg md:text-xl text-slate-300 mb-12 leading-relaxed max-w-3xl mx-auto">
-                    Starte jetzt kostenlos und erhalte in Minuten eine vollständige Analyse deines Immobilien-Deals.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <button
-                      onClick={() => handleGetStarted('final_cta')}
-                      className="bg-[#ff6b00] text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-[#ff6b00]/90 transition-all shadow-2xl hover:shadow-[#ff6b00]/50 hover:scale-105 flex items-center gap-3"
-                    >
-                      <span>Jetzt kostenlos starten</span>
-                      <ArrowRight className="w-6 h-6" />
-                    </button>
-                    <Link
-                      href="/sign-in"
-                      className="border-2 border-white text-white px-6 py-3 text-base md:px-12 md:py-5 md:text-xl rounded-full font-bold hover:bg-white hover:text-[#001d3d] transition-all"
-                    >
-                      Anmelden / Einloggen
-                    </Link>
-                  </div>
-                </>
-              )}
+          {/* Schluss */}
+          <section className="bg-[#001d3d] px-5 py-20 text-center text-white md:py-24">
+            <div className="mx-auto max-w-3xl">
+              <H2 hell>Prüf deine nächste Wohnung, <Orange>bevor du unterschreibst.</Orange></H2>
+              <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-300">In 2 Minuten weißt du, ob sie sich trägt, ob der Preis passt und wie viel Puffer bleibt.</p>
+              <div className="mt-8"><HauptCta ort="final_cta" /></div>
+              <p className="mt-4 text-[13px] text-slate-400">{GRATIS_ANALYSEN} vollständige Analysen gratis · Ohne Kreditkarte</p>
             </div>
           </section>
         </main>
 
-        {/* Footer */}
-        <footer className="bg-[#030917] text-white py-24 px-6 border-t border-white/10">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-            <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center gap-3 mb-8">
-                <Image
-                  src="/logo.png"
-                  alt="imvestr Logo"
-                  width={40}
-                  height={40}
-                  className="rounded-lg"
-                />
-                <span className="text-2xl font-extrabold tracking-tighter">imvestr</span>
-              </div>
-              <p className="text-slate-400 max-w-sm mb-4">
-                imvestr ist ein KI-gestützter Immobilien-Renditerechner für den deutschen Markt. Das Tool berechnet automatisch Cashflow, Nettomietrendite, Eigenkapitalrendite und DSCR für Kapitalanlage-Immobilien — auf Basis echter Marktdaten.
-              </p>
-              <p className="text-slate-500 max-w-sm mb-8 text-xs">
-                Die intelligenteste Art, Immobilien zu bewerten und Investment-Entscheidungen auf Basis von echten Daten zu treffen.
-              </p>
-              <div className="flex gap-4">
-                <a
-                  href="https://www.instagram.com/imvestr.de"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#ff6b00] transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.tiktok.com/@imvestr.de"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#ff6b00] transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-bold mb-6">Produkt</h4>
-              <ul className="space-y-4 text-slate-400">
-                <li>
-                  <a href="#workflow" className="hover:text-white transition-colors">
-                    So funktioniert&apos;s
-                  </a>
-                </li>
-                <li>
-                  <button onClick={() => handleGetStarted('footer')} className="hover:text-white transition-colors text-left">
-                    Jetzt starten
-                  </button>
-                </li>
-                <li>
-                  <Link href="/pricing" className="hover:text-white transition-colors">
-                    Preise
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-6">Rechtliches</h4>
-              <ul className="space-y-4 text-slate-400">
-                <li>
-                  <Link href="/impressum" className="hover:text-white transition-colors">
-                    Impressum
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/datenschutz" className="hover:text-white transition-colors">
-                    Datenschutz
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/agb" className="hover:text-white transition-colors">
-                    AGB
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-slate-400 text-sm">
-            <p>© 2026 imvestr. Alle Rechte vorbehalten. Keine Anlageberatung – alle Ergebnisse sind Modellrechnungen.</p>
-          </div>
-        </footer>
-
-        {/* Sticky Bottom CTA - nur mobil */}
+        <Footer />
         <StickyBottomCTA />
       </div>
     </>
+  );
+}
+
+function Schritt({ nr, kurz, titel, text, children }: { nr: number; kurz: string; titel: string; text: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col">
+      <p className="flex items-center gap-3 text-[13px] font-extrabold text-[#ff6b00]">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#ff6b00] text-sm text-white">{nr}</span>{kurz}
+      </p>
+      <h3 className="mt-3 text-[21px] font-extrabold">{titel}</h3>
+      <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
+      <div className="mt-5 flex min-h-[210px] flex-1 flex-col gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-4">{children}</div>
+    </div>
+  );
+}
+
+function PremiumKarte({ icon: Icon, titel, text, children }: { icon: typeof Lock; titel: string; text: string; children: React.ReactNode }) {
+  return (
+    <article className="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#fff3e8] px-2.5 py-0.5 text-[11px] font-extrabold text-[#ff6b00]">
+        <Lock size={11} strokeWidth={2.6} /> Premium
+      </span>
+      <h3 className="mt-3.5 flex items-center gap-2 text-[19px] font-extrabold"><Icon size={19} className="text-[#ff6b00]" />{titel}</h3>
+      <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
+      <div className="mt-4 flex min-h-[150px] flex-1 flex-col justify-end rounded-2xl border border-slate-100 bg-slate-50 p-3.5">{children}</div>
+    </article>
+  );
+}
+
+function Plan({
+  titel, wer, preisText, zeitraum, hinweis, badge, hervorheben = false, merkmale, knopf, onClick,
+}: {
+  titel: string; wer: string; preisText: string; zeitraum?: string; hinweis: string; badge?: string; hervorheben?: boolean;
+  merkmale: Array<[string, boolean]>; knopf: string; onClick: () => void;
+}) {
+  return (
+    <article className={`relative flex flex-col rounded-3xl bg-white p-7 ${hervorheben ? 'border-2 border-[#ff6b00] shadow-xl shadow-orange-500/15' : 'border border-slate-200 shadow-sm'}`}>
+      {badge && <span className="absolute -top-3.5 left-7 rounded-full bg-[#ff6b00] px-3 py-1 text-xs font-extrabold text-white">{badge}</span>}
+      <h3 className="text-lg font-extrabold">{titel}</h3>
+      <p className="mt-1 text-sm text-slate-600">{wer}</p>
+      <p className="mt-5 flex items-baseline gap-1.5"><b className="text-[40px] font-black tracking-tight tabular-nums">{preisText}</b>{zeitraum && <span className="text-sm text-slate-600">{zeitraum}</span>}</p>
+      <p className="min-h-[20px] text-[13px] font-bold text-emerald-600">{hinweis}</p>
+      <ul className="mb-6 mt-5 flex flex-1 flex-col gap-2.5 text-sm">
+        {merkmale.map(([t, ja]) => (
+          <li key={t} className={`flex gap-2.5 ${ja ? 'text-slate-600' : 'text-slate-400'}`}>
+            {ja ? <Check size={17} strokeWidth={2.6} className="mt-0.5 shrink-0 text-emerald-600" /> : <X size={17} className="mt-0.5 shrink-0" />}{t}
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        onClick={onClick}
+        className={`w-full rounded-2xl py-3.5 font-bold transition ${hervorheben ? 'bg-[#ff6b00] text-white shadow-lg shadow-orange-500/25 hover:bg-[#ff6b00]/90' : 'border-[1.5px] border-slate-200 bg-white text-[#001d3d] hover:border-[#001d3d]'}`}
+      >
+        {knopf}
+      </button>
+    </article>
+  );
+}
+
+function Vertrauen({ icon: Icon, titel, text, children }: { icon: typeof Lock; titel: string; text: string; children?: React.ReactNode }) {
+  return (
+    <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <Icon size={20} className="text-[#ff6b00]" />
+      <h3 className="mt-3.5 text-[17px] font-extrabold">{titel}</h3>
+      <p className="mt-1.5 text-sm text-slate-600">{text}</p>
+      {children}
+    </article>
   );
 }

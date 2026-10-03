@@ -14,6 +14,7 @@ import { SzenarienTab } from '@/components/SzenarienTab';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
 import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, splitSections } from '@/components/MarketAnalysis';
 import { baueReportDaten } from '@/lib/report-daten';
+import { PREIS_MONAT, preis } from '@/lib/preise';
 import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
@@ -2393,7 +2394,7 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 13,99 €/Monat'}
+                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
                   )}
@@ -2494,7 +2495,7 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 13,99 €/Monat'}
+                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
                   )}
@@ -2560,7 +2561,7 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {2 - premiumUsageCount > 0
                           ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : 'Nur 13,99 €/Monat'}
+                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
                   )}

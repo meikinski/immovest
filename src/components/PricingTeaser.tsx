@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Check, X, Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis } from '@/lib/preise';
 
 /**
  * Pricing Teaser mit Toggle Jährlich/Monatlich
@@ -39,9 +40,9 @@ export function PricingTeaser() {
     },
     {
       name: 'Pro',
-      price: isYearly ? '69' : '12.99',
+      price: isYearly ? preis(PREIS_JAHR) : preis(PREIS_MONAT),
       period: isYearly ? 'pro Jahr' : 'pro Monat',
-      savings: isYearly ? 'Spare 59% (nur 5,75€/Monat)' : null,
+      savings: isYearly ? `Spare ${ERSPARNIS_JAHR_PCT}% (nur ${preis(PREIS_JAHR_PRO_MONAT)}€/Monat)` : null,
       features: [
         { text: 'Unbegrenzte KPI-Berechnungen', included: true },
         { text: 'Unbegrenzte KI-Kommentare', included: true },
@@ -129,7 +130,7 @@ export function PricingTeaser() {
               Jährlich
               {isYearly && (
                 <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
-                  -59%
+                  -{ERSPARNIS_JAHR_PCT}%
                 </span>
               )}
             </button>
