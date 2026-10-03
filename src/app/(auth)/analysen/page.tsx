@@ -10,6 +10,7 @@ import { KontoSeite } from '@/components/konto/KontoSeite';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useGespeicherteAnalysen } from '@/hooks/useGespeicherteAnalysen';
 import { usePlanStatus } from '@/hooks/usePlanStatus';
+import { usePaywall } from '@/contexts/PaywallContext';
 import { useImmoStore } from '@/store/useImmoStore';
 import type { SavedAnalysis } from '@/lib/storage';
 
@@ -49,7 +50,9 @@ function NeueAnalyseKnopf({ klein = false }: { klein?: boolean }) {
 export default function MeineAnalysenPage() {
   const router = useRouter();
   const { userId } = useAuth();
-  const plan = usePlanStatus();
+  const status = usePlanStatus();
+  const { isPremium: paywallPremium } = usePaywall();
+  const plan = { loaded: status.loaded, isPremium: status.isPremium || paywallPremium };
   const { analysen, laedt, loeschen } = useGespeicherteAnalysen(plan.loaded && plan.isPremium);
   const loadAnalysis = useImmoStore(s => s.loadAnalysis);
   const [suche, setSuche] = useState('');
