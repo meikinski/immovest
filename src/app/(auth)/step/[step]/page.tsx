@@ -2075,12 +2075,6 @@ const exportPdf = React.useCallback(async () => {
                 >
                   Bearbeiten
                 </button>
-                <button
-                  onClick={() => router.push('/input-method')}
-                  className="px-5 py-3 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white rounded-2xl text-xs font-bold transition-all shadow-lg"
-                >
-                  Neue Analyse
-                </button>
               </div>
             </div>
           </div>
