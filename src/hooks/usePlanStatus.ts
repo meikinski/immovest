@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
+import { premiumStatusAbrufen } from '@/lib/premiumStatus';
 
 export interface PlanStatus {
   loaded: boolean;
@@ -27,53 +28,49 @@ function ausSpeicher(userId: string): PlanStatus {
   }
 }
 
-async function abrufen(userId: string): Promise<PlanStatus> {
-  // Ein zweiter Versuch, falls die Sitzung beim ersten Aufruf noch nicht bereit war
-  for (let versuch = 0; versuch < 2; versuch++) {
+async function abrufen(userId: string, getToken: () => Promise<string | null>): Promise<PlanStatus> {
+  const d = await premiumStatusAbrufen(getToken);
+  if (d && !d.usingFallback) {
+    const status: PlanStatus = {
+      loaded: true,
+      isPremium: d.isPremium,
+      usageCount: d.usageCount,
+      premiumUntil: d.premiumUntil,
+    };
     try {
-      const r = await fetch('/api/premium/status', { cache: 'no-store' });
-      if (r.ok) {
-        const d = await r.json();
-        if (!d?.usingFallback) {
-          const status: PlanStatus = {
-            loaded: true,
-            isPremium: !!d.isPremium,
-            usageCount: Number(d.usageCount) || 0,
-            premiumUntil: d.premiumUntil ?? null,
-          };
-          try {
-            localStorage.setItem(`is_premium_${userId}`, status.isPremium ? 'true' : 'false');
-            localStorage.setItem(`premium_usage_${userId}`, String(status.usageCount));
-          } catch { /* privater Modus */ }
-          return status;
-        }
-        break;
-      }
-    } catch { /* Netzwerkfehler: nochmal versuchen */ }
-    if (versuch === 0) await new Promise(res => setTimeout(res, 800));
+      localStorage.setItem(`is_premium_${userId}`, status.isPremium ? 'true' : 'false');
+      localStorage.setItem(`premium_usage_${userId}`, String(status.usageCount));
+    } catch { /* privater Modus */ }
+    return status;
   }
   // Fehlgeschlagene Abrufe nicht zwischenspeichern, damit der nächste Seitenaufruf neu fragt
   if (cache?.userId === userId) cache = null;
   return ausSpeicher(userId);
 }
 
-function ladeStatus(userId: string): Promise<PlanStatus> {
+function ladeStatus(userId: string, getToken: () => Promise<string | null>): Promise<PlanStatus> {
   if (cache?.userId === userId) return cache.promise;
-  cache = { userId, promise: abrufen(userId) };
+  cache = { userId, promise: abrufen(userId, getToken) };
   return cache.promise;
 }
 
 /** Plan des angemeldeten Nutzers, unabhängig vom PaywallProvider (auch auf öffentlichen Seiten nutzbar) */
 export function usePlanStatus(): PlanStatus {
-  const { isSignedIn, userId } = useAuth();
+  const { isSignedIn, userId, getToken } = useAuth();
   const [status, setStatus] = useState<PlanStatus>({ loaded: false, isPremium: false, usageCount: 0, premiumUntil: null });
 
   useEffect(() => {
     if (!isSignedIn || !userId) return;
     let aktiv = true;
-    ladeStatus(userId).then(s => { if (aktiv) setStatus(s); });
-    return () => { aktiv = false; };
-  }, [isSignedIn, userId]);
+    const laden = () => ladeStatus(userId, getToken).then(s => { if (aktiv) setStatus(s); });
+    laden();
+    // Mobil: Tab kommt aus dem Hintergrund zurück → Status frisch abfragen
+    const beiSichtbar = () => {
+      if (document.visibilityState === 'visible') { cache = null; laden(); }
+    };
+    document.addEventListener('visibilitychange', beiSichtbar);
+    return () => { aktiv = false; document.removeEventListener('visibilitychange', beiSichtbar); };
+  }, [isSignedIn, userId, getToken]);
 
   return status;
 }

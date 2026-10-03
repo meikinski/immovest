@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useAuth } from '@clerk/nextjs';
+import { premiumStatusAbrufen } from '@/lib/premiumStatus';
 
 type PaywallContextType = {
   isPremium: boolean;
@@ -19,7 +20,7 @@ const PaywallContext = createContext<PaywallContextType | undefined>(undefined);
  * Inner provider that uses Clerk auth - only rendered after hydration
  */
 function PaywallProviderInner({ children }: { children: ReactNode }) {
-  const { isSignedIn, userId } = useAuth();
+  const { isSignedIn, userId, getToken } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -35,42 +36,36 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
       return;
     }
 
-    try {
-      console.log('[PaywallContext] Checking premium status for user:', userId);
-      // Try to fetch from API/Supabase
-      const response = await fetch('/api/premium/status');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('[PaywallContext] Premium status response:', data);
-        setIsPremium(data.isPremium || false);
-        setPremiumUsageCount(data.usageCount || 0);
+    const data = await premiumStatusAbrufen(getToken);
+    if (data && !data.usingFallback) {
+      setIsPremium(data.isPremium);
+      setPremiumUsageCount(data.usageCount);
 
-        // Update localStorage as cache
+      // Update localStorage as cache
+      try {
         localStorage.setItem(`is_premium_${userId}`, data.isPremium ? 'true' : 'false');
-        localStorage.setItem(`premium_usage_${userId}`, (data.usageCount || 0).toString());
-      } else {
-        console.warn('[PaywallContext] API request failed, falling back to localStorage');
-        // Fallback to localStorage
+        localStorage.setItem(`premium_usage_${userId}`, data.usageCount.toString());
+      } catch { /* privater Modus */ }
+    } else {
+      console.warn('[PaywallContext] Premium status request failed, falling back to localStorage');
+      try {
         const storedPremium = localStorage.getItem(`is_premium_${userId}`);
         const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
-
         setIsPremium(storedPremium === 'true');
         setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
-      }
-    } catch (error) {
-      console.error('[PaywallContext] Error checking premium status:', error);
-      // Fallback to localStorage
-      const storedPremium = localStorage.getItem(`is_premium_${userId}`);
-      const storedUsage = localStorage.getItem(`premium_usage_${userId}`);
-
-      setIsPremium(storedPremium === 'true');
-      setPremiumUsageCount(storedUsage ? parseInt(storedUsage, 10) : 0);
+      } catch { /* privater Modus */ }
     }
-  }, [isSignedIn, userId]);
+  }, [isSignedIn, userId, getToken]);
 
   // Load premium status on mount and when userId changes
   useEffect(() => {
     checkPremiumStatus();
+    // Mobil: Tab kommt aus dem Hintergrund zurück → Status frisch abfragen
+    const beiSichtbar = () => {
+      if (document.visibilityState === 'visible') checkPremiumStatus();
+    };
+    document.addEventListener('visibilitychange', beiSichtbar);
+    return () => document.removeEventListener('visibilitychange', beiSichtbar);
   }, [checkPremiumStatus]);
 
   const incrementPremiumUsage = useCallback(() => {
