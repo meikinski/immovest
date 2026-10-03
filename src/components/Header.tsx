@@ -134,6 +134,76 @@ function KontoMenue({ onNavigate }: { onNavigate: () => void }) {
   );
 }
 
+/** Ab dieser Zugstrecke (px) schließt das Blatt beim Loslassen */
+const SCHLIESS_SCHWELLE = 80;
+
+/** Blatt von unten: fährt ein, lässt sich nach unten wegziehen oder per Tipp auf den Hintergrund schließen */
+function MobilSheet({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const [sichtbar, setSichtbar] = useState(false);
+  const [zug, setZug] = useState<number | null>(null);
+  const start = useRef<{ y: number; t: number } | null>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSichtbar(true));
+    const vorher = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      cancelAnimationFrame(frame);
+      document.body.style.overflow = vorher;
+    };
+  }, []);
+
+  const schliessen = () => {
+    setZug(null);
+    setSichtbar(false);
+    setTimeout(onClose, 250);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    start.current = { y: e.touches[0].clientY, t: Date.now() };
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (!start.current) return;
+    const dy = Math.max(0, e.touches[0].clientY - start.current.y);
+    // Kleine Bewegungen bleiben Tipps, damit Links weiter funktionieren
+    if (zug !== null || dy > 6) setZug(dy);
+  };
+  const onTouchEnd = () => {
+    const s = start.current;
+    start.current = null;
+    if (!s || zug === null) return;
+    const tempo = zug / Math.max(1, Date.now() - s.t);
+    if (zug > SCHLIESS_SCHWELLE || (zug > 30 && tempo > 0.5)) schliessen();
+    else setZug(null);
+  };
+
+  const versatz = zug !== null ? `${zug}px` : sichtbar ? '0px' : '100%';
+
+  return (
+    <>
+      <div
+        className={`fixed inset-0 z-[60] bg-[#001d3d]/25 backdrop-blur-sm transition-opacity duration-250 ${sichtbar ? 'opacity-100' : 'opacity-0'}`}
+        onClick={schliessen}
+        aria-hidden
+      />
+      <div
+        role="menu"
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
+        style={{ transform: `translateY(${versatz})` }}
+        className={`fixed inset-x-0 bottom-0 z-[61] touch-none rounded-t-3xl border-t border-white/60 bg-white/90 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-1 shadow-2xl backdrop-blur-xl ${zug !== null ? '' : 'transition-transform duration-250 ease-out'}`}
+      >
+        <div className="flex justify-center py-2" aria-hidden>
+          <div className="h-1.5 w-10 rounded-full bg-slate-300" />
+        </div>
+        {children}
+      </div>
+    </>
+  );
+}
+
 export function Header({ variant = 'fixed' }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -268,16 +338,10 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
             )}
             {/* Handy: Blatt von unten, per Portal außerhalb der Kopfleiste (backdrop-blur würde fixed begrenzen) */}
             {menuOffen && typeof document !== 'undefined' && createPortal(
-              <div className="md:hidden">
-                <div className="fixed inset-0 z-[60] bg-[#001d3d]/35" onClick={() => setMenuOffen(false)} aria-hidden />
-                <div
-                  ref={sheetRef}
-                  role="menu"
-                  className="fixed inset-x-0 bottom-0 z-[61] rounded-t-3xl bg-white px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-2 shadow-2xl"
-                >
-                  <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-slate-200" />
+              <div ref={sheetRef} className="md:hidden">
+                <MobilSheet onClose={() => setMenuOffen(false)}>
                   <KontoMenue onNavigate={() => setMenuOffen(false)} />
-                </div>
+                </MobilSheet>
               </div>,
               document.body
             )}
