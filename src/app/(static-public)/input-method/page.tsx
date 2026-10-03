@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Keyboard, Camera, X, ArrowRight, CheckCircle2, Link as LinkIcon, Sparkles } from 'lucide-react';
+import { Keyboard, Camera, X, CheckCircle2, Link as LinkIcon, Sparkles, ChevronDown, ChevronRight, ClipboardPaste, Image as ImageIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -29,6 +29,9 @@ export default function InputMethodPage() {
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
   const [urlWarnings, setUrlWarnings] = useState<string[]>([]);
+
+  // Which method panel is expanded
+  const [openMethod, setOpenMethod] = useState<'url' | 'foto' | null>(null);
 
   // Reset form when component mounts (user starts new input)
   useEffect(() => {
@@ -64,6 +67,8 @@ export default function InputMethodPage() {
     if (file) {
       handleImageSelect(file);
     }
+    // Allow selecting the same file again
+    e.target.value = '';
   };
 
   const handleImageSubmit = async () => {
@@ -228,273 +233,341 @@ export default function InputMethodPage() {
     }
   };
 
+  const startManual = () => {
+    resetAnalysis();
+    localStorage.removeItem('immovest_kpi_state');
+    router.push('/step/a');
+  };
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setUrl(text.trim());
+        setUrlError('');
+      }
+    } catch {
+      // Clipboard not available or permission denied – user can paste manually
+    }
+  };
+
+  const clearImage = () => {
+    setImage(null);
+    setImagePreview(null);
+    setImageError('');
+    setImageWarnings([]);
+  };
+
+  const toggle = (method: 'url' | 'foto') => {
+    setOpenMethod(prev => (prev === method ? null : method));
+  };
+
+  // Bring the expanded panel into view (mainly relevant on small screens)
+  const urlPanelRef = useRef<HTMLDivElement>(null);
+  const fotoPanelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const panel = openMethod === 'url' ? urlPanelRef.current : openMethod === 'foto' ? fotoPanelRef.current : null;
+    panel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [openMethod]);
+
   return (
     <div className="min-h-screen bg-white">
       <Header variant="fixed" />
 
-      {/* Main Content */}
-      <div className="relative pt-32 pb-20 px-6 bg-[#f5f5f7]">
-        <div className="relative max-w-5xl mx-auto">
+      <main className="bg-[#f5f5f7] px-4 pb-16 pt-24 sm:px-6 sm:pt-28 md:pb-24 md:pt-32">
+        <div className="mx-auto max-w-2xl">
           {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-extrabold mb-4 leading-tight tracking-tighter text-[#001d3d]">
+          <div className="mb-8 text-center md:mb-10">
+            <h1 className="mb-3 text-3xl font-extrabold leading-tight tracking-tight text-[#001d3d] sm:text-4xl md:text-5xl">
               Wie möchtest du <span className="text-[#ff6b00]">starten?</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Drei smarte Wege, um deine Immobilien-Daten in Sekunden zu erfassen
+            <p className="mx-auto max-w-md text-base text-gray-600 md:text-lg">
+              Wähle einen Weg, um deine Immobilien-Daten zu erfassen
             </p>
           </div>
 
-          {/* Method Cards - 3 Column Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {/* Manual Input - FIRST */}
-            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <Keyboard className="w-8 h-8 text-[#ff6b00]" />
-                </div>
-                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                  Manuelle Eingabe
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Gib alle Daten selbst ein – volle Kontrolle über jedes Detail
-                </p>
+          {/* Method List */}
+          <div className="space-y-3">
+            {/* Manual Input */}
+            <button
+              type="button"
+              onClick={startManual}
+              className="group flex w-full items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-[#ff6b00]/50 active:bg-gray-50 sm:p-5"
+            >
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff7f0]">
+                <Keyboard className="h-6 w-6 text-[#ff6b00]" />
               </div>
+              <div className="min-w-0 flex-1">
+                <h2 className="text-base font-bold text-[#001d3d] sm:text-lg">Manuelle Eingabe</h2>
+                <p className="text-sm text-gray-600">Alle Daten selbst eingeben – volle Kontrolle</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:text-[#ff6b00]" />
+            </button>
 
+            {/* URL Import */}
+            <div
+              className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${
+                openMethod === 'url' ? 'border-[#ff6b00] ring-4 ring-[#ff6b00]/10' : 'border-gray-200 hover:border-[#ff6b00]/50'
+              }`}
+            >
               <button
-                onClick={() => {
-                  resetAnalysis();
-                  localStorage.removeItem('immovest_kpi_state');
-                  router.push('/step/a');
-                }}
-                className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 group"
+                type="button"
+                onClick={() => toggle('url')}
+                aria-expanded={openMethod === 'url'}
+                aria-controls="method-url"
+                className="flex w-full items-center gap-4 p-4 text-left active:bg-gray-50 sm:p-5"
               >
-                <span>Jetzt starten</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff7f0]">
+                  <LinkIcon className="h-6 w-6 text-[#ff6b00]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base font-bold text-[#001d3d] sm:text-lg">URL Import</h2>
+                    <AiBadge />
+                  </div>
+                  <p className="text-sm text-gray-600">Link von ImmoScout24, Immowelt & Co. einfügen</p>
+                </div>
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${openMethod === 'url' ? 'rotate-180 text-[#ff6b00]' : ''}`}
+                />
               </button>
 
-              {/* Benefits */}
-              <div className="mt-6 space-y-2">
-                {['Volle Kontrolle über Eingabe', 'Funktioniert immer', 'Perfekt für eigene Daten'].map((benefit, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                    <span>{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* URL Import with AI - SECOND */}
-            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-              {/* KI Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
-                <Sparkles size={16} />
-                <span>KI-Power</span>
-              </div>
-
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <LinkIcon className="w-8 h-8 text-[#ff6b00]" />
-                </div>
-                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                  URL Import
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Kopiere einfach den Link von Immowelt, eBay Kleinanzeigen oder anderen Portalen
-                </p>
-              </div>
-
-              {/* URL Input */}
-              <div className="space-y-4">
-                <input
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://www.immowelt.de/..."
-                  className="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:border-[#ff6b00] focus:outline-none focus:ring-4 focus:ring-[#ff6b00]/15 transition-all hover:border-gray-300"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleUrlSubmit();
-                  }}
-                />
-
-                <button
-                  onClick={handleUrlSubmit}
-                  disabled={urlLoading || !url.trim()}
-                  className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {urlLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Analysiere...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={20} />
-                      <span>Mit KI analysieren</span>
-                    </>
-                  )}
-                </button>
-
-                {urlError && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-                    {urlError}
-                  </div>
-                )}
-
-                {urlWarnings.length > 0 && (
-                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-xs space-y-1">
-                    <p className="font-semibold">⚠️ Hinweise:</p>
-                    {urlWarnings.map((warning, idx) => (
-                      <p key={idx}>• {warning}</p>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Benefits */}
-              <div className="mt-6 space-y-2">
-                {['Funktioniert mit ImmoScout24 & Immowelt', 'Funktioniert mit eBay Kleinanzeigen', 'KI extrahiert alle Daten automatisch'].map((benefit, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                    <span>{benefit}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Foto machen - THIRD */}
-            <div className="relative bg-white rounded-[32px] border border-gray-100 p-8 md:p-10 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
-              {/* KI Badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-[#ff6b00] text-white text-xs font-bold uppercase tracking-widest rounded-full shadow-lg flex items-center gap-1.5 animate-bounce">
-                <Sparkles size={16} />
-                <span>KI-Power</span>
-              </div>
-
-              <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <Camera className="w-8 h-8 text-[#ff6b00]" />
-                </div>
-                <h3 className="text-2xl font-bold text-[#001d3d] mb-3">
-                  Foto scannen
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  Fotografiere das Exposé mit deinem Smartphone
-                </p>
-              </div>
-
-              {/* Camera Access Only */}
-              {!imagePreview ? (
-                <div className="text-center">
-                  <button
-                    onClick={() => cameraInputRef.current?.click()}
-                    className="w-full py-16 border-2 border-dashed border-[#ff6b00]/40 rounded-3xl bg-white hover:border-[#ff6b00] hover:bg-orange-50 transition-all"
-                  >
-                    <Camera className="w-16 h-16 text-[#ff6b00] mx-auto mb-4" />
-                    <p className="text-lg font-bold text-gray-900 mb-2">
-                      Foto aufnehmen
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      Klicken um Kamera zu öffnen
-                    </p>
-                  </button>
-                  <input
-                    ref={cameraInputRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="hidden"
-                    onChange={handleFileInputChange}
-                  />
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleFileInputChange}
-                  />
-                  <p className="text-xs text-gray-400 mt-4">
-                    Max. 10 MB • PNG, JPG, WebP
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="relative rounded-2xl overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-64 object-cover"
+              {openMethod === 'url' && (
+                <div ref={urlPanelRef} id="method-url" className="space-y-3 border-t border-gray-100 p-4 sm:p-5">
+                  <div className="relative">
+                    <input
+                      type="url"
+                      inputMode="url"
+                      autoComplete="off"
+                      autoCapitalize="off"
+                      autoCorrect="off"
+                      spellCheck={false}
+                      value={url}
+                      onChange={(e) => {
+                        setUrl(e.target.value);
+                        if (urlError) setUrlError('');
+                      }}
+                      placeholder="https://www.immowelt.de/..."
+                      aria-label="Inserat-URL"
+                      className="w-full rounded-xl border-2 border-gray-200 py-3 pl-4 pr-24 text-base transition-colors focus:border-[#ff6b00] focus:outline-none focus:ring-4 focus:ring-[#ff6b00]/15"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleUrlSubmit();
+                      }}
                     />
                     <button
-                      onClick={() => {
-                        setImage(null);
-                        setImagePreview(null);
-                        setImageError('');
-                        setImageWarnings([]);
-                      }}
-                      className="absolute top-4 right-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow-lg"
+                      type="button"
+                      onClick={url ? () => setUrl('') : handlePaste}
+                      className="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-[#ff6b00] hover:bg-[#fff7f0]"
                     >
-                      <X size={20} />
+                      {url ? (
+                        <>
+                          <X className="h-4 w-4" />
+                          <span>Leeren</span>
+                        </>
+                      ) : (
+                        <>
+                          <ClipboardPaste className="h-4 w-4" />
+                          <span>Einfügen</span>
+                        </>
+                      )}
                     </button>
                   </div>
 
-                  {imageError && (
-                    <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-                      {imageError}
-                    </div>
-                  )}
-
-                  {imageWarnings.length > 0 && (
-                    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-yellow-800 text-xs space-y-1">
-                      <p className="font-semibold">⚠️ Hinweise:</p>
-                      {imageWarnings.map((warning, idx) => (
-                        <p key={idx}>• {warning}</p>
-                      ))}
-                    </div>
-                  )}
-
                   <button
-                    onClick={handleImageSubmit}
-                    disabled={imageLoading}
-                    className="w-full py-4 bg-[#ff6b00] text-white font-bold rounded-full hover:shadow-2xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+                    type="button"
+                    onClick={handleUrlSubmit}
+                    disabled={urlLoading || !url.trim()}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] py-3.5 font-bold text-white transition-colors hover:bg-[#ff6b00]/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {imageLoading ? (
+                    {urlLoading ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>KI analysiert...</span>
+                        <Spinner />
+                        <span>Analysiere...</span>
                       </>
                     ) : (
                       <>
-                        <ArrowRight size={20} />
-                        <span>Jetzt analysieren</span>
+                        <Sparkles className="h-5 w-5" />
+                        <span>Mit KI analysieren</span>
                       </>
                     )}
                   </button>
+
+                  {urlError && <ErrorBox message={urlError} />}
+                  {urlWarnings.length > 0 && <WarningBox warnings={urlWarnings} />}
+
+                  <BenefitList items={['ImmoScout24 & Immowelt', 'Kleinanzeigen', 'Daten automatisch extrahiert']} />
                 </div>
               )}
+            </div>
 
-              {/* Benefits */}
-              <div className="mt-6 space-y-2">
-                {['100% zuverlässig', 'Funktioniert mit allen Portalen', 'Sekunden-schnell'].map((benefit, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle2 className="w-4 h-4 text-[#ff6b00]" />
-                    <span>{benefit}</span>
+            {/* Photo Scan */}
+            <div
+              className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${
+                openMethod === 'foto' ? 'border-[#ff6b00] ring-4 ring-[#ff6b00]/10' : 'border-gray-200 hover:border-[#ff6b00]/50'
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => toggle('foto')}
+                aria-expanded={openMethod === 'foto'}
+                aria-controls="method-foto"
+                className="flex w-full items-center gap-4 p-4 text-left active:bg-gray-50 sm:p-5"
+              >
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#fff7f0]">
+                  <Camera className="h-6 w-6 text-[#ff6b00]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base font-bold text-[#001d3d] sm:text-lg">Foto-Scan</h2>
+                    <AiBadge />
                   </div>
-                ))}
-              </div>
+                  <p className="text-sm text-gray-600">Exposé fotografieren oder Screenshot hochladen</p>
+                </div>
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-gray-400 transition-transform ${openMethod === 'foto' ? 'rotate-180 text-[#ff6b00]' : ''}`}
+                />
+              </button>
+
+              {/* Hidden file inputs (always mounted so refs stay valid) */}
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileInputChange}
+              />
+
+              {openMethod === 'foto' && (
+                <div ref={fotoPanelRef} id="method-foto" className="space-y-3 border-t border-gray-100 p-4 sm:p-5">
+                  {!imagePreview ? (
+                    <>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => cameraInputRef.current?.click()}
+                          className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[#ff6b00]/40 px-3 py-6 transition-colors hover:border-[#ff6b00] hover:bg-[#fff7f0] active:bg-[#fff7f0]"
+                        >
+                          <Camera className="h-7 w-7 text-[#ff6b00]" />
+                          <span className="text-sm font-bold text-[#001d3d]">Foto aufnehmen</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 px-3 py-6 transition-colors hover:border-[#ff6b00] hover:bg-[#fff7f0] active:bg-[#fff7f0]"
+                        >
+                          <ImageIcon className="h-7 w-7 text-[#ff6b00]" />
+                          <span className="text-sm font-bold text-[#001d3d]">Bild hochladen</span>
+                        </button>
+                      </div>
+                      <p className="text-center text-xs text-gray-400">Max. 10 MB · PNG, JPG, WebP</p>
+                    </>
+                  ) : (
+                    <>
+                      <div className="relative overflow-hidden rounded-xl bg-gray-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={imagePreview} alt="Vorschau" className="max-h-72 w-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={clearImage}
+                          disabled={imageLoading}
+                          aria-label="Bild entfernen"
+                          className="absolute right-2 top-2 rounded-full bg-white/90 p-2 text-gray-700 shadow-md transition-colors hover:bg-white hover:text-red-600 disabled:opacity-50"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleImageSubmit}
+                        disabled={imageLoading}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#ff6b00] py-3.5 font-bold text-white transition-colors hover:bg-[#ff6b00]/90 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {imageLoading ? (
+                          <>
+                            <Spinner />
+                            <span>KI analysiert...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-5 w-5" />
+                            <span>Mit KI analysieren</span>
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
+
+                  {imageError && <ErrorBox message={imageError} />}
+                  {imageWarnings.length > 0 && <WarningBox warnings={imageWarnings} />}
+
+                  <BenefitList items={['Funktioniert mit allen Portalen', 'Auch für PDF-Exposés per Screenshot', 'In Sekunden erledigt']} />
+                </div>
+              )}
             </div>
           </div>
 
           {/* Help Text */}
-          <div className="text-center px-6 py-4 bg-orange-50 rounded-3xl border border-orange-100">
-            <p className="text-sm text-gray-700 font-medium">
-              <span className="text-[#ff6b00] font-bold">Tipp:</span> URL Import und Foto-Scan sind deutlich schneller als manuelle Eingabe
-            </p>
-          </div>
+          <p className="mt-6 text-center text-sm text-gray-600">
+            <span className="font-bold text-[#ff6b00]">Tipp:</span> URL-Import und Foto-Scan sind deutlich schneller als die manuelle Eingabe.
+          </p>
         </div>
-      </div>
+      </main>
 
       <Footer />
     </div>
+  );
+}
+
+function AiBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-[#ff6b00] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+      <Sparkles className="h-3 w-3" />
+      KI
+    </span>
+  );
+}
+
+function Spinner() {
+  return <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />;
+}
+
+function ErrorBox({ message }: { message: string }) {
+  return (
+    <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+      {message}
+    </div>
+  );
+}
+
+function WarningBox({ warnings }: { warnings: string[] }) {
+  return (
+    <div className="space-y-1 rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-xs text-yellow-800">
+      <p className="font-semibold">⚠️ Hinweise:</p>
+      {warnings.map((warning, idx) => (
+        <p key={idx}>• {warning}</p>
+      ))}
+    </div>
+  );
+}
+
+function BenefitList({ items }: { items: string[] }) {
+  return (
+    <ul className="flex flex-wrap gap-x-4 gap-y-1.5 pt-1">
+      {items.map((item) => (
+        <li key={item} className="flex items-center gap-1.5 text-xs text-gray-600">
+          <CheckCircle2 className="h-3.5 w-3.5 text-[#ff6b00]" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
