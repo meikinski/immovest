@@ -68,21 +68,30 @@ export function Footer({ noPadding = false }: FooterProps) {
             <p className="text-sm leading-relaxed text-slate-400 max-w-sm mb-6">
               Die intelligenteste Art, Immobilien zu bewerten und Investment-Entscheidungen auf Basis von echten Daten zu treffen.
             </p>
-            <div className="flex gap-3">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.href}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 bg-white/5 ring-1 ring-white/10 rounded-full flex items-center justify-center text-slate-300 hover:bg-[#ff6b00] hover:ring-[#ff6b00] hover:text-white transition-colors"
-                  aria-label={social.label}
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d={social.path} />
-                  </svg>
-                </a>
-              ))}
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/input-method"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#ff6b00] px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-px hover:bg-[#ff6b00]/90"
+              >
+                Jetzt starten
+                <span aria-hidden="true">→</span>
+              </Link>
+              <div className="flex gap-3">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.href}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 bg-white/5 ring-1 ring-white/10 rounded-full flex items-center justify-center text-slate-300 hover:bg-[#ff6b00] hover:ring-[#ff6b00] hover:text-white transition-colors"
+                    aria-label={social.label}
+                  >
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d={social.path} />
+                    </svg>
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
           <div className="md:col-span-3">
