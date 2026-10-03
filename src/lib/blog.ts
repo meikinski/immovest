@@ -14,6 +14,7 @@ export interface BlogPost {
   title: string
   description: string
   date: string
+  lastModified: string
   author: string
   image?: string
   tags?: string[]
@@ -45,6 +46,7 @@ export async function getAllPosts(): Promise<BlogPostMeta[]> {
       title: data.title ?? slug,
       description: data.description ?? '',
       date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+      lastModified: data.lastModified ? new Date(data.lastModified).toISOString() : data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
       author: data.author ?? 'Imvestr',
       image: data.image ?? null,
       tags: data.tags ?? [],
@@ -75,6 +77,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     title: data.title ?? slug,
     description: data.description ?? '',
     date: data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
+    lastModified: data.lastModified ? new Date(data.lastModified).toISOString() : data.date ? new Date(data.date).toISOString() : new Date().toISOString(),
     author: data.author ?? 'Imvestr',
     image: data.image ?? null,
     tags: data.tags ?? [],
