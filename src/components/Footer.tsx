@@ -29,10 +29,10 @@ function LinkColumn({ title, links }: { title: string; links: { href: string; la
   return (
     <div>
       <h4 className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-5">{title}</h4>
-      <ul className="space-y-3 text-sm text-slate-300">
+      <ul className="space-y-1 md:space-y-3 text-sm text-slate-300">
         {links.map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="hover:text-[#ff6b00] transition-colors">
+            <Link href={link.href} className="inline-block py-2 md:py-0 hover:text-[#ff6b00] transition-colors">
               {link.label}
             </Link>
           </li>
@@ -81,9 +81,9 @@ export function Footer({ noPadding = false }: FooterProps) {
           <p>
             © {new Date().getFullYear()} imvestr. Alle Rechte vorbehalten. Keine Anlageberatung – alle Ergebnisse sind Modellrechnungen.
           </p>
-          <nav aria-label="Rechtliches" className="flex flex-wrap gap-x-6 gap-y-2">
+          <nav aria-label="Rechtliches" className="flex flex-wrap gap-x-6 gap-y-1 text-sm md:text-xs">
             {legalLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="hover:text-white transition-colors">
+              <Link key={link.href} href={link.href} className="py-2 md:py-0 hover:text-white transition-colors">
                 {link.label}
               </Link>
             ))}
