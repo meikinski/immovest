@@ -10,7 +10,6 @@ interface FooterProps {
 
 const productLinks = [
   { href: '/#ablauf', label: 'So funktioniert\'s' },
-  { href: '/input-method', label: 'Jetzt starten' },
   { href: '/pricing', label: 'Preise' },
 ];
 
