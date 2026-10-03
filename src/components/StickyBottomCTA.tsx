@@ -57,7 +57,7 @@ export function StickyBottomCTA() {
           onClick={() => router.push('/input-method')}
           className="w-full flex items-center justify-center gap-2 rounded-full bg-[#ff6b00] px-6 py-4 text-base font-bold text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
         >
-          Kostenlos testen
+          Erste Wohnung kostenlos prüfen
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>

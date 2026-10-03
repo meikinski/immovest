@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Crown, X, Sparkles, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT_AUF_JAHR, preis } from '@/lib/preise';
 
 interface UpsellBannerProps {
   onDismiss?: () => void;
@@ -69,11 +70,11 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
               </p>
 
               <div className="flex items-center justify-center md:justify-start gap-2 text-sm">
-                <span className="text-slate-500 line-through">167,88 €</span>
-                <span className="text-2xl font-black text-[#ff6b00]">69 €</span>
+                <span className="text-slate-500 line-through">{preis(PREIS_MONAT_AUF_JAHR)} €</span>
+                <span className="text-2xl font-black text-[#ff6b00]">{preis(PREIS_JAHR)} €</span>
                 <span className="text-slate-700">/ Jahr</span>
                 <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                  Spare 59%
+                  Spare {ERSPARNIS_JAHR_PCT}%
                 </span>
               </div>
             </div>
@@ -103,7 +104,7 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
               ✓ Unbegrenzte Analysen
             </span>
             <span className="flex items-center gap-1">
-              ✓ Nur 5,75 € / Monat
+              ✓ Nur {preis(PREIS_JAHR_PRO_MONAT)} € / Monat
             </span>
             <span className="flex items-center gap-1">
               ✓ Jederzeit kündbar

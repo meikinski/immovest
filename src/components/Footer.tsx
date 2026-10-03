@@ -55,7 +55,7 @@ export function Footer({ noPadding = false }: FooterProps) {
           <h4 className="font-bold mb-6">Produkt</h4>
           <ul className="space-y-4 text-slate-400">
             <li>
-              <Link href="/#workflow" className="hover:text-white transition-colors">
+              <Link href="/#ablauf" className="hover:text-white transition-colors">
                 So funktioniert&apos;s
               </Link>
             </li>
