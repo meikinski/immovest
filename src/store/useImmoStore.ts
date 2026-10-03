@@ -7,6 +7,17 @@ import {
   } from '@/lib/calculations';
 import type { MarketFacts } from '@/lib/marketFacts';
 
+/** localStorage-Schlüssel für den automatisch gesicherten Arbeitsstand (siehe useStatePersistence) */
+export const AUTOSAVE_KEY = 'immovest_kpi_state';
+
+const clearAutosave = () => {
+  try {
+    if (typeof window !== 'undefined') localStorage.removeItem(AUTOSAVE_KEY);
+  } catch {
+    // localStorage nicht verfügbar
+  }
+};
+
 
 /**
  * AfA-Modell Typen für verschiedene Abschreibungsmethoden
@@ -419,6 +430,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   },
 
   resetAnalysis: () => {
+    // Sonst stellt die Step-Seite den Stand der vorherigen Analyse wieder her
+    clearAutosave();
     set(initialState);
   },
 
@@ -442,6 +455,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       if (!data) return false;
 
       // Vorherigen Zustand verwerfen, damit keine Felder der zuletzt geöffneten Analyse übrig bleiben
+      clearAutosave();
       set({ ...initialState });
       get().importData({ ...(data as Partial<ImmoState>), analysisId: id });
       return true;

@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { useImmoStore } from '@/store/useImmoStore';
-
-const STATE_KEY = 'immovest_kpi_state';
+import { AUTOSAVE_KEY as STATE_KEY, useImmoStore } from '@/store/useImmoStore';
 
 /**
  * Hook für automatische State Persistence
- * Speichert den Zustand automatisch im localStorage und lädt ihn beim Mount
+ * Speichert den Zustand automatisch im localStorage und lädt ihn beim Mount –
+ * aber nur, wenn der Store leer ist (z. B. nach Reload oder Login-Redirect).
+ * Eine gerade geöffnete gespeicherte Analyse darf nicht überschrieben werden.
  */
 export function useStatePersistence() {
   const importData = useImmoStore((s) => s.importData);
@@ -17,6 +17,9 @@ export function useStatePersistence() {
   useEffect(() => {
     if (hasLoadedRef.current) return;
     hasLoadedRef.current = true;
+
+    const current = useImmoStore.getState();
+    if (current.kaufpreis > 0 || current.adresse) return;
 
     const savedState = localStorage.getItem(STATE_KEY);
     if (savedState) {
