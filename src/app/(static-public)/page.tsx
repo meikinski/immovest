@@ -10,6 +10,7 @@ import {
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
+import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import {
   ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
@@ -87,7 +88,7 @@ function Balken({ zeilen }: { zeilen: Array<[string, number, string, string]> })
   );
 }
 
-function SchnellCheck({ onStart }: { onStart: () => void }) {
+function SchnellCheck({ onStart, angemeldet }: { onStart: () => void; angemeldet: boolean }) {
   const [kaufpreis, setKaufpreis] = useState(130000);
   const [miete, setMiete] = useState(720);
   const [ek, setEk] = useState(35000);
@@ -139,7 +140,7 @@ function SchnellCheck({ onStart }: { onStart: () => void }) {
         ))}
       </div>
       <button type="button" onClick={onStart} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
-        Vollständig analysieren, kostenlos <ArrowRight size={18} />
+        {angemeldet ? 'Vollständig analysieren' : 'Vollständig analysieren, kostenlos'} <ArrowRight size={18} />
       </button>
     </div>
   );
@@ -150,8 +151,12 @@ export default function LandingPage() {
   const { isSignedIn } = useUser();
   const { trackCTA } = useAnalytics();
 
+  const resetAnalysis = useImmoStore(s => s.resetAnalysis);
+  const startText = isSignedIn ? 'Neue Analyse starten' : 'Erste Wohnung kostenlos prüfen';
+
   const starten = (ort: string) => {
     trackCTA('start_analysis', ort);
+    if (isSignedIn) resetAnalysis();
     router.push('/input-method');
   };
   const premiumWaehlen = (ort: string) => {
@@ -166,7 +171,7 @@ export default function LandingPage() {
       onClick={() => starten(ort)}
       className={`inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#ff6b00] px-7 py-4 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-px hover:bg-[#ff6b00]/95 ${className}`}
     >
-      Erste Wohnung kostenlos prüfen <ArrowRight size={18} />
+      {startText} <ArrowRight size={18} />
     </button>
   );
 
@@ -197,7 +202,7 @@ export default function LandingPage() {
                   </a>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-slate-600">
-                  {[`${GRATIS_ANALYSEN} vollständige Analysen gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar'].map(t => (
+                  {(isSignedIn ? ['Jede Formel einsehbar', 'Quellen zu allen Marktdaten'] : [`${GRATIS_ANALYSEN} vollständige Analysen gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar']).map(t => (
                     <span key={t} className="flex items-center gap-1.5"><Check size={15} strokeWidth={2.6} className="text-emerald-600" />{t}</span>
                   ))}
                 </div>
@@ -347,7 +352,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
               </div>
-              <SchnellCheck onStart={() => starten('schnell_check')} />
+              <SchnellCheck onStart={() => starten('schnell_check')} angemeldet={!!isSignedIn} />
             </div>
           </section>
 
@@ -413,7 +418,7 @@ export default function LandingPage() {
               <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
                 <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
                   merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${GRATIS_ANALYSEN} vollständige Analysen mit Markt & Prognose`, true], ['KI-Einschätzung', true], ['PDF-Report', false], ['Analysen speichern', false]]}
-                  knopf="Kostenlos starten" onClick={() => starten('preise_kostenlos')} />
+                  knopf={isSignedIn ? 'Neue Analyse starten' : 'Kostenlos starten'} onClick={() => starten('preise_kostenlos')} />
                 <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
                   hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
                   merkmale={[['Unbegrenzte Analysen', true], ['Markt- & Lageanalyse', true], ['Prognose & Stresstests', true], ['PDF-Report für die Bank', true], ['Analysen speichern', true]]}
@@ -474,13 +479,13 @@ export default function LandingPage() {
               <H2 hell>Prüf deine nächste Wohnung, <Orange>bevor du unterschreibst.</Orange></H2>
               <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-300">In 2 Minuten weißt du, ob sie sich trägt, ob der Preis passt und wie viel Puffer bleibt.</p>
               <div className="mt-8"><HauptCta ort="final_cta" /></div>
-              <p className="mt-4 text-[13px] text-slate-400">{GRATIS_ANALYSEN} vollständige Analysen gratis · Ohne Kreditkarte</p>
+              {!isSignedIn && <p className="mt-4 text-[13px] text-slate-400">{GRATIS_ANALYSEN} vollständige Analysen gratis · Ohne Kreditkarte</p>}
             </div>
           </section>
         </main>
 
         <Footer />
-        <StickyBottomCTA />
+        <StickyBottomCTA text={startText} onClick={() => starten('sticky')} />
       </div>
     </>
   );
