@@ -888,9 +888,15 @@ const dscr =
     return;
   }
 
-  // Gespeicherte/geladene Analyse mit vollständiger Recherche → nicht erneut abrufen
-  // (marktFacts wird nur von echten Agent-Ergebnissen gesetzt, nie von Platzhaltern)
-  if (hasExistingComments && marktFacts) {
+  // Gespeicherte/geladene Analyse mit echter Recherche → nicht erneut abrufen.
+  // marktFacts fehlt bei älteren Speicherständen, daher zusätzlich Platzhalter/Fehlertexte ausschließen.
+  const istPlatzhalter = (html: string) =>
+    html.includes('Premium-Inhalte sind hier verfügbar') ||
+    html.includes('Analyse fehlgeschlagen') ||
+    html.includes('Analyse nicht verfügbar') ||
+    html.includes('Die Investitionsanalyse kombiniert alle Faktoren');
+  const hatEchteRecherche = marktFacts || (!istPlatzhalter(lageComment) && !istPlatzhalter(investComment));
+  if (hasExistingComments && hatEchteRecherche) {
     console.log('[Markt] Skipping reload - loaded analysis already has research data');
     marktFetched.current = true;
     return;
