@@ -86,6 +86,25 @@ type ExposeResponse = {
 
 const NO_INFO = 'no_information';
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  auml: 'ä', ouml: 'ö', uuml: 'ü', Auml: 'Ä', Ouml: 'Ö', Uuml: 'Ü', szlig: 'ß',
+  eacute: 'é', egrave: 'è', aacute: 'á', agrave: 'à', ccedil: 'ç', euro: '€', sup2: '²',
+};
+
+/**
+ * Decodes HTML entities returned by the API: "R&ouml;mergasse" → "Römergasse"
+ */
+function decodeHtmlEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z][a-z0-9]*);/gi, (entity, code: string) => {
+    if (code[0] === '#') {
+      const num = code[1].toLowerCase() === 'x' ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+      return Number.isFinite(num) ? String.fromCodePoint(num) : entity;
+    }
+    return NAMED_ENTITIES[code] ?? entity;
+  });
+}
+
 /**
  * Parses German formatted numbers: "1.374,50 €" → 1374.5, "111 m²" → 111, "3,57%" → 3.57
  */
@@ -117,8 +136,8 @@ export function mapImmoscoutExpose(raw: unknown): UrlScraperResult {
   for (const section of sections) {
     for (const attr of section.attributes ?? []) {
       if (attr.label && attr.text) {
-        const label = attr.label.replace(/:\s*$/, '').trim();
-        if (!attributes.has(label)) attributes.set(label, attr.text);
+        const label = decodeHtmlEntities(attr.label).replace(/:\s*$/, '').trim();
+        if (!attributes.has(label)) attributes.set(label, decodeHtmlEntities(attr.text));
       }
     }
   }
@@ -150,7 +169,7 @@ export function mapImmoscoutExpose(raw: unknown): UrlScraperResult {
     map?.addressLine2 ||
     [params.obj_zipCode, params.obj_regio2].filter((v) => v && v !== NO_INFO).join(' ') ||
     null;
-  const adresse = [streetLine, locationLine].filter(Boolean).join(', ') || null;
+  const adresse = decodeHtmlEntities([streetLine, locationLine].filter(Boolean).join(', ')) || null;
   if (!streetLine && adresse) {
     warnings.push('ℹ️ Der Anbieter hat die genaue Adresse nicht veröffentlicht – übernommen wurden nur PLZ, Stadtteil und Stadt.');
   }
