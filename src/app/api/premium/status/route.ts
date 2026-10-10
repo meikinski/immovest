@@ -126,7 +126,7 @@ export async function POST() {
         user_id: userId,
         usage_count: newCount,
         updated_at: new Date().toISOString(),
-      });
+      }, { onConflict: 'user_id' });
 
     if (error) {
       console.error('Error incrementing usage:', error);

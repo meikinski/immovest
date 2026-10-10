@@ -11,7 +11,7 @@ import { usePaywall } from '@/contexts/PaywallContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { usePlanStatus } from '@/hooks/usePlanStatus';
 import {
-  ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
+  ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
 } from '@/lib/preise';
 
 function Merkmal({ ja, children }: { ja: boolean; children: React.ReactNode }) {
@@ -111,15 +111,15 @@ function AboInhalt() {
       <KontoKarte titel="Dein Plan" icon={CreditCard}>
         <span className="inline-block rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">Kostenloser Plan</span>
         <p className="mt-2 text-xl font-extrabold text-[#001d3d]">
-          {uebrig === 0 ? 'Kostenlose Analysen aufgebraucht' : uebrig === 1 ? 'Noch 1 kostenlose Analyse' : `Noch ${uebrig} kostenlose Analysen`}
+          {uebrig === 0 ? 'Kostenlose Analyse aufgebraucht' : uebrig === 1 ? 'Noch 1 kostenlose Analyse' : `Noch ${uebrig} kostenlose Analysen`}
         </p>
         <p className="mt-1 max-w-[62ch] text-sm text-slate-600">
-          Cashflow und Rendite rechnest du immer kostenlos. Für Markt, Prognose, PDF und Speichern brauchst du danach Premium.
+          Cashflow und Rendite rechnest du immer kostenlos. Für jede weitere Analyse mit Markt und Prognose brauchst du Premium. Szenarien, PDF-Report und Speichern gibt es nur mit Premium.
         </p>
         <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Merkmal ja>Cashflow &amp; Rendite, unbegrenzt</Merkmal>
-          <Merkmal ja>{GRATIS_ANALYSEN} vollständige Analysen</Merkmal>
-          <Merkmal ja={false}>PDF-Report für die Bank</Merkmal>
+          <Merkmal ja>{gratisText}</Merkmal>
+          <Merkmal ja={false}>Szenarien &amp; PDF-Report für die Bank</Merkmal>
           <Merkmal ja={false}>Analysen speichern</Merkmal>
         </ul>
       </KontoKarte>

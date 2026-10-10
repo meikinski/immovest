@@ -50,7 +50,7 @@ function usePlanText() {
   return {
     ...plan,
     uebrig,
-    kurz: uebrig === 1 ? 'Noch 1 kostenlose Analyse' : uebrig > 1 ? `Noch ${uebrig} kostenlose Analysen` : 'Kostenlose Analysen aufgebraucht',
+    kurz: uebrig === 1 ? 'Noch 1 kostenlose Analyse' : uebrig > 1 ? `Noch ${uebrig} kostenlose Analysen` : 'Kostenlose Analyse aufgebraucht',
     bis,
   };
 }

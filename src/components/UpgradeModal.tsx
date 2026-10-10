@@ -86,8 +86,8 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               <h2 className="text-3xl font-black tracking-tight">Premium freischalten</h2>
               <p className="text-white/70 text-sm font-semibold mt-1">
                 {remainingFreeUses > 0
-                  ? `Noch ${remainingFreeUses} kostenlose Premium-Analyse${remainingFreeUses > 1 ? 'n' : ''} verfügbar`
-                  : 'Deine kostenlosen Premium-Analysen sind aufgebraucht'
+                  ? 'Szenarien und PDF-Report gibt es nur mit Premium'
+                  : 'Deine kostenlose Analyse ist aufgebraucht'
                 }
               </p>
             </div>
@@ -101,10 +101,10 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
             <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-5">Premium Features</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                'Unbegrenzte Markt- & Lageanalysen',
-                'KI-gestützte Investitionsempfehlungen',
-                'Detaillierte Szenario-Analysen',
-                'PDF-Export deiner Analysen',
+                'Unbegrenzte vollständige Analysen',
+                'Markt- & Lageanalyse mit KI-Empfehlung',
+                'Szenarien & Stresstests',
+                'PDF-Report für die Bank',
                 'Premium-Support',
                 'Gespeicherte Analysen ohne Limit',
               ].map((feature, idx) => (
@@ -207,7 +207,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
                 onClick={onClose}
                 className="text-sm text-slate-600 hover:text-slate-800 transition font-semibold"
               >
-                Später • Ich nutze meine {remainingFreeUses} kostenlosen Analyse{remainingFreeUses > 1 ? 'n' : ''}
+                Später • Erst meine kostenlose Analyse nutzen
               </button>
             </div>
           )}
