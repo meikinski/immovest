@@ -6,27 +6,34 @@ lastModified: "2026-10-10"
 author: "imvestr Team"
 keywords: ["afa berechnen excel", "gebäudeabschreibung berechnen", "afa immobilien 2026", "abschreibung mietimmobilie", "afa tabelle excel", "kaufpreisaufteilung afa", "afa rechner immobilien"]
 image: "/blog/afa-berechnen-excel.jpg"
-tags: ["Grundlagen"]
+tags: ["Steuern", "Grundlagen"]
 canonical: "https://imvestr.de/blog/afa-berechnen-excel"
 draft: false
 faq:
   - question: "Wie berechne ich die AfA für eine Mietimmobilie in Excel?"
-    answer: "Du teilst den Kaufpreis in Grundstücks- und Gebäudeanteil auf, nimmst den Gebäudewert als Bemessungsgrundlage und multiplizierst ihn mit dem AfA-Satz (z. B. 2 % oder 3 %). In Excel lautet die Formel: =Gebäudewert*AfA-Satz."
+    answer: "Du teilst den Kaufpreis in Grundstücks- und Gebäudeanteil auf, rechnest die anteiligen Kaufnebenkosten zum Gebäudeanteil hinzu und multiplizierst diese Bemessungsgrundlage mit dem AfA-Satz (z. B. 2 % oder 3 %). In Excel lautet die Formel: =(Gebäudeanteil+anteilige Nebenkosten)*AfA-Satz."
   - question: "Welcher AfA-Satz gilt 2026 für Mietimmobilien?"
-    answer: "Für Gebäude, die nach dem 31.12.2022 fertiggestellt wurden, gilt seit 2023 ein erhöhter AfA-Satz von 3 % (§ 7 Abs. 4 EStG). Für ältere Gebäude gelten weiterhin 2 % (Baujahr ab 1925) oder 2,5 % (Baujahr vor 1925)."
+    answer: "Für Gebäude, die nach dem 31.12.2022 fertiggestellt wurden, gilt ein AfA-Satz von 3 % (§ 7 Abs. 4 EStG). Für ältere Gebäude gelten weiterhin 2 % (fertiggestellt ab 1925) oder 2,5 % (fertiggestellt vor 1925)."
   - question: "Was ist die Bemessungsgrundlage für die AfA bei Immobilien?"
-    answer: "Die Bemessungsgrundlage ist der Gebäudeanteil am Kaufpreis. Der Grundstücksanteil ist nicht abschreibungsfähig. Die Aufteilung erfolgt entweder per Kaufvertrag, per Gutachten oder über das Arbeitshilfe-Tool des Bundesfinanzministeriums."
+    answer: "Die Bemessungsgrundlage ist der Gebäudeanteil am Kaufpreis plus die anteiligen Kaufnebenkosten. Der Grundstücksanteil ist nicht abschreibungsfähig. Die Aufteilung erfolgt per Kaufvertrag, per Gutachten oder über die Arbeitshilfe des Bundesfinanzministeriums."
   - question: "Kann ich die AfA auch ohne Excel berechnen?"
-    answer: "Ja. Online-Tools wie der Analyse-Rechner auf imvestr.de ermitteln die AfA automatisch, sobald du Kaufpreis, Baujahr und Grundstücksanteil eingibst – schneller und fehlerfreier als eine manuelle Excel-Tabelle."
+    answer: "Ja. Mit imvestr gibst du Kaufpreis, Baujahr und Gebäudeanteil ein – der passende AfA-Satz wird vorgeschlagen und die Steuerersparnis fließt direkt in Cashflow und Prognose ein, ohne eigene Formeln."
   - question: "Was passiert, wenn ich die Kaufpreisaufteilung falsch mache?"
     answer: "Eine falsche Kaufpreisaufteilung kann vom Finanzamt korrigiert werden. Im schlechtesten Fall wird ein niedrigerer Gebäudeanteil anerkannt, was deine jährliche Steuerersparnis reduziert. Im Zweifelsfall solltest du ein Gutachten oder die BMF-Arbeitshilfe nutzen."
   - question: "Wie lange läuft die AfA bei einer Mietimmobilie?"
-    answer: "Bei einem AfA-Satz von 2 % beträgt die Abschreibungsdauer 50 Jahre, bei 3 % rund 33 Jahre. Die AfA läuft so lange, bis der Gebäudewert vollständig abgeschrieben ist."
+    answer: "Bei einem AfA-Satz von 2 % beträgt die Abschreibungsdauer 50 Jahre, bei 2,5 % 40 Jahre und bei 3 % rund 33 Jahre. Die AfA läuft so lange, bis der Gebäudewert vollständig abgeschrieben ist."
 ---
 
-## AfA berechnen mit Excel: So funktioniert die Gebäudeabschreibung für deine Mietimmobilie
+> **TL;DR:** Jährliche AfA = (Gebäudeanteil + anteilige Kaufnebenkosten) × AfA-Satz. Bei einer Wohnung für 350.000 € mit 80.000 € Grundstücksanteil und 25.000 € Nebenkosten sind das bei 2 % rund **5.786 € AfA pro Jahr** – bei 35 % Grenzsteuersatz gut **2.000 € Steuerersparnis jährlich**. In Excel brauchst du dafür nur eine Handvoll Formeln. Mit [imvestr](https://imvestr.de) siehst du den AfA-Effekt direkt in deinem Cashflow.
 
-Du hast eine Mietimmobilie gekauft oder planst es – und fragst dich, wie du die Abschreibung (AfA) korrekt berechnest? Viele Einsteiger greifen dafür zu Excel. Das ist ein guter Anfang. In diesem Artikel zeige ich dir Schritt für Schritt, wie du die AfA für deine Immobilie in Excel berechnen kannst, welche AfA-Sätze 2026 gelten und warum du am Ende vielleicht gar kein Excel mehr brauchst.
+Du hast eine Mietimmobilie gekauft oder planst es – und fragst dich, wie du die Abschreibung (AfA) korrekt berechnest? Viele Einsteiger greifen dafür zu Excel. Das ist ein guter Anfang: Die Rechnung selbst ist einfach, die Fehler stecken in den Details.
+
+In diesem Artikel lernst du:
+- Welche AfA-Sätze 2026 für Mietimmobilien gelten
+- Wie du den Kaufpreis in Grundstück und Gebäude aufteilst
+- Welche Kaufnebenkosten die AfA erhöhen
+- Wie du eine AfA-Tabelle in Excel Schritt für Schritt aufbaust
+- Wie viel Steuern du mit der AfA tatsächlich sparst
 
 ---
 
@@ -34,94 +41,113 @@ Du hast eine Mietimmobilie gekauft oder planst es – und fragst dich, wie du di
 
 AfA steht für **Absetzung für Abnutzung**. Das Finanzamt geht davon aus, dass ein Gebäude im Laufe der Zeit an Wert verliert. Diesen Wertverlust kannst du als Vermieter jährlich steuerlich geltend machen – und so dein zu versteuerndes Einkommen aus Vermietung und Verpachtung senken.
 
-**Konkret:** Wenn deine Immobilie eine AfA von 4.000 € pro Jahr ergibt und du einen Grenzsteuersatz von 35 % hast, sparst du 1.400 € Steuern – jedes Jahr, ohne dass du einen einzigen Euro zusätzlich ausgibst. Das macht die AfA zu einem der wichtigsten Hebel für Immobilien-Investoren, die auf Cashflow oder Altersvorsorge setzen.
+**Konkret:** Wenn deine Immobilie eine AfA von 4.000 € pro Jahr ergibt und du einen Grenzsteuersatz von 35 % hast, sparst du 1.400 € Steuern – jedes Jahr, ohne dass du einen einzigen Euro zusätzlich ausgibst. Das macht die AfA zu einem der wichtigsten Hebel für Immobilien-Investoren.
+
+> **Wichtig:** Nur das Gebäude ist abschreibbar – das Grundstück darunter nie. Grundstücke gelten steuerlich als nicht abnutzbar.
+
+Die Grundlagen der AfA erklären wir ausführlich in unserem Artikel [AfA Immobilien: Abschreibung berechnen & Steuervorteil nutzen](/blog/afa-immobilien-steuervorteil). Hier geht es um die praktische Umsetzung in Excel.
 
 ---
 
 ## AfA-Sätze 2026 im Überblick
 
-Bevor du die Excel-Tabelle öffnest, musst du den richtigen AfA-Satz kennen. Dieser hängt vom Baujahr deines Gebäudes ab:
+Bevor du die Excel-Tabelle öffnest, musst du den richtigen AfA-Satz kennen. Für die lineare AfA (§ 7 Abs. 4 EStG) hängt er vom Fertigstellungsjahr des Gebäudes ab:
 
-| Baujahr / Fertigstellung | AfA-Satz | Abschreibungsdauer |
+| Fertigstellung des Gebäudes | AfA-Satz | Abschreibungsdauer |
 |---|---|---|
 | Ab 01.01.2023 | **3,0 %** | ~33 Jahre |
 | 01.01.1925 – 31.12.2022 | **2,0 %** | 50 Jahre |
 | Vor 01.01.1925 | **2,5 %** | 40 Jahre |
 
-Denkmäler oder Sanierungsgebiete können nach §§ 7i/7h EStG deutlich höhere Sätze erhalten – bis zu 9 % in den ersten 8 Jahren.
+Für Neubauten mit Baubeginn zwischen Oktober 2023 und September 2029 ist alternativ die **degressive AfA mit 5 % vom Restwert** möglich – mehr dazu in [Abschreibungen Neubau](/blog/abschreibungen-neubau). Bei Baudenkmälern und in Sanierungsgebieten können Modernisierungskosten nach §§ 7h/7i EStG mit bis zu 9 % in den ersten 8 Jahren abgeschrieben werden.
 
 ---
 
-## Schritt 1: Kaufpreisaufteilung – die wichtigste Grundlage
+## Schritt 1: Kaufpreis aufteilen
 
-Die AfA-Bemessungsgrundlage ist **nicht** der gesamte Kaufpreis, sondern nur der **Gebäudeanteil**. Grundstücke können nicht abgeschrieben werden.
-
-Du musst also zunächst deinen Kaufpreis aufteilen:
+Die AfA-Bemessungsgrundlage ist **nicht** der gesamte Kaufpreis, sondern nur der **Gebäudeanteil**. Du musst deinen Kaufpreis also zunächst aufteilen:
 
 **Gesamtkaufpreis** = Grundstücksanteil + Gebäudeanteil
 
 **Möglichkeiten zur Aufteilung:**
 1. **Kaufvertrag:** Wenn im Vertrag eine Aufteilung steht, wird diese meist vom Finanzamt akzeptiert – sofern sie nicht unrealistisch ist.
-2. **BMF-Arbeitshilfe:** Das Bundesfinanzministerium stellt ein Excel-Tool zur Verfügung, das eine Aufteilung auf Basis von Bodenrichtwert und Gebäudewert berechnet.
+2. **BMF-Arbeitshilfe:** Das Bundesfinanzministerium stellt eine Excel-Arbeitshilfe zur Verfügung, die die Aufteilung auf Basis von Bodenrichtwert und Gebäudewert berechnet.
 3. **Gutachten:** Ein Sachverständigengutachten ist die sicherste, aber teuerste Methode.
 
 **Beispiel:**
 - Kaufpreis gesamt: 350.000 €
 - Grundstücksanteil: 80.000 €
-- Gebäudeanteil (= Bemessungsgrundlage): **270.000 €**
+- Gebäudeanteil: **270.000 €** (rund 77 %)
 
 ---
 
-## Schritt 2: AfA berechnen – die Excel-Formel
+## Schritt 2: Kaufnebenkosten anteilig hinzurechnen
 
-Sobald du den Gebäudeanteil kennst, ist die Berechnung in Excel denkbar einfach.
+Die **Anschaffungsnebenkosten** erhöhen die Bemessungsgrundlage – aber nur im Verhältnis des Gebäudeanteils. Dazu gehören:
+
+- Grunderwerbsteuer
+- Notarkosten
+- Maklercourtage
+- Grundbuchkosten
+
+**Beispiel:** Bei 25.000 € Nebenkosten und einem Gebäudeanteil von 270.000 / 350.000 entfallen **19.286 €** auf das Gebäude.
+
+→ AfA-Bemessungsgrundlage: 270.000 € + 19.286 € = **289.286 €**
+
+---
+
+## Schritt 3: AfA in Excel berechnen
+
+Sobald du die Bemessungsgrundlage kennst, ist die Berechnung in Excel denkbar einfach.
 
 **Grundformel:**
 
 ```
-Jährliche AfA = Gebäudewert × AfA-Satz
+Jährliche AfA = (Gebäudeanteil + anteilige Nebenkosten) × AfA-Satz
 ```
 
-In Excel sieht das so aus – richte eine Tabelle mit folgenden Spalten ein:
+Richte dir dafür einen Eingabebereich mit folgenden Zellen ein:
 
-| Zelle | Inhalt | Beispielwert |
-|---|---|---|
-| B1 | Gesamtkaufpreis | 350.000 € |
-| B2 | Grundstücksanteil | 80.000 € |
-| B3 | Gebäudeanteil (=B1-B2) | 270.000 € |
-| B4 | AfA-Satz | 2% |
-| B5 | Jährliche AfA (=B3*B4) | **5.400 €** |
+| Zelle | Inhalt | Formel | Beispielwert |
+|---|---|---|---|
+| B1 | Gesamtkaufpreis | – | 350.000 € |
+| B2 | Grundstücksanteil | – | 80.000 € |
+| B3 | Gebäudeanteil | =B1-B2 | 270.000 € |
+| B4 | Kaufnebenkosten | – | 25.000 € |
+| B5 | Anteilige Nebenkosten Gebäude | =B4*B3/B1 | 19.286 € |
+| B6 | AfA-Bemessungsgrundlage | =B3+B5 | 289.286 € |
+| B7 | AfA-Satz | – | 2 % |
+| B8 | Jährliche AfA | =B6*B7 | **5.786 €** |
 
-**AfA-Tabelle über die gesamte Laufzeit:**
+### AfA-Tabelle über die gesamte Laufzeit
 
-Für eine vollständige Abschreibungstabelle fügst du folgende Spalten hinzu:
+Im Jahr des Kaufs gibt es die AfA nur **zeitanteilig** – ab dem Monat, in dem Besitz, Nutzen und Lasten auf dich übergehen. Trage die Anzahl der Monate in eine eigene Zelle ein (z. B. **B9 = 6** bei Übergabe im Juli) und baue darunter die Abschreibungstabelle:
 
-| Jahr | Formel Abschreibung | Formel Restbuchwert |
-|---|---|---|
-| 2026 | =\$B\$5 | =\$B\$3-B5 |
-| 2027 | =\$B\$5 | =C5-B6 |
-| … | … | … |
+| Zeile | A: Jahr | B: AfA | C: Restbuchwert |
+|---|---|---|---|
+| 12 | 2026 | =\$B\$8\*\$B\$9/12 | =\$B\$6-B12 |
+| 13 | =A12+1 | =MIN(\$B\$8;C12) | =C12-B13 |
+| 14 | =A13+1 | =MIN(\$B\$8;C13) | =C13-B14 |
+| … | … | … | … |
 
-Mit dieser einfachen Tabelle siehst du auf einen Blick, wie sich dein Gebäudebuchwert Jahr für Jahr reduziert – und wie viel du jeweils steuerlich abschreiben kannst.
+Zeile 13 ziehst du einfach nach unten, bis der Restbuchwert bei 0 € liegt. Die `MIN`-Funktion sorgt dafür, dass im letzten Jahr nicht mehr abgeschrieben wird, als noch übrig ist. Im Beispiel ergibt das 2.893 € AfA für 2026 und ab 2027 jeweils 5.786 €.
 
 ---
 
-## Schritt 3: Steuerersparnis berechnen
+## Schritt 4: Steuerersparnis berechnen
 
 Die AfA allein sagt dir noch nicht, wie viel Geld du am Ende wirklich sparst. Entscheidend ist dein persönlicher Grenzsteuersatz.
-
-**Formel in Excel:**
 
 ```
 Steuerersparnis pro Jahr = Jährliche AfA × Grenzsteuersatz
 ```
 
-| Zelle | Inhalt | Beispielwert |
-|---|---|---|
-| B6 | Grenzsteuersatz | 35% |
-| B7 | Steuerersparnis (=B5*B6) | **1.890 €/Jahr** |
+| Zelle | Inhalt | Formel | Beispielwert |
+|---|---|---|---|
+| B10 | Grenzsteuersatz | – | 35 % |
+| B11 | Steuerersparnis pro Jahr | =B8*B10 | **2.025 €** |
 
-Über 50 Jahre (bei 2 % AfA) summiert sich das auf fast **95.000 € gesamte Steuerersparnis** – ein enormer Effekt, den viele Einsteiger unterschätzen.
+Über die gesamte Laufzeit von rund 50 Jahren summiert sich das auf gut **100.000 € Steuerersparnis** (bei gleichbleibendem Steuersatz) – ein enormer Effekt, den viele Einsteiger unterschätzen.
 
 ---
 
@@ -129,50 +155,80 @@ Steuerersparnis pro Jahr = Jährliche AfA × Grenzsteuersatz
 
 Auch wenn Excel flexibel ist, schleichen sich schnell Fehler ein:
 
-- **Falscher AfA-Satz:** Verwechslung zwischen Baujahren oder Nutzungsarten
 - **Grundstück nicht herausgerechnet:** Der häufigste Fehler – du schreibst auch den Grundstücksanteil ab
-- **Nebenkosten vergessen oder falsch zugeordnet:** Kaufnebenkosten (Notar, Grunderwerbsteuer, Makler) erhöhen die Bemessungsgrundlage anteilig
-- **Falsche Kaufpreisaufteilung:** Wenn das Finanzamt eine andere Aufteilung ansetzt, weicht deine Berechnung ab
+- **Falscher AfA-Satz:** Maßgeblich ist das Fertigstellungsjahr des Gebäudes, nicht dein Kaufjahr
+- **Nebenkosten vergessen oder voll angesetzt:** Kaufnebenkosten zählen nur anteilig zum Gebäude
+- **Volle AfA im Kaufjahr:** Im ersten Jahr gibt es die AfA nur ab dem Übergabemonat
+- **Unrealistische Kaufpreisaufteilung:** Setzt das Finanzamt einen niedrigeren Gebäudeanteil an, weicht deine ganze Tabelle ab
 
 ---
 
-## Nebenkosten und AfA: Was darf rein?
+## AfA berechnen ohne Excel: Die Alternative
 
-Die **Anschaffungsnebenkosten** erhöhen die Bemessungsgrundlage – aber nur anteilig, bezogen auf den Gebäudeanteil. Dazu gehören:
+Excel ist flexibel, aber fehleranfällig – besonders wenn du mehrere Objekte vergleichst oder verschiedene Szenarien durchspielen willst. Außerdem zeigt dir die AfA-Tabelle allein noch nicht, ob sich eine Immobilie insgesamt rechnet.
 
-- Grunderwerbsteuer (anteilig)
-- Notarkosten (anteilig)
-- Maklercourtage (anteilig)
-- Grundbuchkosten (anteilig)
+Mit [imvestr](https://imvestr.de) gibst du Kaufpreis, Baujahr und Gebäudeanteil ein und bekommst:
 
-**Beispiel:** Kaufpreis 350.000 €, Nebenkosten 25.000 €, Gebäudeanteil 77 %
+- Den passenden **AfA-Satz nach Baujahr** als Vorschlag (2 %, 2,5 % oder 3 %)
+- Bei Neubauten ab 2023 die Wahl zwischen **linearer und degressiver AfA**
+- Die **Steuerersparnis** eingerechnet in Cashflow und Prognose
+- Weitere Kennzahlen wie [Nettomietrendite](/blog/nettomietrendite-berechnen), [Eigenkapitalrendite](/blog/eigenkapitalrendite-immobilie) und [DSCR](/blog/dscr-immobilien)
 
-→ Anteilige Nebenkosten: 25.000 € × 77 % = **19.250 €**
-→ Neue Bemessungsgrundlage: 270.000 € + 19.250 € = **289.250 €**
-→ Neue jährliche AfA (2 %): **5.785 €**
-
----
-
-## AfA berechnen ohne Excel: Die smarte Alternative
-
-Excel ist leistungsfähig, aber fehleranfällig – besonders wenn du mehrere Immobilien verwaltest oder verschiedene Szenarien vergleichen willst. Genau dafür gibt es **imvestr.de**.
-
-Der Analyse-Rechner auf imvestr.de übernimmt die gesamte Berechnung automatisch:
-
-- ✅ Kaufpreisaufteilung in Sekunden
-- ✅ Korrekter AfA-Satz nach Baujahr
-- ✅ Berücksichtigung von Nebenkosten
-- ✅ Jährliche Steuerersparnis auf einen Blick
-- ✅ Cashflow-Analyse inkl. AfA-Effekt
-
-So siehst du sofort, ob eine Immobilie wirklich zu deiner Altersvorsorge oder deinem Cashflow-Ziel passt – ohne eine einzige Formel selbst eintippen zu müssen.
+So siehst du sofort, ob eine Immobilie zu deinem Ziel passt – ohne eine einzige Formel selbst eintippen zu müssen.
 
 ---
 
 ## Fazit: AfA in Excel ist möglich – aber es geht einfacher
 
-Die AfA für deine Mietimmobilie in Excel zu berechnen ist keine Raketenwissenschaft. Mit der richtigen Kaufpreisaufteilung, dem passenden AfA-Satz für 2026 und einer sauberen Tabelle hast du schnell einen guten Überblick über deine jährliche Steuerersparnis.
+Die AfA für deine Mietimmobilie in Excel zu berechnen ist keine Raketenwissenschaft. Mit der richtigen Kaufpreisaufteilung, dem passenden AfA-Satz und einer sauberen Tabelle hast du schnell einen guten Überblick über deine jährliche Steuerersparnis.
 
-Wenn du aber Zeit sparen und Fehler vermeiden willst – besonders als Einsteiger – lohnt sich ein Blick auf ein spezialisiertes Tool.
+**Das Wichtigste zusammengefasst:**
+- Abgeschrieben wird nur das **Gebäude**, nie das Grundstück
+- Anteilige **Kaufnebenkosten** erhöhen die Bemessungsgrundlage
+- AfA-Satz nach Fertigstellung: **3 %** (ab 2023), **2 %** (1925–2022), **2,5 %** (vor 1925)
+- Im Kaufjahr gilt die AfA nur **zeitanteilig**
+- Steuerersparnis = jährliche AfA × persönlicher Grenzsteuersatz
 
-👉 **[Jetzt kostenlos auf imvestr.de analysieren](https://imvestr.de)** – gib einfach Kaufpreis, Baujahr und Lage ein und sieh sofort, wie viel AfA du abschreiben kannst und was deine Immobilie wirklich einbringt.
+Wenn du Zeit sparen und Fehler vermeiden willst – besonders als Einsteiger – lohnt sich ein Blick auf ein spezialisiertes Tool.
+
+👉 **[Jetzt kostenlos auf imvestr.de starten und dein Objekt analysieren](https://imvestr.de)**
+
+---
+
+## FAQ: AfA berechnen mit Excel
+
+### Wie berechne ich die AfA für eine Mietimmobilie in Excel?
+
+Du teilst den Kaufpreis in Grundstücks- und Gebäudeanteil auf, rechnest die anteiligen Kaufnebenkosten zum Gebäudeanteil hinzu und multiplizierst diese Bemessungsgrundlage mit dem AfA-Satz (z. B. 2 % oder 3 %). In Excel lautet die Formel: =(Gebäudeanteil+anteilige Nebenkosten)*AfA-Satz.
+
+### Welcher AfA-Satz gilt 2026 für Mietimmobilien?
+
+Für Gebäude, die nach dem 31.12.2022 fertiggestellt wurden, gilt ein AfA-Satz von 3 % (§ 7 Abs. 4 EStG). Für ältere Gebäude gelten weiterhin 2 % (fertiggestellt ab 1925) oder 2,5 % (fertiggestellt vor 1925).
+
+### Was ist die Bemessungsgrundlage für die AfA bei Immobilien?
+
+Die Bemessungsgrundlage ist der Gebäudeanteil am Kaufpreis plus die anteiligen Kaufnebenkosten. Der Grundstücksanteil ist nicht abschreibungsfähig. Die Aufteilung erfolgt per Kaufvertrag, per Gutachten oder über die Arbeitshilfe des Bundesfinanzministeriums.
+
+### Kann ich die AfA auch ohne Excel berechnen?
+
+Ja. Mit [imvestr](https://imvestr.de) gibst du Kaufpreis, Baujahr und Gebäudeanteil ein – der passende AfA-Satz wird vorgeschlagen und die Steuerersparnis fließt direkt in Cashflow und Prognose ein, ohne eigene Formeln.
+
+### Was passiert, wenn ich die Kaufpreisaufteilung falsch mache?
+
+Eine falsche Kaufpreisaufteilung kann vom Finanzamt korrigiert werden. Im schlechtesten Fall wird ein niedrigerer Gebäudeanteil anerkannt, was deine jährliche Steuerersparnis reduziert. Im Zweifelsfall solltest du ein Gutachten oder die BMF-Arbeitshilfe nutzen.
+
+### Wie lange läuft die AfA bei einer Mietimmobilie?
+
+Bei einem AfA-Satz von 2 % beträgt die Abschreibungsdauer 50 Jahre, bei 2,5 % 40 Jahre und bei 3 % rund 33 Jahre. Die AfA läuft so lange, bis der Gebäudewert vollständig abgeschrieben ist.
+
+---
+
+## Weiterlesen
+
+- **[AfA Immobilien](/blog/afa-immobilien-steuervorteil)** — Alle AfA-Sätze, Voraussetzungen und Steuervorteile im Überblick
+- **[Abschreibungen Neubau](/blog/abschreibungen-neubau)** — Lineare vs. degressive AfA beim Neubau mit Rechenbeispielen
+- **[Cashflow Immobilie berechnen](/blog/cashflow-immobilie-berechnen)** — Formel, Rechenbeispiel und typische Kostenfallen
+
+---
+
+*Rechtlicher Hinweis: Dieser Artikel dient der allgemeinen Information und ersetzt keine individuelle Steuer-, Rechts- oder Finanzierungsberatung. Alle Zahlen sind vereinfachte Beispiele. Für deine persönliche Situation wende dich bitte an einen Steuerberater oder unabhängigen Finanzierungsberater.*
