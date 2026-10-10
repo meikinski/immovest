@@ -25,7 +25,7 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
 
   if (!isVisible) return null;
 
-  // Only show after 2nd premium usage (when remainingFreeUses = 0)
+  // Erst zeigen, wenn die kostenlose Analyse verbraucht ist
   if (remainingFreeUses !== 0) return null;
 
   return (
@@ -57,16 +57,16 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
               <div className="flex items-center justify-center md:justify-start gap-2 mb-2">
                 <Sparkles className="w-5 h-5 text-[#ff6b00]" />
                 <span className="text-sm font-black text-[#ff6b00] uppercase tracking-wider">
-                  Noch 1 Premium-Analyse frei!
+                  Kostenlose Analyse genutzt
                 </span>
               </div>
 
               <h3 className="text-xl md:text-2xl font-black mb-2 text-[#001d3d]">
-                Sichere dir jetzt unbegrenzten Zugang
+                Weiter mit Premium
               </h3>
 
               <p className="text-slate-700 mb-2 text-sm leading-relaxed">
-                Du hast bereits 2 Premium-Analysen genutzt – Überzeuge dich selbst von der Qualität!
+                Diese Analyse bleibt für dich offen. Für jede weitere Wohnung, Szenarien und den PDF-Report für die Bank brauchst du Premium.
               </p>
 
               <div className="flex items-center justify-center md:justify-start gap-2 text-sm">
@@ -102,6 +102,9 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
           <div className="mt-4 pt-4 border-t border-orange-200 flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-slate-700 font-medium">
             <span className="flex items-center gap-1">
               ✓ Unbegrenzte Analysen
+            </span>
+            <span className="flex items-center gap-1">
+              ✓ PDF-Report für die Bank
             </span>
             <span className="flex items-center gap-1">
               ✓ Nur {preis(PREIS_JAHR_PRO_MONAT)} € / Monat

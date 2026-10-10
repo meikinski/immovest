@@ -14,7 +14,7 @@ import { SzenarienTab } from '@/components/SzenarienTab';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
 import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, splitSections } from '@/components/MarketAnalysis';
 import { baueReportDaten } from '@/lib/report-daten';
-import { PREIS_MONAT, preis } from '@/lib/preise';
+import { GRATIS_ANALYSEN, PREIS_MONAT, preis } from '@/lib/preise';
 import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
@@ -66,9 +66,9 @@ export default function StepPage() {
   const showProgress = step !== 'tabs';
 
   // Auth & Paywall
-  const { isSignedIn } = useAuth();
-  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, showUpgradeModal, setShowUpgradeModal } = usePaywall();
-  const hasIncrementedUsage = useRef(false);
+  const { isSignedIn, userId, getToken } = useAuth();
+  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal } = usePaywall();
+  const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
 
   // Hydration guard
   const [mounted, setMounted] = useState(false);
@@ -837,6 +837,17 @@ const dscr =
   const marktFetched = useRef(false);
   const lastMarktInputs = useRef<string>('');
 
+  // Die kostenlose Analyse gilt für eine Wohnung (Adresse). Sie bleibt offen, auch nachdem der Zähler
+  // hochgezählt wurde, nach Neuladen und wenn Miete oder Preis nachträglich angepasst werden.
+  const gratisSchluessel = (adresse || '').trim().toLowerCase();
+  const freigabeSpeicher = userId ? `gratis_freigabe_${userId}` : null;
+  const [gratisFreigabe, setGratisFreigabe] = useState<string | null>(null);
+  useEffect(() => {
+    if (!freigabeSpeicher) return;
+    try { setGratisFreigabe(localStorage.getItem(freigabeSpeicher)); } catch { /* privater Modus */ }
+  }, [freigabeSpeicher]);
+  const hatVollzugang = isPremium || canAccessPremium || (!!gratisSchluessel && gratisFreigabe === gratisSchluessel);
+
   // Track input changes ANYWHERE in the app (not just on markt tab)
   // This ensures we detect changes made on step pages
   useEffect(() => {
@@ -870,8 +881,11 @@ const dscr =
   useEffect(() => {
   if (!(step === 'tabs' && activeTab === 'markt')) return;
 
+  // Erst entscheiden, wenn Anmeldung und Plan bekannt sind, sonst würde ein verbrauchtes Kontingent kurz als frei gelten
+  if (isSignedIn === undefined || (isSignedIn && !premiumStatusLoaded)) return;
+
   // If no premium access, show placeholder content
-  if (!canAccessPremium) {
+  if (!isSignedIn || !hatVollzugang) {
     setLageComment('<p>Premium-Inhalte sind hier verfügbar. Die Lageanalyse bietet detaillierte Einblicke in die Umgebung, Infrastruktur und Entwicklungspotenzial der Immobilie.</p>');
     setMietpreisComment('<p>Hier findest du einen umfassenden Vergleich der Mietpreise in der Umgebung, inklusive Marktpositionierung und Preisentwicklung.</p>');
     setQmPreisComment('<p>Der Kaufpreisvergleich zeigt dir, wie der Quadratmeterpreis im Vergleich zu ähnlichen Objekten in der Gegend einzuordnen ist.</p>');
@@ -908,10 +922,16 @@ const dscr =
     return;
   }
 
-  // Increment usage counter (only once per session/analysis)
-  if (!isPremium && !hasIncrementedUsage.current) {
+  // Läuft schon eine Abfrage (Effekt erneut ausgelöst), nicht doppelt starten
+  if (loadingDetails) return;
+
+  // Kostenlose Analyse verbrauchen (einmal pro Wohnung)
+  let gespeicherteFreigabe = gratisFreigabe;
+  try { if (freigabeSpeicher) gespeicherteFreigabe = localStorage.getItem(freigabeSpeicher) ?? gratisFreigabe; } catch { /* privater Modus */ }
+  if (!isPremium && gespeicherteFreigabe !== gratisSchluessel) {
     incrementPremiumUsage();
-    hasIncrementedUsage.current = true;
+    setGratisFreigabe(gratisSchluessel);
+    try { if (freigabeSpeicher) localStorage.setItem(freigabeSpeicher, gratisSchluessel); } catch { /* privater Modus */ }
   }
 
   // NOTE: marktFetched moved to AFTER successful API call to prevent blocking retries
@@ -1005,7 +1025,7 @@ const dscr =
   miete, hausgeld, hausgeld_umlegbar,
   ek, zins, tilgung,
   // Paywall context dependencies
-  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
+  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, isSignedIn, premiumStatusLoaded, hatVollzugang, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
   // Note: Setters and comment states are intentionally excluded to prevent infinite loops
 ]);
 
@@ -1035,6 +1055,11 @@ const cancelPdfExport = React.useCallback(() => {
 }, []);
 
 const exportPdf = React.useCallback(async () => {
+  // PDF-Report gibt es nur mit Premium
+  if (!isPremium) {
+    setShowUpgradeModal(true);
+    return;
+  }
   setPdfBusy(true);
   pdfAbortController.current = new AbortController();
   try {
@@ -1065,12 +1090,19 @@ const exportPdf = React.useCallback(async () => {
       },
     });
 
+    let token: string | null = null;
+    try { token = await getToken(); } catch { /* Cookie kann reichen */ }
     const res = await fetch('/api/export/pdf', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: JSON.stringify(payload),
       signal: pdfAbortController.current?.signal
     });
+    if (res.status === 401 || res.status === 403) {
+      toast.info('Der PDF-Report ist Teil von Premium.');
+      setShowUpgradeModal(true);
+      return;
+    }
     if (!res.ok) {
       const errorText = await res.text();
       throw new Error(errorText || 'PDF-Export fehlgeschlagen');
@@ -1106,6 +1138,7 @@ const exportPdf = React.useCallback(async () => {
     setPdfBusy(false);
   }
 }, [
+  isPremium, setShowUpgradeModal, getToken,
   shortAddress, adresse, objekttyp, flaeche, zimmer, baujahr,
   grunderwerbsteuer_eur, notar_eur, makler_eur, grunderwerbsteuer_pct, notarPct, maklerPct,
   szenarioBasis, szenarioDeltas, anschaffungskosten, prognose,
@@ -2093,7 +2126,10 @@ const exportPdf = React.useCallback(async () => {
                 { id: 'prognose', label: 'Prognose & Entwicklung', icon: TrendingUp },
                 { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
               ] as const).map(t => {
-                const locked = (t.id === 'markt' || t.id === 'prognose' || t.id === 'szenarien') && (!isSignedIn || !canAccessPremium);
+                // Szenarien & PDF-Report nur mit Premium, Markt & Prognose auch in der kostenlosen Analyse
+                const locked = t.id === 'szenarien'
+                  ? (!isSignedIn || !isPremium)
+                  : (t.id === 'markt' || t.id === 'prognose') && (!isSignedIn || !hatVollzugang);
                 return (
                   <button
                     key={t.id}
@@ -2144,15 +2180,15 @@ const exportPdf = React.useCallback(async () => {
                 <div className={`relative mt-2 mb-16 ${visibility} ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                   <button
                     onClick={() => {
-                      if (!isSignedIn || !canAccessPremium) {
+                      if (!isSignedIn || !hatVollzugang) {
                         setShowUpgradeModal(true);
                       } else {
                         setActiveTab('markt');
                       }
                     }}
-                    className={`btn-primary ${(!isSignedIn || !canAccessPremium) ? 'opacity-75' : ''}`}
+                    className={`btn-primary ${(!isSignedIn || !hatVollzugang) ? 'opacity-75' : ''}`}
                   >
-                    {(!isSignedIn || !canAccessPremium) && <Lock size={16} className="mr-2" />}
+                    {(!isSignedIn || !hatVollzugang) && <Lock size={16} className="mr-2" />}
                     Weiter zu Marktvergleich & Lage →
                   </button>
                 </div>
@@ -2246,7 +2282,7 @@ const exportPdf = React.useCallback(async () => {
                       </div>
                       <h3 className="text-lg font-bold mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
                       <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                        Melde dich an und erhalte eine KI-Analyse plus 2 Premium-Analysen kostenlos.
+                        Melde dich an und erhalte die KI-Einschätzung plus eine vollständige Analyse mit Markt &amp; Prognose kostenlos.
                       </p>
                       <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
                         <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
@@ -2372,7 +2408,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'markt' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !canAccessPremium) && (
+            {(!isSignedIn || !hatVollzugang) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
@@ -2399,9 +2435,9 @@ const exportPdf = React.useCallback(async () => {
                         Jetzt freischalten
                       </button>
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
-                        {2 - premiumUsageCount > 0
-                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
+                        {freeUsagesRemaining > 0
+                          ? `${freeUsagesRemaining} kostenlose Analyse${freeUsagesRemaining > 1 ? 'n' : ''} verfügbar`
+                          : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
                   )}
@@ -2410,7 +2446,7 @@ const exportPdf = React.useCallback(async () => {
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={(!isSignedIn || !hatVollzugang) ? 'blur-md pointer-events-none select-none' : ''}>
 
             {loadingDetails ? (
               <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8">
@@ -2459,9 +2495,10 @@ const exportPdf = React.useCallback(async () => {
             )}
 <div className="mt-8 mb-16">
     <button
-      onClick={() => setActiveTab('szenarien')}
+      onClick={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true)}
       className="btn-primary"
     >
+      {!isPremium && <Lock size={16} className="mr-2" />}
       Szenarien testen →
     </button>
   </div>
@@ -2473,7 +2510,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'prognose' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !canAccessPremium) && (
+            {(!isSignedIn || !hatVollzugang) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
@@ -2500,9 +2537,9 @@ const exportPdf = React.useCallback(async () => {
                         Jetzt freischalten
                       </button>
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
-                        {2 - premiumUsageCount > 0
-                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
+                        {freeUsagesRemaining > 0
+                          ? `${freeUsagesRemaining} kostenlose Analyse${freeUsagesRemaining > 1 ? 'n' : ''} verfügbar`
+                          : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
                   )}
@@ -2511,7 +2548,7 @@ const exportPdf = React.useCallback(async () => {
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !canAccessPremium) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={(!isSignedIn || !hatVollzugang) ? 'blur-md pointer-events-none select-none' : ''}>
           <PrognoseTab
               jahre={prognose.jahre}
               ek={ek}
@@ -2529,7 +2566,7 @@ const exportPdf = React.useCallback(async () => {
               setVerkaufsNebenkostenPct={setVerkaufsNebenkostenPct}
               darlehensTyp={darlehensTyp}
               setDarlehensTyp={setDarlehensTyp}
-              onWeiter={() => setActiveTab('szenarien')}
+              onWeiter={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true)}
             />
             </div>
           </div>
@@ -2539,7 +2576,7 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'szenarien' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {false && (
+            {(!isSignedIn || !isPremium) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
@@ -2547,7 +2584,7 @@ const exportPdf = React.useCallback(async () => {
                   </div>
                   <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                    Schalte Szenarien & PDF Export frei.
+                    Szenarien und der PDF-Report für die Bank sind nur mit Premium verfügbar.
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
@@ -2566,9 +2603,7 @@ const exportPdf = React.useCallback(async () => {
                         Jetzt freischalten
                       </button>
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
-                        {2 - premiumUsageCount > 0
-                          ? `${2 - premiumUsageCount} kostenlose Analyse${2 - premiumUsageCount > 1 ? 'n' : ''} verfügbar`
-                          : `Nur ${preis(PREIS_MONAT)} €/Monat`}
+                        Nur {preis(PREIS_MONAT)} €/Monat · Jederzeit kündbar
                       </p>
                     </>
                   )}
@@ -2577,7 +2612,7 @@ const exportPdf = React.useCallback(async () => {
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={''}>
+            <div className={(!isSignedIn || !isPremium) ? 'blur-md pointer-events-none select-none' : ''}>
               <SzenarienTab
                 basis={szenarioBasis}
                 deltas={szenarioDeltas}
@@ -2629,8 +2664,6 @@ const exportPdf = React.useCallback(async () => {
   } else {
     content = <p>Seite existiert nicht</p>;
   }
-
-  const freeUsagesRemaining = Math.max(0, 2 - premiumUsageCount);
 
   return (
     <div className="min-h-screen bg-white">

@@ -56,7 +56,7 @@ export default function PricingCards({}: PricingCardsProps) {
     'Unbegrenzte Markt- & Lageanalysen',
     'KI-gestützte Investitionsempfehlungen',
     'Detaillierte Szenario-Analysen',
-    'PDF-Export deiner Analysen',
+    'PDF-Report für die Bank (nur mit Premium)',
     'Gespeicherte Analysen ohne Limit',
   ];
 
@@ -353,16 +353,16 @@ export default function PricingCards({}: PricingCardsProps) {
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Inklusive</p>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>✓ KPI-Berechnungen (unbegrenzt)</li>
-              <li>✓ 2 vollständige KI-Analysen</li>
+              <li>✓ 1 vollständige Analyse mit Markt &amp; Prognose</li>
               <li>✓ Cashflow & Rendite-Kennzahlen</li>
             </ul>
           </div>
           <div>
             <p className="text-xs font-bold text-[#ff6b00] uppercase tracking-wider mb-2">⚡ Mit Premium</p>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>→ Unbegrenzte KI-Analysen</li>
-              <li>→ Markt- & Lageanalyse</li>
-              <li>→ PDF-Export (Bank-ready)</li>
+              <li>→ Unbegrenzte vollständige Analysen</li>
+              <li>→ Szenarien &amp; Stresstests</li>
+              <li>→ PDF-Report für die Bank</li>
               <li>→ Analysen speichern</li>
             </ul>
           </div>
@@ -403,7 +403,7 @@ function PricingFAQ() {
     },
     {
       q: 'Was ist im Free-Plan enthalten?',
-      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich sind 2 vollständige KI-Analysen inklusive. Ab der 3. Analyse brauchst du Premium: unbegrenzte Analysen, Markt- & Lageanalyse, PDF-Export und Analysen speichern.',
+      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich ist 1 vollständige Analyse mit Markt & Prognose inklusive. Ab der 2. Analyse brauchst du Premium. Szenarien, der PDF-Report und das Speichern von Analysen gibt es nur mit Premium.',
     },
     {
       q: 'Gibt es eine Testphase?',

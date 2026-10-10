@@ -13,7 +13,7 @@ import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import {
-  ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
+  ERSPARNIS_JAHR_PCT, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
 } from '@/lib/preise';
 
 const FAQS: Array<{ frage: string; antwort: string }> = [
@@ -27,7 +27,7 @@ const FAQS: Array<{ frage: string; antwort: string }> = [
   },
   {
     frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${GRATIS_ANALYSEN} vollständige Analysen mit Markt und Prognose sind gratis. Danach kostet Premium ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt und Prognose ist gratis. Szenarien und den PDF-Report für die Bank gibt es nur mit Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
   },
   {
     frage: 'Kann ich den Report bei der Bank vorlegen?',
@@ -202,7 +202,7 @@ export default function LandingPage() {
                   </a>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-slate-600">
-                  {(isSignedIn ? ['Jede Formel einsehbar', 'Quellen zu allen Marktdaten'] : [`${GRATIS_ANALYSEN} vollständige Analysen gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar']).map(t => (
+                  {(isSignedIn ? ['Jede Formel einsehbar', 'Quellen zu allen Marktdaten'] : [`${gratisText} gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar']).map(t => (
                     <span key={t} className="flex items-center gap-1.5"><Check size={15} strokeWidth={2.6} className="text-emerald-600" />{t}</span>
                   ))}
                 </div>
@@ -364,7 +364,7 @@ export default function LandingPage() {
                   Drei Regler, eine grobe Schätzung. Die vollständige Analyse rechnet zusätzlich Steuern, Rücklagen und den Markt vor Ort mit ein.
                 </p>
                 <ul className="mt-7 flex flex-col gap-3 text-slate-200">
-                  {[`Kostenlos anmelden und ${GRATIS_ANALYSEN} vollständige Analysen machen`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
+                  {[`Kostenlos anmelden und ${gratisText.toLowerCase()} machen`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
                     <li key={t} className="flex gap-3"><Check size={20} strokeWidth={2.4} className="mt-0.5 shrink-0 text-[#ff6b00]" />{t}</li>
                   ))}
                 </ul>
@@ -429,12 +429,12 @@ export default function LandingPage() {
                 <Eyebrow>Preise</Eyebrow>
                 <H2>Erst ausprobieren, <Orange>dann entscheiden.</Orange></H2>
                 <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
-                  Starte kostenlos. Wenn du mehr als zwei Wohnungen prüfst oder zur Bank gehst, lohnt sich Premium.
+                  Starte kostenlos mit einer vollständigen Analyse. Wenn du weitere Wohnungen prüfst oder mit dem PDF-Report zur Bank gehst, brauchst du Premium.
                 </p>
               </div>
               <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
                 <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
-                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${GRATIS_ANALYSEN} vollständige Analysen mit Markt & Prognose`, true], ['KI-Einschätzung', true], ['PDF-Report', false], ['Analysen speichern', false]]}
+                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt & Prognose`, true], ['KI-Einschätzung', true], ['Szenarien & PDF-Report', false], ['Analysen speichern', false]]}
                   knopf={isSignedIn ? 'Neue Analyse starten' : 'Kostenlos starten'} onClick={() => starten('preise_kostenlos')} />
                 <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
                   hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
@@ -496,7 +496,7 @@ export default function LandingPage() {
               <H2 hell>Prüf deine nächste Wohnung, <Orange>bevor du unterschreibst.</Orange></H2>
               <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-300">In 2 Minuten weißt du, ob sie sich trägt, ob der Preis passt und wie viel Puffer bleibt.</p>
               <div className="mt-8"><HauptCta ort="final_cta" /></div>
-              {!isSignedIn && <p className="mt-4 text-[13px] text-slate-400">{GRATIS_ANALYSEN} vollständige Analysen gratis · Ohne Kreditkarte</p>}
+              {!isSignedIn && <p className="mt-4 text-[13px] text-slate-400">{gratisText} gratis · Ohne Kreditkarte</p>}
             </div>
           </section>
         </main>
