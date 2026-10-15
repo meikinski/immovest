@@ -5,13 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
   AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
-  Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
+  Gift, Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { GratisVorteilListe, gratisTitel } from '@/components/GratisVorteile';
 import {
   ERSPARNIS_JAHR_PCT, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
 } from '@/lib/preise';
@@ -139,6 +140,9 @@ function SchnellCheck({ onStart, angemeldet }: { onStart: () => void; angemeldet
           <span key={t} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 px-3 py-2"><Lock size={13} className="text-slate-400" />{t}</span>
         ))}
       </div>
+      {!angemeldet && (
+        <p className="mt-2 text-center text-xs font-semibold text-emerald-700">Einmal gratis freischalten: einfach mit deiner E-Mail anmelden.</p>
+      )}
       <button type="button" onClick={onStart} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
         {angemeldet ? 'Vollständig analysieren' : 'Vollständig analysieren, kostenlos'} <ArrowRight size={18} />
       </button>
@@ -206,6 +210,15 @@ export default function LandingPage() {
                     <span key={t} className="flex items-center gap-1.5"><Check size={15} strokeWidth={2.6} className="text-emerald-600" />{t}</span>
                   ))}
                 </div>
+                {!isSignedIn && (
+                  <div className="mt-6 max-w-[540px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
+                    <p className="flex items-start gap-2 text-sm font-bold text-[#001d3d]">
+                      <Gift size={18} className="mt-0.5 shrink-0 text-[#ff6b00]" />{gratisTitel}
+                    </p>
+                    <p className="mb-3 mt-1 pl-[26px] text-[13px] text-slate-600">Die Kennzahlen siehst du sofort. Mit deiner E-Mail schaltest du zusätzlich frei:</p>
+                    <div className="pl-[26px]"><GratisVorteilListe kompakt /></div>
+                  </div>
+                )}
               </div>
 
               {/* Ausschnitt einer Analyse */}
@@ -364,7 +377,7 @@ export default function LandingPage() {
                   Drei Regler, eine grobe Schätzung. Die vollständige Analyse rechnet zusätzlich Steuern, Rücklagen und den Markt vor Ort mit ein.
                 </p>
                 <ul className="mt-7 flex flex-col gap-3 text-slate-200">
-                  {[`Kostenlos anmelden und ${gratisText.toLowerCase()} machen`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
+                  {[`Mit E-Mail anmelden: ${gratisText} gratis, inklusive KI-Einschätzung, Markt & Prognose`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
                     <li key={t} className="flex gap-3"><Check size={20} strokeWidth={2.4} className="mt-0.5 shrink-0 text-[#ff6b00]" />{t}</li>
                   ))}
                 </ul>
