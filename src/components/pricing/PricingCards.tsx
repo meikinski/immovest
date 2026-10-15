@@ -56,7 +56,7 @@ export default function PricingCards({}: PricingCardsProps) {
     'Unbegrenzte Markt- & Lageanalysen',
     'KI-gestützte Investitionsempfehlungen',
     'Detaillierte Szenario-Analysen',
-    'PDF-Report für die Bank (nur mit Premium)',
+    'PDF-Report für die Bank',
     'Gespeicherte Analysen ohne Limit',
   ];
 
@@ -353,7 +353,7 @@ export default function PricingCards({}: PricingCardsProps) {
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Inklusive</p>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>✓ KPI-Berechnungen (unbegrenzt)</li>
-              <li>✓ 1 vollständige Analyse mit Markt &amp; Prognose</li>
+              <li>✓ 1 vollständige Analyse mit Markt, Prognose, Szenarien &amp; PDF-Report</li>
               <li>✓ Cashflow & Rendite-Kennzahlen</li>
             </ul>
           </div>
@@ -403,7 +403,7 @@ function PricingFAQ() {
     },
     {
       q: 'Was ist im Free-Plan enthalten?',
-      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich ist 1 vollständige Analyse mit Markt & Prognose inklusive. Ab der 2. Analyse brauchst du Premium. Szenarien, der PDF-Report und das Speichern von Analysen gibt es nur mit Premium.',
+      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich ist 1 vollständige Analyse inklusive, mit Markt, Prognose, Szenarien und PDF-Report. Ab der 2. Analyse brauchst du Premium. Das Speichern von Analysen gibt es nur mit Premium.',
     },
     {
       q: 'Gibt es eine Testphase?',

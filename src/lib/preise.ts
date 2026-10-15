@@ -10,7 +10,7 @@ export const PREIS_MONAT_AUF_JAHR = PREIS_MONAT * 12;
 export const ERSPARNIS_JAHR = PREIS_MONAT_AUF_JAHR - PREIS_JAHR;
 export const ERSPARNIS_JAHR_PCT = Math.round((ERSPARNIS_JAHR / PREIS_MONAT_AUF_JAHR) * 100);
 
-/** Kostenlose vollständige Analysen vor Premium (Szenarien und PDF-Report gehören immer zu Premium) */
+/** Kostenlose vollständige Analysen vor Premium (mit Markt, Prognose, Szenarien und PDF-Report) */
 export const GRATIS_ANALYSEN = 1;
 
 /** "1 vollständige Analyse" bzw. "3 vollständige Analysen" für Texte */

@@ -853,6 +853,18 @@ const dscr =
   }, [freigabeSpeicher]);
   const hatVollzugang = isPremium || canAccessPremium || (!!gratisSchluessel && gratisFreigabe === gratisSchluessel);
 
+  // Wer Prognose oder Szenarien direkt öffnet, verbraucht die kostenlose Analyse ebenso wie beim Marktvergleich
+  useEffect(() => {
+    if (step !== 'tabs' || (activeTab !== 'prognose' && activeTab !== 'szenarien')) return;
+    if (!isSignedIn || !premiumStatusLoaded || isPremium || !gratisSchluessel || !canAccessPremium) return;
+    let gespeicherteFreigabe = gratisFreigabe;
+    try { if (freigabeSpeicher) gespeicherteFreigabe = localStorage.getItem(freigabeSpeicher) ?? gratisFreigabe; } catch { /* privater Modus */ }
+    if (gespeicherteFreigabe === gratisSchluessel) return;
+    incrementPremiumUsage();
+    setGratisFreigabe(gratisSchluessel);
+    try { if (freigabeSpeicher) localStorage.setItem(freigabeSpeicher, gratisSchluessel); } catch { /* privater Modus */ }
+  }, [step, activeTab, isSignedIn, premiumStatusLoaded, isPremium, gratisSchluessel, canAccessPremium, gratisFreigabe, freigabeSpeicher, incrementPremiumUsage]);
+
   // analysis_completed: einmal pro Analyse, sobald die Ergebnisseite mit Zahlen steht
   // (erst wenn Anmeldung und Plan bekannt sind, damit die Parameter stimmen)
   useEffect(() => {
@@ -1080,8 +1092,8 @@ const cancelPdfExport = React.useCallback(() => {
 }, []);
 
 const exportPdf = React.useCallback(async () => {
-  // PDF-Report gibt es nur mit Premium
-  if (!isPremium) {
+  // PDF-Report gibt es mit Premium und in der kostenlosen Analyse
+  if (!isSignedIn || !hatVollzugang) {
     setShowUpgradeModal(true, 'pdf_export');
     return;
   }
@@ -1124,7 +1136,7 @@ const exportPdf = React.useCallback(async () => {
       signal: pdfAbortController.current?.signal
     });
     if (res.status === 401 || res.status === 403) {
-      toast.info('Der PDF-Report ist Teil von Premium.');
+      toast.info('Den PDF-Report gibt es in deiner kostenlosen Analyse oder mit Premium.');
       setShowUpgradeModal(true, 'pdf_export');
       return;
     }
@@ -1163,7 +1175,7 @@ const exportPdf = React.useCallback(async () => {
     setPdfBusy(false);
   }
 }, [
-  isPremium, setShowUpgradeModal, getToken,
+  isSignedIn, hatVollzugang, setShowUpgradeModal, getToken,
   shortAddress, adresse, objekttyp, flaeche, zimmer, baujahr,
   grunderwerbsteuer_eur, notar_eur, makler_eur, grunderwerbsteuer_pct, notarPct, maklerPct,
   szenarioBasis, szenarioDeltas, anschaffungskosten, prognose,
@@ -2078,22 +2090,6 @@ const exportPdf = React.useCallback(async () => {
           </div>
         </div>
 
-        {/* Upgrade CTA */}
-        {!isPremium && (
-          <div className="mt-6 flex items-center justify-between gap-4 bg-gradient-to-br from-[#001d3d] to-[#003366] rounded-[2rem] px-6 py-5 shadow-lg">
-            <div>
-              <p className="text-sm font-black text-white">Volle Analyse freischalten</p>
-              <p className="text-[11px] text-white/60 mt-0.5">KI-Einschätzung, Marktvergleich & Szenarien</p>
-            </div>
-            <a
-              href="/pricing"
-              className="flex-shrink-0 px-5 py-2.5 bg-[#ff6b00] hover:bg-[#ff6b00]/90 text-white text-sm font-bold rounded-xl transition-all shadow-lg whitespace-nowrap"
-            >
-              Jetzt upgraden
-            </a>
-          </div>
-        )}
-
         {/* Buttons */}
         <div className="mt-8 flex gap-4">
           <button
@@ -2151,10 +2147,8 @@ const exportPdf = React.useCallback(async () => {
                 { id: 'prognose', label: 'Prognose & Entwicklung', icon: TrendingUp },
                 { id: 'szenarien', label: 'Szenarien & PDF Export', icon: Calculator }
               ] as const).map(t => {
-                // Szenarien & PDF-Report nur mit Premium, Markt & Prognose auch in der kostenlosen Analyse
-                const locked = t.id === 'szenarien'
-                  ? (!isSignedIn || !isPremium)
-                  : (t.id === 'markt' || t.id === 'prognose') && (!isSignedIn || !hatVollzugang);
+                // Markt, Prognose, Szenarien & PDF-Report gehören zur kostenlosen Analyse, danach Premium
+                const locked = t.id !== 'kpi' && (!isSignedIn || !hatVollzugang);
                 return (
                   <button
                     key={t.id}
@@ -2307,7 +2301,21 @@ const exportPdf = React.useCallback(async () => {
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm p-6">
-                    <GastFreischaltKarte kompakt />
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border border-slate-100">
+                      <div className="w-12 h-12 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
+                        <Lock className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
+                      <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
+                        Melde dich an und erhalte die KI-Einschätzung plus eine vollständige Analyse mit Markt, Prognose, Szenarien &amp; PDF-Report kostenlos.
+                      </p>
+                      <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
+                        <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                          <Lock size={18} />
+                          Kostenlos anmelden
+                        </button>
+                      </SignInButton>
+                    </div>
                   </div>
                 )}
 
@@ -2507,10 +2515,10 @@ const exportPdf = React.useCallback(async () => {
             )}
 <div className="mt-8 mb-16">
     <button
-      onClick={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
+      onClick={() => (isSignedIn && hatVollzugang) ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
       className="btn-primary"
     >
-      {!isPremium && <Lock size={16} className="mr-2" />}
+      {(!isSignedIn || !hatVollzugang) && <Lock size={16} className="mr-2" />}
       Szenarien testen →
     </button>
   </div>
@@ -2573,7 +2581,7 @@ const exportPdf = React.useCallback(async () => {
               setVerkaufsNebenkostenPct={setVerkaufsNebenkostenPct}
               darlehensTyp={darlehensTyp}
               setDarlehensTyp={setDarlehensTyp}
-              onWeiter={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
+              onWeiter={() => (isSignedIn && hatVollzugang) ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
             />
             </div>
           </div>
@@ -2583,15 +2591,17 @@ const exportPdf = React.useCallback(async () => {
         {activeTab === 'szenarien' && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !isPremium) && (
+            {(!isSignedIn || !hatVollzugang) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
                 <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">{!isSignedIn ? 'Kostenlos freischalten' : 'Premium Feature'}</h3>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                    Szenarien und der PDF-Report für die Bank sind nur mit Premium verfügbar.
+                    {!isSignedIn
+                      ? 'Melde dich an: Szenarien und der PDF-Report für die Bank sind in deiner kostenlosen Analyse enthalten.'
+                      : 'Deine kostenlose Analyse ist aufgebraucht. Szenarien und den PDF-Report für weitere Wohnungen gibt es mit Premium.'}
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
@@ -2619,7 +2629,7 @@ const exportPdf = React.useCallback(async () => {
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !isPremium) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={(!isSignedIn || !hatVollzugang) ? 'blur-md pointer-events-none select-none' : ''}>
               <SzenarienTab
                 basis={szenarioBasis}
                 deltas={szenarioDeltas}

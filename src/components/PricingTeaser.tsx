@@ -29,10 +29,8 @@ export function PricingTeaser() {
       features: [
         { text: 'Unbegrenzte KPI-Berechnungen', included: true },
         { text: '1× KI-Kommentar', included: true },
-        { text: 'Grundlegende Analyse', included: true },
-        { text: 'Markt & Lageanalyse', included: false },
-        { text: 'Szenarien-Rechner', included: false },
-        { text: 'PDF-Export', included: false },
+        { text: '1 vollständige Analyse inkl. Markt, Szenarien & PDF-Export', included: true },
+        { text: 'Weitere vollständige Analysen', included: false },
         { text: 'Analysen speichern', included: false },
       ],
       cta: 'Kostenlos starten',

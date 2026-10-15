@@ -28,7 +28,7 @@ const FAQS: Array<{ frage: string; antwort: string }> = [
   },
   {
     frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt und Prognose ist gratis. Szenarien und den PDF-Report für die Bank gibt es nur mit Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt, Prognose, Szenarien und PDF-Report für die Bank ist gratis. Ab der zweiten Wohnung brauchst du Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
   },
   {
     frage: 'Kann ich den Report bei der Bank vorlegen?',
@@ -442,12 +442,12 @@ export default function LandingPage() {
                 <Eyebrow>Preise</Eyebrow>
                 <H2>Erst ausprobieren, <Orange>dann entscheiden.</Orange></H2>
                 <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
-                  Starte kostenlos mit einer vollständigen Analyse. Wenn du weitere Wohnungen prüfst oder mit dem PDF-Report zur Bank gehst, brauchst du Premium.
+                  Starte kostenlos mit einer vollständigen Analyse, inklusive Szenarien und PDF-Report. Wenn du weitere Wohnungen prüfst, brauchst du Premium.
                 </p>
               </div>
               <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
                 <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
-                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt & Prognose`, true], ['KI-Einschätzung', true], ['Szenarien & PDF-Report', false], ['Analysen speichern', false]]}
+                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt & Prognose`, true], ['Szenarien & PDF-Report inklusive', true], ['KI-Einschätzung', true], ['Analysen speichern', false]]}
                   knopf={isSignedIn ? 'Neue Analyse starten' : 'Kostenlos starten'} onClick={() => starten('preise_kostenlos')} />
                 <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
                   hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
