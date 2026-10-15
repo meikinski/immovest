@@ -34,7 +34,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { trackEvent, AnalyticsEvents, leseEingabeMethode } from '@/lib/analytics';
-import { SignInButton, useAuth } from '@clerk/nextjs';
+import { SignInButton, useAuth, useClerk } from '@clerk/nextjs';
+import { GastFreischaltKarte, GastHinweisBanner } from '@/components/GratisVorteile';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 
@@ -68,6 +69,9 @@ export default function StepPage() {
 
   // Auth & Paywall
   const { isSignedIn, userId, getToken } = useAuth();
+  const { openSignUp } = useClerk();
+  // Gäste: Anmeldung mit E-Mail schaltet die komplette Analyse dieser Wohnung kostenlos frei
+  const gastFreischalten = () => openSignUp({ forceRedirectUrl: '/step/tabs', fallbackRedirectUrl: '/step/tabs' });
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal } = usePaywall();
   const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
 
@@ -2148,7 +2152,7 @@ const exportPdf = React.useCallback(async () => {
                 return (
                   <button
                     key={t.id}
-                    onClick={() => locked ? setShowUpgradeModal(true, `tab_${t.id}`) : setActiveTab(t.id)}
+                    onClick={() => !locked ? setActiveTab(t.id) : (!isSignedIn && t.id !== 'szenarien') ? gastFreischalten() : setShowUpgradeModal(true, `tab_${t.id}`)}
                     className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
                   >
                     {locked ? (
@@ -2157,6 +2161,9 @@ const exportPdf = React.useCallback(async () => {
                       <t.icon size={14} className={activeTab === t.id ? 'text-[#ff6b00]' : ''} />
                     )}
                     {t.label}
+                    {locked && !isSignedIn && t.id !== 'szenarien' && (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-black tracking-wider text-emerald-700">Gratis</span>
+                    )}
                     {activeTab === t.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-[#ff6b00] rounded-t-full shadow-[0_-2px_8px_rgba(255,140,0,0.3)]" />}
                   </button>
                 );
@@ -2165,6 +2172,7 @@ const exportPdf = React.useCallback(async () => {
           </div>
 
         <div className="px-6 lg:px-10 py-10 space-y-10">
+        {!isSignedIn && activeTab !== 'szenarien' && <GastHinweisBanner />}
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -2195,7 +2203,9 @@ const exportPdf = React.useCallback(async () => {
                 <div className={`relative mt-2 mb-16 ${visibility} ${isCommentLocked ? 'blur-sm pointer-events-none select-none' : ''}`}>
                   <button
                     onClick={() => {
-                      if (!isSignedIn || !hatVollzugang) {
+                      if (!isSignedIn) {
+                        gastFreischalten();
+                      } else if (!hatVollzugang) {
                         setShowUpgradeModal(true, 'weiter_markt');
                       } else {
                         setActiveTab('markt');
@@ -2287,7 +2297,7 @@ const exportPdf = React.useCallback(async () => {
               </div>
 
               {/* KI-Strategie-Check */}
-              <div className={`relative bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 overflow-hidden ${isCommentLocked && !isLoadingComment ? 'min-h-[320px]' : ''}`}>
+              <div className={`relative bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 overflow-hidden ${isCommentLocked && !isLoadingComment ? 'min-h-[460px]' : ''}`}>
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 backdrop-blur-sm p-6">
@@ -2425,7 +2435,10 @@ const exportPdf = React.useCallback(async () => {
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !hatVollzugang) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                {!isSignedIn ? (
+                  <GastFreischaltKarte />
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
@@ -2433,14 +2446,6 @@ const exportPdf = React.useCallback(async () => {
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                     Schalte Marktvergleich & Lageanalyse frei.
                   </p>
-                  {!isSignedIn ? (
-                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
-                        <Lock size={18} />
-                        Kostenlos anmelden
-                      </button>
-                    </SignInButton>
-                  ) : (
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true, 'overlay_markt')}
@@ -2455,8 +2460,8 @@ const exportPdf = React.useCallback(async () => {
                           : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -2527,7 +2532,10 @@ const exportPdf = React.useCallback(async () => {
             {/* Blur Overlay when locked */}
             {(!isSignedIn || !hatVollzugang) && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
-                <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
+                {!isSignedIn ? (
+                  <GastFreischaltKarte />
+                ) : (
+                  <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
@@ -2535,14 +2543,6 @@ const exportPdf = React.useCallback(async () => {
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                     Schalte Prognose & Entwicklung frei.
                   </p>
-                  {!isSignedIn ? (
-                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
-                        <Lock size={18} />
-                        Kostenlos anmelden
-                      </button>
-                    </SignInButton>
-                  ) : (
                     <>
                       <button
                         onClick={() => setShowUpgradeModal(true, 'overlay_prognose')}
@@ -2557,8 +2557,8 @@ const exportPdf = React.useCallback(async () => {
                           : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
                       </p>
                     </>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 

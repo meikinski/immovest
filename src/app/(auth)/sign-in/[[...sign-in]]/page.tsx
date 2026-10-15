@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { GratisVorteilBox } from "@/components/GratisVorteile";
 
 export default function Page() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -52,9 +53,11 @@ export default function Page() {
               Willkommen zurück!
             </h1>
             <p className="text-gray-600">
-              Melde dich an um deine Immobilienanalysen fortzusetzen
+              Melde dich an, um deine Immobilienanalysen fortzusetzen
             </p>
           </div>
+
+          <GratisVorteilBox neu />
 
           {/* Clerk Sign In */}
           <SignIn
