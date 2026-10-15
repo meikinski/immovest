@@ -86,7 +86,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               <h2 className="text-3xl font-black tracking-tight">Premium freischalten</h2>
               <p className="text-white/70 text-sm font-semibold mt-1">
                 {remainingFreeUses > 0
-                  ? 'Szenarien und PDF-Report gibt es nur mit Premium'
+                  ? 'Unbegrenzt Wohnungen prüfen, mit Markt, Szenarien und PDF-Report'
                   : 'Deine kostenlose Analyse ist aufgebraucht'
                 }
               </p>

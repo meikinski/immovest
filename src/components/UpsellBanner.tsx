@@ -66,7 +66,7 @@ export function UpsellBanner({ onDismiss, remainingFreeUses }: UpsellBannerProps
               </h3>
 
               <p className="text-slate-700 mb-2 text-sm leading-relaxed">
-                Diese Analyse bleibt für dich offen. Für jede weitere Wohnung, Szenarien und den PDF-Report für die Bank brauchst du Premium.
+                Diese Analyse bleibt für dich offen, inklusive Szenarien und PDF-Report. Für jede weitere Wohnung brauchst du Premium.
               </p>
 
               <div className="flex items-center justify-center md:justify-start gap-2 text-sm">
