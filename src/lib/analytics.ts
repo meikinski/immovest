@@ -64,10 +64,12 @@ export const AnalyticsEvents = {
   SCENARIO_CREATED: 'scenario_created',
 
   // Conversions
+  SIGN_UP: 'sign_up', // GA4-Standardereignis, zusätzlich zu signup_completed
   SIGNUP_INITIATED: 'signup_initiated',
   SIGNUP_COMPLETED: 'signup_completed',
   ADS_CONVERSION_SIGNUP: 'ads_conversion_signup', // Google Ads Conversion Event
   PRICING_PAGE_VIEWED: 'pricing_page_viewed',
+  PAYWALL_VIEWED: 'paywall_viewed',
   UPGRADE_CLICKED: 'upgrade_clicked',
   CHECKOUT_STARTED: 'checkout_started',
   PURCHASE_COMPLETED: 'purchase',
@@ -81,6 +83,20 @@ export const AnalyticsEvents = {
   VIDEO_PLAYED: 'video_played',
   FAQ_OPENED: 'faq_opened',
 } as const;
+
+/**
+ * Eingabemethode der laufenden Analyse (url, screenshot, manual) für analysis_completed merken
+ */
+export type EingabeMethode = 'url' | 'screenshot' | 'manual';
+const EINGABE_METHODE_KEY = 'analytics_eingabe_methode';
+
+export const merkeEingabeMethode = (methode: EingabeMethode) => {
+  try { sessionStorage.setItem(EINGABE_METHODE_KEY, methode); } catch { /* privater Modus */ }
+};
+
+export const leseEingabeMethode = (): EingabeMethode | 'unknown' => {
+  try { return (sessionStorage.getItem(EINGABE_METHODE_KEY) as EingabeMethode | null) || 'unknown'; } catch { return 'unknown'; }
+};
 
 /**
  * Track page views

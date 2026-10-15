@@ -33,6 +33,7 @@ import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
+import { trackEvent, AnalyticsEvents, leseEingabeMethode } from '@/lib/analytics';
 import { SignInButton, useAuth } from '@clerk/nextjs';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
@@ -848,6 +849,26 @@ const dscr =
   }, [freigabeSpeicher]);
   const hatVollzugang = isPremium || canAccessPremium || (!!gratisSchluessel && gratisFreigabe === gratisSchluessel);
 
+  // analysis_completed: einmal pro Analyse, sobald die Ergebnisseite mit Zahlen steht
+  // (erst wenn Anmeldung und Plan bekannt sind, damit die Parameter stimmen)
+  useEffect(() => {
+    if (!mounted || step !== 'tabs' || !(kaufpreis > 0)) return;
+    if (isSignedIn === undefined || (isSignedIn && !premiumStatusLoaded)) return;
+    const schluessel = analysisId || gratisSchluessel || `kaufpreis_${kaufpreis}`;
+    const speicher = 'analytics_analysis_completed';
+    let erledigt: string[] = [];
+    try { erledigt = JSON.parse(localStorage.getItem(speicher) || '[]'); } catch { /* privater Modus */ }
+    if (erledigt.includes(schluessel)) return;
+    trackEvent(AnalyticsEvents.ANALYSIS_COMPLETED, {
+      input_method: leseEingabeMethode(),
+      object_type: objekttyp,
+      signed_in: !!isSignedIn,
+      is_premium: isPremium,
+      free_analyses_used: premiumUsageCount,
+    });
+    try { localStorage.setItem(speicher, JSON.stringify([...erledigt, schluessel].slice(-50))); } catch { /* privater Modus */ }
+  }, [mounted, step, kaufpreis, isSignedIn, premiumStatusLoaded, analysisId, gratisSchluessel, objekttyp, isPremium, premiumUsageCount]);
+
   // Track input changes ANYWHERE in the app (not just on markt tab)
   // This ensures we detect changes made on step pages
   useEffect(() => {
@@ -1057,7 +1078,7 @@ const cancelPdfExport = React.useCallback(() => {
 const exportPdf = React.useCallback(async () => {
   // PDF-Report gibt es nur mit Premium
   if (!isPremium) {
-    setShowUpgradeModal(true);
+    setShowUpgradeModal(true, 'pdf_export');
     return;
   }
   setPdfBusy(true);
@@ -1100,7 +1121,7 @@ const exportPdf = React.useCallback(async () => {
     });
     if (res.status === 401 || res.status === 403) {
       toast.info('Der PDF-Report ist Teil von Premium.');
-      setShowUpgradeModal(true);
+      setShowUpgradeModal(true, 'pdf_export');
       return;
     }
     if (!res.ok) {
@@ -2133,7 +2154,7 @@ const exportPdf = React.useCallback(async () => {
                 return (
                   <button
                     key={t.id}
-                    onClick={() => locked ? setShowUpgradeModal(true) : setActiveTab(t.id)}
+                    onClick={() => locked ? setShowUpgradeModal(true, `tab_${t.id}`) : setActiveTab(t.id)}
                     className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
                   >
                     {locked ? (
@@ -2181,7 +2202,7 @@ const exportPdf = React.useCallback(async () => {
                   <button
                     onClick={() => {
                       if (!isSignedIn || !hatVollzugang) {
-                        setShowUpgradeModal(true);
+                        setShowUpgradeModal(true, 'weiter_markt');
                       } else {
                         setActiveTab('markt');
                       }
@@ -2428,7 +2449,7 @@ const exportPdf = React.useCallback(async () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => setShowUpgradeModal(true)}
+                        onClick={() => setShowUpgradeModal(true, 'overlay_markt')}
                         className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
                         <Crown size={18} />
@@ -2495,7 +2516,7 @@ const exportPdf = React.useCallback(async () => {
             )}
 <div className="mt-8 mb-16">
     <button
-      onClick={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true)}
+      onClick={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
       className="btn-primary"
     >
       {!isPremium && <Lock size={16} className="mr-2" />}
@@ -2530,7 +2551,7 @@ const exportPdf = React.useCallback(async () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => setShowUpgradeModal(true)}
+                        onClick={() => setShowUpgradeModal(true, 'overlay_prognose')}
                         className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
                         <Crown size={18} />
@@ -2566,7 +2587,7 @@ const exportPdf = React.useCallback(async () => {
               setVerkaufsNebenkostenPct={setVerkaufsNebenkostenPct}
               darlehensTyp={darlehensTyp}
               setDarlehensTyp={setDarlehensTyp}
-              onWeiter={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true)}
+              onWeiter={() => isPremium ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
             />
             </div>
           </div>
@@ -2596,7 +2617,7 @@ const exportPdf = React.useCallback(async () => {
                   ) : (
                     <>
                       <button
-                        onClick={() => setShowUpgradeModal(true)}
+                        onClick={() => setShowUpgradeModal(true, 'overlay_szenarien')}
                         className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
                       >
                         <Crown size={18} />

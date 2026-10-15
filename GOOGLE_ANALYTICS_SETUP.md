@@ -141,6 +141,19 @@ Erstelle für jeden Parameter eine Variable:
 3. Name der Datenschichtvariablen: `subscription_interval`
 4. Speichern
 
+### 2.5b Funnel-Ereignisse (sign_up, analysis_completed, paywall_viewed)
+
+Die App schiebt diese Ereignisse in den dataLayer. In GA4 kommen sie nur an, wenn es in GTM je einen Trigger („Benutzerdefiniertes Ereignis“ mit dem Ereignisnamen) und ein GA4-Ereignis-Tag gibt. Die Parameter legst du als Datenschichtvariablen an, wie in 2.5 beschrieben.
+
+| Ereignis | Wann | Parameter |
+|---|---|---|
+| `sign_up` | Neues Konto (max. 5 Min. alt, einmal pro Nutzer) | `method` (google, email, …) |
+| `analysis_completed` | Ergebnisseite `/step/tabs` mit Zahlen, einmal pro Analyse | `input_method` (url, screenshot, manual, unknown), `object_type`, `signed_in`, `is_premium`, `free_analyses_used` |
+| `paywall_viewed` | Upgrade-Modal wird geöffnet | `trigger` (pdf_export, tab_markt, tab_prognose, tab_szenarien, weiter_markt, weiter_szenarien, overlay_markt, overlay_prognose, overlay_szenarien), `signed_in`, `free_analyses_used` |
+| `purchase` | Nach dem Stripe-Checkout (siehe 2.3), zusätzlich serverseitig über den Webhook | siehe oben |
+
+In GA4 die Parameter unter **Verwalten → Benutzerdefinierte Definitionen** als Dimensionen anlegen (`trigger`, `input_method`, `method`), sonst tauchen sie in den Berichten nicht auf. Für den Funnel in **Explorative Datenanalysen → Trichter**: `sign_up` → `analysis_completed` → `paywall_viewed` → `purchase`.
+
 ### 2.6 GTM-Container veröffentlichen
 
 1. Klicke oben rechts auf **"Senden"**
