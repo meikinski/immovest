@@ -83,6 +83,12 @@ export function SignupTracker() {
         timestamp: new Date().toISOString(),
       });
 
+      // GA4-Standardereignis sign_up (method: google, apple, … oder email)
+      trackEvent(AnalyticsEvents.SIGN_UP, {
+        method: user.externalAccounts?.[0]?.provider?.replace(/^oauth_/, '') || 'email',
+        user_id: user.id,
+      });
+
       // Mark as tracked in localStorage to prevent duplicates
       localStorage.setItem(trackingKey, 'true');
       hasTracked.current = true;

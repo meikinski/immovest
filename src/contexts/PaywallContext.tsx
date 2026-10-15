@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { useAuth } from '@clerk/nextjs';
 import { premiumStatusAbrufen } from '@/lib/premiumStatus';
 import { GRATIS_ANALYSEN } from '@/lib/preise';
+import { trackEvent, AnalyticsEvents } from '@/lib/analytics';
 
 type PaywallContextType = {
   isPremium: boolean;
@@ -11,7 +12,8 @@ type PaywallContextType = {
   canAccessPremium: boolean;
   incrementPremiumUsage: () => void;
   showUpgradeModal: boolean;
-  setShowUpgradeModal: (show: boolean) => void;
+  /** trigger: welche Sperre das Modal geöffnet hat (für paywall_viewed) */
+  setShowUpgradeModal: (show: boolean, trigger?: string) => void;
   refreshPremiumStatus: () => Promise<void>;
   /** true, sobald der Plan des Nutzers bekannt ist (Server oder Zwischenspeicher) */
   premiumStatusLoaded: boolean;
@@ -26,7 +28,7 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn, userId, getToken } = useAuth();
   const [isPremium, setIsPremium] = useState(false);
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModalState] = useState(false);
   const [premiumStatusLoaded, setPremiumStatusLoaded] = useState(false);
 
   // Check premium status from database or localStorage
@@ -108,6 +110,17 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
       sessionStorage.setItem('guest_premium_usage', newCount.toString());
     }
   }, [premiumUsageCount, isSignedIn, userId, getToken]);
+
+  const setShowUpgradeModal = useCallback((show: boolean, trigger?: string) => {
+    if (show) {
+      trackEvent(AnalyticsEvents.PAYWALL_VIEWED, {
+        trigger: trigger || 'unknown',
+        signed_in: !!isSignedIn,
+        free_analyses_used: premiumUsageCount,
+      });
+    }
+    setShowUpgradeModalState(show);
+  }, [isSignedIn, premiumUsageCount]);
 
   const canAccessPremium = useMemo(
     () => isPremium || premiumUsageCount < GRATIS_ANALYSEN,

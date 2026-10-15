@@ -5,7 +5,7 @@ import { Keyboard, Camera, X, CheckCircle2, Link as LinkIcon, Sparkles, ChevronD
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { AnalyticsEvents } from '@/lib/analytics';
+import { AnalyticsEvents, merkeEingabeMethode } from '@/lib/analytics';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
@@ -137,6 +137,7 @@ export default function InputMethodPage() {
       importData({ analysisId });
 
       // Track successful import
+      merkeEingabeMethode('screenshot');
       track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
         import_method: 'screenshot',
         has_warnings: warnings && warnings.length > 0,
@@ -210,6 +211,7 @@ export default function InputMethodPage() {
         }
 
         // Track successful import
+        merkeEingabeMethode('url');
         track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
           import_method: 'url',
           import_url: url.trim(),
@@ -234,6 +236,7 @@ export default function InputMethodPage() {
   };
 
   const startManual = () => {
+    merkeEingabeMethode('manual');
     resetAnalysis();
     localStorage.removeItem('immovest_kpi_state');
     router.push('/step/a');
