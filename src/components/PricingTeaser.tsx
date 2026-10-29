@@ -31,7 +31,7 @@ export function PricingTeaser() {
         { text: '1× KI-Kommentar', included: true },
         { text: '1 vollständige Analyse inkl. Markt, Szenarien & PDF-Export', included: true },
         { text: 'Weitere vollständige Analysen', included: false },
-        { text: 'Analysen speichern', included: false },
+        { text: 'Analysen speichern', included: true },
       ],
       cta: 'Kostenlos starten',
       highlighted: false,

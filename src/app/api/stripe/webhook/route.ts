@@ -70,6 +70,12 @@ async function sendGA4PurchaseServerSide({
   const measurementId = process.env.GA4_MEASUREMENT_ID;
   const apiSecret = process.env.GA4_API_SECRET;
 
+  // Testkäufe (Stripe-Testmodus) nie als Umsatz an GA4 senden
+  if (!session.livemode) {
+    console.log(`[GA4] Test-Checkout ${sessionId} — kein purchase-Event.`);
+    return;
+  }
+
   if (!measurementId || !apiSecret) {
     console.log('[GA4] Measurement Protocol not configured — skipping server-side event. Set GA4_MEASUREMENT_ID + GA4_API_SECRET to enable.');
     return;

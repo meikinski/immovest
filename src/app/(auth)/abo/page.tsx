@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { usePlanStatus } from '@/hooks/usePlanStatus';
+import { trackCheckoutStarted } from '@/lib/analytics';
 import {
   ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
 } from '@/lib/preise';
@@ -52,6 +53,7 @@ function AboInhalt() {
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || 'Keine Checkout-URL erhalten');
+      trackCheckoutStarted(art, 'abo_page', art === 'yearly' ? PREIS_JAHR : PREIS_MONAT);
       window.location.href = data.url;
     } catch (err) {
       console.error('Checkout error:', err);
@@ -114,13 +116,13 @@ function AboInhalt() {
           {uebrig === 0 ? 'Kostenlose Analyse aufgebraucht' : uebrig === 1 ? 'Noch 1 kostenlose Analyse' : `Noch ${uebrig} kostenlose Analysen`}
         </p>
         <p className="mt-1 max-w-[62ch] text-sm text-slate-600">
-          Cashflow und Rendite rechnest du immer kostenlos. Deine kostenlose Analyse enthält Markt, Prognose, Szenarien und den PDF-Report. Für jede weitere Wohnung brauchst du Premium. Speichern gibt es nur mit Premium.
+          Cashflow und Rendite rechnest du immer kostenlos. Deine kostenlose Analyse enthält Markt, Prognose, Szenarien und den PDF-Report. Für jede weitere Wohnung brauchst du Premium. Speichern kannst du auch im kostenlosen Plan.
         </p>
         <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Merkmal ja>Cashflow &amp; Rendite, unbegrenzt</Merkmal>
           <Merkmal ja>{gratisText}</Merkmal>
           <Merkmal ja>Szenarien &amp; PDF-Report in der kostenlosen Analyse</Merkmal>
-          <Merkmal ja={false}>Analysen speichern</Merkmal>
+          <Merkmal ja>Analysen speichern</Merkmal>
         </ul>
       </KontoKarte>
 

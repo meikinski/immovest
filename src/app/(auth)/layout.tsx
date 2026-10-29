@@ -2,6 +2,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
 import { PaywallProvider } from '@/contexts/PaywallContext';
 import { SignupTracker } from '@/components/SignupTracker';
+import { InternerTrafficTracker } from '@/components/InternerTrafficTracker';
 // TODO: ChatAssistant wieder einbinden, sobald der Chat ausgereift ist
 // (import { ChatAssistant } from '@/components/ChatAssistant'; und <ChatAssistant /> nach {children})
 
@@ -31,6 +32,7 @@ export default function AuthLayout({
       afterSignOutUrl="/"
     >
       <SignupTracker />
+      <InternerTrafficTracker />
       <PaywallProvider>
         {children}
       </PaywallProvider>

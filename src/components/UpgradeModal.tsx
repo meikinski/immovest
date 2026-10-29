@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { trackCheckoutStarted } from '@/lib/analytics';
 import { toast } from 'sonner';
-import { ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, PREIS_MONAT_AUF_JAHR, preis } from '@/lib/preise';
+import { ERSPARNIS_JAHR_PCT, PAYWALL_TEXT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, PREIS_MONAT_AUF_JAHR, PREMIUM_MERKMALE, preis } from '@/lib/preise';
 
 type UpgradeModalProps = {
   isOpen: boolean;
@@ -55,6 +56,8 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
 
       // Redirect to Stripe Checkout
       if (data.url) {
+        const plan = planName === 'yearly' ? 'yearly' : 'monthly';
+        trackCheckoutStarted(plan, 'upgrade_modal', plan === 'yearly' ? PREIS_JAHR : PREIS_MONAT);
         window.location.href = data.url;
       } else {
         throw new Error('Keine Checkout-URL erhalten');
@@ -87,7 +90,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               <p className="text-white/70 text-sm font-semibold mt-1">
                 {remainingFreeUses > 0
                   ? 'Unbegrenzt Wohnungen prüfen, mit Markt, Szenarien und PDF-Report'
-                  : 'Deine kostenlose Analyse ist aufgebraucht'
+                  : PAYWALL_TEXT
                 }
               </p>
             </div>
@@ -98,16 +101,9 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
         <div className="p-10">
           {/* Features */}
           <div className="mb-8">
-            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-5">Premium Features</h3>
+            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-5">Das bekommst du mit Premium</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[
-                'Unbegrenzte vollständige Analysen',
-                'Markt- & Lageanalyse mit KI-Empfehlung',
-                'Szenarien & Stresstests',
-                'PDF-Report für die Bank',
-                'Premium-Support',
-                'Gespeicherte Analysen ohne Limit',
-              ].map((feature, idx) => (
+              {PREMIUM_MERKMALE.map((feature, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check size={14} className="text-green-600 font-bold" />

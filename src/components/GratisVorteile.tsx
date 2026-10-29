@@ -9,11 +9,12 @@ export const gratisTitel = GRATIS_ANALYSEN === 1
   ? 'Mit E-Mail anmelden: 1 Wohnung komplett kostenlos analysieren'
   : `Mit E-Mail anmelden: ${GRATIS_ANALYSEN} Wohnungen komplett kostenlos analysieren`;
 
-/** Was in der kostenlosen Analyse steckt (Szenarien & PDF-Report bleiben Premium) */
+/** Was in der kostenlosen Analyse steckt (alles, auch Szenarien & PDF-Report) */
 export const GRATIS_VORTEILE: Array<[titel: string, text: string]> = [
   ['KI-Einschätzung', 'Lohnt sich der Kauf? Die Antwort in klaren Worten.'],
   ['Marktvergleich & Lage', 'Kaufpreis und Miete im Vergleich zum Markt vor Ort, mit Quellen.'],
   ['Prognose & Entwicklung', 'Cashflow, Vermögen und Restschuld über die Jahre.'],
+  ['Szenarien & PDF-Report', 'Stresstests und ein Report für das Bankgespräch.'],
 ];
 
 export function GratisVorteilListe({ hell = false, kompakt = false }: { hell?: boolean; kompakt?: boolean }) {
@@ -107,7 +108,7 @@ export function GratisVorteilBox({ neu = false }: { neu?: boolean }) {
         {neu ? `Neu hier? ${gratisTitel}` : gratisTitel}
       </p>
       <GratisVorteilListe />
-      <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo. Szenarien und PDF-Report gibt es mit Premium.</p>
+      <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo. Für jede weitere Wohnung brauchst du Premium.</p>
     </div>
   );
 }

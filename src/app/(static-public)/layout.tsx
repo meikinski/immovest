@@ -1,6 +1,7 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { deDE } from '@clerk/localizations';
 import { SignupTracker } from '@/components/SignupTracker';
+import { InternerTrafficTracker } from '@/components/InternerTrafficTracker';
 
 /**
  * Static Public Layout
@@ -29,6 +30,7 @@ export default function StaticPublicLayout({
       signUpFallbackRedirectUrl="/input-method"
     >
       <SignupTracker />
+      <InternerTrafficTracker />
       {children}
     </ClerkProvider>
   );

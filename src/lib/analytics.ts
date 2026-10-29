@@ -13,6 +13,28 @@ declare global {
 }
 
 /**
+ * Interner Traffic (eigene Geräte, Testkonten): Merker im localStorage.
+ * Gesetzt über ?intern=1 (?intern=0 entfernt ihn) oder Clerk publicMetadata { "internal": true }.
+ * Alle Events bekommen dann traffic_type=internal → in GA4 per Datenfilter "Interner Traffic" ausgeschlossen.
+ * GoogleTagManager.tsx liest denselben Schlüssel schon vor dem ersten page_view.
+ */
+export const INTERN_KEY = 'imvestr_intern';
+
+export const istInternerTraffic = (): boolean => {
+  try { return localStorage.getItem(INTERN_KEY) === '1'; } catch { return false; }
+};
+
+export const setzeInternenTraffic = (intern: boolean) => {
+  try {
+    if (intern) localStorage.setItem(INTERN_KEY, '1');
+    else localStorage.removeItem(INTERN_KEY);
+  } catch { /* privater Modus */ }
+  if (typeof window === 'undefined') return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ traffic_type: intern ? 'internal' : undefined });
+};
+
+/**
  * Track custom events to Google Tag Manager
  * AI-Agent can query these events via GA4 Data API
  */
@@ -29,6 +51,7 @@ export const trackEvent = (
   window.dataLayer.push({
     event: eventName,
     timestamp: new Date().toISOString(),
+    ...(istInternerTraffic() ? { traffic_type: 'internal' } : {}),
     ...eventParams,
   });
 
@@ -73,6 +96,7 @@ export const AnalyticsEvents = {
   UPGRADE_CLICKED: 'upgrade_clicked',
   CHECKOUT_STARTED: 'checkout_started',
   PURCHASE_COMPLETED: 'purchase',
+  PURCHASE_TEST: 'purchase_test', // Stripe-Testmodus, zählt nicht als Umsatz
 
   // Feature Usage
   PDF_DOWNLOAD_CLICKED: 'pdf_download_clicked',
@@ -136,6 +160,18 @@ export const setUserProperties = (properties: Record<string, unknown>) => {
 };
 
 /**
+ * checkout_started: kurz vor der Weiterleitung zu Stripe
+ */
+export const trackCheckoutStarted = (plan: 'monthly' | 'yearly', ort: string, value: number) => {
+  trackEvent(AnalyticsEvents.CHECKOUT_STARTED, {
+    plan,
+    click_location: ort,
+    value,
+    currency: 'EUR',
+  });
+};
+
+/**
  * Subscription Plan IDs
  */
 export type SubscriptionPlanId = 'premium_monthly' | 'premium_yearly';
@@ -180,7 +216,11 @@ export const trackSubscriptionPurchase = (
 
   const interval = isYearly ? 'year' : 'month';
 
-  trackEvent(AnalyticsEvents.PURCHASE_COMPLETED, {
+  // Stripe-Testmodus (cs_test_…): eigenes Event, damit Testkäufe nie als Umsatz in GA4 landen
+  const istTest = transactionId.startsWith('cs_test_');
+
+  trackEvent(istTest ? AnalyticsEvents.PURCHASE_TEST : AnalyticsEvents.PURCHASE_COMPLETED, {
+    ...(istTest ? { traffic_type: 'internal' } : {}),
     transaction_id: transactionId,
     value,
     currency: 'EUR',

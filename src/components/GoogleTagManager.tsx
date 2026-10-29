@@ -1,6 +1,7 @@
 'use client';
 
 import Script from 'next/script';
+import { INTERN_KEY } from '@/lib/analytics';
 
 /**
  * Google Tag Manager Component
@@ -27,6 +28,16 @@ export function GoogleTagManager() {
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
+            // Interner Traffic vor dem ersten page_view markieren (?intern=1 / ?intern=0, siehe lib/analytics.ts)
+            try {
+              var p = new URLSearchParams(location.search).get('intern');
+              if (p === '1') localStorage.setItem('${INTERN_KEY}', '1');
+              if (p === '0') localStorage.removeItem('${INTERN_KEY}');
+              if (localStorage.getItem('${INTERN_KEY}') === '1') {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ traffic_type: 'internal' });
+              }
+            } catch (e) {}
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=

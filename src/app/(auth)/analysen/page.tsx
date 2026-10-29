@@ -1,16 +1,13 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
-import { ArrowUpDown, Crown, Lock, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowUpDown, Plus, Search, Trash2 } from 'lucide-react';
 import { KontoSeite } from '@/components/konto/KontoSeite';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useGespeicherteAnalysen } from '@/hooks/useGespeicherteAnalysen';
-import { usePlanStatus } from '@/hooks/usePlanStatus';
-import { usePaywall } from '@/contexts/PaywallContext';
 import { useImmoStore } from '@/store/useImmoStore';
 import type { SavedAnalysis } from '@/lib/storage';
 
@@ -50,10 +47,8 @@ function NeueAnalyseKnopf({ klein = false }: { klein?: boolean }) {
 export default function MeineAnalysenPage() {
   const router = useRouter();
   const { userId } = useAuth();
-  const status = usePlanStatus();
-  const { isPremium: paywallPremium } = usePaywall();
-  const plan = { loaded: status.loaded, isPremium: status.isPremium || paywallPremium };
-  const { analysen, laedt, loeschen } = useGespeicherteAnalysen(plan.loaded && plan.isPremium);
+  // Speichern ist in Free und Premium enthalten
+  const { analysen, laedt, loeschen } = useGespeicherteAnalysen();
   const loadAnalysis = useImmoStore(s => s.loadAnalysis);
   const [suche, setSuche] = useState('');
   const [sortierung, setSortierung] = useState<Sortierung>('zuletzt');
@@ -74,7 +69,7 @@ export default function MeineAnalysenPage() {
     else toast.error('Die Analyse konnte nicht geladen werden');
   };
 
-  const untertitel = plan.isPremium && analysen.length > 0
+  const untertitel = analysen.length > 0
     ? `${analysen.length} ${analysen.length === 1 ? 'Wohnung' : 'Wohnungen'} gespeichert`
     : undefined;
 
@@ -82,7 +77,7 @@ export default function MeineAnalysenPage() {
     <KontoSeite
       titel="Meine Analysen"
       untertitel={untertitel}
-      aktionen={plan.isPremium && analysen.length > 0 ? (
+      aktionen={analysen.length > 0 ? (
         <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm sm:w-64 sm:flex-none">
             <Search size={16} className="shrink-0 text-slate-400" />
@@ -106,25 +101,7 @@ export default function MeineAnalysenPage() {
         </div>
       ) : undefined}
     >
-      {!plan.loaded ? (
-        <div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div>
-      ) : !plan.isPremium ? (
-        <section className="mx-auto max-w-xl rounded-2xl border border-slate-200/80 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#fff3e8]">
-            <Lock size={22} className="text-[#ff6b00]" />
-          </div>
-          <h2 className="mt-4 text-lg font-bold text-[#001d3d]">Analysen speichern mit Premium</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-600">
-            Mit Premium landet jede Wohnung hier, mit Ampel und Kennzahlen auf einen Blick. So kannst du mehrere Angebote vergleichen und später weiterrechnen.
-          </p>
-          <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <Link href="/abo" className="inline-flex items-center gap-2 rounded-xl bg-[#001d3d] px-5 py-3 font-bold text-white hover:bg-[#001d3d]/90">
-              <Crown size={17} /> Premium ansehen
-            </Link>
-            <NeueAnalyseKnopf />
-          </div>
-        </section>
-      ) : laedt && analysen.length === 0 ? (
+      {laedt && analysen.length === 0 ? (
         <div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div>
       ) : analysen.length === 0 ? (
         <section className="mx-auto max-w-xl rounded-2xl border border-slate-200/80 bg-white p-8 text-center shadow-sm">

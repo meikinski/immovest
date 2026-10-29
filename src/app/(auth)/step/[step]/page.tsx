@@ -14,7 +14,7 @@ import { SzenarienTab } from '@/components/SzenarienTab';
 import { StrategyCheckBody, StrategyCheckHeader } from '@/components/StrategyCheckCard';
 import { InvestRecommendation, LocationCard, MarketCompareCard, SourcesCard, splitSections } from '@/components/MarketAnalysis';
 import { baueReportDaten } from '@/lib/report-daten';
-import { GRATIS_ANALYSEN, PREIS_MONAT, preis } from '@/lib/preise';
+import { GRATIS_ANALYSEN, PAYWALL_TEXT, PREIS_MONAT, preis } from '@/lib/preise';
 import type { MarketFacts } from '@/lib/marketFacts';
 import {
  BarChart3, BedSingle, Calculator, Calendar, ChartBar, Crown,
@@ -865,6 +865,23 @@ const dscr =
     try { if (freigabeSpeicher) localStorage.setItem(freigabeSpeicher, gratisSchluessel); } catch { /* privater Modus */ }
   }, [step, activeTab, isSignedIn, premiumStatusLoaded, isPremium, gratisSchluessel, canAccessPremium, gratisFreigabe, freigabeSpeicher, incrementPremiumUsage]);
 
+  // paywall_viewed: Gesperrtes Overlay (kostenlose Analyse verbraucht) einmal pro Wohnung und Seitenaufruf
+  const paywallGemeldet = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (step !== 'tabs' || activeTab === 'kpi') return;
+    if (!isSignedIn || !premiumStatusLoaded || hatVollzugang) return;
+    // Freigabe direkt lesen: der State wird erst nach dem ersten Rendern gefüllt
+    try { if (freigabeSpeicher && gratisSchluessel && localStorage.getItem(freigabeSpeicher) === gratisSchluessel) return; } catch { /* privater Modus */ }
+    const schluessel = gratisSchluessel || `kaufpreis_${kaufpreis}`;
+    if (paywallGemeldet.current.has(schluessel)) return;
+    paywallGemeldet.current.add(schluessel);
+    trackEvent(AnalyticsEvents.PAYWALL_VIEWED, {
+      trigger: `overlay_${activeTab}`,
+      signed_in: true,
+      free_analyses_used: premiumUsageCount,
+    });
+  }, [step, activeTab, isSignedIn, premiumStatusLoaded, hatVollzugang, freigabeSpeicher, gratisSchluessel, kaufpreis, premiumUsageCount]);
+
   // analysis_completed: einmal pro Analyse, sobald die Ergebnisseite mit Zahlen steht
   // (erst wenn Anmeldung und Plan bekannt sind, damit die Parameter stimmen)
   useEffect(() => {
@@ -1136,7 +1153,7 @@ const exportPdf = React.useCallback(async () => {
       signal: pdfAbortController.current?.signal
     });
     if (res.status === 401 || res.status === 403) {
-      toast.info('Den PDF-Report gibt es in deiner kostenlosen Analyse oder mit Premium.');
+      toast.info(PAYWALL_TEXT);
       setShowUpgradeModal(true, 'pdf_export');
       return;
     }
@@ -2442,9 +2459,9 @@ const exportPdf = React.useCallback(async () => {
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">{freeUsagesRemaining > 0 ? 'Vollständige Analyse' : 'Weiter mit Premium'}</h3>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                    Schalte Marktvergleich & Lageanalyse frei.
+                    {freeUsagesRemaining > 0 ? 'Schalte Marktvergleich & Lageanalyse frei.' : PAYWALL_TEXT}
                   </p>
                     <>
                       <button
@@ -2457,7 +2474,7 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {freeUsagesRemaining > 0
                           ? `${freeUsagesRemaining} kostenlose Analyse${freeUsagesRemaining > 1 ? 'n' : ''} verfügbar`
-                          : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
+                          : `Nur ${preis(PREIS_MONAT)} €/Monat · Jederzeit kündbar`}
                       </p>
                     </>
                   </div>
@@ -2539,9 +2556,9 @@ const exportPdf = React.useCallback(async () => {
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">Premium Feature</h3>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">{freeUsagesRemaining > 0 ? 'Vollständige Analyse' : 'Weiter mit Premium'}</h3>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                    Schalte Prognose & Entwicklung frei.
+                    {freeUsagesRemaining > 0 ? 'Schalte Prognose & Entwicklung frei.' : PAYWALL_TEXT}
                   </p>
                     <>
                       <button
@@ -2554,7 +2571,7 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-xs text-slate-500 mt-3 text-center font-medium">
                         {freeUsagesRemaining > 0
                           ? `${freeUsagesRemaining} kostenlose Analyse${freeUsagesRemaining > 1 ? 'n' : ''} verfügbar`
-                          : `Deine kostenlose Analyse ist aufgebraucht · Nur ${preis(PREIS_MONAT)} €/Monat`}
+                          : `Nur ${preis(PREIS_MONAT)} €/Monat · Jederzeit kündbar`}
                       </p>
                     </>
                   </div>
@@ -2597,11 +2614,11 @@ const exportPdf = React.useCallback(async () => {
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">{!isSignedIn ? 'Kostenlos freischalten' : 'Premium Feature'}</h3>
+                  <h3 className="text-xl font-black mb-2 text-[#001d3d] text-center">{!isSignedIn ? 'Kostenlos freischalten' : 'Weiter mit Premium'}</h3>
                   <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                     {!isSignedIn
                       ? 'Melde dich an: Szenarien und der PDF-Report für die Bank sind in deiner kostenlosen Analyse enthalten.'
-                      : 'Deine kostenlose Analyse ist aufgebraucht. Szenarien und den PDF-Report für weitere Wohnungen gibt es mit Premium.'}
+                      : PAYWALL_TEXT}
                   </p>
                   {!isSignedIn ? (
                     <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">

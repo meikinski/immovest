@@ -21,3 +21,27 @@ export function preis(v: number): string {
   const ganz = Math.abs(v - Math.round(v)) < 0.005;
   return v.toLocaleString('de-DE', { minimumFractionDigits: ganz ? 0 : 2, maximumFractionDigits: 2 });
 }
+
+/**
+ * Free vs. Premium an einer Stelle: Startseite, /pricing und App lesen diese Listen.
+ * Free: Cashflow & Rendite unbegrenzt, 1 vollständige Analyse, Speichern.
+ * Premium: alles unbegrenzt.
+ */
+export const FREE_MERKMALE = [
+  'Cashflow & Rendite: unbegrenzt',
+  `${gratisText} inkl. Markt, Prognose, KI-Einschätzung, Szenarien & PDF-Report`,
+  'Analysen speichern',
+];
+
+export const PREMIUM_VOLLANALYSE = 'Unbegrenzte vollständige Analysen inkl. Szenarien, Stresstests & PDF-Report';
+
+export const PREMIUM_MERKMALE = [
+  'Cashflow & Rendite: unbegrenzt',
+  PREMIUM_VOLLANALYSE,
+  'Analysen speichern',
+];
+
+/** Hinweis, sobald die kostenlose Analyse verbraucht ist (Paywall in der App) */
+export const PAYWALL_TEXT = GRATIS_ANALYSEN === 1
+  ? 'Deine kostenlose Analyse ist aufgebraucht. Mit Premium prüfst du unbegrenzt weitere Wohnungen.'
+  : 'Deine kostenlosen Analysen sind aufgebraucht. Mit Premium prüfst du unbegrenzt weitere Wohnungen.';

@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 
+const titel = 'Preise & Pläne | imvestr Immobilien-Renditerechner';
+const beschreibung = 'Cashflow & Rendite immer kostenlos, 1 vollständige Analyse mit Markt, Prognose, Szenarien & PDF-Report gratis. Mit Premium prüfst du unbegrenzt weitere Wohnungen.';
+
 export const metadata: Metadata = {
-  title: 'Preise & Pläne | ImVestr Immobilien-Renditerechner',
-  description: 'Wähle den perfekten Plan für deine Immobilienanalyse. Kostenlos starten oder Premium-Features nutzen für unbegrenzte Analysen, KI-Import und erweiterte Szenarien.',
+  title: titel,
+  description: beschreibung,
   keywords: [
     'immobilien renditerechner preise',
     'ki immobilien analyse kosten',
@@ -12,11 +15,17 @@ export const metadata: Metadata = {
     'immobilienscout24 import kosten',
   ],
   openGraph: {
-    title: 'Preise & Pläne | ImVestr',
-    description: 'Kostenlos starten oder Premium-Features nutzen für unbegrenzte Immobilienanalysen.',
+    title: 'Preise & Pläne | imvestr',
+    description: beschreibung,
     url: 'https://imvestr.de/pricing',
     type: 'website',
     locale: 'de_DE',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Preise & Pläne | imvestr',
+    description: beschreibung,
+    images: ['/og-image.png'],
   },
   alternates: {
     canonical: '/pricing',

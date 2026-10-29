@@ -141,7 +141,7 @@ Erstelle für jeden Parameter eine Variable:
 3. Name der Datenschichtvariablen: `subscription_interval`
 4. Speichern
 
-### 2.5b Funnel-Ereignisse (sign_up, analysis_completed, paywall_viewed)
+### 2.5b Funnel-Ereignisse (sign_up, analysis_completed, paywall_viewed, checkout_started)
 
 Die App schiebt diese Ereignisse in den dataLayer. In GA4 kommen sie nur an, wenn es in GTM je einen Trigger („Benutzerdefiniertes Ereignis“ mit dem Ereignisnamen) und ein GA4-Ereignis-Tag gibt. Die Parameter legst du als Datenschichtvariablen an, wie in 2.5 beschrieben.
 
@@ -149,10 +149,42 @@ Die App schiebt diese Ereignisse in den dataLayer. In GA4 kommen sie nur an, wen
 |---|---|---|
 | `sign_up` | Neues Konto (max. 5 Min. alt, einmal pro Nutzer) | `method` (google, email, …) |
 | `analysis_completed` | Ergebnisseite `/step/tabs` mit Zahlen, einmal pro Analyse | `input_method` (url, screenshot, manual, unknown), `object_type`, `signed_in`, `is_premium`, `free_analyses_used` |
-| `paywall_viewed` | Upgrade-Modal wird geöffnet | `trigger` (pdf_export, tab_markt, tab_prognose, tab_szenarien, weiter_markt, weiter_szenarien, overlay_markt, overlay_prognose, overlay_szenarien), `signed_in`, `free_analyses_used` |
-| `purchase` | Nach dem Stripe-Checkout (siehe 2.3), zusätzlich serverseitig über den Webhook | siehe oben |
+| `paywall_viewed` | Upgrade-Modal wird geöffnet oder ein gesperrtes Overlay erscheint (kostenlose Analyse verbraucht, `overlay_*`, einmal pro Wohnung) | `trigger` (pdf_export, tab_markt, tab_prognose, tab_szenarien, weiter_markt, weiter_szenarien, overlay_markt, overlay_prognose, overlay_szenarien), `signed_in`, `free_analyses_used` |
+| `checkout_started` | Kurz vor der Weiterleitung zu Stripe (/pricing, Upgrade-Modal, /abo) | `plan` (monthly, yearly), `click_location`, `value`, `currency` |
+| `purchase` | Nach dem Stripe-Checkout (siehe 2.3), zusätzlich serverseitig über den Webhook. Nur Live-Käufe | `transaction_id`, `value`, `currency`, `items` |
+| `purchase_test` | Kauf im Stripe-Testmodus (`cs_test_…`). Kein Umsatz, keinen GA4-Tag dafür anlegen | wie `purchase` |
 
-In GA4 die Parameter unter **Verwalten → Benutzerdefinierte Definitionen** als Dimensionen anlegen (`trigger`, `input_method`, `method`), sonst tauchen sie in den Berichten nicht auf. Für den Funnel in **Explorative Datenanalysen → Trichter**: `sign_up` → `analysis_completed` → `paywall_viewed` → `purchase`.
+In GA4 die Parameter unter **Verwalten → Benutzerdefinierte Definitionen** als Dimensionen anlegen (`trigger`, `input_method`, `method`), sonst tauchen sie in den Berichten nicht auf. Für den Funnel in **Explorative Datenanalysen → Trichter**: `sign_up` → `analysis_completed` → `paywall_viewed` → `checkout_started` → `purchase`.
+
+### 2.5c Schlüsselereignisse (Key Events)
+
+In GA4 unter **Verwalten → Datenanzeige → Ereignisse** (bzw. **Schlüsselereignisse**):
+
+1. `sign_up` → als Schlüsselereignis markieren
+2. `purchase` → als Schlüsselereignis markieren (Wert kommt aus dem Parameter `value`)
+3. Den Seitenaufruf von `/input-method` (falls als eigenes Ereignis/Schlüsselereignis angelegt, z. B. `page_view_input_method`) als Schlüsselereignis **entfernen**. Falls es über **Ereignis erstellen** angelegt wurde, die Regel dort ebenfalls löschen.
+4. `analysis_completed`, `paywall_viewed`, `checkout_started` bleiben normale Ereignisse.
+
+Ereignisse tauchen in der Liste erst auf, nachdem sie einmal angekommen sind. Alternativ über **Neues Schlüsselereignis** den Namen direkt eintragen.
+
+### 2.5d Interner Traffic & Testkäufe ausschließen
+
+Die App setzt bei internem Traffic auf jedem dataLayer-Push `traffic_type: 'internal'`. Intern ist ein Gerät, wenn:
+
+- es einmal mit `?intern=1` an einer beliebigen URL aufgerufen wurde (z. B. `https://imvestr.de/?intern=1`; mit `?intern=0` wieder entfernen). Gilt pro Browser.
+- ein Testkonto angemeldet ist, das in Clerk unter **Users → Metadata → Public** `{ "internal": true }` hat.
+
+**GTM:**
+1. Datenschichtvariable `DLV - traffic_type` mit Name `traffic_type` anlegen.
+2. Im GA4-Konfigurations-Tag bzw. Google-Tag unter **Konfigurationsparameter** `traffic_type` = `{{DLV - traffic_type}}` setzen (gilt dann auch für `page_view`). Bei den GA4-Ereignis-Tags, die keine Einstellungen vom Google-Tag erben, denselben Parameter ergänzen.
+3. Container veröffentlichen.
+
+**GA4:**
+1. **Verwalten → Datenstreams → Web-Stream → Tag-Einstellungen konfigurieren → Internen Traffic definieren**: Regel `internal` mit deiner eigenen IP-Adresse anlegen (ergänzt die Markierung per Gerät; Wert `traffic_type` = `internal`).
+2. **Verwalten → Datenfilter**: Filter „Interner Traffic“ (Typ *Interner Traffic*, Vorgang *Ausschließen*, Parameterwert `internal`). Zuerst im Status **Testen** lassen, in der Echtzeitansicht mit der Dimension *Name des Testdatenfilters* prüfen, dann auf **Aktiv** stellen. Ein aktiver Filter wirkt nicht rückwirkend.
+3. Optional: **Datenfilter → Entwickler-Traffic** ebenfalls auf *Aktiv*, damit GTM-Vorschau-Sessions nicht zählen.
+
+**Testkäufe:** Käufe im Stripe-Testmodus senden kein `purchase`. Der Browser schickt stattdessen `purchase_test` (mit `traffic_type: internal`), der Webhook überspringt das serverseitige Measurement-Protocol-Event, wenn `session.livemode` false ist. Testkäufe können so nicht im Umsatz landen, auch bevor der Datenfilter aktiv ist.
 
 ### 2.6 GTM-Container veröffentlichen
 

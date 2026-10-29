@@ -4,6 +4,7 @@ import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { InvestmentReportPDF, type InvestmentReportData } from '@/components/pdf/InvestmentReportPDF';
 import { darfVollanalyse } from '@/lib/premiumServer';
+import { PAYWALL_TEXT } from '@/lib/preise';
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Bitte melde dich an.' }, { status: 401 });
     }
     if (!(await darfVollanalyse(userId))) {
-      return NextResponse.json({ error: 'Deine kostenlose Analyse ist aufgebraucht. Den PDF-Report gibt es mit Premium.' }, { status: 403 });
+      return NextResponse.json({ error: PAYWALL_TEXT }, { status: 403 });
     }
 
     const data = (await req.json()) as InvestmentReportData;
