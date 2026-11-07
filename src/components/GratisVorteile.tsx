@@ -4,11 +4,6 @@ import { SignUpButton } from '@clerk/nextjs';
 import { Check, Gift, Mail } from 'lucide-react';
 import { GRATIS_ANALYSEN } from '@/lib/preise';
 
-/** Überschrift für Gäste: was die Anmeldung mit E-Mail bringt */
-export const gratisTitel = GRATIS_ANALYSEN === 1
-  ? 'Mit E-Mail anmelden: 1 Wohnung komplett kostenlos analysieren'
-  : `Mit E-Mail anmelden: ${GRATIS_ANALYSEN} Wohnungen komplett kostenlos analysieren`;
-
 /** Was in der kostenlosen Analyse steckt (Szenarien & PDF-Report sind ebenfalls enthalten) */
 export const GRATIS_VORTEILE: Array<[titel: string, text: string]> = [
   ['KI-Einschätzung', 'Lohnt sich der Kauf? Die Antwort in klaren Worten.'],
@@ -66,20 +61,6 @@ export function GastHinweisBanner({ redirectUrl = '/step/tabs', onFreischalten }
           {knopf}
         </SignUpButton>
       )}
-    </div>
-  );
-}
-
-/** Vorteils-Kasten über dem Clerk-Formular auf /sign-in und /sign-up */
-export function GratisVorteilBox({ neu = false }: { neu?: boolean }) {
-  return (
-    <div className="mb-6 rounded-2xl border border-orange-200 bg-orange-50/70 p-5">
-      <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#001d3d]">
-        <Gift size={18} className="shrink-0 text-[#ff6b00]" />
-        {neu ? `Neu hier? ${gratisTitel}` : gratisTitel}
-      </p>
-      <GratisVorteilListe />
-      <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo. Szenarien und PDF-Report inklusive.</p>
     </div>
   );
 }
