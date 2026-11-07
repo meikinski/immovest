@@ -2712,6 +2712,29 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
         )}
+
+        {/* Abschluss der vollständigen Analyse: zweite Wohnung zum Vergleich prüfen (nicht Teil des PDF-Reports) */}
+        {activeTab === 'szenarien' && isSignedIn && hatVollzugang && (
+          <section data-pdf-exclude className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm print:hidden md:p-6">
+            <h4 className="text-base font-black text-[#001d3d]">Vergleich sie mit einer zweiten Wohnung</h4>
+            <p className="mt-1 text-sm leading-relaxed text-slate-600">
+              Eine Wohnung allein sagt wenig. Prüf eine Alternative und sieh, welche sich besser trägt.
+            </p>
+            <div className="mt-5 flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+              <Link
+                href="/input-method"
+                onClick={() => trackEvent(AnalyticsEvents.COMPARE_CTA_CLICKED, { plan: isPremium ? 'premium' : 'free' })}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition-colors hover:bg-[#ff6b00]/90 md:w-auto md:px-6"
+              >
+                Zweite Wohnung prüfen
+              </Link>
+              {/* Gratis-Analyse ist verbraucht: offen sagen, dass die nächste Wohnung Premium braucht */}
+              {premiumStatusLoaded && !isPremium && (
+                <p className="text-center text-xs font-medium text-slate-500 md:text-left">Ab der 2. Wohnung mit Premium</p>
+              )}
+            </div>
+          </section>
+        )}
         </div>
 
         <Footer noPadding />
