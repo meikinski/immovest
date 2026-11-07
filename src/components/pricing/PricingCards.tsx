@@ -145,7 +145,7 @@ export default function PricingCards({}: PricingCardsProps) {
           <span className="text-[#001d3d]">Wähle deinen</span> <span className="text-[#ff6b00]">Plan</span>
         </h2>
         <p className="text-gray-600 text-base md:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed">
-          Erhalte unbegrenzten Zugang zu allen Premium-Features und KI-gestützten Analysen
+          Deine erste Analyse enthält alles. Mit Premium prüfst du unbegrenzt viele Wohnungen.
         </p>
       </div>
 
@@ -156,181 +156,94 @@ export default function PricingCards({}: PricingCardsProps) {
         </div>
       )}
 
-      {/* Pricing Cards - Desktop Grid */}
-      <div className="hidden md:grid md:grid-cols-2 gap-8 max-w-5xl mx-auto pt-8">
-        {plans.map((plan) => (
-          <div
-            key={plan.name}
-            className={`relative rounded-[40px] border-2 p-8 md:p-10 transition-all hover:shadow-2xl hover:-translate-y-2 duration-300 bg-white ${
-              plan.popular
-                ? 'border-[#ff6b00] shadow-xl'
-                : 'border-gray-200 hover:border-[#ff6b00]/50'
-            }`}
-          >
-            {/* Popular Badge */}
-            {plan.popular && (
-              <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-                <div className="px-4 py-1.5 bg-[#ff6b00] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
-                  Empfohlen
-                </div>
-              </div>
-            )}
-
-            {/* Plan Header */}
-            <div className="mb-6">
-              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-sm ${
-                plan.popular
-                  ? 'bg-[#001d3d] text-[#ff6b00]'
-                  : 'bg-gray-100 text-gray-600'
-              }`}>
-                {plan.icon}
-              </div>
-
-              <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">{plan.name}</h3>
-              <p className="text-gray-600 text-sm">{plan.description}</p>
-
-              {/* Price */}
-              <div className="mt-4">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-[#001d3d]">{plan.price} €</span>
-                  <span className="text-gray-600">/ {plan.period}</span>
-                </div>
-
-                {plan.originalPrice && (
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-gray-500 line-through text-sm">
-                      {plan.originalPrice} €
-                    </span>
-                    <span className="px-2 py-0.5 bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-semibold rounded-full">
-                      Spare {plan.savings}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Features */}
-            <ul className="space-y-3 mb-8">
-              {plan.features.map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[#ff6b00] flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-700">{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            {/* CTA Button */}
-            <button
-              onClick={() => handleSelectPlan(
-                plan.priceId,
-                plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
-              )}
-              disabled={isLoading}
-              className={`w-full py-4 px-6 rounded-full font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                plan.popular
-                  ? 'bg-[#ff6b00] text-white hover:shadow-xl hover:scale-105 shadow-lg'
-                  : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-              }`}
-            >
-              {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
-            </button>
-
-          </div>
-        ))}
-      </div>
-
-      {/* Pricing Cards - Mobile Carousel */}
-      <div className="md:hidden w-full pt-8">
+      {/* Pricing Cards: ein Satz Karten, mobil als Wisch-Karussell, ab md als Raster */}
+      <div className="w-full md:max-w-5xl md:mx-auto">
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pl-4 pr-4 pb-4"
+          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 pt-8 pb-4 md:grid md:grid-cols-2 md:gap-8 md:overflow-visible md:px-0 md:pb-0"
         >
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className="w-[calc(100vw-32px)] flex-shrink-0 snap-start"
+              className={`relative w-[calc(100vw-32px)] flex-shrink-0 snap-start md:w-auto rounded-[40px] border-2 p-6 md:p-10 bg-white transition-all duration-300 md:hover:shadow-2xl md:hover:-translate-y-2 ${
+                plan.popular
+                  ? 'border-[#ff6b00] shadow-xl'
+                  : 'border-gray-200 md:hover:border-[#ff6b00]/50'
+              }`}
             >
-                <div
-                  className={`relative rounded-[40px] border-2 p-6 bg-white ${
-                    plan.popular
-                      ? 'border-[#ff6b00] shadow-xl'
-                      : 'border-gray-200'
-                  }`}
-                >
-                  {/* Popular Badge */}
-                  {plan.popular && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
-                      <div className="px-4 py-1.5 bg-[#ff6b00] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
-                        Empfohlen
-                      </div>
-                    </div>
-                  )}
+              {/* Popular Badge */}
+              {plan.popular && (
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10">
+                  <div className="px-4 py-1.5 bg-[#ff6b00] text-white text-sm font-semibold rounded-full shadow-lg whitespace-nowrap">
+                    Empfohlen
+                  </div>
+                </div>
+              )}
 
-                  {/* Plan Header */}
-                  <div className="mb-6">
-                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-sm ${
-                      plan.popular
-                        ? 'bg-[#001d3d] text-[#ff6b00]'
-                        : 'bg-gray-100 text-gray-600'
-                    }`}>
-                      {plan.icon}
-                    </div>
+              {/* Plan Header */}
+              <div className="mb-6">
+                <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-sm ${
+                  plan.popular
+                    ? 'bg-[#001d3d] text-[#ff6b00]'
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
+                  {plan.icon}
+                </div>
 
-                    <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">{plan.name}</h3>
-                    <p className="text-gray-600 text-sm">{plan.description}</p>
+                <h3 className="text-2xl font-bold mb-2 text-[#001d3d]">{plan.name}</h3>
+                <p className="text-gray-600 text-sm">{plan.description}</p>
 
-                    {/* Price */}
-                    <div className="mt-4">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-bold text-[#001d3d]">{plan.price} €</span>
-                        <span className="text-gray-600">/ {plan.period}</span>
-                      </div>
-
-                      {plan.originalPrice && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-gray-500 line-through text-sm">
-                            {plan.originalPrice} €
-                          </span>
-                          <span className="px-2 py-0.5 bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-semibold rounded-full">
-                            Spare {plan.savings}
-                          </span>
-                        </div>
-                      )}
-                    </div>
+                {/* Price */}
+                <div className="mt-4">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-bold text-[#001d3d]">{plan.price} €</span>
+                    <span className="text-gray-600">/ {plan.period}</span>
                   </div>
 
-                  {/* Features */}
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-3">
-                        <CheckCircle2 className="w-5 h-5 text-[#ff6b00] flex-shrink-0 mt-0.5" />
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA Button */}
-                  <button
-                    onClick={() => handleSelectPlan(
-                      plan.priceId,
-                      plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
-                    )}
-                    disabled={isLoading}
-                    className={`w-full py-4 px-6 rounded-full font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      plan.popular
-                        ? 'bg-[#ff6b00] text-white hover:shadow-xl hover:scale-105 shadow-lg'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
-                  </button>
+                  {plan.originalPrice && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-gray-500 line-through text-sm">
+                        {plan.originalPrice} €
+                      </span>
+                      <span className="px-2 py-0.5 bg-[#ff6b00]/10 text-[#ff6b00] text-xs font-semibold rounded-full">
+                        Spare {plan.savings}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Features */}
+              <ul className="space-y-3 mb-8">
+                {plan.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-[#ff6b00] flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-700">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA Button */}
+              <button
+                onClick={() => handleSelectPlan(
+                  plan.priceId,
+                  plan.name === 'Jahresabo' ? 'yearly' : 'monthly'
+                )}
+                disabled={isLoading}
+                className={`w-full py-4 px-6 rounded-full font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  plan.popular
+                    ? 'bg-[#ff6b00] text-white hover:shadow-xl hover:scale-105 shadow-lg'
+                    : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                }`}
+              >
+                {isLoading ? 'Wird geladen...' : 'Jetzt upgraden'}
+              </button>
             </div>
           ))}
         </div>
 
-        {/* Dots Indicator */}
-        <div className="flex items-center justify-center gap-2 mt-6">
+        {/* Dots Indicator (nur mobil) */}
+        <div className="flex items-center justify-center gap-2 mt-6 md:hidden">
           {plans.map((_, idx) => (
             <button
               key={idx}
@@ -353,17 +266,14 @@ export default function PricingCards({}: PricingCardsProps) {
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">✅ Inklusive</p>
             <ul className="space-y-2 text-sm text-gray-700">
               <li>✓ KPI-Berechnungen (unbegrenzt)</li>
-              <li>✓ 1 vollständige Analyse mit Markt, Prognose, Szenarien &amp; PDF-Report</li>
+              <li>✓ 1 vollständige Analyse mit Markt, KI-Einschätzung, Prognose, Szenarien &amp; PDF-Report</li>
               <li>✓ Cashflow & Rendite-Kennzahlen</li>
             </ul>
           </div>
           <div>
             <p className="text-xs font-bold text-[#ff6b00] uppercase tracking-wider mb-2">⚡ Mit Premium</p>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>→ Unbegrenzte vollständige Analysen</li>
-              <li>→ Szenarien &amp; Stresstests</li>
-              <li>→ PDF-Report für die Bank</li>
-              <li>→ Analysen speichern</li>
+              <li>→ Unbegrenzte vollständige Analysen inkl. Szenarien, Stresstests &amp; PDF-Report</li>
             </ul>
           </div>
         </div>
@@ -403,7 +313,7 @@ function PricingFAQ() {
     },
     {
       q: 'Was ist im Free-Plan enthalten?',
-      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich ist 1 vollständige Analyse inklusive, mit Markt, Prognose, Szenarien und PDF-Report. Ab der 2. Analyse brauchst du Premium. Das Speichern von Analysen gibt es nur mit Premium.',
+      a: 'KPI-Berechnungen (Cashflow, Rendite) sind immer kostenlos — unbegrenzt. Zusätzlich ist 1 vollständige Analyse inklusive, mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien, Stresstests und PDF-Report. Ab der 2. Wohnung brauchst du Premium. Das Speichern von Analysen gibt es nur mit Premium.',
     },
     {
       q: 'Gibt es eine Testphase?',

@@ -28,7 +28,7 @@ const FAQS: Array<{ frage: string; antwort: string }> = [
   },
   {
     frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt, Prognose, Szenarien und PDF-Report für die Bank ist gratis. Ab der zweiten Wohnung brauchst du Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien, Stresstests und PDF-Report für die Bank ist gratis. Ab der 2. Wohnung brauchst du Premium. Analysen speichern gehört ebenfalls zu Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
   },
   {
     frage: 'Kann ich den Report bei der Bank vorlegen?',
@@ -393,7 +393,7 @@ export default function LandingPage() {
                 <Eyebrow>Mit Premium</Eyebrow>
                 <H2>Mehr als ein Rechner: <Orange>deine Entscheidung, zu Ende gedacht.</Orange></H2>
                 <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
-                  Die Kennzahlen sind immer kostenlos. Premium zeigt dir, was in 10, 20 und 30 Jahren passiert, und bereitet dich auf die Bank vor.
+                  Deine erste Analyse enthält alles. Für jede weitere Wohnung brauchst du Premium.
                 </p>
               </div>
               <div className="mt-11 grid gap-5 md:grid-cols-3">
@@ -447,11 +447,11 @@ export default function LandingPage() {
               </div>
               <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
                 <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
-                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt & Prognose`, true], ['Szenarien & PDF-Report inklusive', true], ['KI-Einschätzung', true], ['Analysen speichern', false]]}
+                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt, KI-Einschätzung & Prognose`, true], ['Szenarien, Stresstests & PDF-Report inklusive', true], ['Analysen speichern', false]]}
                   knopf={isSignedIn ? 'Neue Analyse starten' : 'Kostenlos starten'} onClick={() => starten('preise_kostenlos')} />
                 <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
                   hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
-                  merkmale={[['Unbegrenzte Analysen', true], ['Markt- & Lageanalyse', true], ['Prognose & Stresstests', true], ['PDF-Report für die Bank', true], ['Analysen speichern', true]]}
+                  merkmale={[['Unbegrenzte vollständige Analysen', true], ['Markt- & Lageanalyse mit KI-Einschätzung', true], ['Prognose, Szenarien & Stresstests', true], ['PDF-Report für die Bank', true], ['Analysen speichern', true]]}
                   knopf={`Premium für ${preis(PREIS_JAHR)} € im Jahr`} onClick={() => premiumWaehlen('preise_jahr')} />
                 <Plan titel="Premium Monat" wer="Für eine konkrete Wohnung" preisText={`${preis(PREIS_MONAT)} €`} zeitraum="pro Monat"
                   hinweis="monatlich kündbar"
@@ -538,7 +538,7 @@ function PremiumKarte({ icon: Icon, titel, text, children }: { icon: typeof Lock
   return (
     <article className="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#fff3e8] px-2.5 py-0.5 text-[11px] font-extrabold text-[#ff6b00]">
-        <Lock size={11} strokeWidth={2.6} /> Premium
+        <Lock size={11} strokeWidth={2.6} /> Ab der 2. Wohnung Premium
       </span>
       <h3 className="mt-3.5 flex items-center gap-2 text-[19px] font-extrabold"><Icon size={19} className="text-[#ff6b00]" />{titel}</h3>
       <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>

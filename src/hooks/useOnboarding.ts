@@ -300,7 +300,7 @@ export function useOnboarding() {
           element: '#tabs-navigation',
           popover: {
             title: 'Verschiedene Analysen',
-            description: 'Wechsle zwischen KPI-Analyse, Marktvergleich, Prognose und Szenario-Planung. Premium-Features sind mit einem Schloss markiert.',
+            description: 'Wechsle zwischen KPI-Analyse, Marktvergleich, Prognose und Szenario-Planung. Tabs mit Schloss enthält deine kostenlose Analyse, ab der 2. Wohnung brauchst du Premium.',
             ...commonConfig.popover,
           }
         },

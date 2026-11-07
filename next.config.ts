@@ -27,6 +27,11 @@ const nextConfig: NextConfig = {
         destination: '/input-method',
         permanent: false, // 302 redirect
       },
+      {
+        source: '/preise',
+        destination: '/pricing',
+        statusCode: 301, // dauerhaft (permanent: true würde 308 senden)
+      },
     ];
   },
 };
