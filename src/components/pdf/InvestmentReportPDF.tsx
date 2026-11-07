@@ -138,6 +138,8 @@ export type MarktVergleich = {
 
 export type InvestmentReportData = {
   erstelltAm: string;
+  /** Beispielreport für die Website: Wasserzeichen und Hinweis auf jeder Seite */
+  beispiel?: boolean;
   objekt: {
     adresse: string;
     ort?: string;
@@ -266,6 +268,30 @@ function Foot({ text }: { text: string }) {
     </View>
   );
 }
+
+function BeispielMarke({ d }: { d: InvestmentReportData }) {
+  if (!d.beispiel) return null;
+  return (
+    <>
+      <Text
+        fixed
+        style={{
+          position: 'absolute', top: 400, left: -60, right: -60, textAlign: 'center', fontSize: 110, fontWeight: 800,
+          letterSpacing: 6, color: C.orange, opacity: 0.07, transform: 'rotate(-35deg)',
+        }}
+      >
+        BEISPIEL
+      </Text>
+      <View fixed style={{ position: 'absolute', top: 10, left: 0, right: 0, alignItems: 'center' }}>
+        <Text style={{ backgroundColor: C.orange, color: C.white, fontSize: 7, fontWeight: 800, letterSpacing: 1, borderRadius: 99, paddingHorizontal: 8, paddingVertical: 2.5 }}>
+          BEISPIEL · FIKTIVE WOHNUNG
+        </Text>
+      </View>
+    </>
+  );
+}
+
+const fussText = (d: InvestmentReportData, text: string) => (d.beispiel ? `Beispielreport mit fiktiven Daten · ${text}` : text);
 
 function Title({ eyebrow, title }: { eyebrow: string; title: string }) {
   return (
@@ -424,7 +450,8 @@ function Deckblatt({ d }: { d: InvestmentReportData }) {
           ))}
         </View>
       </View>
-      <Foot text="Erstellt mit imvestr.de · Prognosen sind keine Garantie, siehe Hinweise am Ende" />
+      <Foot text={fussText(d, 'Erstellt mit imvestr.de · Prognosen sind keine Garantie, siehe Hinweise am Ende')} />
+      <BeispielMarke d={d} />
     </Page>
   );
 }
@@ -561,7 +588,8 @@ function Finanzierung({ d }: { d: InvestmentReportData }) {
           </View>
         </View>
       </View>
-      <Foot text={`Erstellt mit imvestr.de am ${d.erstelltAm}`} />
+      <Foot text={fussText(d, `Erstellt mit imvestr.de am ${d.erstelltAm}`)} />
+      <BeispielMarke d={d} />
     </Page>
   );
 }
@@ -652,10 +680,13 @@ function Markt({ d }: { d: InvestmentReportData }) {
           </View>
         )}
         <Text style={s.hint}>
-          {mk.quellen.length > 0 ? `Quellen: ${mk.quellen.join(', ')}. ` : ''}Die Einschätzung wurde mit KI-Unterstützung aus öffentlich verfügbaren Daten erstellt und ersetzt kein Wertgutachten.
+          {d.beispiel
+            ? 'Beispiel: Marktwerte und Texte sind zur Veranschaulichung gewählt. Im echten Report stammen sie aus einer aktuellen Recherche mit Quellenangaben und ersetzen kein Wertgutachten.'
+            : `${mk.quellen.length > 0 ? `Quellen: ${mk.quellen.join(', ')}. ` : ''}Die Einschätzung wurde mit KI-Unterstützung aus öffentlich verfügbaren Daten erstellt und ersetzt kein Wertgutachten.`}
         </Text>
       </View>
-      <Foot text={`Erstellt mit imvestr.de am ${d.erstelltAm}`} />
+      <Foot text={fussText(d, `Erstellt mit imvestr.de am ${d.erstelltAm}`)} />
+      <BeispielMarke d={d} />
     </Page>
   );
 }
@@ -765,7 +796,8 @@ function Prognose({ d }: { d: InvestmentReportData }) {
         )}
         <Text style={s.hint}>Annahmen: {p.annahmen} Werte jeweils zum Jahresende.</Text>
       </View>
-      <Foot text={`Erstellt mit imvestr.de am ${d.erstelltAm}`} />
+      <Foot text={fussText(d, `Erstellt mit imvestr.de am ${d.erstelltAm}`)} />
+      <BeispielMarke d={d} />
     </Page>
   );
 }
@@ -851,13 +883,14 @@ function Stresstest({ d }: { d: InvestmentReportData }) {
           </Text>
         </View>
       </View>
-      <Foot text={`Erstellt mit imvestr.de am ${d.erstelltAm}`} />
+      <Foot text={fussText(d, `Erstellt mit imvestr.de am ${d.erstelltAm}`)} />
+      <BeispielMarke d={d} />
     </Page>
   );
 }
 
 export const InvestmentReportPDF: React.FC<{ data: InvestmentReportData }> = ({ data }) => (
-  <Document title={`Investment-Report ${data.objekt.adresse}`} author="imvestr">
+  <Document title={`${data.beispiel ? 'Beispiel: ' : ''}Investment-Report ${data.objekt.adresse}`} author="imvestr">
     <Deckblatt d={data} />
     <Finanzierung d={data} />
     {data.markt && <Markt d={data} />}

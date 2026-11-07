@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
@@ -55,6 +56,13 @@ const faqDaten = {
   '@type': 'FAQPage',
   mainEntity: FAQS.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
 };
+
+// Beispielreport zur Wohnung aus dem Hero, erzeugt mit `npm run sample-report`
+const BEISPIEL_PDF = '/beispielreport/imvestr-beispielreport.pdf';
+const BEISPIEL_SEITEN = [
+  { src: '/beispielreport/seite-1.webp', alt: 'Beispielreport Seite 1: Deckblatt der 2-Zimmer-Wohnung in Leipzig-Süd mit Cashflow 227 € nach Steuern, DSCR 2,06 und Nettomietrendite 9,5 %' },
+  { src: '/beispielreport/seite-2.webp', alt: 'Beispielreport Seite 2: Objektdaten, Gesamtinvestition 112.070 €, Finanzierungsstruktur, Monatsrechnung und Kapitaldienstfähigkeit' },
+];
 
 const eur = (v: number) => `${Math.round(v).toLocaleString('de-DE')} €`;
 
@@ -416,15 +424,20 @@ export default function LandingPage() {
                 </PremiumKarte>
                 <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
                   text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
-                  <div className="flex items-end justify-center gap-2.5" aria-hidden>
-                    {[0, 1, 2].map(i => (
-                      <span key={i} className={`flex aspect-[210/297] w-[76px] flex-col gap-1 rounded border border-slate-200 bg-white p-1.5 shadow-md ${i === 0 ? '-rotate-3' : i === 2 ? 'rotate-3' : ''}`}>
-                        <span className={`h-4 rounded-sm ${i === 0 ? 'bg-[#001d3d]' : 'bg-slate-200'}`} />
-                        <span className="h-0.5 rounded bg-slate-100" /><span className="h-0.5 w-2/3 rounded bg-slate-100" />
-                        <span className={`flex-1 rounded-sm ${i === 1 ? 'bg-gradient-to-t from-blue-200 to-transparent' : 'bg-slate-50'}`} />
-                      </span>
-                    ))}
-                  </div>
+                  <a href={BEISPIEL_PDF} target="_blank" rel="noopener" className="group block"
+                    onClick={() => trackCTA('sample_report_opened', 'premium_report_card')}>
+                    <span className="relative flex justify-center pb-1 pt-2">
+                      {BEISPIEL_SEITEN.map((seite, i) => (
+                        <Image key={seite.src} src={seite.src} alt={seite.alt} width={400} height={566} unoptimized loading="lazy"
+                          sizes="(min-width: 768px) 160px, 44vw"
+                          className={`h-auto w-[52%] max-w-[180px] rounded-md border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-transform duration-300 ${
+                            i === 0 ? 'relative z-10 -rotate-3 group-hover:-rotate-6' : '-ml-[14%] mt-4 rotate-2 group-hover:rotate-3'}`} />
+                      ))}
+                    </span>
+                    <span className="mt-3 flex items-center justify-center gap-1.5 text-sm font-bold text-[#001d3d] underline-offset-4 group-hover:underline">
+                      <FileText size={15} className="text-[#ff6b00]" />Beispielreport ansehen (PDF)
+                    </span>
+                  </a>
                 </PremiumKarte>
               </div>
             </div>
