@@ -38,8 +38,10 @@ import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { trackEvent, AnalyticsEvents, leseEingabeMethode } from '@/lib/analytics';
 import { SignInButton, useAuth, useClerk } from '@clerk/nextjs';
-import { GastFreischaltKarte, GastHinweisBanner } from '@/components/GratisVorteile';
+import { GastHinweisBanner } from '@/components/GratisVorteile';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
+import { LockedPreview } from '@/components/LockedPreview';
+import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
 import { OnboardingWizard } from '@/components/OnboardingWizard';
 
 
@@ -109,9 +111,17 @@ export default function StepPage() {
 
   // Auth & Paywall
   const { isSignedIn, userId, getToken } = useAuth();
-  const { openSignUp } = useClerk();
-  // Gäste: Anmeldung mit E-Mail schaltet die komplette Analyse dieser Wohnung kostenlos frei
-  const gastFreischalten = () => openSignUp({ forceRedirectUrl: '/step/tabs', fallbackRedirectUrl: '/step/tabs' });
+  const { openSignUp, openSignIn } = useClerk();
+  // Gäste: Anmeldung mit E-Mail schaltet die komplette Analyse dieser Wohnung kostenlos frei.
+  // Eingaben vorher sichern, damit man nach Google-Redirect oder E-Mail-Bestätigung wieder bei dieser Wohnung landet.
+  const gastFreischalten = (bereich: GesperrterBereich, modus: 'sign_up' | 'sign_in' = 'sign_up', quelle: 'preview' | 'banner' = 'preview') => {
+    if (quelle === 'preview') trackEvent(AnalyticsEvents.LOCKED_PREVIEW_CLICKED, { section: bereich, action: modus });
+    if (modus === 'sign_up') trackEvent(AnalyticsEvents.SIGNUP_INITIATED, { source: quelle === 'preview' ? `locked_preview_${bereich}` : 'result_banner' });
+    sichereAnalyseVorAnmeldung(bereich);
+    const ziel = { forceRedirectUrl: '/step/tabs', fallbackRedirectUrl: '/step/tabs' };
+    if (modus === 'sign_in') openSignIn(ziel);
+    else openSignUp(ziel);
+  };
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal, upgradeTrigger } = usePaywall();
   const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
 
@@ -766,6 +776,8 @@ const dscr =
   useEffect(() => {
     if (step !== 'tabs') return;
     if (activeTab !== 'kpi') return;
+    // Gäste sehen nur eine Platzhalter-Vorschau: kein KI-Aufruf (Kosten, keine echten Daten im DOM)
+    if (isSignedIn !== true) return;
 
     // Validate required fields before generating analysis
     const missingFields = [];
@@ -862,7 +874,7 @@ const dscr =
       })
       .catch(() => setGeneratedComment('Leider konnte die KI-Einschätzung nicht geladen werden.'))
       .finally(() => setIsLoadingComment(false));
-  }, [step, activeTab, score, generatedComment, setGeneratedComment,
+  }, [step, activeTab, isSignedIn, score, generatedComment, setGeneratedComment,
   cashflowVorSteuer, cashflowAfterTax, bruttoMietrendite, nettoMietrendite, ek, anschaffungskosten,
   adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, kalkKostenMonthly, warmmiete, objekttyp]);
 
@@ -892,6 +904,31 @@ const dscr =
     try { setGratisFreigabe(localStorage.getItem(freigabeSpeicher)); } catch { /* privater Modus */ }
   }, [freigabeSpeicher]);
   const hatVollzugang = isPremium || canAccessPremium || (!!gratisSchluessel && gratisFreigabe === gratisSchluessel);
+
+  // Rückkehr nach der Anmeldung aus einer gesperrten Vorschau: gleiche Wohnung, vollständige Analyse startet automatisch.
+  // KI-Einschätzung lädt im KPI-Tab von selbst, Markt und Prognose werden direkt geöffnet (startet den Markt-Abruf).
+  const anmeldeRueckkehrGeprueft = useRef(false);
+  useEffect(() => {
+    if (step !== 'tabs' || !isSignedIn || !premiumStatusLoaded || anmeldeRueckkehrGeprueft.current) return;
+    anmeldeRueckkehrGeprueft.current = true;
+    const bereich = holeAnmeldeRueckkehr();
+    if (!bereich) return;
+    if (bereich === 'ki') {
+      setActiveTab('kpi');
+      return;
+    }
+    // Freigabe direkt lesen: der State aus localStorage ist in diesem Durchlauf evtl. noch nicht gesetzt
+    const schluessel = (useImmoStore.getState().adresse || '').trim().toLowerCase();
+    let freigabe = gratisFreigabe;
+    try { if (freigabeSpeicher) freigabe = localStorage.getItem(freigabeSpeicher) ?? gratisFreigabe; } catch { /* privater Modus */ }
+    if (isPremium || canAccessPremium || (!!schluessel && freigabe === schluessel)) {
+      setActiveTab(bereich);
+      toast.success('Freigeschaltet: Die vollständige Analyse dieser Wohnung startet.');
+    } else {
+      // Bestehendes Konto mit verbrauchter Gratis-Analyse: normale Paywall, Limits unverändert
+      setShowUpgradeModal(true, `tab_${bereich}`);
+    }
+  }, [step, isSignedIn, premiumStatusLoaded, isPremium, canAccessPremium, gratisFreigabe, freigabeSpeicher, setShowUpgradeModal]);
 
   // Wer Prognose oder Szenarien direkt öffnet, verbraucht die kostenlose Analyse ebenso wie beim Marktvergleich
   useEffect(() => {
@@ -961,8 +998,11 @@ const dscr =
   // Erst entscheiden, wenn Anmeldung und Plan bekannt sind, sonst würde ein verbrauchtes Kontingent kurz als frei gelten
   if (isSignedIn === undefined || (isSignedIn && !premiumStatusLoaded)) return;
 
+  // Gäste: nur statische Vorschau, kein Markt-/KI-Aufruf
+  if (!isSignedIn) return;
+
   // If no premium access, show placeholder content
-  if (!isSignedIn || !hatVollzugang) {
+  if (!hatVollzugang) {
     setLageComment('<p>Premium-Inhalte sind hier verfügbar. Die Lageanalyse bietet detaillierte Einblicke in die Umgebung, Infrastruktur und Entwicklungspotenzial der Immobilie.</p>');
     setMietpreisComment('<p>Hier findest du einen umfassenden Vergleich der Mietpreise in der Umgebung, inklusive Marktpositionierung und Preisentwicklung.</p>');
     setQmPreisComment('<p>Der Kaufpreisvergleich zeigt dir, wie der Quadratmeterpreis im Vergleich zu ähnlichen Objekten in der Gegend einzuordnen ist.</p>');
@@ -2192,7 +2232,7 @@ const exportPdf = React.useCallback(async () => {
                 return (
                   <button
                     key={t.id}
-                    onClick={() => !locked ? setActiveTab(t.id) : (!isSignedIn && t.id !== 'szenarien') ? gastFreischalten() : setShowUpgradeModal(true, `tab_${t.id}`)}
+                    onClick={() => !locked ? setActiveTab(t.id) : (!isSignedIn && t.id !== 'szenarien') ? setActiveTab(t.id) : setShowUpgradeModal(true, `tab_${t.id}`)}
                     className={`relative py-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] transition-all whitespace-nowrap ${activeTab === t.id ? 'text-[#001d3d]' : 'text-slate-300 hover:text-slate-500'}`}
                   >
                     {locked ? (
@@ -2212,7 +2252,7 @@ const exportPdf = React.useCallback(async () => {
           </div>
 
         <div className="px-6 lg:px-10 py-10 space-y-10">
-        {!isSignedIn && activeTab !== 'szenarien' && <GastHinweisBanner />}
+        {!isSignedIn && activeTab !== 'szenarien' && <GastHinweisBanner onFreischalten={() => gastFreischalten('markt', 'sign_up', 'banner')} />}
         {/* Tab 1 – KPI-Übersicht (Free) */}
         {activeTab === 'kpi' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -2244,7 +2284,8 @@ const exportPdf = React.useCallback(async () => {
                   <button
                     onClick={() => {
                       if (!isSignedIn) {
-                        gastFreischalten();
+                        // Gäste sehen im Tab die gesperrte Vorschau
+                        setActiveTab('markt');
                       } else if (!hatVollzugang) {
                         setShowUpgradeModal(true, 'weiter_markt');
                       } else {
@@ -2336,7 +2377,10 @@ const exportPdf = React.useCallback(async () => {
                 />
               </div>
 
-              {/* KI-Strategie-Check */}
+              {/* KI-Strategie-Check (Gäste: gesperrte Platzhalter-Vorschau, kein KI-Aufruf) */}
+              {!isSignedIn ? (
+                <LockedPreview bereich="ki" onFreischalten={gastFreischalten} />
+              ) : (
               <div className={`relative bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 md:p-8 overflow-hidden ${isCommentLocked && !isLoadingComment ? 'min-h-[460px]' : ''}`}>
                 {/* Blur Overlay wenn nicht angemeldet */}
                 {isCommentLocked && !isLoadingComment && (
@@ -2392,6 +2436,7 @@ const exportPdf = React.useCallback(async () => {
                   )}
                 </div>
               </div>
+              )}
 
               {/* Weiter Button mit Blur wenn KI-Kommentar locked oder Premium nicht verfügbar (Desktop: unter dem KI-Kommentar) */}
               {renderWeiterButton('hidden lg:block')}
@@ -2469,15 +2514,15 @@ const exportPdf = React.useCallback(async () => {
           </div>
         )}
 
-        {/* Tab 2 – Marktvergleich & Lage */}
-        {activeTab === 'markt' && (
+        {/* Tab 2 – Marktvergleich & Lage (Gäste: gesperrte Platzhalter-Vorschau, kein Markt-Aufruf) */}
+        {activeTab === 'markt' && !isSignedIn && (
+          <LockedPreview bereich="markt" onFreischalten={gastFreischalten} />
+        )}
+        {activeTab === 'markt' && isSignedIn && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !hatVollzugang) && (
+            {!hatVollzugang && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
-                {!isSignedIn ? (
-                  <GastFreischaltKarte />
-                ) : (
                   <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
@@ -2501,12 +2546,11 @@ const exportPdf = React.useCallback(async () => {
                       </p>
                     </>
                   </div>
-                )}
               </div>
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !hatVollzugang) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={!hatVollzugang ? 'blur-md pointer-events-none select-none' : ''}>
 
             {loadingDetails ? (
               <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-8">
@@ -2566,15 +2610,15 @@ const exportPdf = React.useCallback(async () => {
           </div>
         )}
 
-        {/* Tab 3 – Prognose */}
-        {activeTab === 'prognose' && (
+        {/* Tab 3 – Prognose (Gäste: gesperrte Platzhalter-Vorschau) */}
+        {activeTab === 'prognose' && !isSignedIn && (
+          <LockedPreview bereich="prognose" onFreischalten={gastFreischalten} />
+        )}
+        {activeTab === 'prognose' && isSignedIn && (
           <div className="relative">
             {/* Blur Overlay when locked */}
-            {(!isSignedIn || !hatVollzugang) && (
+            {!hatVollzugang && (
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm rounded-2xl p-6">
-                {!isSignedIn ? (
-                  <GastFreischaltKarte />
-                ) : (
                   <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border-2 border-slate-100">
                   <div className="w-14 h-14 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
                     <Lock className="w-7 h-7 text-white" />
@@ -2598,12 +2642,11 @@ const exportPdf = React.useCallback(async () => {
                       </p>
                     </>
                   </div>
-                )}
               </div>
             )}
 
             {/* Content (blurred when locked) */}
-            <div className={(!isSignedIn || !hatVollzugang) ? 'blur-md pointer-events-none select-none' : ''}>
+            <div className={!hatVollzugang ? 'blur-md pointer-events-none select-none' : ''}>
           <PrognoseTab
               jahre={prognose.jahre}
               ek={ek}
