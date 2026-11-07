@@ -72,6 +72,7 @@ export const AnalyticsEvents = {
   PAYWALL_VIEWED: 'paywall_viewed',
   UPGRADE_CLICKED: 'upgrade_clicked',
   CHECKOUT_STARTED: 'checkout_started',
+  COMPARE_CTA_CLICKED: 'compare_cta_clicked',
   PURCHASE_COMPLETED: 'purchase',
 
   // Feature Usage
