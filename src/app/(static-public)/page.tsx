@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
@@ -55,6 +56,13 @@ const faqDaten = {
   '@type': 'FAQPage',
   mainEntity: FAQS.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
 };
+
+// Beispielreport zur Wohnung aus dem Hero, erzeugt mit `npm run sample-report`
+const BEISPIEL_PDF = '/beispielreport/imvestr-beispielreport.pdf';
+const BEISPIEL_SEITEN = [
+  { src: '/beispielreport/seite-1.webp', alt: 'Beispielreport Seite 1: Deckblatt der 2-Zimmer-Wohnung in Leipzig-Süd mit Cashflow 227 € nach Steuern, DSCR 2,06 und Nettomietrendite 9,5 %' },
+  { src: '/beispielreport/seite-2.webp', alt: 'Beispielreport Seite 2: Objektdaten, Gesamtinvestition 112.070 €, Finanzierungsstruktur, Monatsrechnung und Kapitaldienstfähigkeit' },
+];
 
 const eur = (v: number) => `${Math.round(v).toLocaleString('de-DE')} €`;
 
@@ -399,32 +407,82 @@ export default function LandingPage() {
                       <span key={t} className={`rounded-lg border px-2 py-1.5 text-[11px] font-bold ${i === 0 ? 'border-[#ff6b00] bg-[#fff3e8]' : 'border-slate-200 bg-white'}`}>{t}</span>
                     ))}
                   </div>
-                  <svg viewBox="0 0 260 80" className="block h-auto w-full" aria-hidden>
-                    <path d="M0 80 L0 66 L260 18 L260 80 Z" fill="#cbd5e1" />
-                    <path d="M0 80 L0 76 L130 52 L260 22 L260 80 Z" fill="#14946a" />
-                    <path d="M0 80 L0 78 L130 62 L260 42 L260 80 Z" fill="#1f63c9" />
-                    <path d="M0 76 L130 52 L260 22" fill="none" stroke="#001d3d" strokeWidth="2" />
-                  </svg>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <p className="text-[13px] leading-snug">
+                      Aus <b>20.000 €</b> Eigenkapital werden in 30 Jahren <b className="text-[#1f63c9]">rund 224.000 €</b> Vermögen.
+                    </p>
+                    {/* Form aus der Prognose der Beispielwohnung (Jahr 1, 10, 20, 30) */}
+                    <svg viewBox="0 0 260 80" className="mt-2.5 block h-auto w-full" aria-hidden>
+                      <path d="M0 80 L0 44.7 L86.7 31.9 L173.3 18.1 L260 4 L260 80 Z" fill="#cbd5e1" />
+                      <path d="M0 80 L0 75.3 L86.7 55.8 L173.3 31.6 L260 4 L260 80 Z" fill="#14946a" />
+                      <path d="M0 80 L0 76.2 L86.7 64.5 L173.3 47.9 L260 27 L260 80 Z" fill="#1f63c9" />
+                      <path d="M0 75.3 L86.7 55.8 L173.3 31.6 L260 4" fill="none" stroke="#001d3d" strokeWidth="2" />
+                    </svg>
+                    <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-600">
+                      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-[#1f63c9]" />156.000 € in der Wohnung</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-[#14946a]" />68.000 € auf dem Konto</span>
+                    </span>
+                    <span className="mt-3 grid grid-cols-3 gap-2">
+                      {[['8 Jahre', 'Einsatz zurück'], ['19 Jahre', 'Hälfte abbezahlt'], ['30 Jahre', 'Schuldenfrei']].map(([j, t]) => (
+                        <span key={j} className="border-t-2 border-[#ff6b00] pt-1">
+                          <b className="block tabular-nums">{j}</b>
+                          <span className="text-[11px] leading-tight text-slate-500">{t}</span>
+                        </span>
+                      ))}
+                    </span>
+                    <p className="mt-2.5 text-[10px] text-slate-400">Beispielwohnung · Annahmen: 1,5 % Wertsteigerung pro Jahr, Miete konstant</p>
+                  </div>
                 </PremiumKarte>
                 <PremiumKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
                   text="Zinsen steigen, Miete sinkt, Preis verhandelt. Und du siehst, wie viel Puffer die Wohnung hat, bevor du draufzahlst.">
-                  <span className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs">
-                    {[['Zinssatz bis', '8,6 %'], ['Kaltmiete bis', '555 €'], ['Leerstand bis', '4,2 Monate']].map(([k, v], i) => (
-                      <span key={k} className={`flex justify-between py-1.5 ${i < 2 ? 'border-b border-slate-100' : ''}`}>{k}<b>{v}</b></span>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="rounded-lg border border-[#ff6b00] bg-[#fff3e8] px-2 py-1 text-[11px] font-bold text-[#ff6b00]">Alles schlecht</span>
+                      <span className="text-[11px] text-slate-500">Zins +2 % · Miete −10 %</span>
+                    </div>
+                    <p className="mt-2.5 text-[11px] font-semibold text-slate-500">Überschuss pro Monat</p>
+                    {([['Heute', 227, 'bg-slate-300'], ['Szenario', 84, 'bg-emerald-600']] as const).map(([k, v, farbe]) => (
+                      <span key={k} className="mt-1.5 flex items-center gap-2">
+                        <span className="w-14 shrink-0 text-slate-500">{k}</span>
+                        <span className="h-2 flex-1 rounded-full bg-slate-100"><span className={`block h-full rounded-full ${farbe}`} style={{ width: `${(v / 227) * 100}%` }} /></span>
+                        <b className="w-11 shrink-0 text-right tabular-nums">{v} €</b>
+                      </span>
                     ))}
-                  </span>
-                </PremiumKarte>
-                <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
-                  text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
-                  <div className="flex items-end justify-center gap-2.5" aria-hidden>
-                    {[0, 1, 2].map(i => (
-                      <span key={i} className={`flex aspect-[210/297] w-[76px] flex-col gap-1 rounded border border-slate-200 bg-white p-1.5 shadow-md ${i === 0 ? '-rotate-3' : i === 2 ? 'rotate-3' : ''}`}>
-                        <span className={`h-4 rounded-sm ${i === 0 ? 'bg-[#001d3d]' : 'bg-slate-200'}`} />
-                        <span className="h-0.5 rounded bg-slate-100" /><span className="h-0.5 w-2/3 rounded bg-slate-100" />
-                        <span className={`flex-1 rounded-sm ${i === 1 ? 'bg-gradient-to-t from-blue-200 to-transparent' : 'bg-slate-50'}`} />
+                    <span className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
+                      <span className="text-slate-500">Kreditdeckung (DSCR)</span>
+                      <b className="tabular-nums"><s className="mr-1.5 font-normal text-slate-400">2,06</s>1,35</b>
+                    </span>
+                    <p className="mt-1 text-[11px] font-semibold text-emerald-700">Trägt sich weiter, Bank-Minimum 1,2 erfüllt</p>
+                  </div>
+                  <div className="mt-2.5 rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <p className="text-[11px] font-semibold text-slate-500">Puffer: bis hier trägt sich die Wohnung</p>
+                    {/* Grüner Bereich = Spielraum zwischen heute und der Grenze, ab der du draufzahlst */}
+                    {([['Zinssatz', 'bis 8,6 %', 'heute 3,5 %', 35, 86], ['Kaltmiete', 'bis 555 €', 'heute 960 €', 58, 100], ['Leerstand', 'bis 4,2 Mon.', 'pro Jahr', 0, 35]] as const).map(([k, v, h, von, bis]) => (
+                      <span key={k} className="mt-2 block">
+                        <span className="flex justify-between"><span>{k} <span className="text-slate-400">{h}</span></span><b className="tabular-nums">{v}</b></span>
+                        <span className="relative mt-1 block h-1.5 rounded-full bg-slate-100">
+                          <span className="absolute inset-y-0 rounded-full bg-emerald-500" style={{ left: `${von}%`, width: `${bis - von}%` }} />
+                        </span>
                       </span>
                     ))}
                   </div>
+                </PremiumKarte>
+                <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
+                  text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
+                  <a href={BEISPIEL_PDF} target="_blank" rel="noopener" className="group block"
+                    onClick={() => trackCTA('sample_report_opened', 'premium_report_card')}>
+                    <span className="relative flex justify-center pb-1 pt-2">
+                      {BEISPIEL_SEITEN.map((seite, i) => (
+                        <Image key={seite.src} src={seite.src} alt={seite.alt} width={400} height={566} unoptimized loading="lazy"
+                          sizes="(min-width: 768px) 160px, 44vw"
+                          className={`h-auto w-[52%] max-w-[180px] rounded-md border border-slate-200 bg-white shadow-lg shadow-slate-900/10 transition-transform duration-300 ${
+                            i === 0 ? 'relative z-10 -rotate-3 group-hover:-rotate-6' : '-ml-[14%] mt-4 rotate-2 group-hover:rotate-3'}`} />
+                      ))}
+                    </span>
+                    <span className="mt-3 flex items-center justify-center gap-1.5 text-sm font-bold text-[#001d3d] underline-offset-4 group-hover:underline">
+                      <FileText size={15} className="text-[#ff6b00]" />Beispielreport ansehen (PDF)
+                    </span>
+                  </a>
                 </PremiumKarte>
               </div>
             </div>
