@@ -19,6 +19,7 @@ import sharp from 'sharp';
 import { renderToFile } from '@react-pdf/renderer';
 import { InvestmentReportPDF } from '../src/components/pdf/InvestmentReportPDF';
 import { baueBeispielReport, BEISPIEL_BASIS } from '../src/lib/beispiel-report';
+import { berechneSzenario, STRESSTESTS } from '../src/lib/szenario';
 
 const OUT_DIR = join(process.cwd(), 'public', 'beispielreport');
 const PDF_PATH = join(OUT_DIR, 'imvestr-beispielreport.pdf');
@@ -35,6 +36,8 @@ async function main() {
   // Die Zahlen müssen zu denen auf der Startseite passen (src/app/(static-public)/page.tsx).
   // Ändert sich die Rechnung, schlägt das hier fehl, statt still abweichende Bilder zu erzeugen.
   const st = d.stresstest!;
+  // Karte „Stresstests“ zeigt das Szenario „Alles schlecht“
+  const worst = berechneSzenario(BEISPIEL_BASIS, STRESSTESTS.find(t => t.id === 'worst')!.deltas);
   const erwartet: Array<[string, string, string]> = [
     ['Cashflow nach Steuern', fmt(d.monat.cfNachSteuer), '227'],
     ['Nettorendite', fmt(d.kpis.netto, 1), '9,5'],
@@ -46,6 +49,8 @@ async function main() {
     ['Zinssatz bis', fmt(st.puffer.zinsBis!, 1), '8,6'],
     ['Kaltmiete bis', fmt(st.puffer.mieteBis!), '555'],
     ['Leerstand bis', fmt(st.puffer.leerstandMonate!, 1), '4,2'],
+    ['Cashflow „Alles schlecht“', fmt(worst.scCashflowAfterTax), '84'],
+    ['DSCR „Alles schlecht“', fmt(worst.scDSCR, 2), '1,35'],
   ];
   const abweichend = erwartet.filter(([, ist, soll]) => ist !== soll);
   if (abweichend.length > 0) {

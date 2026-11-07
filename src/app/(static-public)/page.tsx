@@ -416,11 +416,37 @@ export default function LandingPage() {
                 </PremiumKarte>
                 <PremiumKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
                   text="Zinsen steigen, Miete sinkt, Preis verhandelt. Und du siehst, wie viel Puffer die Wohnung hat, bevor du draufzahlst.">
-                  <span className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs">
-                    {[['Zinssatz bis', '8,6 %'], ['Kaltmiete bis', '555 €'], ['Leerstand bis', '4,2 Monate']].map(([k, v], i) => (
-                      <span key={k} className={`flex justify-between py-1.5 ${i < 2 ? 'border-b border-slate-100' : ''}`}>{k}<b>{v}</b></span>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="rounded-lg border border-[#ff6b00] bg-[#fff3e8] px-2 py-1 text-[11px] font-bold text-[#ff6b00]">Alles schlecht</span>
+                      <span className="text-[11px] text-slate-500">Zins +2 % · Miete −10 %</span>
+                    </div>
+                    <p className="mt-2.5 text-[11px] font-semibold text-slate-500">Überschuss pro Monat</p>
+                    {([['Heute', 227, 'bg-slate-300'], ['Szenario', 84, 'bg-emerald-600']] as const).map(([k, v, farbe]) => (
+                      <span key={k} className="mt-1.5 flex items-center gap-2">
+                        <span className="w-14 shrink-0 text-slate-500">{k}</span>
+                        <span className="h-2 flex-1 rounded-full bg-slate-100"><span className={`block h-full rounded-full ${farbe}`} style={{ width: `${(v / 227) * 100}%` }} /></span>
+                        <b className="w-11 shrink-0 text-right tabular-nums">{v} €</b>
+                      </span>
                     ))}
-                  </span>
+                    <span className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
+                      <span className="text-slate-500">Kreditdeckung (DSCR)</span>
+                      <b className="tabular-nums"><s className="mr-1.5 font-normal text-slate-400">2,06</s>1,35</b>
+                    </span>
+                    <p className="mt-1 text-[11px] font-semibold text-emerald-700">Trägt sich weiter, Bank-Minimum 1,2 erfüllt</p>
+                  </div>
+                  <div className="mt-2.5 rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <p className="text-[11px] font-semibold text-slate-500">Puffer: bis hier trägt sich die Wohnung</p>
+                    {/* Grüner Bereich = Spielraum zwischen heute und der Grenze, ab der du draufzahlst */}
+                    {([['Zinssatz', 'bis 8,6 %', 'heute 3,5 %', 35, 86], ['Kaltmiete', 'bis 555 €', 'heute 960 €', 58, 100], ['Leerstand', 'bis 4,2 Mon.', 'pro Jahr', 0, 35]] as const).map(([k, v, h, von, bis]) => (
+                      <span key={k} className="mt-2 block">
+                        <span className="flex justify-between"><span>{k} <span className="text-slate-400">{h}</span></span><b className="tabular-nums">{v}</b></span>
+                        <span className="relative mt-1 block h-1.5 rounded-full bg-slate-100">
+                          <span className="absolute inset-y-0 rounded-full bg-emerald-500" style={{ left: `${von}%`, width: `${bis - von}%` }} />
+                        </span>
+                      </span>
+                    ))}
+                  </div>
                 </PremiumKarte>
                 <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
                   text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
