@@ -8,8 +8,9 @@ import { toast } from 'sonner';
 import { Check, ChevronDown, FileText, FlaskConical, Infinity as Unbegrenzt, Lock, MapPin, Sparkles, TrendingUp } from 'lucide-react';
 import { AnalyticsEvents, trackEvent } from '@/lib/analytics';
 import { useImmoStore } from '@/store/useImmoStore';
+import { useFounderOffer } from '@/hooks/useFounderOffer';
 import {
-  GRUENDERPREIS, PLAENE, PRICING_FAQ, PRICING_TEXTE, preis, PREIS_JAHR, type Abrechnung,
+  gruenderpreisHinweis, PLAENE, PRICING_FAQ, PRICING_TEXTE, preis, PREIS_JAHR, type Abrechnung,
 } from '@/config/pricing';
 
 const ANALYSE_ICONS = [MapPin, Sparkles, TrendingUp, FlaskConical, FileText];
@@ -27,11 +28,23 @@ interface PricingSectionProps {
   ort: string;
   /** Wenn gesetzt: paywall_viewed mit diesem trigger, sobald die Section sichtbar ist */
   paywallTrigger?: string;
+  /**
+   * Kompakt (z. B. in der Paywall): nur die Planwahl mit Preis und Button,
+   * ohne Überschrift, Inhaltsliste, Kostenlos-Karte und FAQ
+   */
+  compact?: boolean;
+  /** Interner Pfad, auf den Stripe nach der Zahlung zurückleitet (sonst /abo) */
+  returnTo?: string;
+  /** Wird direkt vor dem Weiterleiten zu Stripe aufgerufen (z. B. Eingaben sichern) */
+  onBeforeCheckout?: (plan: Abrechnung) => void;
+  /** Zusätzliche Parameter für checkout_started (z. B. trigger) */
+  trackingParams?: Record<string, unknown>;
   className?: string;
 }
 
 export function PricingSection({
-  id, headingAs = 'h2', eyebrow, showFaq = true, ort, paywallTrigger, className = '',
+  id, headingAs = 'h2', eyebrow, showFaq = true, ort, paywallTrigger, compact = false,
+  returnTo, onBeforeCheckout, trackingParams, className = '',
 }: PricingSectionProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -41,6 +54,8 @@ export function PricingSection({
   const [laedt, setLaedt] = useState(false);
   const [fehler, setFehler] = useState<string | null>(null);
   const sectionRef = useRef<HTMLElement>(null);
+  const angebot = useFounderOffer();
+  const gruenderAngebot = angebot?.active ? angebot : null;
 
   // paywall_viewed einmal, sobald die Section im Blick ist
   useEffect(() => {
@@ -59,9 +74,9 @@ export function PricingSection({
   }, [paywallTrigger]);
 
   const option = PLAENE.premium.optionen[abrechnung];
-  const gruender = abrechnung === 'yearly' ? GRUENDERPREIS : null;
-  const priceId = gruender?.priceId || option.priceId;
-  const betrag = gruender?.preis ?? option.betrag;
+  // Gründerpreis gilt nur für das Jahresabo; welche Stripe-Price-ID genutzt wird, entscheidet der Server
+  const gruender = abrechnung === 'yearly' ? gruenderAngebot : null;
+  const betrag = gruender ? (gruender.amount ?? PREIS_JAHR) : option.betrag;
 
   const kostenlosStarten = () => {
     trackEvent(AnalyticsEvents.CTA_CLICKED, { cta_name: 'start_analysis', cta_location: `${ort}_kostenlos` });
@@ -76,20 +91,24 @@ export function PricingSection({
     }
 
     trackEvent(AnalyticsEvents.CHECKOUT_STARTED, {
+      ...trackingParams,
+      plan: abrechnung,
       plan_name: abrechnung,
       click_location: ort,
       value: betrag,
       currency: 'EUR',
       founder_price: !!gruender,
+      ...(returnTo ? { return_to: returnTo } : {}),
     });
 
     setLaedt(true);
     setFehler(null);
     try {
+      onBeforeCheckout?.(abrechnung);
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ priceId }),
+        body: JSON.stringify({ plan: abrechnung, returnTo }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || 'Keine Checkout-URL erhalten');
@@ -102,6 +121,67 @@ export function PricingSection({
   };
 
   const Heading = headingAs;
+
+  if (compact) {
+    return (
+      <section ref={sectionRef} id={id} className={className}>
+        <div role="radiogroup" aria-label="Abrechnung" className="flex flex-col gap-2.5">
+          {(['yearly', 'monthly'] as const).map(a => {
+            const o = PLAENE.premium.optionen[a];
+            const g = a === 'yearly' ? gruenderAngebot : null;
+            const gewaehlt = abrechnung === a;
+            return (
+              <button
+                key={a}
+                type="button"
+                role="radio"
+                aria-checked={gewaehlt}
+                onClick={() => setAbrechnung(a)}
+                className={`flex w-full items-start gap-3 rounded-2xl border-2 p-4 text-left transition ${gewaehlt ? 'border-[#ff6b00] bg-orange-50/40' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              >
+                <span aria-hidden className={`mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${gewaehlt ? 'border-[#ff6b00]' : 'border-slate-300'}`}>
+                  {gewaehlt && <span className="h-2.5 w-2.5 rounded-full bg-[#ff6b00]" />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                    <span className="flex items-center gap-2 font-extrabold text-[#001d3d]">
+                      {o.label}
+                      {a === 'yearly' && !g && o.ersparnis && (
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">{o.ersparnis}</span>
+                      )}
+                    </span>
+                    <span className="flex items-baseline gap-1.5 tabular-nums" data-slot={g ? 'gruenderpreis' : undefined}>
+                      {g && <s className="text-sm font-bold text-slate-400">{preis(PREIS_JAHR)} €</s>}
+                      <b className="text-xl font-black text-[#001d3d]">{g ? g.priceLabel : o.preisText}</b>
+                      <span className="text-[13px] text-slate-600">{o.zeitraum}</span>
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-[13px] text-slate-600">
+                    {g?.amount ? `nur ${preis(g.amount / 12)} € pro Monat` : o.hinweis}
+                  </span>
+                  {g && <span className="mt-1 block text-[13px] font-bold text-[#ff6b00]">{gruenderpreisHinweis(g.endsAtLabel)}</span>}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          onClick={checkoutStarten}
+          disabled={laedt}
+          className="mt-4 w-full rounded-2xl bg-[#ff6b00] py-3.5 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {laedt ? 'Wird geladen …' : `${PLAENE.premium.cta} · ${abrechnung === 'yearly' && gruenderAngebot ? gruenderAngebot.priceLabel : option.preisText} ${option.zeitraum}`}
+        </button>
+        {fehler && <p role="alert" className="mt-3 text-center text-sm text-red-600">{fehler}</p>}
+        <p className="mt-3 flex items-start justify-center gap-1.5 text-center text-xs text-slate-500">
+          <Lock size={12} className="mt-[2px] shrink-0" />
+          <span>{PRICING_TEXTE.vertrauen}</span>
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section ref={sectionRef} id={id} className={`scroll-mt-20 px-5 py-16 md:py-24 ${className}`}>
@@ -175,12 +255,11 @@ export function PricingSection({
 
             <div className="mt-4 min-h-[88px]">
               {gruender ? (
-                // FOUNDER-PREIS-SLOT (Task B): erscheint nur, wenn GRUENDERPREIS in src/config/pricing.ts gesetzt ist
+                // Gründerpreis: nur solange FOUNDER_OFFER_ENABLED gesetzt und FOUNDER_OFFER_ENDS_AT nicht erreicht ist
                 <p className="flex flex-wrap items-baseline gap-x-2" data-slot="gruenderpreis">
                   <s className="text-xl font-bold text-slate-400 tabular-nums">{preis(PREIS_JAHR)} €</s>
-                  <b className="text-[40px] font-black leading-none tracking-tight tabular-nums text-[#001d3d]">{preis(gruender.preis)} €</b>
+                  <b className="text-[40px] font-black leading-none tracking-tight tabular-nums text-[#001d3d]">{gruender.priceLabel}</b>
                   <span className="text-sm text-slate-600">{option.zeitraum}</span>
-                  <span className="basis-full text-[13px] font-bold text-[#ff6b00]">{gruender.hinweis}</span>
                 </p>
               ) : (
                 <p className="flex items-baseline gap-1.5">
@@ -189,9 +268,11 @@ export function PricingSection({
                 </p>
               )}
               <p className="mt-2 text-[13px] text-slate-600">
-                {gruender ? `nur ${preis(gruender.preis / 12)} € pro Monat` : option.hinweis}
+                {gruender?.amount ? `nur ${preis(gruender.amount / 12)} € pro Monat` : option.hinweis}
               </p>
-              {option.ersparnis && !gruender && (
+              {gruender ? (
+                <p className="mt-2 text-[13px] font-bold text-[#ff6b00]">{gruenderpreisHinweis(gruender.endsAtLabel)}</p>
+              ) : option.ersparnis && (
                 <span className="mt-2 inline-block rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">{option.ersparnis}</span>
               )}
             </div>
