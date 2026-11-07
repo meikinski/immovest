@@ -407,12 +407,31 @@ export default function LandingPage() {
                       <span key={t} className={`rounded-lg border px-2 py-1.5 text-[11px] font-bold ${i === 0 ? 'border-[#ff6b00] bg-[#fff3e8]' : 'border-slate-200 bg-white'}`}>{t}</span>
                     ))}
                   </div>
-                  <svg viewBox="0 0 260 80" className="block h-auto w-full" aria-hidden>
-                    <path d="M0 80 L0 66 L260 18 L260 80 Z" fill="#cbd5e1" />
-                    <path d="M0 80 L0 76 L130 52 L260 22 L260 80 Z" fill="#14946a" />
-                    <path d="M0 80 L0 78 L130 62 L260 42 L260 80 Z" fill="#1f63c9" />
-                    <path d="M0 76 L130 52 L260 22" fill="none" stroke="#001d3d" strokeWidth="2" />
-                  </svg>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                    <p className="text-[13px] leading-snug">
+                      Aus <b>20.000 €</b> Eigenkapital werden in 30 Jahren <b className="text-[#1f63c9]">rund 224.000 €</b> Vermögen.
+                    </p>
+                    {/* Form aus der Prognose der Beispielwohnung (Jahr 1, 10, 20, 30) */}
+                    <svg viewBox="0 0 260 80" className="mt-2.5 block h-auto w-full" aria-hidden>
+                      <path d="M0 80 L0 44.7 L86.7 31.9 L173.3 18.1 L260 4 L260 80 Z" fill="#cbd5e1" />
+                      <path d="M0 80 L0 75.3 L86.7 55.8 L173.3 31.6 L260 4 L260 80 Z" fill="#14946a" />
+                      <path d="M0 80 L0 76.2 L86.7 64.5 L173.3 47.9 L260 27 L260 80 Z" fill="#1f63c9" />
+                      <path d="M0 75.3 L86.7 55.8 L173.3 31.6 L260 4" fill="none" stroke="#001d3d" strokeWidth="2" />
+                    </svg>
+                    <span className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-slate-600">
+                      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-[#1f63c9]" />156.000 € in der Wohnung</span>
+                      <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-[#14946a]" />68.000 € auf dem Konto</span>
+                    </span>
+                    <span className="mt-3 grid grid-cols-3 gap-2">
+                      {[['8 Jahre', 'Einsatz zurück'], ['19 Jahre', 'Hälfte abbezahlt'], ['30 Jahre', 'Schuldenfrei']].map(([j, t]) => (
+                        <span key={j} className="border-t-2 border-[#ff6b00] pt-1">
+                          <b className="block tabular-nums">{j}</b>
+                          <span className="text-[11px] leading-tight text-slate-500">{t}</span>
+                        </span>
+                      ))}
+                    </span>
+                    <p className="mt-2.5 text-[10px] text-slate-400">Beispielwohnung · Annahmen: 1,5 % Wertsteigerung pro Jahr, Miete konstant</p>
+                  </div>
                 </PremiumKarte>
                 <PremiumKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
                   text="Zinsen steigen, Miete sinkt, Preis verhandelt. Und du siehst, wie viel Puffer die Wohnung hat, bevor du draufzahlst.">

@@ -38,6 +38,14 @@ async function main() {
   const st = d.stresstest!;
   // Karte „Stresstests“ zeigt das Szenario „Alles schlecht“
   const worst = berechneSzenario(BEISPIEL_BASIS, STRESSTESTS.find(t => t.id === 'worst')!.deltas);
+  // Karte „Prognose“: Vermögen nach 30 Jahren und Meilensteine relativ zum Start
+  const pz = d.prognose!.zeilen;
+  const letzte = pz[pz.length - 1];
+  const nachJahren = (titel: string) => {
+    const m = d.prognose!.meilensteine.find(x => x.titel === titel);
+    return m ? String(m.jahr - pz[0].jahr + 1) : '–';
+  };
+  const tsd = (v: number) => fmt(Math.round(v / 1000) * 1000);
   const erwartet: Array<[string, string, string]> = [
     ['Cashflow nach Steuern', fmt(d.monat.cfNachSteuer), '227'],
     ['Nettorendite', fmt(d.kpis.netto, 1), '9,5'],
@@ -51,6 +59,15 @@ async function main() {
     ['Leerstand bis', fmt(st.puffer.leerstandMonate!, 1), '4,2'],
     ['Cashflow „Alles schlecht“', fmt(worst.scCashflowAfterTax), '84'],
     ['DSCR „Alles schlecht“', fmt(worst.scDSCR, 2), '1,35'],
+    ['Eigenkapital', fmt(d.finanzierung.ek), '20.000'],
+    ['Prognose-Jahre', String(pz.length), '30'],
+    ['Vermögen nach 30 Jahren', tsd(letzte.vermoegen), '224.000'],
+    ['davon in der Wohnung', tsd(letzte.anteil), '156.000'],
+    ['davon auf dem Konto', tsd(letzte.konto), '68.000'],
+    ['Einsatz zurück nach Jahren', nachJahren('Einsatz komplett zurück'), '8'],
+    ['Hälfte abbezahlt nach Jahren', nachJahren('Hälfte abbezahlt'), '19'],
+    ['Schuldenfrei nach Jahren', nachJahren('Schuldenfrei'), '30'],
+    ['Wertsteigerung pro Jahr', d.prognose!.annahmen.match(/Wertsteigerung ([\d,]+) %/)?.[1] ?? '–', '1,5'],
   ];
   const abweichend = erwartet.filter(([, ist, soll]) => ist !== soll);
   if (abweichend.length > 0) {
