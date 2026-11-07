@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import React, { useState, useEffect, useRef, useMemo, Suspense } from 'react';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useImmoStore } from '@/store/useImmoStore';
 import { berechneNebenkosten } from '@/lib/calculations';
@@ -28,6 +28,9 @@ import { ProgressIndicator } from '@/components/ProgressIndicator';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { UpgradeModal } from '@/components/UpgradeModal';
+import { SecondAnalysisPaywall } from '@/components/SecondAnalysisPaywall';
+import { PurchaseTracker } from '@/components/konto/PurchaseTracker';
+import { stelleAnalyseNachCheckoutWiederHer, vergissGesicherteAnalyse } from '@/lib/checkoutRueckkehr';
 import { UpsellBanner } from '@/components/UpsellBanner';
 import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
@@ -58,6 +61,43 @@ function cityFromAddress(addr: string): string {
   return last;
 }
 
+type TabId = 'kpi' | 'markt' | 'prognose' | 'szenarien';
+
+/**
+ * Rückkehr aus dem Stripe-Checkout der Paywall (?checkout=success|canceled):
+ * Eingaben der Wohnung wiederherstellen, Kauf bestätigen und danach den gewünschten Tab öffnen.
+ * Als Kind gerendert, damit der Effekt vor dem Autosave-Laden der Seite läuft.
+ */
+function CheckoutRueckkehr({ onTab }: { onTab: (tab: TabId) => void }) {
+  const searchParams = useSearchParams();
+  const checkout = searchParams.get('checkout');
+  const zielTab = useRef<TabId | null>(null);
+  const erledigt = useRef(false);
+
+  useEffect(() => {
+    if (!checkout || erledigt.current) return;
+    erledigt.current = true;
+    const { zielTab: tab } = stelleAnalyseNachCheckoutWiederHer();
+    if (checkout === 'canceled') {
+      vergissGesicherteAnalyse();
+      toast.info('Zahlung abgebrochen. Es wurde nichts berechnet, deine Eingaben sind noch da.');
+      window.history.replaceState({}, '', window.location.pathname);
+      return;
+    }
+    if (tab === 'markt' || tab === 'prognose' || tab === 'szenarien') zielTab.current = tab;
+  }, [checkout]);
+
+  if (checkout !== 'success') return null;
+  return (
+    <PurchaseTracker
+      onPremiumAktiv={() => {
+        vergissGesicherteAnalyse();
+        onTab(zielTab.current ?? 'markt');
+      }}
+    />
+  );
+}
+
 export default function StepPage() {
   const router = useRouter();
   const params = useParams();
@@ -72,7 +112,7 @@ export default function StepPage() {
   const { openSignUp } = useClerk();
   // Gäste: Anmeldung mit E-Mail schaltet die komplette Analyse dieser Wohnung kostenlos frei
   const gastFreischalten = () => openSignUp({ forceRedirectUrl: '/step/tabs', fallbackRedirectUrl: '/step/tabs' });
-  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal } = usePaywall();
+  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal, upgradeTrigger } = usePaywall();
   const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
 
   // Hydration guard
@@ -167,7 +207,7 @@ export default function StepPage() {
   const setTilgung  = useImmoStore(s => s.setTilgung);
 
   // === Tabs (neu) ===
-  const [activeTab, setActiveTab] = useState<'kpi' | 'markt' | 'prognose' | 'szenarien'>('kpi');
+  const [activeTab, setActiveTab] = useState<TabId>('kpi');
   const [tilgungDeltaPp, setTilgungDeltaPp] = useState<number>(0);
   const [ekDeltaPct, setEkDeltaPct] = useState<number>(0);
   const [openFormulaKey, setOpenFormulaKey] = useState<string | null>(null);
@@ -2686,11 +2726,32 @@ const exportPdf = React.useCallback(async () => {
     <div className="min-h-screen bg-white">
       <Header variant="fixed" />
 
-      <UpgradeModal
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        remainingFreeUses={freeUsagesRemaining}
-      />
+      {step === 'tabs' && (
+        <Suspense fallback={null}>
+          <CheckoutRueckkehr onTab={setActiveTab} />
+        </Suspense>
+      )}
+
+      {isSignedIn ? (
+        // Angemeldet ohne Premium: Die Sperre greift erst, wenn die Gratis-Analyse für eine andere Wohnung verbraucht ist
+        <SecondAnalysisPaywall
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          adresse={adresse}
+          kaufpreis={kaufpreis}
+          flaeche={flaeche}
+          zimmer={zimmer}
+          gratisAdresse={gratisFreigabe}
+          quelle={upgradeTrigger}
+          onGratisAnalyseGeladen={() => setActiveTab('kpi')}
+        />
+      ) : (
+        <UpgradeModal
+          isOpen={showUpgradeModal}
+          onClose={() => setShowUpgradeModal(false)}
+          remainingFreeUses={freeUsagesRemaining}
+        />
+      )}
 
       {/* Onboarding Wizard - Auto-starts on first visit for each step */}
       {(step === 'a' || step === 'a2' || step === 'b' || step === 'c' || step === 'tabs') && (

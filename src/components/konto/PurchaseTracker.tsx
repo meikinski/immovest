@@ -8,12 +8,17 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { vergissPlanStatus } from '@/hooks/usePlanStatus';
 import { PREIS_JAHR, PREIS_MONAT } from '@/lib/preise';
 
-/** Nach dem Stripe-Checkout: Kauf tracken und warten, bis Premium aktiv ist */
-export function PurchaseTracker() {
+/**
+ * Nach dem Stripe-Checkout: Kauf tracken und warten, bis Premium aktiv ist.
+ * Rückkehr auf /abo (?success=true) oder direkt in die Analyse (?checkout=success).
+ */
+export function PurchaseTracker({ onPremiumAktiv }: { onPremiumAktiv?: () => void } = {}) {
   const searchParams = useSearchParams();
   const { trackSubscriptionPurchase } = useAnalytics();
   const { refreshPremiumStatus, isPremium } = usePaywall();
   const purchaseTracked = useRef(false);
+  const onPremiumAktivRef = useRef(onPremiumAktiv);
+  useEffect(() => { onPremiumAktivRef.current = onPremiumAktiv; }, [onPremiumAktiv]);
   const [retryCount, setRetryCount] = useState(0);
 
   // Store the success params so we can use them even after URL cleanup
@@ -24,7 +29,7 @@ export function PurchaseTracker() {
   });
 
   useEffect(() => {
-    const success = searchParams.get('success');
+    const success = searchParams.get('success') === 'true' || searchParams.get('checkout') === 'success' ? 'true' : null;
     const sessionId = searchParams.get('session_id');
     const plan = searchParams.get('plan');
 
@@ -35,7 +40,11 @@ export function PurchaseTracker() {
       successRef.current = { success: true, sessionId, plan };
 
       // Determine purchase value and plan ID based on plan
-      const value = plan === 'yearly' ? PREIS_JAHR : PREIS_MONAT;
+      // Gründerpreis: tatsächlicher Betrag kommt vom Checkout-Route als value
+      const gruenderBetrag = Number(searchParams.get('value'));
+      const value = plan === 'yearly'
+        ? (searchParams.get('founder') === '1' && gruenderBetrag > 0 ? gruenderBetrag : PREIS_JAHR)
+        : PREIS_MONAT;
       const planId = plan === 'yearly' ? 'premium_yearly' : 'premium_monthly';
 
       // Track the purchase event for GTM/GA4 with detailed subscription info
@@ -102,6 +111,7 @@ export function PurchaseTracker() {
 
       // Clear ref
       successRef.current = { success: false, sessionId: null, plan: null };
+      onPremiumAktivRef.current?.();
     } else if (retryCount >= 15 && !isPremium && successRef.current.success) {
       // Failed to get premium status after retries
       console.error('[PurchaseTracker] ❌ Failed after 15 retries');

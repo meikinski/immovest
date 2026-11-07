@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth, currentUser } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { getActiveFounderPriceId, getFounderOffer } from '@/lib/founderOffer';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
@@ -52,10 +53,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const { priceId } = await req.json();
+    const body = (await req.json().catch(() => ({}))) as { priceId?: string; plan?: string; returnTo?: string };
+    const yearlyPriceId = process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID;
+    const monthlyPriceId = process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
+    const founderPriceId = getActiveFounderPriceId();
 
-    // Use the price ID from env if not provided
-    const finalPriceId = priceId || process.env.STRIPE_PRICE_ID;
+    // Bevorzugt: Plan statt Price-ID. Der Server entscheidet, ob der Gründerpreis (noch) gilt.
+    let finalPriceId: string | undefined;
+    if (body.plan === 'yearly') finalPriceId = founderPriceId || yearlyPriceId;
+    else if (body.plan === 'monthly') finalPriceId = monthlyPriceId;
+    else finalPriceId = body.priceId || process.env.STRIPE_PRICE_ID;
+
+    // Abgelaufener oder abgeschalteter Gründerpreis wird nicht mehr verkauft
+    const configuredFounderId = (process.env.FOUNDER_PRICE_ID ?? '').trim();
+    if (configuredFounderId && finalPriceId === configuredFounderId && !founderPriceId) {
+      finalPriceId = yearlyPriceId;
+    }
 
     if (!finalPriceId) {
       return NextResponse.json(
@@ -64,8 +77,23 @@ export async function POST(req: Request) {
       );
     }
 
+    const isFounderPrice = !!founderPriceId && finalPriceId === founderPriceId;
+
     // Determine plan type for analytics
-    const planType = finalPriceId === process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ? 'yearly' : 'monthly';
+    const planType = finalPriceId === yearlyPriceId || isFounderPrice ? 'yearly' : 'monthly';
+
+    // Nach der Zahlung zurück an die passende Stelle (z. B. in die gerade eingegebene Analyse).
+    // Nur bekannte interne Pfade zulassen, damit kein offener Redirect entsteht.
+    const ERLAUBTE_RUECKSPRUNGZIELE = ['/step/tabs'];
+    const returnTo = body.returnTo && ERLAUBTE_RUECKSPRUNGZIELE.includes(body.returnTo) ? body.returnTo : null;
+    const founderOffer = isFounderPrice ? getFounderOffer() : null;
+    const founderAmount = founderOffer?.active ? founderOffer.amount : null;
+    const founderParams = isFounderPrice ? `&founder=1${founderAmount ? `&value=${founderAmount}` : ''}` : '';
+    const origin = req.headers.get('origin');
+    const successUrl = returnTo
+      ? `${origin}${returnTo}?checkout=success&session_id={CHECKOUT_SESSION_ID}&plan=${planType}${founderParams}`
+      : `${origin}/abo?success=true&session_id={CHECKOUT_SESSION_ID}&plan=${planType}${founderParams}`;
+    const cancelUrl = returnTo ? `${origin}${returnTo}?checkout=canceled` : `${origin}/abo?canceled=true`;
 
     // Extract GA4 client_id from _ga cookie so the server-side Measurement Protocol
     // event in the webhook uses the same client_id as the browser → prevents double-counting.
@@ -95,11 +123,12 @@ export async function POST(req: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${req.headers.get('origin')}/abo?success=true&session_id={CHECKOUT_SESSION_ID}&plan=${planType}`,
-      cancel_url: `${req.headers.get('origin')}/abo?canceled=true`,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
       metadata: {
         userId,
         planType,
+        founder_price: isFounderPrice ? 'true' : 'false',
         // Pass GA4 client_id so the Stripe webhook can use it for the server-side
         // Measurement Protocol event — same client_id = proper de-duplication in GA4.
         ga_client_id: gaClientId,

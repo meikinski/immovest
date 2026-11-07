@@ -37,20 +37,12 @@ export function preis(v: number): string {
 
 export type Abrechnung = 'yearly' | 'monthly';
 
-export interface Gruenderpreis {
-  /** Neuer Jahrespreis in Euro (der reguläre PREIS_JAHR wird durchgestrichen) */
-  preis: number;
-  /** Stripe-Price-ID für den Gründerpreis */
-  priceId: string;
-  /** Kurzer Hinweis, z. B. "Gründerpreis für die ersten 100" */
-  hinweis: string;
-}
-
 /**
- * FOUNDER-PREIS (Task B): Hier den Gründerpreis eintragen, dann erscheint er in der Jahresoption
- * der PricingSection (durchgestrichene 69 € + neuer Preis). `null` = ausgeblendet.
+ * Gründerpreis: wird nicht hier, sondern über Env-Variablen gesteuert (siehe src/lib/founderOffer.ts),
+ * damit er ohne neuen Code ein- und ausgeschaltet werden kann. Der Client liest ihn mit useFounderOffer().
  */
-export const GRUENDERPREIS: Gruenderpreis | null = null;
+export const gruenderpreisHinweis = (endsAtLabel: string) =>
+  `Gründerpreis bis ${endsAtLabel}. Der Preis bleibt, solange dein Abo läuft.`;
 
 export const PLAENE = {
   free: {

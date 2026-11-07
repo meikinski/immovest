@@ -14,6 +14,8 @@ type PaywallContextType = {
   showUpgradeModal: boolean;
   /** trigger: welche Sperre das Modal geöffnet hat (für paywall_viewed) */
   setShowUpgradeModal: (show: boolean, trigger?: string) => void;
+  /** Welche Sperre die Paywall zuletzt geöffnet hat (z. B. "tab_markt"), null wenn geschlossen */
+  upgradeTrigger: string | null;
   refreshPremiumStatus: () => Promise<void>;
   /** true, sobald der Plan des Nutzers bekannt ist (Server oder Zwischenspeicher) */
   premiumStatusLoaded: boolean;
@@ -29,6 +31,7 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
   const [isPremium, setIsPremium] = useState(false);
   const [premiumUsageCount, setPremiumUsageCount] = useState(0);
   const [showUpgradeModal, setShowUpgradeModalState] = useState(false);
+  const [upgradeTrigger, setUpgradeTrigger] = useState<string | null>(null);
   const [premiumStatusLoaded, setPremiumStatusLoaded] = useState(false);
 
   // Check premium status from database or localStorage
@@ -113,14 +116,19 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
 
   const setShowUpgradeModal = useCallback((show: boolean, trigger?: string) => {
     if (show) {
+      // Angemeldet ohne Premium: Die Sperre greift nur, wenn die Gratis-Analyse für eine andere Wohnung
+      // verbraucht ist, also beim Start der 2. vollständigen Analyse. Die konkrete Sperre steht in source.
+      const zweiteAnalyse = !!isSignedIn && !isPremium;
       trackEvent(AnalyticsEvents.PAYWALL_VIEWED, {
-        trigger: trigger || 'unknown',
+        trigger: zweiteAnalyse ? 'second_analysis' : (trigger || 'unknown'),
+        source: trigger || 'unknown',
         signed_in: !!isSignedIn,
         free_analyses_used: premiumUsageCount,
       });
     }
+    setUpgradeTrigger(show ? (trigger ?? null) : null);
     setShowUpgradeModalState(show);
-  }, [isSignedIn, premiumUsageCount]);
+  }, [isSignedIn, isPremium, premiumUsageCount]);
 
   const canAccessPremium = useMemo(
     () => isPremium || premiumUsageCount < GRATIS_ANALYSEN,
@@ -140,6 +148,7 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
         incrementPremiumUsage,
         showUpgradeModal,
         setShowUpgradeModal,
+        upgradeTrigger,
         refreshPremiumStatus,
         premiumStatusLoaded,
       }}
@@ -169,6 +178,7 @@ export function PaywallProvider({ children }: { children: ReactNode }) {
       incrementPremiumUsage: () => {},
       showUpgradeModal: false,
       setShowUpgradeModal: () => {},
+      upgradeTrigger: null,
       refreshPremiumStatus: async () => {},
       premiumStatusLoaded: false,
     };
