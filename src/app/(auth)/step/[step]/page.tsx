@@ -2415,7 +2415,7 @@ const exportPdf = React.useCallback(async () => {
               <div className="flex gap-3 rounded-2xl border border-slate-200/80 bg-slate-50 p-4">
                 <Info size={16} className="mt-0.5 shrink-0 text-slate-400" />
                 <p className="text-xs leading-relaxed text-slate-500">
-                  Alle Werte beziehen sich auf das erste Jahr nach Kauf und basieren auf deinen Eingaben. Marktvergleiche und Szenarien findest du in den Premium-Tabs.
+                  Alle Werte beziehen sich auf das erste Jahr nach Kauf und basieren auf deinen Eingaben. Marktvergleich, Prognose und Szenarien findest du in den weiteren Tabs. Deine erste Analyse enthält alles, ab der 2. Wohnung brauchst du Premium.
                 </p>
               </div>
             </div>
