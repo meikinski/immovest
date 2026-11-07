@@ -70,6 +70,7 @@ export const AnalyticsEvents = {
   ADS_CONVERSION_SIGNUP: 'ads_conversion_signup', // Google Ads Conversion Event
   PRICING_PAGE_VIEWED: 'pricing_page_viewed',
   PAYWALL_VIEWED: 'paywall_viewed',
+  LOCKED_PREVIEW_CLICKED: 'locked_preview_clicked', // Gast klickt auf eine gesperrte Vorschau (section: ki | markt | prognose)
   UPGRADE_CLICKED: 'upgrade_clicked',
   CHECKOUT_STARTED: 'checkout_started',
   COMPARE_CTA_CLICKED: 'compare_cta_clicked',

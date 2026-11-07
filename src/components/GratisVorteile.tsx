@@ -1,6 +1,6 @@
 'use client';
 
-import { SignInButton, SignUpButton } from '@clerk/nextjs';
+import { SignUpButton } from '@clerk/nextjs';
 import { Check, Gift, Mail } from 'lucide-react';
 import { GRATIS_ANALYSEN } from '@/lib/preise';
 
@@ -32,45 +32,17 @@ export function GratisVorteilListe({ hell = false, kompakt = false }: { hell?: b
   );
 }
 
-const knopfKlasse = 'w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm';
-
-/**
- * Karte für nicht angemeldete Nutzer auf der Ergebnis-Seite: erklärt, dass die Anmeldung mit E-Mail
- * die komplette Analyse dieser Wohnung kostenlos freischaltet, und was man dafür bekommt.
- */
-export function GastFreischaltKarte({ redirectUrl = '/step/tabs', kompakt = false }: { redirectUrl?: string; kompakt?: boolean }) {
-  return (
-    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full border border-slate-100">
-      <div className="w-12 h-12 bg-gradient-to-br from-[#ff6b00] to-[#ff8c00] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
-        <Gift className="w-6 h-6 text-white" />
-      </div>
-      <h3 className="text-lg font-bold mb-1 text-[#001d3d] text-center leading-snug">
-        {GRATIS_ANALYSEN === 1 ? 'Diese Wohnung kostenlos komplett analysieren' : 'Kostenlos komplett analysieren'}
-      </h3>
-      <p className="text-slate-600 mb-4 text-sm text-center">
-        Melde dich mit deiner E-Mail an und du bekommst gratis:
-      </p>
-      <div className="mb-5">
-        <GratisVorteilListe kompakt={kompakt} />
-      </div>
-      <SignUpButton mode="modal" forceRedirectUrl={redirectUrl} fallbackRedirectUrl={redirectUrl}>
-        <button className={knopfKlasse}>
-          <Mail size={18} />
-          Mit E-Mail kostenlos freischalten
-        </button>
-      </SignUpButton>
-      <p className="text-xs text-slate-500 mt-3 text-center">
-        Ohne Kreditkarte, kein Abo.{' '}
-        <SignInButton mode="modal" forceRedirectUrl={redirectUrl} fallbackRedirectUrl={redirectUrl}>
-          <button className="font-semibold text-[#ff6b00] hover:underline">Schon registriert? Anmelden</button>
-        </SignInButton>
-      </p>
-    </div>
-  );
-}
-
 /** Schmaler Hinweis über den Tabs der Ergebnis-Seite für Gäste */
-export function GastHinweisBanner({ redirectUrl = '/step/tabs' }: { redirectUrl?: string }) {
+export function GastHinweisBanner({ redirectUrl = '/step/tabs', onFreischalten }: { redirectUrl?: string; onFreischalten?: () => void }) {
+  const knopf = (
+    <button
+      onClick={onFreischalten}
+      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90"
+    >
+      <Mail size={16} />
+      Kostenlos freischalten
+    </button>
+  );
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-white p-4 md:flex-row md:items-center md:justify-between md:p-5">
       <div className="flex items-start gap-3">
@@ -88,12 +60,12 @@ export function GastHinweisBanner({ redirectUrl = '/step/tabs' }: { redirectUrl?
           </p>
         </div>
       </div>
-      <SignUpButton mode="modal" forceRedirectUrl={redirectUrl} fallbackRedirectUrl={redirectUrl}>
-        <button className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#ff6b00] px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
-          <Mail size={16} />
-          Kostenlos freischalten
-        </button>
-      </SignUpButton>
+      {/* Mit onFreischalten sichert die Seite vorher die Eingaben (Rückkehr nach der Anmeldung) */}
+      {onFreischalten ? knopf : (
+        <SignUpButton mode="modal" forceRedirectUrl={redirectUrl} fallbackRedirectUrl={redirectUrl}>
+          {knopf}
+        </SignUpButton>
+      )}
     </div>
   );
 }
