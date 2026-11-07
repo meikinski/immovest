@@ -1,11 +1,12 @@
 import { Metadata } from 'next';
 import { PREIS_JAHR, PREIS_MONAT, preis } from '@/lib/preise';
 
-const OG_DESCRIPTION = 'Deine erste Analyse enthält alles, inkl. Szenarien und PDF-Report. Premium für unbegrenzte Immobilienanalysen.';
+const TITEL = 'Preise & Pläne | imvestr';
+const OG_DESCRIPTION = `Eine Wohnung gratis prüfen, mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien und PDF-Report. Jede weitere mit Premium: ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`;
 
 export const metadata: Metadata = {
   title: 'Preise & Pläne | imvestr Immobilien-Renditerechner',
-  description: `Kostenlos starten: unbegrenzte KPI-Berechnungen und 1 vollständige Analyse inkl. Szenarien und PDF-Report. Premium für unbegrenzte Analysen: ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+  description: `Kostenlos: unbegrenzt Cashflow & Rendite und 1 Wohnung vollständig analysieren, inkl. Szenarien und PDF-Report. Premium für unbegrenzt viele Wohnungen: ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`,
   keywords: [
     'immobilien renditerechner preise',
     'ki immobilien analyse kosten',
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     'immobilienscout24 import kosten',
   ],
   openGraph: {
-    title: 'Preise & Pläne | imvestr',
+    title: TITEL,
     description: OG_DESCRIPTION,
     url: 'https://imvestr.de/pricing',
     type: 'website',
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Preise & Pläne | imvestr',
+    title: TITEL,
     description: OG_DESCRIPTION,
     images: ['/og-image.png'],
   },

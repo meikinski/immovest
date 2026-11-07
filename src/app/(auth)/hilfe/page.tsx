@@ -20,8 +20,8 @@ const BEGRIFFE: Array<[string, string]> = [
 const FRAGEN: Array<[string, string]> = [
   ['Woher kommen die Marktdaten?', 'Aus einer aktuellen Recherche zu Angeboten und Vergleichsdaten für die Lage der Wohnung. Die Quellen stehen in der Analyse im Tab „Marktvergleich“.'],
   ['Kann ich Eingaben später ändern?', 'Ja. Öffne die Analyse und klick oben auf „Bearbeiten“. Alle Tabs rechnen danach neu.'],
-  ['Wie speichere ich eine Analyse?', 'Im Tab „Szenarien & PDF Export“ mit „Analyse speichern“. Gespeicherte Analysen findest du unter „Meine Analysen“. Speichern gehört zu Premium.'],
-  ['Was ist im kostenlosen Plan enthalten?', 'Cashflow und Rendite rechnest du unbegrenzt kostenlos. Dazu kommt eine vollständige Analyse für eine Wohnung, mit Markt, Prognose, Szenarien und PDF-Report. Weitere Wohnungen und das Speichern von Analysen gehören zu Premium.'],
+  ['Wie speichere ich eine Analyse?', 'Im Tab „Szenarien & PDF Export“ mit „Analyse speichern“. Gespeicherte Analysen findest du unter „Meine Analysen“. Speichern ist kostenlos.'],
+  ['Was ist im kostenlosen Plan enthalten?', 'Cashflow und Rendite rechnest du unbegrenzt kostenlos. Dazu kommt eine vollständige Analyse für eine Wohnung, mit Markt, Prognose, Szenarien und PDF-Report. Analysen speichern ist ebenfalls kostenlos. Für jede weitere Wohnung brauchst du Premium.'],
   ['Wie bekomme ich den PDF-Report?', 'Den PDF-Report erstellst du im Tab „Szenarien & PDF Export“. Er ist in deiner kostenlosen Analyse enthalten, für weitere Wohnungen brauchst du Premium.'],
   ['Wie kündige ich mein Abo?', 'Unter „Abo & Zahlung“ über „Abo verwalten“. Dort kannst du auch Rechnungen herunterladen und die Zahlungsart ändern.'],
   ['Ist das eine Anlageberatung?', 'Nein. imvestr ist ein Rechenwerkzeug. Die Ergebnisse sind Modellrechnungen und ersetzen keine Beratung.'],

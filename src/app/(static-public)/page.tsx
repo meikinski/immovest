@@ -13,9 +13,8 @@ import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { GratisVorteilListe, gratisTitel } from '@/components/GratisVorteile';
-import {
-  ERSPARNIS_JAHR_PCT, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
-} from '@/lib/preise';
+import { PricingSection } from '@/components/pricing/PricingSection';
+import { FAQ_KOSTENLOS_PREMIUM, gratisText } from '@/config/pricing';
 
 const FAQS: Array<{ frage: string; antwort: string }> = [
   {
@@ -28,7 +27,7 @@ const FAQS: Array<{ frage: string; antwort: string }> = [
   },
   {
     frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien, Stresstests und PDF-Report für die Bank ist gratis. Ab der 2. Wohnung brauchst du Premium. Analysen speichern gehört ebenfalls zu Premium. Premium kostet ${preis(PREIS_MONAT)} € im Monat oder ${preis(PREIS_JAHR)} € im Jahr.`,
+    antwort: FAQ_KOSTENLOS_PREMIUM,
   },
   {
     frage: 'Kann ich den Report bei der Bank vorlegen?',
@@ -162,10 +161,6 @@ export default function LandingPage() {
     trackCTA('start_analysis', ort);
     if (isSignedIn) resetAnalysis();
     router.push('/input-method');
-  };
-  const premiumWaehlen = (ort: string) => {
-    trackCTA('choose_premium', ort);
-    router.push(isSignedIn ? '/abo' : '/sign-up?redirect_url=/abo');
   };
 
   const HauptCta = ({ ort, className = '' }: { ort: string; className?: string }) => (
@@ -436,31 +431,7 @@ export default function LandingPage() {
           </section>
 
           {/* Preise */}
-          <section id="preise" className="scroll-mt-20 bg-slate-50 px-5 py-20 md:py-24">
-            <div className="mx-auto max-w-6xl">
-              <div className="mx-auto max-w-3xl text-center">
-                <Eyebrow>Preise</Eyebrow>
-                <H2>Erst ausprobieren, <Orange>dann entscheiden.</Orange></H2>
-                <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
-                  Starte kostenlos mit einer vollständigen Analyse, inklusive Szenarien und PDF-Report. Wenn du weitere Wohnungen prüfst, brauchst du Premium.
-                </p>
-              </div>
-              <div className="mt-12 grid items-stretch gap-6 md:grid-cols-3 md:gap-5">
-                <Plan titel="Kostenlos" wer="Zum Kennenlernen" preisText="0 €" hinweis=""
-                  merkmale={[['Cashflow & Rendite: unbegrenzt', true], [`${gratisText} mit Markt, KI-Einschätzung & Prognose`, true], ['Szenarien, Stresstests & PDF-Report inklusive', true], ['Analysen speichern', false]]}
-                  knopf={isSignedIn ? 'Neue Analyse starten' : 'Kostenlos starten'} onClick={() => starten('preise_kostenlos')} />
-                <Plan titel="Premium Jahr" wer="Für alle, die ernsthaft suchen" preisText={`${preis(PREIS_JAHR)} €`} zeitraum="pro Jahr"
-                  hinweis={`nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`} badge={`Beliebt · ${ERSPARNIS_JAHR_PCT} % günstiger`} hervorheben
-                  merkmale={[['Unbegrenzte vollständige Analysen', true], ['Markt- & Lageanalyse mit KI-Einschätzung', true], ['Prognose, Szenarien & Stresstests', true], ['PDF-Report für die Bank', true], ['Analysen speichern', true]]}
-                  knopf={`Premium für ${preis(PREIS_JAHR)} € im Jahr`} onClick={() => premiumWaehlen('preise_jahr')} />
-                <Plan titel="Premium Monat" wer="Für eine konkrete Wohnung" preisText={`${preis(PREIS_MONAT)} €`} zeitraum="pro Monat"
-                  hinweis="monatlich kündbar"
-                  merkmale={[['Alles aus Premium Jahr', true], ['Jederzeit zum Monatsende kündbar', true]]}
-                  knopf="Monatlich starten" onClick={() => premiumWaehlen('preise_monat')} />
-              </div>
-              <p className="mt-6 text-center text-[13px] text-slate-600">Sichere Zahlung über Stripe · Monatsabo monatlich kündbar</p>
-            </div>
-          </section>
+          <PricingSection id="preise" eyebrow="Preise" ort="home" showFaq={false} className="bg-slate-50" />
 
           {/* Transparenz */}
           <section className="px-5 py-20 md:py-24">
@@ -543,37 +514,6 @@ function PremiumKarte({ icon: Icon, titel, text, children }: { icon: typeof Lock
       <h3 className="mt-3.5 flex items-center gap-2 text-[19px] font-extrabold"><Icon size={19} className="text-[#ff6b00]" />{titel}</h3>
       <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
       <div className="mt-4 flex min-h-[150px] flex-1 flex-col justify-end rounded-2xl border border-slate-100 bg-slate-50 p-3.5">{children}</div>
-    </article>
-  );
-}
-
-function Plan({
-  titel, wer, preisText, zeitraum, hinweis, badge, hervorheben = false, merkmale, knopf, onClick,
-}: {
-  titel: string; wer: string; preisText: string; zeitraum?: string; hinweis: string; badge?: string; hervorheben?: boolean;
-  merkmale: Array<[string, boolean]>; knopf: string; onClick: () => void;
-}) {
-  return (
-    <article className={`relative flex flex-col rounded-3xl bg-white p-7 ${hervorheben ? 'border-2 border-[#ff6b00] shadow-xl shadow-orange-500/15' : 'border border-slate-200 shadow-sm'}`}>
-      {badge && <span className="absolute -top-3.5 left-7 rounded-full bg-[#ff6b00] px-3 py-1 text-xs font-extrabold text-white">{badge}</span>}
-      <h3 className="text-lg font-extrabold">{titel}</h3>
-      <p className="mt-1 text-sm text-slate-600">{wer}</p>
-      <p className="mt-5 flex items-baseline gap-1.5"><b className="text-[40px] font-black tracking-tight tabular-nums">{preisText}</b>{zeitraum && <span className="text-sm text-slate-600">{zeitraum}</span>}</p>
-      <p className="min-h-[20px] text-[13px] font-bold text-emerald-600">{hinweis}</p>
-      <ul className="mb-6 mt-5 flex flex-1 flex-col gap-2.5 text-sm">
-        {merkmale.map(([t, ja]) => (
-          <li key={t} className={`flex gap-2.5 ${ja ? 'text-slate-600' : 'text-slate-400'}`}>
-            {ja ? <Check size={17} strokeWidth={2.6} className="mt-0.5 shrink-0 text-emerald-600" /> : <X size={17} className="mt-0.5 shrink-0" />}{t}
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        onClick={onClick}
-        className={`w-full rounded-2xl py-3.5 font-bold transition ${hervorheben ? 'bg-[#ff6b00] text-white shadow-lg shadow-orange-500/25 hover:bg-[#ff6b00]/90' : 'border-[1.5px] border-slate-200 bg-white text-[#001d3d] hover:border-[#001d3d]'}`}
-      >
-        {knopf}
-      </button>
     </article>
   );
 }
