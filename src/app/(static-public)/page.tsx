@@ -13,9 +13,12 @@ import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { GratisVorteilListe, gratisTitel } from '@/components/GratisVorteile';
+import { GratisVorteilListe } from '@/components/GratisVorteile';
+import { GRATIS_ANALYSEN } from '@/lib/preise';
 import { PricingSection } from '@/components/pricing/PricingSection';
 import { FAQ_KOSTENLOS_PREMIUM, gratisText } from '@/config/pricing';
+
+const gratisWohnungText = GRATIS_ANALYSEN === 1 ? 'für 1 Wohnung' : `für ${GRATIS_ANALYSEN} Wohnungen`;
 
 const FAQS: Array<{ frage: string; antwort: string }> = [
   {
@@ -214,12 +217,30 @@ export default function LandingPage() {
                   ))}
                 </div>
                 {!isSignedIn && (
-                  <div className="mt-6 max-w-[540px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
-                    <p className="flex items-start gap-2 text-sm font-bold text-[#001d3d]">
-                      <Gift size={18} className="mt-0.5 shrink-0 text-[#ff6b00]" />{gratisTitel}
+                  <div className="mt-6 max-w-[560px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
+                    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#001d3d]">
+                      <Gift size={18} className="shrink-0 text-[#ff6b00]" />Was ist kostenlos?
                     </p>
-                    <p className="mb-3 mt-1 pl-[26px] text-[13px] text-slate-600">Die Kennzahlen siehst du sofort. Mit deiner E-Mail schaltest du zusätzlich frei:</p>
-                    <div className="pl-[26px]"><GratisVorteilListe kompakt /></div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div className="rounded-xl border border-slate-200 bg-white p-3.5">
+                        <p className="text-[13px] font-bold text-[#001d3d]">Sofort, ohne Anmeldung</p>
+                        <p className="mb-2.5 text-xs text-slate-500">unbegrenzt, keine E-Mail nötig</p>
+                        <ul className="flex flex-col gap-2">
+                          {['Cashflow & Rendite', 'Steuern & Kreditrate'].map(t => (
+                            <li key={t} className="flex gap-2.5 text-sm">
+                              <Check size={18} strokeWidth={2.6} className="mt-0.5 shrink-0 text-emerald-500" />
+                              <strong className="text-[#001d3d]">{t}</strong>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-3.5">
+                        <p className="text-[13px] font-bold text-[#001d3d]">+ Mit E-Mail, gratis</p>
+                        <p className="mb-2.5 text-xs text-slate-500">{gratisWohnungText} zusätzlich:</p>
+                        <GratisVorteilListe kompakt />
+                      </div>
+                    </div>
+                    <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo.</p>
                   </div>
                 )}
               </div>
