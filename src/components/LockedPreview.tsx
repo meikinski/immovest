@@ -47,7 +47,7 @@ export function LockedPreview({ bereich, onFreischalten, className = '' }: Props
           </p>
           <h3 className="text-lg font-black leading-snug text-[#001d3d]">Kostenlos freischalten</h3>
           <p className="mt-1 mb-4 text-sm leading-relaxed text-slate-600">
-            Mit E-Mail anmelden und diese Wohnung vollständig analysieren
+            KI-Einschätzung, Markt &amp; Prognose für diese Wohnung. Szenarien und PDF-Report inklusive.
           </p>
           <button
             type="button"
