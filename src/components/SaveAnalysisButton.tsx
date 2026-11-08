@@ -1,5 +1,6 @@
 'use client';
 
+import { signUpHref } from '@/lib/anmeldeLinks';
 import React, { useState } from 'react';
 import { Save, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -142,7 +143,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
     return (
       <button
         type="button"
-        onClick={() => router.push('/sign-up?redirect_url=/step/tabs')}
+        onClick={() => router.push(signUpHref('save_analysis', '/step/tabs'))}
         className="btn-primary flex items-center gap-2"
       >
         <Save size={18} />

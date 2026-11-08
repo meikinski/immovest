@@ -37,7 +37,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
 import { trackEvent, AnalyticsEvents, leseEingabeMethode } from '@/lib/analytics';
-import { SignInButton, useAuth, useClerk } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
+import { signInHref, signUpHref } from '@/lib/anmeldeLinks';
 import { GastHinweisBanner } from '@/components/GratisVorteile';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { LockedPreview } from '@/components/LockedPreview';
@@ -111,16 +112,14 @@ export default function StepPage() {
 
   // Auth & Paywall
   const { isSignedIn, userId, getToken } = useAuth();
-  const { openSignUp, openSignIn } = useClerk();
   // Gäste: Anmeldung mit E-Mail schaltet die komplette Analyse dieser Wohnung kostenlos frei.
   // Eingaben vorher sichern, damit man nach Google-Redirect oder E-Mail-Bestätigung wieder bei dieser Wohnung landet.
   const gastFreischalten = (bereich: GesperrterBereich, modus: 'sign_up' | 'sign_in' = 'sign_up', quelle: 'preview' | 'banner' = 'preview') => {
     if (quelle === 'preview') trackEvent(AnalyticsEvents.LOCKED_PREVIEW_CLICKED, { section: bereich, action: modus });
     if (modus === 'sign_up') trackEvent(AnalyticsEvents.SIGNUP_INITIATED, { source: quelle === 'preview' ? `locked_preview_${bereich}` : 'result_banner' });
     sichereAnalyseVorAnmeldung(bereich);
-    const ziel = { forceRedirectUrl: '/step/tabs', fallbackRedirectUrl: '/step/tabs' };
-    if (modus === 'sign_in') openSignIn(ziel);
-    else openSignUp(ziel);
+    // Eigene Seite statt Clerk-Fenster: Überschrift mit der Wohnung, Rückkehr über redirect_url
+    router.push(modus === 'sign_in' ? signInHref('/step/tabs') : signUpHref(quelle === 'preview' ? 'locked_preview' : 'result_banner', '/step/tabs'));
   };
   const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal, upgradeTrigger } = usePaywall();
   const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
@@ -2393,12 +2392,10 @@ const exportPdf = React.useCallback(async () => {
                       <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
                         Melde dich an und erhalte die KI-Einschätzung plus eine vollständige Analyse mit Markt, Prognose, Szenarien &amp; PDF-Report kostenlos.
                       </p>
-                      <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                        <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
-                          <Lock size={18} />
-                          Kostenlos anmelden
-                        </button>
-                      </SignInButton>
+                      <button onClick={() => gastFreischalten('ki')} className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                        <Lock size={18} />
+                        Kostenlos anmelden
+                      </button>
                     </div>
                   </div>
                 )}
@@ -2687,12 +2684,10 @@ const exportPdf = React.useCallback(async () => {
                       : 'Deine kostenlose Analyse ist aufgebraucht. Szenarien und den PDF-Report für weitere Wohnungen gibt es mit Premium.'}
                   </p>
                   {!isSignedIn ? (
-                    <SignInButton mode="modal" forceRedirectUrl="/step/tabs" fallbackRedirectUrl="/step/tabs">
-                      <button className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
-                        <Lock size={18} />
-                        Kostenlos anmelden
-                      </button>
-                    </SignInButton>
+                    <button onClick={() => gastFreischalten('prognose')} className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                      <Lock size={18} />
+                      Kostenlos anmelden
+                    </button>
                   ) : (
                     <>
                       <button

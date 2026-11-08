@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest, NextFetchEvent } from 'next/server';
+import { sichererPfad } from '@/lib/anmeldeLinks';
 
 // Routen die Auth benötigen
 const isProtectedRoute = createRouteMatcher([
@@ -37,8 +38,22 @@ const isPublicRoute = createRouteMatcher([
  * ✅ Auth works on protected pages
  */
 
+// Einstiegsseiten der Anmeldung (ohne Clerks Unterschritte wie /sign-in/sso-callback)
+const isAuthEntry = (req: NextRequest) => req.nextUrl.pathname === '/sign-in' || req.nextUrl.pathname === '/sign-up';
+
 // Create Clerk middleware instance
 const clerkMiddlewareInstance = clerkMiddleware(async (auth, req) => {
+  // Bereits angemeldet: sofort serverseitig weiter, statt eine leere Anmeldeseite zu laden
+  // (sonst zählt GA4 einen Sekunden-Besuch auf /sign-in bzw. /sign-up)
+  if (isAuthEntry(req)) {
+    const { userId } = await auth();
+    if (userId) {
+      const ziel = sichererPfad(req.nextUrl.searchParams.get('redirect_url')) ?? '/input-method';
+      return NextResponse.redirect(new URL(ziel, req.url));
+    }
+    return;
+  }
+
   // Other public routes: let them through (no auth required)
   if (isPublicRoute(req)) {
     return;

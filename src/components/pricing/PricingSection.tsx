@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { signUpHref } from '@/lib/anmeldeLinks';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
 import { Check, ChevronDown, FileText, FlaskConical, Infinity as Unbegrenzt, Lock, MapPin, Sparkles, TrendingUp } from 'lucide-react';
@@ -86,7 +87,7 @@ export function PricingSection({
   const checkoutStarten = async () => {
     if (!isSignedIn) {
       toast.info('Bitte melde dich an, um fortzufahren');
-      router.push(`/sign-up?redirect_url=${encodeURIComponent(pathname || '/pricing')}`);
+      router.push(signUpHref('pricing', pathname || '/pricing'));
       return;
     }
 
