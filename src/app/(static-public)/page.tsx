@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
-  AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
+  AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, ChevronDown, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
   Gift, Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
