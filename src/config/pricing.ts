@@ -108,7 +108,7 @@ export const STUFEN = {
 
 /** Kurze Zeilen für Hero und Schnell-Check */
 export const MODELL_KURZ = {
-  hero: `Kennzahlen ohne Anmeldung · ${gratisWohnungen} komplett gratis`,
+  hero: `Kennzahlen ohne Anmeldung · ${gratisWohnungen} komplett gratis mit E-Mail`,
   schnellCheck: `Komplett mit Steuern, Markt und Prognose: kostenloses Konto, ${gratisWohnungen} gratis.`,
   analyseIntro: `Das bekommst du für jede Wohnung, die du komplett prüfst. ${GRATIS_ANALYSEN === 1 ? 'Die erste ist' : `Die ersten ${GRATIS_ANALYSEN} sind`} gratis.`,
 };
