@@ -6,19 +6,18 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
   AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, ChevronDown, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
-  Gift, Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
+  Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { GratisVorteilListe } from '@/components/GratisVorteile';
 import { GRATIS_ANALYSEN } from '@/lib/preise';
 import { PricingSection } from '@/components/pricing/PricingSection';
 import { FAQ_KOSTENLOS_PREMIUM, gratisText } from '@/config/pricing';
 
-const gratisWohnungText = GRATIS_ANALYSEN === 1 ? 'für 1 Wohnung' : `für ${GRATIS_ANALYSEN} Wohnungen`;
+const gratisWohnungText = GRATIS_ANALYSEN === 1 ? '1 Wohnung' : `${GRATIS_ANALYSEN} Wohnungen`;
 
 const FAQS: Array<{ frage: string; antwort: string }> = [
   {
@@ -150,9 +149,6 @@ function SchnellCheck({ onStart, angemeldet }: { onStart: () => void; angemeldet
           <span key={t} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 px-3 py-2"><Lock size={13} className="text-slate-400" />{t}</span>
         ))}
       </div>
-      {!angemeldet && (
-        <p className="mt-2 text-center text-xs font-semibold text-emerald-700">Einmal gratis freischalten: einfach mit deiner E-Mail anmelden.</p>
-      )}
       <button type="button" onClick={onStart} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
         {angemeldet ? 'Vollständig analysieren' : 'Vollständig analysieren, kostenlos'} <ArrowRight size={18} />
       </button>
@@ -211,38 +207,10 @@ export default function LandingPage() {
                     <CirclePlay size={18} /> So funktioniert&apos;s
                   </a>
                 </div>
-                <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 text-[13px] text-slate-600">
-                  {(isSignedIn ? ['Jede Formel einsehbar', 'Quellen zu allen Marktdaten'] : [`${gratisText} gratis`, 'Ohne Kreditkarte', 'Jede Formel einsehbar']).map(t => (
-                    <span key={t} className="flex items-center gap-1.5"><Check size={15} strokeWidth={2.6} className="text-emerald-600" />{t}</span>
-                  ))}
-                </div>
-                {!isSignedIn && (
-                  <div className="mt-6 max-w-[560px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
-                    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#001d3d]">
-                      <Gift size={18} className="shrink-0 text-[#ff6b00]" />Was ist kostenlos?
-                    </p>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-                        <p className="text-[13px] font-bold text-[#001d3d]">Sofort, ohne Anmeldung</p>
-                        <p className="mb-2.5 text-xs text-slate-500">unbegrenzt, keine E-Mail nötig</p>
-                        <ul className="flex flex-col gap-2">
-                          {['Cashflow & Rendite', 'Steuern & Kreditrate'].map(t => (
-                            <li key={t} className="flex gap-2.5 text-sm">
-                              <Check size={18} strokeWidth={2.6} className="mt-0.5 shrink-0 text-emerald-500" />
-                              <strong className="text-[#001d3d]">{t}</strong>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-3.5">
-                        <p className="text-[13px] font-bold text-[#001d3d]">+ Mit E-Mail, gratis</p>
-                        <p className="mb-2.5 text-xs text-slate-500">{gratisWohnungText} zusätzlich:</p>
-                        <GratisVorteilListe kompakt />
-                      </div>
-                    </div>
-                    <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo.</p>
-                  </div>
-                )}
+                <p className="mt-5 flex items-center gap-1.5 text-[13px] text-slate-600">
+                  <Check size={15} strokeWidth={2.6} className="shrink-0 text-emerald-600" />
+                  {isSignedIn ? 'Quellen zu allen Marktdaten' : `${gratisWohnungText} komplett gratis · Ohne Kreditkarte`}
+                </p>
               </div>
 
               {/* Ausschnitt einer Analyse */}
@@ -401,7 +369,7 @@ export default function LandingPage() {
                   Drei Regler, eine grobe Schätzung. Die vollständige Analyse rechnet zusätzlich Steuern, Rücklagen und den Markt vor Ort mit ein.
                 </p>
                 <ul className="mt-7 flex flex-col gap-3 text-slate-200">
-                  {[`Mit E-Mail anmelden: ${gratisText} gratis, inklusive KI-Einschätzung, Markt & Prognose`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
+                  {[`Vollständige Analyse mit Steuern, Markt und Prognose: ${gratisWohnungText} gratis.`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
                     <li key={t} className="flex gap-3"><Check size={20} strokeWidth={2.4} className="mt-0.5 shrink-0 text-[#ff6b00]" />{t}</li>
                   ))}
                 </ul>
