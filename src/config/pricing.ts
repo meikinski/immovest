@@ -1,14 +1,15 @@
 /**
- * Preise, Pläne und Preis-Texte an einer Stelle (Single Source of Truth).
+ * Preismodell, Preise und Preis-Texte an einer Stelle (Single Source of Truth).
  *
  * Die tatsächlichen Beträge kommen aus Stripe (Price-IDs in den Env-Variablen);
  * die Zahlen hier müssen dazu passen.
  *
- * Aufteilung:
- * - Kostenlos: unbegrenzt Cashflow & Rendite (KPI) + GRATIS_ANALYSEN vollständige Analyse(n) mit allem.
- *   Analysen speichern ist kostenlos.
- * - Premium: unbegrenzt viele vollständige Analysen.
- * Der einzige Unterschied ist, wie viele Wohnungen man vollständig analysieren kann.
+ * Das Modell (drei Stufen):
+ * 1. Ohne Anmeldung, 0 €: Kennzahlen (Cashflow, Rendite, DSCR) für jede Wohnung, unbegrenzt.
+ * 2. Kostenloses Konto, 0 €: GRATIS_ANALYSEN Wohnung(en) vollständig analysiert: Steuern & AfA,
+ *    Markt & Lage, KI-Einschätzung, Prognose, Szenarien/Stresstests, PDF-Report. Speichern inklusive.
+ * 3. Premium: jede weitere Wohnung vollständig analysiert, PREIS_JAHR im Jahr oder PREIS_MONAT im Monat.
+ * Anmelden muss man sich nur für die vollständige Analyse, bezahlen erst ab der 2. vollständigen Analyse.
  */
 
 // ---------- Zahlen ----------
@@ -45,20 +46,9 @@ export const gruenderpreisHinweis = (endsAtLabel: string) =>
   `Gründerpreis bis ${endsAtLabel}. Der Preis bleibt, solange dein Abo läuft.`;
 
 export const PLAENE = {
-  free: {
-    titel: 'Kostenlos',
-    preis: '0 €',
-    merkmale: [
-      GRATIS_ANALYSEN === 1 ? '1 Wohnung vollständig analysieren' : `${GRATIS_ANALYSEN} Wohnungen vollständig analysieren`,
-      'Cashflow & Rendite unbegrenzt',
-      'Analysen speichern',
-    ],
-    cta: 'Kostenlos starten',
-    href: '/input-method',
-  },
   premium: {
     titel: 'Premium',
-    hauptzeile: 'Unbegrenzt viele Wohnungen vollständig analysieren',
+    hauptzeile: 'Jede weitere Wohnung komplett',
     standard: 'yearly' as Abrechnung,
     cta: 'Premium starten',
     optionen: {
@@ -67,8 +57,10 @@ export const PLAENE = {
         betrag: PREIS_JAHR,
         preisText: `${preis(PREIS_JAHR)} €`,
         zeitraum: 'im Jahr',
-        hinweis: `nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`,
+        hinweis: `${preis(PREIS_JAHR)} € im Jahr · ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`,
+        kurzHinweis: `nur ${preis(PREIS_JAHR_PRO_MONAT)} € pro Monat`,
         ersparnis: `${ERSPARNIS_JAHR_PCT} % günstiger als monatlich`,
+        ersparnisKurz: `−${ERSPARNIS_JAHR_PCT} %`,
         priceId: process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID ?? '',
       },
       monthly: {
@@ -76,56 +68,86 @@ export const PLAENE = {
         betrag: PREIS_MONAT,
         preisText: `${preis(PREIS_MONAT)} €`,
         zeitraum: 'pro Monat',
-        hinweis: 'monatlich kündbar',
+        hinweis: `${preis(PREIS_MONAT)} € pro Monat, monatlich kündbar`,
+        kurzHinweis: 'monatlich kündbar',
         ersparnis: null as string | null,
+        ersparnisKurz: null as string | null,
         priceId: process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID ?? '',
       },
     },
   },
 } as const;
 
+// ---------- Stufen (Preisübersicht) ----------
+
+const gratisWohnungen = GRATIS_ANALYSEN === 1 ? '1 Wohnung' : `${GRATIS_ANALYSEN} Wohnungen`;
+
+/** Die zwei kostenlosen Stufen; Premium steht in PLAENE.premium (mit Abrechnungswahl) */
+export const STUFEN = {
+  ohneAnmeldung: {
+    titel: 'Ohne Anmeldung',
+    preis: '0 €',
+    hauptzeile: 'Kennzahlen für jede Wohnung',
+    unterzeilen: ['Cashflow, Rendite, DSCR · unbegrenzt'],
+    cta: 'Wohnung prüfen',
+    href: '/input-method',
+  },
+  konto: {
+    titel: 'Kostenloses Konto',
+    preis: '0 €',
+    hauptzeile: `${gratisWohnungen} komplett`,
+    unterzeilen: ['Steuern, Markt, KI, Prognose, Szenarien, PDF', 'Analysen speichern inklusive'],
+    cta: 'Kostenlos registrieren',
+    href: '/sign-up',
+  },
+} as const;
+
+/** Kurze Zeilen für Hero und Schnell-Check */
+export const MODELL_KURZ = {
+  hero: `Kennzahlen ohne Anmeldung · ${gratisWohnungen} komplett gratis`,
+  schnellCheck: `Komplett mit Steuern, Markt und Prognose: kostenloses Konto, ${gratisWohnungen} gratis.`,
+  analyseIntro: `Das bekommst du für jede Wohnung, die du komplett prüfst. ${GRATIS_ANALYSEN === 1 ? 'Die erste ist' : `Die ersten ${GRATIS_ANALYSEN} sind`} gratis.`,
+};
+
 // ---------- Texte ----------
 
 export const PRICING_TEXTE = {
-  headline: 'Eine Wohnung gratis prüfen. Jede weitere mit Premium.',
-  /** Inhalt jeder vollständigen Analyse, einmal über den Karten */
-  analyseTitel: 'Jede vollständige Analyse enthält',
-  analyseInhalt: [
-    'Markt & Lage',
-    'KI-Einschätzung',
-    'Prognose',
-    'Szenarien & Stresstests',
-    'PDF-Report für die Bank',
-  ],
-  /** Entspricht AGB § 4 (3)/(4): automatische Verlängerung, Kündigung jederzeit zum Ende der Laufzeit */
-  vertrauen: 'Sichere Zahlung über Stripe · Kreditkarte & SEPA · Jahresabo endet automatisch zum Laufzeitende, wenn du kündigst',
+  headline: 'Kostenlos starten. Bezahlen erst ab der zweiten Wohnung.',
+  /** Kündigung bewusst nicht hier, sondern in der FAQ (AGB § 4 (3)/(4)) */
+  vertrauen: 'Sichere Zahlung über Stripe · Kreditkarte & SEPA',
 };
 
+/** FAQ für Homepage und /pricing (gleicher Inhalt) */
 export const PRICING_FAQ: Array<{ frage: string; antwort: string }> = [
   {
-    frage: 'Was ist kostenlos?',
-    antwort: `Cashflow und Rendite rechnest du unbegrenzt kostenlos. Dazu kommt ${gratisText} mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien, Stresstests und PDF-Report für die Bank. Analysen speichern ist ebenfalls kostenlos.`,
+    frage: 'Was ist kostenlos, was kostet Premium?',
+    antwort: `Cashflow, Rendite und DSCR rechnest du ohne Anmeldung für jede Wohnung. Mit einem kostenlosen Konto prüfst du ${gratisWohnungen} komplett und speicherst deine Analysen. Jede weitere Wohnung prüfst du komplett mit Premium für ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`,
   },
   {
-    frage: 'Was passiert nach meiner Gratis-Analyse?',
-    antwort: `Deine Analyse bleibt vollständig erhalten. Cashflow und Rendite kannst du weiter unbegrenzt rechnen. Für jede weitere Wohnung mit Markt, KI-Einschätzung, Prognose, Szenarien und PDF-Report brauchst du Premium: ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`,
+    frage: 'Wann muss ich mich anmelden?',
+    antwort: 'Für die Kennzahlen gar nicht. Für die vollständige Analyse mit Markt, KI und Prognose brauchst du ein kostenloses Konto. Ab der zweiten Wohnung brauchst du Premium.',
+  },
+  {
+    frage: 'Brauche ich Vorwissen?',
+    antwort: 'Nein. Jeder Fachbegriff ist erklärt, und das Ergebnis steht immer zuerst in einem Satz. Profis finden alle Kennzahlen und Formeln in der Detailansicht.',
+  },
+  {
+    frage: 'Woher kommen die Marktdaten?',
+    antwort: 'Aus einer aktuellen Recherche zu Angeboten und Vergleichsdaten für die Lage der Wohnung. Die Quellen werden in der Analyse angezeigt.',
+  },
+  {
+    frage: 'Kann ich den Report bei der Bank vorlegen?',
+    antwort: 'Ja. Er fasst Kaufpreis, Finanzierung, Monatsrechnung, Kapitaldienstfähigkeit und einen Stresstest zusammen. Er ersetzt keine Unterlagen wie Grundbuchauszug oder Wertgutachten.',
   },
   {
     frage: 'Kann ich kündigen?',
-    antwort: 'Ja, jederzeit über „Abo & Zahlung“ in deinem Konto. Das Monatsabo endet zum Ende des laufenden Monats, das Jahresabo zum Ende des laufenden Jahres. Bis dahin nutzt du Premium weiter, danach verlängert sich nichts mehr.',
-  },
-  {
-    frage: 'Brauche ich eine Kreditkarte für die Gratis-Analyse?',
-    antwort: 'Nein. Du meldest dich nur mit deiner E-Mail-Adresse an. Zahlungsdaten gibst du erst ein, wenn du Premium abschließt.',
+    antwort: 'Ja, jederzeit über „Abo & Zahlung“ in deinem Konto. Das Abo endet zum Ende der laufenden Laufzeit (Monat oder Jahr) und verlängert sich danach nicht mehr.',
   },
 ];
 
-/** FAQ der Preisseite als schema.org FAQPage */
+/** FAQ als schema.org FAQPage */
 export const PRICING_FAQ_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: PRICING_FAQ.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
 };
-
-/** Homepage-FAQ "Was ist kostenlos, was kostet Premium?" */
-export const FAQ_KOSTENLOS_PREMIUM = `Cashflow und Rendite rechnest du unbegrenzt kostenlos. ${gratisText} mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien, Stresstests und PDF-Report für die Bank ist gratis, Analysen speichern ebenfalls. Premium brauchst du erst ab der 2. Wohnung: Damit analysierst du unbegrenzt viele Wohnungen vollständig, für ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`;

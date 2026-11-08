@@ -33,7 +33,7 @@ export default function Page() {
           <div className="relative h-10 w-10 md:h-12 md:w-12">
             <Image
               src="/logo.png"
-              alt="ImVestr Logo"
+              alt="imvestr Logo"
               width={48}
               height={48}
               className="h-full w-full rounded-lg"
