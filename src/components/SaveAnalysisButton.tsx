@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Save, Check } from 'lucide-react';
+import { Save, Check, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
+import { usePaywall } from '@/contexts/PaywallContext';
 import { saveAnalysis, saveScenario } from '@/lib/storage';
 import { toast } from 'sonner';
 
@@ -48,6 +49,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const router = useRouter();
+  const { isPremium, setShowUpgradeModal } = usePaywall();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -68,6 +70,11 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
         body: JSON.stringify(stateData),
       });
 
+      // Kein Premium (z. B. abgelaufen): Paywall statt Fehlermeldung
+      if (response.status === 403) {
+        setShowUpgradeModal(true, 'speichern');
+        return;
+      }
       if (!response.ok) {
         throw new Error('Failed to save analysis');
       }
@@ -137,16 +144,16 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
     }
   };
 
-  // Speichern ist kostenlos, braucht aber ein Konto
-  if (!userId) {
+  // Speichern gibt es nur mit Premium (ohne Konto führt die Paywall zur Anmeldung)
+  if (!userId || !isPremium) {
     return (
       <button
         type="button"
-        onClick={() => router.push('/sign-up?redirect_url=/step/tabs')}
+        onClick={() => setShowUpgradeModal(true, 'speichern')}
         className="btn-primary flex items-center gap-2"
       >
-        <Save size={18} />
-        Anmelden und speichern
+        <Lock size={18} />
+        Speichern mit Premium
       </button>
     );
   }

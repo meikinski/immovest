@@ -258,8 +258,11 @@ export function PricingSection({
             )}
             <p className="mt-5 font-bold text-[#001d3d]">{PLAENE.premium.hauptzeile}</p>
             <div className="mb-6 mt-1.5 flex-1 space-y-1 text-[13px] text-slate-600">
-              <p>{gruender?.amount ? `${gruender.priceLabel} im Jahr · ${preis(gruender.amount / 12)} € pro Monat` : option.hinweis}</p>
-              {gruender && <p className="font-bold text-[#ff6b00]">{gruenderpreisHinweis(gruender.endsAtLabel)}</p>}
+              {/* Mit Gründerpreis ersetzt dessen Hinweis die Preiszeile, damit es bei 2 Unterzeilen bleibt */}
+              {gruender
+                ? <p className="font-bold text-[#ff6b00]">{gruenderpreisHinweis(gruender.endsAtLabel)}</p>
+                : <p>{option.hinweis}</p>}
+              <p>{PLAENE.premium.zusatz}</p>
             </div>
 
             <button

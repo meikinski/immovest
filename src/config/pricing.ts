@@ -7,8 +7,10 @@
  * Das Modell (drei Stufen):
  * 1. Ohne Anmeldung, 0 €: Kennzahlen (Cashflow, Rendite, DSCR) für jede Wohnung, unbegrenzt.
  * 2. Kostenloses Konto, 0 €: GRATIS_ANALYSEN Wohnung(en) vollständig analysiert: Steuern & AfA,
- *    Markt & Lage, KI-Einschätzung, Prognose, Szenarien/Stresstests, PDF-Report. Speichern inklusive.
- * 3. Premium: jede weitere Wohnung vollständig analysiert, PREIS_JAHR im Jahr oder PREIS_MONAT im Monat.
+ *    Markt & Lage, KI-Einschätzung, Prognose, Szenarien/Stresstests, PDF-Report. Nicht speicherbar.
+ * 3. Premium: jede weitere Wohnung vollständig analysiert und Analysen speichern,
+ *    PREIS_JAHR im Jahr oder PREIS_MONAT im Monat.
+ * Speichern gibt es nur mit Premium (serverseitig geprüft in /api/analysis und /api/scenarios).
  * Anmelden muss man sich nur für die vollständige Analyse, bezahlen erst ab der 2. vollständigen Analyse.
  */
 
@@ -49,6 +51,8 @@ export const PLAENE = {
   premium: {
     titel: 'Premium',
     hauptzeile: 'Jede weitere Wohnung komplett',
+    /** Zweite Unterzeile der Premium-Spalte */
+    zusatz: 'Analysen speichern inklusive',
     standard: 'yearly' as Abrechnung,
     cta: 'Premium starten',
     optionen: {
@@ -96,7 +100,7 @@ export const STUFEN = {
     titel: 'Kostenloses Konto',
     preis: '0 €',
     hauptzeile: `${gratisWohnungen} komplett`,
-    unterzeilen: ['Steuern, Markt, KI, Prognose, Szenarien, PDF', 'Analysen speichern inklusive'],
+    unterzeilen: ['Steuern, Markt, KI, Prognose, Szenarien, PDF'],
     cta: 'Kostenlos registrieren',
     href: '/sign-up',
   },
@@ -121,7 +125,7 @@ export const PRICING_TEXTE = {
 export const PRICING_FAQ: Array<{ frage: string; antwort: string }> = [
   {
     frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: `Cashflow, Rendite und DSCR rechnest du ohne Anmeldung für jede Wohnung. Mit einem kostenlosen Konto prüfst du ${gratisWohnungen} komplett und speicherst deine Analysen. Jede weitere Wohnung prüfst du komplett mit Premium für ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`,
+    antwort: `Cashflow, Rendite und DSCR rechnest du ohne Anmeldung für jede Wohnung. Mit einem kostenlosen Konto prüfst du ${gratisWohnungen} komplett. Premium kostet ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat: Damit prüfst du jede weitere Wohnung komplett und speicherst deine Analysen.`,
   },
   {
     frage: 'Wann muss ich mich anmelden?',

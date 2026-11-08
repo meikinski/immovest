@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { istPremium } from '@/lib/premiumServer';
 import { resolveAnalysisRowId } from '@/lib/analysisDb';
 
 // Save scenario
@@ -13,6 +14,11 @@ export async function POST(req: Request) {
         { error: 'Nicht authentifiziert' },
         { status: 401 }
       );
+    }
+
+    // Speichern gibt es nur mit Premium
+    if (!(await istPremium(userId))) {
+      return NextResponse.json({ error: 'Speichern gibt es mit Premium.' }, { status: 403 });
     }
 
     const data = await req.json();

@@ -47,7 +47,7 @@ function NeueAnalyseKnopf({ klein = false }: { klein?: boolean }) {
 export default function MeineAnalysenPage() {
   const router = useRouter();
   const { userId } = useAuth();
-  // Speichern ist kostenlos: jede angemeldete Person sieht ihre gespeicherten Analysen
+  // Speichern gibt es nur mit Premium; früher gespeicherte Analysen bleiben für alle sichtbar
   const { analysen, laedt, loeschen } = useGespeicherteAnalysen();
   const loadAnalysis = useImmoStore(s => s.loadAnalysis);
   const [suche, setSuche] = useState('');
@@ -107,7 +107,7 @@ export default function MeineAnalysenPage() {
         <section className="mx-auto max-w-xl rounded-2xl border border-slate-200/80 bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-bold text-[#001d3d]">Noch keine Analysen gespeichert</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-            Prüf deine erste Wohnung und speichere sie im Tab „Szenarien &amp; PDF Export“. Sie erscheint dann hier.
+            Mit Premium speicherst du Analysen im Tab „Szenarien &amp; PDF Export“. Sie erscheinen dann hier.
           </p>
           <div className="mt-6"><NeueAnalyseKnopf /></div>
         </section>
