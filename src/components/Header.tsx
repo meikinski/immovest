@@ -288,7 +288,7 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
               <Link key={href} href={href} className="border-b border-slate-100 py-3 font-semibold text-[#001d3d]">{label}</Link>
             ))}
             <Link href="/input-method" className="mt-4 rounded-xl bg-[#ff6b00] py-3 text-center font-bold text-white">
-              Erste Wohnung kostenlos prüfen
+              Kostenlos starten
             </Link>
           </nav>
         )}

@@ -120,7 +120,7 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
       // verbraucht ist, also beim Start der 2. vollständigen Analyse. Die konkrete Sperre steht in source.
       const zweiteAnalyse = !!isSignedIn && !isPremium;
       trackEvent(AnalyticsEvents.PAYWALL_VIEWED, {
-        trigger: zweiteAnalyse ? 'second_analysis' : (trigger || 'unknown'),
+        trigger: trigger === 'speichern' ? 'speichern' : zweiteAnalyse ? 'second_analysis' : (trigger || 'unknown'),
         source: trigger || 'unknown',
         signed_in: !!isSignedIn,
         free_analyses_used: premiumUsageCount,

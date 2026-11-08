@@ -2,11 +2,11 @@ import { Metadata } from 'next';
 import { PREIS_JAHR, PREIS_MONAT, preis } from '@/lib/preise';
 
 const TITEL = 'Preise & Pläne | imvestr';
-const OG_DESCRIPTION = `Eine Wohnung gratis prüfen, mit Markt & Lage, KI-Einschätzung, Prognose, Szenarien und PDF-Report. Jede weitere mit Premium: ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`;
+const DESCRIPTION = `Kennzahlen ohne Anmeldung, 1 Wohnung komplett gratis mit kostenlosem Konto: Steuern, Markt, KI, Prognose, Szenarien und PDF-Report. Jede weitere Wohnung mit Premium für ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`;
 
 export const metadata: Metadata = {
-  title: 'Preise & Pläne | imvestr Immobilien-Renditerechner',
-  description: `Kostenlos: unbegrenzt Cashflow & Rendite und 1 Wohnung vollständig analysieren, inkl. Szenarien und PDF-Report. Premium für unbegrenzt viele Wohnungen: ${preis(PREIS_JAHR)} € im Jahr oder ${preis(PREIS_MONAT)} € im Monat.`,
+  title: TITEL,
+  description: DESCRIPTION,
   keywords: [
     'immobilien renditerechner preise',
     'ki immobilien analyse kosten',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: TITEL,
-    description: OG_DESCRIPTION,
+    description: DESCRIPTION,
     url: 'https://imvestr.de/pricing',
     type: 'website',
     locale: 'de_DE',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: TITEL,
-    description: OG_DESCRIPTION,
+    description: DESCRIPTION,
     images: ['/og-image.png'],
   },
   alternates: {

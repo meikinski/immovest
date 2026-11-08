@@ -2802,9 +2802,7 @@ const exportPdf = React.useCallback(async () => {
           kaufpreis={kaufpreis}
           flaeche={flaeche}
           zimmer={zimmer}
-          gratisAdresse={gratisFreigabe}
           quelle={upgradeTrigger}
-          onGratisAnalyseGeladen={() => setActiveTab('kpi')}
         />
       ) : (
         <UpgradeModal

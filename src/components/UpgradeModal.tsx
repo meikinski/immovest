@@ -88,7 +88,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
               <h2 className="text-3xl font-black tracking-tight">Premium freischalten</h2>
               <p className="text-white/70 text-sm font-semibold mt-1">
                 {remainingFreeUses > 0
-                  ? 'Unbegrenzt Wohnungen prüfen, mit Markt, Szenarien und PDF-Report'
+                  ? 'Jede weitere Wohnung komplett prüfen und Analysen speichern'
                   : 'Deine kostenlose Analyse ist aufgebraucht'
                 }
               </p>
@@ -103,12 +103,8 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
             <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-5">Premium Features</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                'Unbegrenzte vollständige Analysen',
-                'Markt- & Lageanalyse mit KI-Empfehlung',
-                'Szenarien & Stresstests',
-                'PDF-Report für die Bank',
-                'Premium-Support',
-                'Gespeicherte Analysen ohne Limit',
+                'Jede weitere Wohnung komplett analysiert',
+                'Analysen speichern',
               ].map((feature, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
