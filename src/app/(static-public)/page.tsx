@@ -18,7 +18,7 @@ import { GRATIS_ANALYSEN } from '@/lib/preise';
 import { PricingSection } from '@/components/pricing/PricingSection';
 import { FAQ_KOSTENLOS_PREMIUM, gratisText } from '@/config/pricing';
 
-const gratisWohnungen = GRATIS_ANALYSEN === 1 ? '1 Wohnung' : `${GRATIS_ANALYSEN} Wohnungen`;
+const gratisWohnungText = GRATIS_ANALYSEN === 1 ? 'für 1 Wohnung' : `für ${GRATIS_ANALYSEN} Wohnungen`;
 
 const FAQS: Array<{ frage: string; antwort: string }> = [
   {
@@ -217,18 +217,11 @@ export default function LandingPage() {
                   ))}
                 </div>
                 {!isSignedIn && (
-                  <details className="group mt-6 max-w-[560px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
-                    <summary className="flex cursor-pointer list-none items-start gap-2 [&::-webkit-details-marker]:hidden">
-                      <Gift size={18} className="mt-0.5 shrink-0 text-[#ff6b00]" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-sm font-bold text-[#001d3d]">Was ist kostenlos?</span>
-                        <span className="block text-[13px] text-slate-600">
-                          Ohne Anmeldung sofort loslegen. Mit E&#8209;Mail {gratisWohnungen} komplett gratis.
-                        </span>
-                      </span>
-                      <ChevronDown size={18} className="mt-0.5 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
-                    </summary>
-                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <div className="mt-6 max-w-[560px] rounded-2xl border border-orange-200 bg-white/90 p-4 shadow-sm">
+                    <p className="mb-3 flex items-center gap-2 text-sm font-bold text-[#001d3d]">
+                      <Gift size={18} className="shrink-0 text-[#ff6b00]" />Was ist kostenlos?
+                    </p>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <div className="rounded-xl border border-slate-200 bg-white p-3.5">
                         <p className="text-[13px] font-bold text-[#001d3d]">Sofort, ohne Anmeldung</p>
                         <p className="mb-2.5 text-xs text-slate-500">unbegrenzt, keine E-Mail nötig</p>
@@ -243,12 +236,12 @@ export default function LandingPage() {
                       </div>
                       <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-3.5">
                         <p className="text-[13px] font-bold text-[#001d3d]">+ Mit E-Mail, gratis</p>
-                        <p className="mb-2.5 text-xs text-slate-500">für {gratisWohnungen} zusätzlich:</p>
+                        <p className="mb-2.5 text-xs text-slate-500">{gratisWohnungText} zusätzlich:</p>
                         <GratisVorteilListe kompakt />
                       </div>
                     </div>
                     <p className="mt-3 text-xs text-slate-500">Ohne Kreditkarte, kein Abo.</p>
-                  </details>
+                  </div>
                 )}
               </div>
 
