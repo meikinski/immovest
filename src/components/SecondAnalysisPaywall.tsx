@@ -1,13 +1,8 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@clerk/nextjs';
-import { toast } from 'sonner';
-import { ArrowLeft, Home, X } from 'lucide-react';
+import React, { useEffect, useRef } from 'react';
+import { Home, X } from 'lucide-react';
 import { PricingSection } from '@/components/pricing/PricingSection';
-import { useGespeicherteAnalysen } from '@/hooks/useGespeicherteAnalysen';
-import { useImmoStore } from '@/store/useImmoStore';
 import { sichereAnalyseVorCheckout } from '@/lib/checkoutRueckkehr';
 
 type Props = {
@@ -18,12 +13,8 @@ type Props = {
   kaufpreis: number;
   flaeche?: number;
   zimmer?: number;
-  /** Adresse der verbrauchten Gratis-Analyse (kleingeschrieben, aus gratis_freigabe_{userId}) */
-  gratisAdresse: string | null;
   /** Sperre, die die Paywall geöffnet hat, z. B. "tab_markt" (für Tracking und den Tab nach der Zahlung) */
   quelle: string | null;
-  /** Nach dem Laden der Gratis-Analyse (z. B. KPI-Tab zeigen) */
-  onGratisAnalyseGeladen?: () => void;
 };
 
 const fmt = (v: number) => v.toLocaleString('de-DE', { maximumFractionDigits: 0 });
@@ -33,24 +24,22 @@ function zielTabAus(quelle: string | null): string | null {
   if (!quelle) return null;
   if (quelle.includes('markt')) return 'markt';
   if (quelle.includes('prognose')) return 'prognose';
-  if (quelle.includes('szenarien') || quelle.includes('pdf')) return 'szenarien';
+  if (quelle.includes('szenarien') || quelle.includes('pdf') || quelle === 'speichern') return 'szenarien';
   return null;
 }
 
 /**
- * Paywall, wenn ein Gratis-Nutzer nach seiner Gratis-Analyse eine 2. Wohnung vollständig prüfen will.
+ * Paywall für angemeldete Nutzer ohne Premium: nach der Gratis-Analyse eine 2. Wohnung vollständig prüfen
+ * oder eine Analyse speichern (quelle "speichern").
+ * Ohne Premium wird nichts gespeichert, deshalb gibt es hier keinen Weg zurück zu einer gespeicherten Gratis-Analyse.
  * Mobil als Bottom-Sheet, auf dem Desktop als Modal (native <dialog>: Fokus, Esc, Zurück-Geste).
  */
 export function SecondAnalysisPaywall({
-  isOpen, onClose, adresse, kaufpreis, flaeche, zimmer, gratisAdresse, quelle, onGratisAnalyseGeladen,
+  isOpen, onClose, adresse, kaufpreis, flaeche, zimmer, quelle,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titelRef = useRef<HTMLHeadingElement>(null);
-  const router = useRouter();
-  const { userId } = useAuth();
-  const loadAnalysis = useImmoStore(s => s.loadAnalysis);
-  const { analysen } = useGespeicherteAnalysen(isOpen);
-  const [laedtGratis, setLaedtGratis] = useState(false);
+  const speichern = quelle === 'speichern';
 
   useEffect(() => {
     const d = dialogRef.current;
@@ -78,27 +67,6 @@ export function SecondAnalysisPaywall({
     d.addEventListener('pointerup', hoch);
     return () => { d.removeEventListener('pointerdown', runter); d.removeEventListener('pointerup', hoch); };
   }, []);
-
-  const zurGratisAnalyse = async () => {
-    const ziel = gratisAdresse
-      ? analysen.find(a => (a.adresse || '').trim().toLowerCase() === gratisAdresse)
-      : undefined;
-    if (!ziel) {
-      router.push('/analysen');
-      return;
-    }
-    setLaedtGratis(true);
-    const ok = await loadAnalysis(ziel.analysisId, userId);
-    setLaedtGratis(false);
-    if (!ok) {
-      toast.error('Die Analyse konnte nicht geladen werden');
-      router.push('/analysen');
-      return;
-    }
-    onClose();
-    onGratisAnalyseGeladen?.();
-    router.push('/step/tabs');
-  };
 
   const details = [
     kaufpreis > 0 ? `${fmt(kaufpreis)} € Kaufpreis` : null,
@@ -128,13 +96,15 @@ export function SecondAnalysisPaywall({
         </form>
 
         <h2 id="paywall-titel" ref={titelRef} tabIndex={-1} className="pr-10 outline-none text-2xl font-black leading-tight tracking-tight sm:text-[26px]">
-          Deine Gratis-Analyse ist aufgebraucht
+          {speichern ? 'Speichern gibt es mit Premium' : 'Deine Gratis-Analyse ist aufgebraucht'}
         </h2>
         <p className="mt-2 text-[15px] leading-relaxed text-slate-600">
-          Mit Premium prüfst du jede weitere Wohnung genauso vollständig, inklusive Markt, Prognose, Szenarien und PDF-Report.
+          {speichern
+            ? 'Mit Premium speicherst du deine Analysen und prüfst jede weitere Wohnung vollständig.'
+            : 'Mit Premium prüfst du jede weitere Wohnung genauso vollständig, inklusive Markt, Prognose, Szenarien und PDF-Report.'}
         </p>
 
-        {(adresse || kaufpreis > 0) && (
+        {!speichern && (adresse || kaufpreis > 0) && (
           <div className="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#ff6b00] shadow-sm">
               <Home size={20} />
@@ -151,20 +121,10 @@ export function SecondAnalysisPaywall({
           compact
           ort="paywall_second_analysis"
           returnTo="/step/tabs"
-          trackingParams={{ trigger: 'second_analysis', source: quelle ?? 'unknown' }}
+          trackingParams={{ trigger: speichern ? 'speichern' : 'second_analysis', source: quelle ?? 'unknown' }}
           onBeforeCheckout={() => sichereAnalyseVorCheckout(zielTabAus(quelle))}
           className="mt-5"
         />
-
-        <button
-          type="button"
-          onClick={zurGratisAnalyse}
-          disabled={laedtGratis}
-          className="mx-auto mt-4 flex items-center gap-1.5 text-sm font-bold text-slate-600 underline-offset-4 transition hover:text-[#001d3d] hover:underline disabled:opacity-60"
-        >
-          <ArrowLeft size={15} />
-          {laedtGratis ? 'Wird geladen …' : 'Zu meiner Gratis-Analyse'}
-        </button>
       </div>
     </dialog>
   );

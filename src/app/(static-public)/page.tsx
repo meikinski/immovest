@@ -5,42 +5,16 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import {
-  AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, ChevronDown, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
-  Lock, MapPin, Scale, TrendingDown, TrendingUp, X,
+  AlertTriangle, ArrowDown, ArrowRight, BookOpen, Calculator, Check, CirclePlay, CreditCard, FileText, FlaskConical, Link as LinkIcon,
+  Lock, MapPin, Scale, TrendingDown, TrendingUp,
 } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { StickyBottomCTA } from '@/components/StickyBottomCTA';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { GRATIS_ANALYSEN } from '@/lib/preise';
-import { PricingSection } from '@/components/pricing/PricingSection';
-import { FAQ_KOSTENLOS_PREMIUM, gratisText } from '@/config/pricing';
-
-const gratisWohnungText = GRATIS_ANALYSEN === 1 ? '1 Wohnung' : `${GRATIS_ANALYSEN} Wohnungen`;
-
-const FAQS: Array<{ frage: string; antwort: string }> = [
-  {
-    frage: 'Brauche ich Vorwissen?',
-    antwort: 'Nein. Jeder Fachbegriff ist erklärt, und das Ergebnis steht immer zuerst in einem Satz. Profis finden alle Kennzahlen und Formeln in der Detailansicht.',
-  },
-  {
-    frage: 'Woher kommen die Marktdaten?',
-    antwort: 'Aus einer aktuellen Recherche zu Angeboten und Vergleichsdaten für die Lage der Wohnung. Die Quellen werden in der Analyse angezeigt.',
-  },
-  {
-    frage: 'Was ist kostenlos, was kostet Premium?',
-    antwort: FAQ_KOSTENLOS_PREMIUM,
-  },
-  {
-    frage: 'Kann ich den Report bei der Bank vorlegen?',
-    antwort: 'Ja. Er fasst Kaufpreis, Finanzierung, Monatsrechnung, Kapitaldienstfähigkeit und einen Stresstest zusammen. Er ersetzt keine Unterlagen wie Grundbuchauszug oder Wertgutachten.',
-  },
-  {
-    frage: 'Kann ich jederzeit kündigen?',
-    antwort: 'Das Monatsabo ist monatlich kündbar, das Jahresabo zum Ende der Laufzeit.',
-  },
-];
+import { PricingFaq, PricingSection } from '@/components/pricing/PricingSection';
+import { MODELL_KURZ, PRICING_FAQ } from '@/config/pricing';
 
 const strukturDaten = {
   '@context': 'https://schema.org',
@@ -56,7 +30,7 @@ const strukturDaten = {
 const faqDaten = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
-  mainEntity: FAQS.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
+  mainEntity: PRICING_FAQ.map(f => ({ '@type': 'Question', name: f.frage, acceptedAnswer: { '@type': 'Answer', text: f.antwort } })),
 };
 
 // Beispielreport zur Wohnung aus dem Hero, erzeugt mit `npm run sample-report`
@@ -144,14 +118,10 @@ function SchnellCheck({ onStart, angemeldet }: { onStart: () => void; angemeldet
               : 'Du würdest monatlich draufzahlen. Mit mehr Eigenkapital oder einem besseren Preis sieht es anders aus.'}
         </p>
       </div>
-      <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-slate-600 sm:grid-cols-3">
-        {['Steuern & AfA', 'Marktvergleich', '30-Jahres-Prognose'].map(t => (
-          <span key={t} className="flex items-center gap-2 rounded-xl border border-dashed border-slate-200 px-3 py-2"><Lock size={13} className="text-slate-400" />{t}</span>
-        ))}
-      </div>
       <button type="button" onClick={onStart} className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-[#ff6b00] px-6 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition hover:bg-[#ff6b00]/90">
-        {angemeldet ? 'Vollständig analysieren' : 'Vollständig analysieren, kostenlos'} <ArrowRight size={18} />
+        {angemeldet ? 'Vollständig analysieren' : 'Erste Wohnung kostenlos prüfen'} <ArrowRight size={18} />
       </button>
+      {!angemeldet && <p className="mt-3 text-center text-[13px] text-slate-600">{MODELL_KURZ.schnellCheck}</p>}
     </div>
   );
 }
@@ -170,12 +140,12 @@ export default function LandingPage() {
     router.push('/input-method');
   };
 
-  const HauptCta = ({ ort, className = '' }: { ort: string; className?: string }) => (
+  const hauptCta = (ort: string) => (
     <button
       type="button"
       data-cta="main"
       onClick={() => starten(ort)}
-      className={`inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#ff6b00] px-7 py-4 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-px hover:bg-[#ff6b00]/95 ${className}`}
+      className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-[#ff6b00] px-7 py-4 text-base font-bold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-px hover:bg-[#ff6b00]/95"
     >
       {startText} <ArrowRight size={18} />
     </button>
@@ -191,7 +161,7 @@ export default function LandingPage() {
 
         <main>
           {/* Hero */}
-          <section className="bg-[radial-gradient(1200px_500px_at_85%_10%,#fff7f0,transparent_60%)] px-5 pb-20 pt-10 md:pb-28 md:pt-16">
+          <section className="bg-[radial-gradient(1200px_500px_at_85%_10%,#fff7f0,transparent_60%)] px-5 pb-20 pt-8 md:pb-28 md:pt-16">
             <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-14">
               <div className="min-w-0">
                 <Eyebrow>Für Kapitalanleger · Einsteiger und Profis</Eyebrow>
@@ -202,14 +172,14 @@ export default function LandingPage() {
                   Link aus dem Portal einfügen. imvestr rechnet Cashflow, Rendite und Steuern, vergleicht Kaufpreis und Miete mit dem Markt vor Ort und sagt dir in einem Satz, ob sich der Kauf trägt.
                 </p>
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                  <HauptCta ort="hero" />
+                  {hauptCta('hero')}
                   <a href="#ablauf" className="inline-flex items-center justify-center gap-2.5 rounded-2xl border-[1.5px] border-slate-200 bg-white px-6 py-4 font-bold text-[#001d3d] transition hover:border-[#001d3d]">
                     <CirclePlay size={18} /> So funktioniert&apos;s
                   </a>
                 </div>
                 <p className="mt-5 flex items-center gap-1.5 text-[13px] text-slate-600">
                   <Check size={15} strokeWidth={2.6} className="shrink-0 text-emerald-600" />
-                  {isSignedIn ? 'Quellen zu allen Marktdaten' : `${gratisWohnungText} komplett gratis · Ohne Kreditkarte`}
+                  {isSignedIn ? 'Quellen zu allen Marktdaten' : MODELL_KURZ.hero}
                 </p>
               </div>
 
@@ -368,28 +338,23 @@ export default function LandingPage() {
                 <p className="mt-4 max-w-[60ch] text-lg text-slate-300">
                   Drei Regler, eine grobe Schätzung. Die vollständige Analyse rechnet zusätzlich Steuern, Rücklagen und den Markt vor Ort mit ein.
                 </p>
-                <ul className="mt-7 flex flex-col gap-3 text-slate-200">
-                  {[`Vollständige Analyse mit Steuern, Markt und Prognose: ${gratisWohnungText} gratis.`, 'Steuern, AfA und Kreditrate nach deinem Steuersatz', 'Markt- und Lagecheck mit Quellen'].map(t => (
-                    <li key={t} className="flex gap-3"><Check size={20} strokeWidth={2.4} className="mt-0.5 shrink-0 text-[#ff6b00]" />{t}</li>
-                  ))}
-                </ul>
               </div>
               <SchnellCheck onStart={() => starten('schnell_check')} angemeldet={!!isSignedIn} />
             </div>
           </section>
 
-          {/* Premium */}
-          <section className="px-5 py-20 md:py-24">
+          {/* Die vollständige Analyse */}
+          <section id="analyse" className="scroll-mt-20 px-5 py-20 md:py-24">
             <div className="mx-auto max-w-6xl">
               <div className="mx-auto max-w-3xl text-center">
-                <Eyebrow>Mit Premium</Eyebrow>
+                <Eyebrow>Die vollständige Analyse</Eyebrow>
                 <H2>Mehr als ein Rechner: <Orange>deine Entscheidung, zu Ende gedacht.</Orange></H2>
                 <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-600">
-                  Deine erste Analyse enthält alles. Für jede weitere Wohnung brauchst du Premium.
+                  {MODELL_KURZ.analyseIntro}
                 </p>
               </div>
               <div className="mt-11 grid gap-5 md:grid-cols-3">
-                <PremiumKarte icon={TrendingUp} titel="Prognose nach deinem Ziel"
+                <AnalyseKarte icon={TrendingUp} titel="Prognose nach deinem Ziel"
                   text="Vermögen aufbauen, monatlich Geld übrig, Steuern sparen oder später verkaufen: Du wählst, die Prognose antwortet.">
                   <div className="mb-2.5 grid grid-cols-2 gap-1.5">
                     {['Vermögen aufbauen', 'Monatlich Geld übrig', 'Steuern sparen', 'Später verkaufen'].map((t, i) => (
@@ -421,8 +386,8 @@ export default function LandingPage() {
                     </span>
                     <p className="mt-2.5 text-[10px] text-slate-400">Beispielwohnung · Annahmen: 1,5 % Wertsteigerung pro Jahr, Miete konstant</p>
                   </div>
-                </PremiumKarte>
-                <PremiumKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
+                </AnalyseKarte>
+                <AnalyseKarte icon={FlaskConical} titel="Stresstests mit einem Klick"
                   text="Zinsen steigen, Miete sinkt, Preis verhandelt. Und du siehst, wie viel Puffer die Wohnung hat, bevor du draufzahlst.">
                   <div className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
                     <div className="flex items-center justify-between gap-2">
@@ -455,11 +420,11 @@ export default function LandingPage() {
                       </span>
                     ))}
                   </div>
-                </PremiumKarte>
-                <PremiumKarte icon={FileText} titel="Report für das Bankgespräch"
+                </AnalyseKarte>
+                <AnalyseKarte icon={FileText} titel="Report für das Bankgespräch"
                   text="Fünf Seiten mit Kennzahlen, Monatsrechnung, Kapitaldienstfähigkeit, Markt, Prognose und Stresstest.">
                   <a href={BEISPIEL_PDF} target="_blank" rel="noopener" className="group block"
-                    onClick={() => trackCTA('sample_report_opened', 'premium_report_card')}>
+                    onClick={() => trackCTA('sample_report_opened', 'analyse_report_card')}>
                     <span className="relative flex justify-center pb-1 pt-2">
                       {BEISPIEL_SEITEN.map((seite, i) => (
                         <Image key={seite.src} src={seite.src} alt={seite.alt} width={400} height={566} unoptimized loading="lazy"
@@ -472,7 +437,7 @@ export default function LandingPage() {
                       <FileText size={15} className="text-[#ff6b00]" />Beispielreport ansehen (PDF)
                     </span>
                   </a>
-                </PremiumKarte>
+                </AnalyseKarte>
               </div>
             </div>
           </section>
@@ -502,22 +467,7 @@ export default function LandingPage() {
           <section id="faq" className="scroll-mt-20 bg-slate-50 px-5 py-20 md:py-24">
             <div className="mx-auto max-w-3xl">
               <div className="text-center"><Eyebrow>FAQ</Eyebrow><H2>Häufige Fragen</H2></div>
-              <div className="mt-10 flex flex-col gap-2.5">
-                {FAQS.map(f => (
-                  <details
-                    key={f.frage}
-                    className="group rounded-2xl border border-slate-200 bg-white"
-                    onToggle={e => { if ((e.target as HTMLDetailsElement).open) trackCTA('faq_opened', 'faq_section'); }}
-                  >
-                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-4 font-bold [&::-webkit-details-marker]:hidden">
-                      {f.frage}
-                      <span className="text-xl leading-none text-[#ff6b00] group-open:hidden">+</span>
-                      <span className="hidden text-xl leading-none text-[#ff6b00] group-open:inline">−</span>
-                    </summary>
-                    <p className="px-5 pb-5 text-[15px] text-slate-600">{f.antwort}</p>
-                  </details>
-                ))}
-              </div>
+              <PricingFaq titel={false} className="mt-10" onOpen={() => trackCTA('faq_opened', 'faq_section')} />
             </div>
           </section>
 
@@ -526,8 +476,8 @@ export default function LandingPage() {
             <div className="mx-auto max-w-3xl">
               <H2 hell>Prüf deine nächste Wohnung, <Orange>bevor du unterschreibst.</Orange></H2>
               <p className="mx-auto mt-4 max-w-[60ch] text-lg text-slate-300">In 2 Minuten weißt du, ob sie sich trägt, ob der Preis passt und wie viel Puffer bleibt.</p>
-              <div className="mt-8"><HauptCta ort="final_cta" /></div>
-              {!isSignedIn && <p className="mt-4 text-[13px] text-slate-400">{gratisText} gratis · Ohne Kreditkarte</p>}
+              <div className="mt-8">{hauptCta('final_cta')}</div>
+              {!isSignedIn && <p className="mt-4 text-[13px] text-slate-400">{MODELL_KURZ.hero}</p>}
             </div>
           </section>
         </main>
@@ -552,13 +502,10 @@ function Schritt({ nr, kurz, titel, text, children }: { nr: number; kurz: string
   );
 }
 
-function PremiumKarte({ icon: Icon, titel, text, children }: { icon: typeof Lock; titel: string; text: string; children: React.ReactNode }) {
+function AnalyseKarte({ icon: Icon, titel, text, children }: { icon: typeof Lock; titel: string; text: string; children: React.ReactNode }) {
   return (
     <article className="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-      <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-[#fff3e8] px-2.5 py-0.5 text-[11px] font-extrabold text-[#ff6b00]">
-        <Lock size={11} strokeWidth={2.6} /> Ab der 2. Wohnung Premium
-      </span>
-      <h3 className="mt-3.5 flex items-center gap-2 text-[19px] font-extrabold"><Icon size={19} className="text-[#ff6b00]" />{titel}</h3>
+      <h3 className="flex items-center gap-2 text-[19px] font-extrabold"><Icon size={19} className="text-[#ff6b00]" />{titel}</h3>
       <p className="mt-1.5 text-[15px] text-slate-600">{text}</p>
       <div className="mt-4 flex min-h-[150px] flex-1 flex-col justify-end rounded-2xl border border-slate-100 bg-slate-50 p-3.5">{children}</div>
     </article>

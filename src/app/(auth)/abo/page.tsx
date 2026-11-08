@@ -100,7 +100,7 @@ function AboInhalt() {
           <Merkmal ja>Markt- &amp; Lageanalyse</Merkmal>
           <Merkmal ja>Prognose &amp; Stresstests</Merkmal>
           <Merkmal ja>PDF-Report für die Bank</Merkmal>
-          <Merkmal ja>Analysen speichern</Merkmal>
+          <Merkmal ja={false}>Analysen speichern (Premium)</Merkmal>
         </ul>
       </KontoKarte>
     );
@@ -114,13 +114,13 @@ function AboInhalt() {
           {uebrig === 0 ? 'Kostenlose Analyse aufgebraucht' : uebrig === 1 ? 'Noch 1 kostenlose Analyse' : `Noch ${uebrig} kostenlose Analysen`}
         </p>
         <p className="mt-1 max-w-[62ch] text-sm text-slate-600">
-          Cashflow und Rendite rechnest du immer kostenlos. Deine kostenlose Analyse enthält Markt, Prognose, Szenarien und den PDF-Report. Analysen speichern ist ebenfalls kostenlos. Für jede weitere Wohnung brauchst du Premium.
+          Cashflow, Rendite und DSCR rechnest du immer kostenlos. Deine kostenlose Analyse enthält Markt, Prognose, Szenarien und den PDF-Report. Für jede weitere Wohnung und zum Speichern brauchst du Premium.
         </p>
         <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Merkmal ja>Cashflow &amp; Rendite, unbegrenzt</Merkmal>
           <Merkmal ja>{gratisText}</Merkmal>
           <Merkmal ja>Szenarien &amp; PDF-Report in der kostenlosen Analyse</Merkmal>
-          <Merkmal ja>Analysen speichern</Merkmal>
+          <Merkmal ja={false}>Analysen speichern (Premium)</Merkmal>
         </ul>
       </KontoKarte>
 
