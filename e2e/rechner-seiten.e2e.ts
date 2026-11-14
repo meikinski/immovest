@@ -79,6 +79,33 @@ async function main() {
       assert(!($('meta[name=robots]').attr('content') ?? '').includes('noindex'), `${pfad} ist nicht noindex`);
     }
 
+    // Rechtstexte: eigener Titel und Self-Canonical (in der Schleife oben über die Sitemap geprüft)
+    for (const pfad of ['/impressum', '/datenschutz', '/agb']) {
+      assert(locs.includes(`https://imvestr.de${pfad}`), `${pfad} steht in der Sitemap und wurde oben geprüft`);
+    }
+
+    // 404: eigener, eindeutiger Titel, kein Canonical (bisher geerbt: Startseite)
+    {
+      const { status, html } = await lade('/gibt-es-nicht-404-test');
+      const $ = cheerio.load(html);
+      const t = $('title').text();
+      assert(status === 404, '404-Seite antwortet mit 404');
+      assert(t === 'Seite nicht gefunden (404) | imvestr' && !titel.has(t), `404 hat einen eigenen, eindeutigen Titel ("${t}")`);
+      assert($('link[rel=canonical]').length === 0, '404 hat keinen Canonical mehr (bisher: Startseite)');
+      assert(($('meta[name=robots]').attr('content') ?? '').includes('noindex'), '404 ist noindex');
+    }
+
+    // /input-method: noindex, follow, nicht in der Sitemap
+    {
+      const { status, html } = await lade('/input-method');
+      const $ = cheerio.load(html);
+      assert(status === 200, '/input-method antwortet mit 200');
+      assert($('meta[name=robots]').attr('content') === 'noindex, follow', '/input-method ist noindex, follow');
+      const gb = $('meta[name=googlebot]').attr('content');
+      assert(gb === undefined || gb === 'noindex, follow', '/input-method: googlebot-Meta widerspricht nicht');
+      assert(!locs.some(l => l.endsWith('/input-method')), '/input-method steht nicht in der Sitemap');
+    }
+
     // Rechner-Seiten im Detail
     for (const c of rechner) {
       const pfad = rechnerPfad(c);
