@@ -105,42 +105,6 @@ DROP TRIGGER IF EXISTS update_premium_usage_updated_at ON user_premium_usage;
 CREATE TRIGGER update_premium_usage_updated_at BEFORE UPDATE ON user_premium_usage
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Row Level Security (RLS)
-ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_premium_usage ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies for analyses
--- Note: Since we're using Clerk, we'll handle authorization in the API layer
--- For now, allow authenticated users to access their own data
-CREATE POLICY "Users can view their own analyses"
-  ON analyses FOR SELECT
-  USING (true); -- Will be filtered in API by user_id
-
-CREATE POLICY "Users can insert their own analyses"
-  ON analyses FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Users can update their own analyses"
-  ON analyses FOR UPDATE
-  USING (true);
-
-CREATE POLICY "Users can delete their own analyses"
-  ON analyses FOR DELETE
-  USING (true);
-
--- RLS Policies for user_premium_usage
-CREATE POLICY "Users can view their own premium usage"
-  ON user_premium_usage FOR SELECT
-  USING (true);
-
-CREATE POLICY "Users can update their own premium usage"
-  ON user_premium_usage FOR UPDATE
-  USING (true);
-
-CREATE POLICY "System can insert premium usage"
-  ON user_premium_usage FOR INSERT
-  WITH CHECK (true);
-
 -- Scenarios table
 CREATE TABLE IF NOT EXISTS scenarios (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -193,21 +157,34 @@ DROP TRIGGER IF EXISTS update_scenarios_updated_at ON scenarios;
 CREATE TRIGGER update_scenarios_updated_at BEFORE UPDATE ON scenarios
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Row Level Security (RLS) for scenarios
+-- Row Level Security (RLS)
+--
+-- RLS ist auf allen Tabellen aktiviert, und es werden bewusst KEINE Policies
+-- angelegt. Damit haben die Rollen "anon" und "authenticated" (also jeder mit
+-- dem öffentlichen NEXT_PUBLIC_SUPABASE_ANON_KEY) keinerlei Zugriff.
+--
+-- Die App greift ausschließlich serverseitig über getSupabaseServerClient()
+-- (Service-Role-Key) zu. Der Service-Role-Key umgeht RLS; die Autorisierung
+-- pro Nutzer (Clerk user_id) passiert in den API-Routen.
+--
+-- NIEMALS Policies mit USING (true) / WITH CHECK (true) anlegen und RLS nicht
+-- deaktivieren: Beides öffnet die Tabellen für jeden mit dem Anon-Key.
+ALTER TABLE analyses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_premium_usage ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scenarios ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view their own scenarios"
-  ON scenarios FOR SELECT
-  USING (true);
+-- Migration für bestehende Datenbanken: offene Policies aus früheren Versionen
+-- dieses Schemas entfernen (siehe supabase/migrations/20261114000000_drop_open_rls_policies.sql)
+DROP POLICY IF EXISTS "Users can view their own analyses" ON analyses;
+DROP POLICY IF EXISTS "Users can insert their own analyses" ON analyses;
+DROP POLICY IF EXISTS "Users can update their own analyses" ON analyses;
+DROP POLICY IF EXISTS "Users can delete their own analyses" ON analyses;
 
-CREATE POLICY "Users can insert their own scenarios"
-  ON scenarios FOR INSERT
-  WITH CHECK (true);
+DROP POLICY IF EXISTS "Users can view their own premium usage" ON user_premium_usage;
+DROP POLICY IF EXISTS "Users can update their own premium usage" ON user_premium_usage;
+DROP POLICY IF EXISTS "System can insert premium usage" ON user_premium_usage;
 
-CREATE POLICY "Users can update their own scenarios"
-  ON scenarios FOR UPDATE
-  USING (true);
-
-CREATE POLICY "Users can delete their own scenarios"
-  ON scenarios FOR DELETE
-  USING (true);
+DROP POLICY IF EXISTS "Users can view their own scenarios" ON scenarios;
+DROP POLICY IF EXISTS "Users can insert their own scenarios" ON scenarios;
+DROP POLICY IF EXISTS "Users can update their own scenarios" ON scenarios;
+DROP POLICY IF EXISTS "Users can delete their own scenarios" ON scenarios;

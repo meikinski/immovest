@@ -17,7 +17,7 @@ Das erstellt:
 - `analyses` Tabelle für gespeicherte Analysen
 - `user_premium_usage` Tabelle für Premium-Status
 - Indexes für Performance
-- Row Level Security Policies
+- Row Level Security (aktiviert, bewusst ohne Policies: Zugriff nur serverseitig per Service-Role-Key)
 - Auto-update Triggers für `updated_at`
 
 ## 3. API Keys kopieren
@@ -88,8 +88,9 @@ Wenn du bereits Analysen in localStorage hast:
 - Restart dev server
 
 **"Row Level Security policy violation"**
-- Checke ob RLS Policies korrekt sind
-- Teste mit service_role key (nur für debugging!)
+- Die App braucht keine RLS Policies; sie greift serverseitig mit dem Service-Role-Key zu
+- Checke ob `SUPABASE_SERVICE_ROLE_KEY` gesetzt ist
+- RLS nicht deaktivieren und keine Policies mit `USING (true)` anlegen (der Anon-Key ist öffentlich)
 
 **Analysen werden nicht gespeichert**
 - Öffne Browser Console für Fehler
