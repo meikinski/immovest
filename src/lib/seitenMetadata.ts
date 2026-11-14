@@ -24,3 +24,20 @@ export const SCHRITT_TITEL: Record<string, string> = {
   pruefen: 'Angaben prüfen',
   tabs: 'Ergebnis deiner Analyse',
 };
+
+/**
+ * Metadaten für öffentliche Seiten ohne eigenes Suchziel (Impressum, Datenschutz, AGB):
+ * eigener Titel, eigene Beschreibung und ein Canonical auf sich selbst, statt Titel und Canonical
+ * der Startseite aus dem Root-Layout zu erben (Google wertet sie sonst als Duplikate von /).
+ */
+export function oeffentlicheSeiteMetadata(o: { titel: string; beschreibung: string; pfad: string }): Metadata {
+  const voll = `${o.titel} | imvestr`;
+  const url = `https://imvestr.de${o.pfad}`;
+  return {
+    title: { absolute: voll },
+    description: o.beschreibung,
+    alternates: { canonical: url },
+    openGraph: { title: voll, description: o.beschreibung, url, type: 'website', locale: 'de_DE', siteName: 'imvestr' },
+    twitter: { card: 'summary', title: voll, description: o.beschreibung },
+  };
+}

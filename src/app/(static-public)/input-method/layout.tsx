@@ -22,15 +22,13 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/input-method',
   },
+  // Eingabeformular der App ohne eigenen Suchwert: nicht indexieren, Links aber verfolgen
   robots: {
-    index: true,
+    index: false,
     follow: true,
     googleBot: {
-      index: true,
+      index: false,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
     },
   },
 };
