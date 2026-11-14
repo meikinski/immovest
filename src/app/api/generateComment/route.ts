@@ -1,6 +1,8 @@
 // src/app/api/generateComment/route.ts
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { pruefeLimitsUndBudget, standardSchutzDeps } from '@/lib/kostenSchutz';
+import { darfVollanalyse } from '@/lib/gratisAnalyse';
 import {
   DEFAULT_VERDICT,
   parseStrategyCheck,
@@ -194,6 +196,12 @@ export async function POST(req: Request) {
 
     const rawRec: Record<string, unknown> = (await req.json()) as Record<string, unknown>;
 
+    // Plan: Die KI-Einschätzung gehört zur vollständigen Analyse (Premium, freies Gratis-Kontingent
+    // oder die Wohnung, für die die Gratis-Analyse vergeben ist)
+    if (!(await darfVollanalyse(userId, rawRec.address ?? rawRec.adresse))) {
+      return NextResponse.json({ comment: '', locked: true, reason: 'plan' });
+    }
+
     // Debug: Log alle relevanten Felder aus dem Request
     console.log('[generateComment] Raw request fields:', {
       cashflowVorSteuer: rawRec.cashflowVorSteuer,
@@ -281,6 +289,12 @@ export async function POST(req: Request) {
     };
 
     console.log('[generateComment] Payload to OpenAI (rounded):', JSON.stringify(userPayload, null, 2));
+
+    // Kostenschutz: Rate Limit pro Nutzer und KI-Tagesbudget, erst direkt vor dem bezahlten Aufruf
+    const abgelehnt = await pruefeLimitsUndBudget(req, await standardSchutzDeps(), {
+      route: '/api/generateComment', bucket: 'kommentar', ki: true, userId,
+    });
+    if (abgelehnt) return abgelehnt;
 
     const r = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
