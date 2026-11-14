@@ -2,7 +2,7 @@
 --
 -- Ausführen: Supabase Dashboard → SQL Editor → New query → komplett einfügen → Run.
 -- Kann beliebig oft ausgeführt werden. Bestehende Zeilen werden weder gelöscht noch inhaltlich geändert:
--- es kommen nur Spalten dazu, Ganzzahl-Spalten werden zu NUMERIC erweitert (Werte bleiben gleich)
+-- es kommen nur Spalten dazu, Ganzzahl-Spalten werden zu NUMERIC und VARCHAR-Spalten zu TEXT erweitert (Werte bleiben gleich)
 -- und NOT NULL fällt bei Spalten weg, die die App gar nicht schreibt.
 
 BEGIN;
@@ -68,6 +68,27 @@ BEGIN
   LOOP
     EXECUTE format('ALTER TABLE analyses ALTER COLUMN %I TYPE NUMERIC USING %I::numeric', c.column_name, c.column_name);
     RAISE NOTICE 'Spalte % auf NUMERIC erweitert', c.column_name;
+  END LOOP;
+END $$;
+
+-- 2b) Textspalten mit Längenbegrenzung (VARCHAR(n), CHAR(n)) auf TEXT erweitern.
+--     Lange KI-Kommentare und Adressen passen sonst nicht. Vorhandene Werte bleiben unverändert.
+DO $$
+DECLARE
+  c RECORD;
+BEGIN
+  FOR c IN
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name = 'analyses'
+      AND column_name IN (
+        'analysis_name', 'adresse', 'client_id',
+        'generated_comment', 'lage_comment', 'mietpreis_comment', 'qm_preis_comment', 'invest_comment'
+      )
+      AND data_type IN ('character varying', 'character')
+  LOOP
+    EXECUTE format('ALTER TABLE analyses ALTER COLUMN %I TYPE TEXT', c.column_name);
+    RAISE NOTICE 'Spalte % auf TEXT erweitert', c.column_name;
   END LOOP;
 END $$;
 

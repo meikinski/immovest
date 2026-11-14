@@ -24,7 +24,7 @@ function assert(condition: boolean, message: string) {
 // ---------------------------------------------------------------------------------------------
 
 type Typ = 'text' | 'numeric' | 'integer' | 'jsonb';
-type Spalte = { typ: Typ; notNull?: boolean; standard?: unknown };
+type Spalte = { typ: Typ; notNull?: boolean; standard?: unknown; maxLaenge?: number; max?: number };
 type Zeile = Record<string, unknown>;
 type Fehler = { code: string; message: string; details: string | null; hint: string | null };
 
@@ -81,6 +81,10 @@ class FakeDb {
       if (s.typ === 'numeric' && !(typeof v === 'number' && Number.isFinite(v))) {
         return fehler('22P02', `invalid input syntax for type numeric: "${String(v)}"`);
       }
+      if (s.maxLaenge && typeof v === 'string' && v.length > s.maxLaenge) {
+        return fehler('22001', `value too long for type character varying(${s.maxLaenge})`);
+      }
+      if (s.max !== undefined && typeof v === 'number' && Math.abs(v) >= s.max) return fehler('22003', 'numeric field overflow');
       if (s.typ === 'text' && typeof v !== 'string') return fehler('22P02', `invalid input for text: "${String(v)}"`);
     }
     if (insert) {
@@ -373,6 +377,54 @@ async function main() {
     const db = new FakeDb({ ...SCHEMA_AKTUELL, alte_spalte: { typ: 'text', notNull: true } });
     const r = await saveAnalysisRow(db.client, USER, payload);
     assert(!r.ok && r.error?.code === '23502' && db.versuche === 1, 'schlägt sofort fehl (kein endloses Wiederholen), Fehler mit Spaltenname im Log');
+  }
+
+  console.log('\nLange KI-Kommentare, Live-Tabelle mit VARCHAR(255) und NUMERIC(5,2)');
+  {
+    const absatz = 'Die Wohnung liegt in einem gefragten Gründerzeitviertel; die Miete von 6,12 €/m² liegt 27,7 % unter dem Markt. ';
+    const lang = { ...payload, generatedComment: absatz.repeat(40), lageComment: absatz.repeat(25), investComment: absatz.repeat(60) };
+    assert((lang.investComment as string).length > 6000, 'KI-Kommentar mit über 6.000 Zeichen');
+
+    const aktuell = new FakeDb(SCHEMA_AKTUELL);
+    const r1 = await saveAnalysisRow(aktuell.client, USER, lang);
+    assert(r1.ok && aktuell.versuche === 1, 'aktuelles Schema: lange Kommentare im ersten Versuch gespeichert');
+    assertNode.deepEqual(await lade(aktuell, USER, r1.clientId), lang);
+    assert(true, 'und unverändert wieder geladen');
+
+    const eng = new FakeDb({
+      ...SCHEMA_AKTUELL,
+      invest_comment: { typ: 'text', standard: '', maxLaenge: 255 },
+      kaufpreis: { typ: 'numeric', notNull: true, standard: 0, max: 1000 },
+    });
+    const r2 = await saveAnalysisRow(eng.client, USER, lang);
+    assert(r2.ok && eng.zeilen.length === 1, 'enge Spalten: Speichern gelingt trotzdem');
+    assert(r2.ok && r2.hinweise.some(h => /Nur der komplette Zustand.*\(2200[13]\)/.test(h)), 'der Notfallweg samt Fehlercode steht im Hinweis fürs Log');
+    assertNode.deepEqual(await lade(eng, USER, r2.clientId), lang);
+    assert(true, 'der komplette Zustand kommt aus state zurück, nichts geht verloren');
+    assert(eng.zeilen[0].analysis_name === 'Prager Straße 123, 04317 Leipzig', 'Name bleibt für die Liste erhalten');
+  }
+
+  console.log('\nNaN und Infinity');
+  {
+    const db = new FakeDb(SCHEMA_AKTUELL);
+    const r = await saveAnalysisRow(db.client, USER, { ...payload, nettorendite: Infinity, score: NaN, marktFacts: { ...marktFacts, vacancy: { risk: 'niedrig', rate: -Infinity, notes: null } } });
+    assert(r.ok && db.versuche === 1, 'führen nicht zu einem Datenbankfehler');
+    const geladen = await lade(db, USER, r.clientId) as { nettorendite: unknown; score: unknown; marktFacts: { vacancy: { rate: unknown } } };
+    assert(geladen.nettorendite === null && geladen.score === null && geladen.marktFacts.vacancy.rate === null, 'im Zustand stehen sie als null (auch verschachtelt)');
+    assert(db.zeilen[0].nettorendite === 0 && db.zeilen[0].score === 0, 'in den NOT-NULL-Spalten steht der Standardwert');
+  }
+
+  console.log('\nKostenloses Konto: eine vollständige Analyse speichern und wieder öffnen');
+  {
+    // Der Speicher- und Ladepfad kennt keinen Tarif: gleiche Funktionen, nur die Clerk-ID unterscheidet die Konten
+    const db = new FakeDb(SCHEMA_AKTUELL);
+    const FREI = 'user_2xyzKostenlos';
+    const r = await saveAnalysisRow(db.client, FREI, payload);
+    assert(r.ok && db.versuche === 1, 'Speichern gelingt');
+    assertNode.deepEqual(await lade(db, FREI, r.clientId), payload);
+    assert(true, 'die Analyse lässt sich vollständig wieder öffnen');
+    const liste = dedupeRows(db.zeilen.filter(z => z.user_id === FREI)).map(rowToListItem);
+    assert(liste.length === 1 && liste[0].kaufpreis === 215000, 'und steht in „Meine Analysen“');
   }
 
   console.log = originalLog;

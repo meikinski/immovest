@@ -176,9 +176,13 @@ function zahl(v: unknown, fallback = 0): number {
 
 const text = (v: unknown) => (typeof v === 'string' ? v : '');
 
-/** Postgres lehnt \u0000 in TEXT und JSONB ab – kann in gescrapten Texten vorkommen. */
+/**
+ * Macht den Payload datenbanktauglich: Postgres lehnt \u0000 in TEXT und JSONB ab (kann in gescrapten
+ * Texten vorkommen), und NaN/Infinity (z. B. aus 1e999 im JSON) werden zu null.
+ */
 function ohneNullBytes<T>(v: T): T {
   if (typeof v === 'string') return v.replace(/\u0000/g, '') as T;
+  if (typeof v === 'number' && !Number.isFinite(v)) return null as T;
   if (Array.isArray(v)) return v.map(ohneNullBytes) as T;
   if (v && typeof v === 'object') {
     return Object.fromEntries(Object.entries(v as Row).map(([k, w]) => [k, ohneNullBytes(w)])) as T;
@@ -190,6 +194,12 @@ const neueClientId = () => `analysis_${Date.now()}_${Math.random().toString(36).
 
 /** Ohne diese Spalten ist eine Zeile nicht brauchbar – sie werden nie weggelassen. */
 const PFLICHT_SPALTEN = new Set(['user_id', 'analysis_name']);
+
+/**
+ * Letzter Ausweg, wenn die Spaltenkopien aus irgendeinem Grund nicht geschrieben werden können:
+ * nur Besitzer, Name, ID und der komplette Zustand. Alles andere füllt die Datenbank mit Standardwerten.
+ */
+const NOTFALL_SPALTEN = new Set(['user_id', 'analysis_name', 'client_id', 'state']);
 
 /** Store-Zustand (exportState) → Zeile für die analyses-Tabelle. */
 export function buildAnalysisRow(userId: string, payload: Row): { clientId: string; row: Row } {
@@ -266,6 +276,7 @@ export async function saveAnalysisRow(
   let row = vollstaendig;
   const hinweise: string[] = [];
   let gerundetAlle = false;
+  let notfall = false;
 
   const existingId = await resolveAnalysisRowId(supabase, userId, clientId);
   const schreiben = (r: Row) =>
@@ -320,6 +331,18 @@ export async function saveAnalysisRow(
         hinweise.push(`Ganzzahl-Spalte, Wert gerundet (exakt in state): ${[...namen].join(', ')}`);
         continue;
       }
+    }
+
+    // 3) Jeder andere Fehler an den Spaltenkopien (Text zu lang für VARCHAR, Zahl zu groß, CHECK …):
+    //    nur noch Name, ID und den kompletten Zustand schreiben. Die Analyse geht nicht verloren und
+    //    lässt sich vollständig öffnen; in der Liste stehen bis zur Migration Standardwerte.
+    //    Hilft nicht bei einer Pflichtspalte, die die App gar nicht schreibt (23502) – die nennt das Log.
+    const pflichtFremd = error.code === '23502' && !NOTFALL_SPALTEN.has(/column "([^"]+)"/.exec(error.message ?? '')?.[1] ?? '');
+    if (!notfall && 'state' in row && !pflichtFremd) {
+      notfall = true;
+      row = Object.fromEntries(Object.entries(row).filter(([k]) => NOTFALL_SPALTEN.has(k)));
+      hinweise.push(`Nur der komplette Zustand gespeichert, Spaltenkopien abgelehnt (${error.code ?? 'ohne Code'})`);
+      continue;
     }
 
     return { ok: false, clientId, error, hinweise };
