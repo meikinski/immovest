@@ -37,7 +37,10 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
 
     // Track upgrade click before initiating checkout
     trackUpgradeClick(planName, 'upgrade_modal');
-    trackEvent(AnalyticsEvents.CHECKOUT_STARTED, { plan: planName, plan_name: planName, click_location: 'upgrade_modal', currency: 'EUR' });
+    trackEvent(AnalyticsEvents.CHECKOUT_STARTED, {
+      plan: planName, plan_name: planName, click_location: 'upgrade_modal',
+      value: planName === 'yearly' ? PREIS_JAHR : PREIS_MONAT, currency: 'EUR',
+    });
 
     setIsLoading(true);
     setError(null);

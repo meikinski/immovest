@@ -5,7 +5,7 @@ import { Keyboard, Camera, X, Link as LinkIcon, Sparkles, ChevronDown, ChevronRi
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { AnalyticsEvents, merkeEingabeMethode } from '@/lib/analytics';
+import { AnalyticsEvents, importDomain, merkeEingabeMethode } from '@/lib/analytics';
 import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -155,7 +155,7 @@ export default function InputMethodPage() {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
         import_method: 'screenshot',
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: (err instanceof Error ? err.message : 'Unknown error').slice(0, 100),
       });
       setImageError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
@@ -172,7 +172,7 @@ export default function InputMethodPage() {
     // Track AI Import Started
     track(AnalyticsEvents.AI_IMPORT_STARTED, {
       import_method: 'url',
-      import_url: url.trim()
+      import_domain: importDomain(url)
     });
 
     setUrlLoading(true);
@@ -219,7 +219,7 @@ export default function InputMethodPage() {
         merkeEingabeMethode('url');
         track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
           import_method: 'url',
-          import_url: url.trim(),
+          import_domain: importDomain(url),
           has_warnings: (result.warnings?.length ?? 0) > 0 || fehlend.length > 0,
           missing_fields: fehlend.join(',') || 'none',
         });
@@ -232,8 +232,8 @@ export default function InputMethodPage() {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
         import_method: 'url',
-        import_url: url.trim(),
-        error: err instanceof Error ? err.message : 'Unknown error',
+        import_domain: importDomain(url),
+        error: (err instanceof Error ? err.message : 'Unknown error').slice(0, 100),
       });
       setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
