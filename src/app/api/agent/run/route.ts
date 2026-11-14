@@ -7,8 +7,9 @@ import { wikidataAreaByPoint } from '@/utils/wikidata';
 import { agentRunPost } from '@/lib/agentRun';
 import { standardSchutzDeps } from '@/lib/kostenSchutz';
 import { supabasePlanStore } from '@/lib/gratisAnalyse';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   return agentRunPost(req, {
     ...(await standardSchutzDeps()),
     planStore: supabasePlanStore(),
@@ -17,3 +18,5 @@ export async function POST(req: NextRequest) {
     wikidataAreaByPoint,
   });
 }
+
+export const POST = mitMonitoring('POST /api/agent/run', handlePOST);

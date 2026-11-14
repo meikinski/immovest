@@ -11,6 +11,7 @@
 
 import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -37,7 +38,7 @@ interface ClerkUserCreatedEvent {
 // POST Handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   // 1. Signatur-Header lesen
   const svixId = req.headers.get('svix-id');
   const svixTimestamp = req.headers.get('svix-timestamp');
@@ -157,3 +158,5 @@ export async function POST(req: Request) {
 
   return NextResponse.json({ received: true });
 }
+
+export const POST = mitMonitoring('POST /api/webhooks/clerk', handlePOST);

@@ -42,6 +42,9 @@ export function useStatePersistence() {
   useEffect(() => {
     const saveState = () => {
       try {
+        // Leeren Stand nie speichern: sonst überschreibt eine leere Eingabeseite die zuletzt eingegebene Wohnung
+        const aktuell = useImmoStore.getState();
+        if (!(aktuell.kaufpreis > 0) && !String(aktuell.adresse || '').trim()) return;
         const currentState = exportState();
         localStorage.setItem(STATE_KEY, JSON.stringify(currentState));
       } catch (error) {

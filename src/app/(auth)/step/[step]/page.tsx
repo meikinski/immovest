@@ -42,7 +42,7 @@ import { signInHref, signUpHref } from '@/lib/anmeldeLinks';
 import { GastHinweisBanner } from '@/components/GratisVorteile';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { LockedPreview } from '@/components/LockedPreview';
-import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
+import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, sichereGastWohnung, stelleGastWohnungWiederHer, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
 import { TourLink } from '@/components/TourLink';
 import { berechneBruttomietrendite, berechneEkRendite, berechneEkStartwert, berechneNettomietrendite, type KennzahlenEingabe } from '@/lib/kennzahlen';
 import { formatZahl, formatZahlOderLeer, parseZahl } from '@/lib/zahlen';
@@ -752,13 +752,27 @@ const dscr =
     router.push(`/step/${nextStep}`);
   };
 
-  // Redirect /step/tabs → /step/a when store is empty (unqualified direct traffic)
+  // Redirect /step/tabs → /step/a when store is empty (unqualified direct traffic).
+  // Vorher die Wohnung aus der Anmelde-Rückkehr holen (Autosave kann nach der Anmeldung leer sein).
   useEffect(() => {
     if (!mounted) return;
     if (step === 'tabs' && kaufpreis <= 0) {
+      if (stelleGastWohnungWiederHer()) return;
       router.replace('/step/a');
     }
   }, [step, mounted, kaufpreis, router]);
+
+  // Gäste auf dem Ergebnis: Wohnung laufend sichern, damit sie jede Anmeldung übersteht (auch über die Kopfzeile)
+  useEffect(() => {
+    if (!mounted || step !== 'tabs' || isSignedIn !== false) return;
+    sichereGastWohnung();
+    let t: ReturnType<typeof setTimeout> | undefined;
+    const abmelden = useImmoStore.subscribe(() => {
+      clearTimeout(t);
+      t = setTimeout(() => sichereGastWohnung(), 1000);
+    });
+    return () => { clearTimeout(t); abmelden(); };
+  }, [mounted, step, isSignedIn]);
 
   // Bei Wechsel in die Tabs einmalig Derived erzwingen (ersetzt "result")
   useEffect(() => {
@@ -916,7 +930,9 @@ const dscr =
   useEffect(() => {
     if (step !== 'tabs' || !isSignedIn || !premiumStatusLoaded || anmeldeRueckkehrGeprueft.current) return;
     anmeldeRueckkehrGeprueft.current = true;
-    const bereich = holeAnmeldeRueckkehr();
+    const rueckkehr = holeAnmeldeRueckkehr();
+    // Ohne gesperrten Bereich (z. B. Anmeldung über die Kopfzeile) bleibt es beim Ergebnis
+    const bereich = rueckkehr?.bereich;
     if (!bereich) return;
     if (bereich === 'ki') {
       setActiveTab('kpi');

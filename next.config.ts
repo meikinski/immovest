@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs/config";
 
 const nextConfig: NextConfig = {
   /* Performance Optimizations */
@@ -36,4 +37,14 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Fehlerüberwachung (siehe docs/MONITORING.md). Ohne SENTRY_AUTH_TOKEN werden keine Sourcemaps hochgeladen,
+// der Build läuft trotzdem. Browser-Ereignisse gehen über /monitoring (eigene Domain, kein Werbeblocker-Verlust).
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  tunnelRoute: "/monitoring",
+  widenClientFileUpload: true,
+  telemetry: false,
+});

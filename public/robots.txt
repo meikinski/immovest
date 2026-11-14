@@ -4,14 +4,13 @@
 User-agent: *
 Allow: /
 
-# Disallow private pages and pages that redirect
+# Disallow pages that redirect and the API
 Disallow: /dashboard
-Disallow: /sign-up
-Disallow: /profile
 Disallow: /api/
+Disallow: /monitoring
 
-# Disallow wizard result page (no standalone value for search engines)
-Disallow: /step/tabs
+# App-Seiten (/step/*, /analysen, /abo, /hilfe, /profile, /sign-in, /sign-up) tragen „noindex".
+# Sie bleiben hier bewusst erlaubt: Nur so sieht Google das noindex und nimmt sie aus dem Index.
 
 # Allow legal pages
 Allow: /impressum

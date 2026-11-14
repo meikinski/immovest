@@ -2,8 +2,9 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
-export async function GET() {
+async function handleGET() {
   try {
     const { userId } = await auth();
 
@@ -94,7 +95,7 @@ export async function GET() {
  * serverseitig in /api/agent/run verbucht (src/lib/gratisAnalyse.ts). Bleibt als No-op für Browser mit
  * altem Code im Cache: schreibt nichts und liefert den aktuellen Stand.
  */
-export async function POST() {
+async function handlePOST() {
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -118,3 +119,6 @@ export async function POST() {
     return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
   }
 }
+
+export const GET = mitMonitoring('GET /api/premium/status', handleGET);
+export const POST = mitMonitoring('POST /api/premium/status', handlePOST);

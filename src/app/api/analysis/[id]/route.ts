@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { resolveAnalysisRowId, rowToState } from '@/lib/analysisDb';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 // Get single analysis (id = Client-analysisId oder UUID)
-export async function GET(
+async function handleGET(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
@@ -49,7 +50,7 @@ export async function GET(
 }
 
 // Delete analysis (inkl. Szenarien per ON DELETE CASCADE)
-export async function DELETE(
+async function handleDELETE(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
@@ -115,3 +116,6 @@ export async function DELETE(
     );
   }
 }
+
+export const GET = mitMonitoring('GET /api/analysis/[id]', handleGET);
+export const DELETE = mitMonitoring('DELETE /api/analysis/[id]', handleDELETE);

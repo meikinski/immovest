@@ -4,10 +4,11 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { cronAutorisiert } from '@/lib/cronAuth';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   // Vercel schickt CRON_SECRET als Bearer-Token mit. Ohne gesetztes Secret wird abgelehnt (fail closed).
   if (!cronAutorisiert(request.headers.get('authorization'), process.env.CRON_SECRET)) {
     if (!process.env.CRON_SECRET) console.error('[Keepalive] CRON_SECRET ist nicht gesetzt, Aufruf abgelehnt');
@@ -30,3 +31,5 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const GET = mitMonitoring('GET /api/cron/supabase-keepalive', handleGET);
