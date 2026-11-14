@@ -49,22 +49,34 @@ function DeltaPill({ delta, unit, higherIsBetter = true, digits = 0 }: { delta: 
 }
 
 function VergleichKachel({
-  icon: Icon, label, heute, szenario, unit, higherIsBetter = true, digits = 0,
-}: { icon: LucideIcon; label: string; heute: number; szenario: number; unit: string; higherIsBetter?: boolean; digits?: number }) {
-  const geaendert = Math.abs(szenario - heute) >= Math.pow(10, -digits) / 2;
+  icon: Icon, label, heute, szenario, unit, higherIsBetter = true, digits = 0, leerText,
+}: {
+  icon: LucideIcon; label: string; heute: number | null; szenario: number | null; unit: string;
+  higherIsBetter?: boolean; digits?: number;
+  /** Hinweis statt Änderung, wenn der Szenariowert nicht berechenbar ist (null) */
+  leerText?: string;
+}) {
+  // null = nicht berechenbar: Anzeige "–", ohne Änderung und Bewertung
+  const geaendert = heute === null || szenario === null
+    ? heute !== szenario
+    : Math.abs(szenario - heute) >= Math.pow(10, -digits) / 2;
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm md:p-5">
       <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
         <Icon size={16} className="shrink-0 text-[#ff6b00]" />{label}
       </div>
       <p className={`mt-3 text-xs tabular-nums text-slate-400 ${geaendert ? 'line-through decoration-slate-300' : ''}`}>
-        {geaendert ? `heute ${fmt(heute, digits)} ${unit}` : 'wie heute'}
+        {geaendert ? `heute ${heute === null ? '–' : `${fmt(heute, digits)} ${unit}`}` : 'wie heute'}
       </p>
       <p className="mt-0.5 flex items-baseline gap-1">
-        <span className="text-2xl font-bold tracking-tight tabular-nums text-[#001d3d] md:text-[26px]">{fmt(szenario, digits)}</span>
-        <span className="text-sm font-semibold text-slate-400">{unit}</span>
+        <span className="text-2xl font-bold tracking-tight tabular-nums text-[#001d3d] md:text-[26px]">{szenario === null ? '–' : fmt(szenario, digits)}</span>
+        {szenario !== null && <span className="text-sm font-semibold text-slate-400">{unit}</span>}
       </p>
-      <div className="mt-2"><DeltaPill delta={szenario - heute} unit={unit} higherIsBetter={higherIsBetter} digits={digits} /></div>
+      <div className="mt-2">
+        {szenario === null
+          ? leerText && <span className="text-[11px] font-medium text-slate-400">{leerText}</span>
+          : heute !== null && <DeltaPill delta={szenario - heute} unit={unit} higherIsBetter={higherIsBetter} digits={digits} />}
+      </div>
     </div>
   );
 }
@@ -122,7 +134,7 @@ export function SzenarienTab({ basis, deltas, setDeltas, pdfBusy, onPdfExport, o
   }[ton];
 
   // ---------- Tabelle ----------
-  type Zeile = { label: string; heute: number; sc: number; unit: string; digits: number; higherIsBetter: boolean | null } | { gruppe: string };
+  type Zeile = { label: string; heute: number | null; sc: number | null; unit: string; digits: number; higherIsBetter: boolean | null } | { gruppe: string };
   const zeilen: Zeile[] = [
     { gruppe: 'Kauf' },
     { label: 'Kaufpreis', heute: heute.scKaufpreis, sc: sc.scKaufpreis, unit: '€', digits: 0, higherIsBetter: false },
@@ -229,7 +241,7 @@ export function SzenarienTab({ basis, deltas, setDeltas, pdfBusy, onPdfExport, o
         {/* Vorher / Nachher */}
         <section className="order-3 grid grid-cols-2 gap-3 lg:order-none xl:grid-cols-4">
           <VergleichKachel icon={Wallet} label="Überschuss pro Monat" heute={heute.scCashflowAfterTax} szenario={sc.scCashflowAfterTax} unit="€" />
-          <VergleichKachel icon={Percent} label="EK-Rendite" heute={heute.scEkRendite} szenario={sc.scEkRendite} unit="%" digits={1} />
+          <VergleichKachel icon={Percent} label="EK-Rendite" heute={heute.scEkRendite} szenario={sc.scEkRendite} unit="%" digits={1} leerText="Ohne Eigenkapital nicht berechenbar" />
           <VergleichKachel icon={ShieldCheck} label="Kreditrate pro Monat" heute={heute.scRateMonat} szenario={sc.scRateMonat} unit="€" higherIsBetter={false} />
           <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm md:p-5">
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
@@ -329,17 +341,18 @@ export function SzenarienTab({ basis, deltas, setDeltas, pdfBusy, onPdfExport, o
                   if ('gruppe' in z) {
                     return <tr key={i}><td colSpan={4} className="pb-1 pt-4 text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">{z.gruppe}</td></tr>;
                   }
-                  const delta = z.sc - z.heute;
-                  const zero = Math.abs(delta) < Math.pow(10, -z.digits) / 2;
-                  const farbe = zero ? 'text-slate-400' : z.higherIsBetter === null ? 'text-[#001d3d]'
+                  // null = nicht berechenbar (z. B. EK-Rendite ohne Eigenkapital): "–" ohne Änderung
+                  const delta = z.sc === null || z.heute === null ? null : z.sc - z.heute;
+                  const zero = delta !== null && Math.abs(delta) < Math.pow(10, -z.digits) / 2;
+                  const farbe = delta === null || zero ? 'text-slate-400' : z.higherIsBetter === null ? 'text-[#001d3d]'
                     : (z.higherIsBetter ? delta > 0 : delta < 0) ? 'font-bold text-emerald-600' : 'font-bold text-red-600';
-                  const f = (v: number) => `${fmt(v, z.digits)}${z.unit ? ` ${z.unit}` : ''}`;
+                  const f = (v: number | null) => (v === null ? '–' : `${fmt(v, z.digits)}${z.unit ? ` ${z.unit}` : ''}`);
                   return (
                     <tr key={i} className="border-b border-slate-100 last:border-0">
                       <td className="py-2.5 text-slate-600">{z.label}</td>
                       <td className="py-2.5 pl-3 text-right text-[#001d3d]">{f(z.heute)}</td>
                       <td className="py-2.5 pl-3 text-right text-[#001d3d]">{f(z.sc)}</td>
-                      <td className={`py-2.5 pl-3 text-right ${farbe}`}>{zero ? '±0' : `${delta > 0 ? '+' : '−'}${f(Math.abs(delta))}`}</td>
+                      <td className={`py-2.5 pl-3 text-right ${farbe}`}>{delta === null ? '–' : zero ? '±0' : `${delta > 0 ? '+' : '−'}${f(Math.abs(delta))}`}</td>
                     </tr>
                   );
                 })}

@@ -184,7 +184,8 @@ export type InvestmentReportData = {
   kpis: {
     brutto: number;
     netto: number;
-    ekRendite: number;
+    /** null ohne Eigenkapital: nicht berechenbar, Anzeige "–" ohne Bewertung */
+    ekRendite: number | null;
     dscr: number;
     ekQuote: number;
   };
@@ -208,7 +209,7 @@ export type InvestmentReportData = {
     titel: string;
     frage: string;
     beschreibung: string;
-    zeilen: Array<{ label: string; heute: number; szenario: number; unit: string; digits: number; higherIsBetter: boolean | null; hervorheben?: boolean }>;
+    zeilen: Array<{ label: string; heute: number | null; szenario: number | null; unit: string; digits: number; higherIsBetter: boolean | null; hervorheben?: boolean }>;
     schuldenfrei: { heute: number | null; szenario: number | null };
     cfHeute: number;
     cfSzenario: number;
@@ -328,15 +329,15 @@ function marktInfo(kind: 'miete' | 'kauf', delta: number | null): { ton: Ton | '
 // ---------------------------------------------------------------------------
 
 function KpiCard({ label, value, unit, rating, caption, colorValue }: {
-  label: string; value: string; unit?: string; rating: [Ton, string]; caption: string; colorValue?: boolean;
+  label: string; value: string; unit?: string; rating: [Ton, string] | null; caption: string; colorValue?: boolean;
 }) {
   return (
     <View style={s.kpi}>
       <View style={s.kpiHead}>
         <Text style={s.kpiLabel}>{label}</Text>
-        <Pill ton={rating[0]}>{rating[1]}</Pill>
+        {rating && <Pill ton={rating[0]}>{rating[1]}</Pill>}
       </View>
-      <Text style={[s.kpiValue, colorValue ? { color: TON[rating[0]].fg } : {}]}>
+      <Text style={[s.kpiValue, colorValue && rating ? { color: TON[rating[0]].fg } : {}]}>
         {value}{unit ? <Text style={s.kpiUnit}> {unit}</Text> : null}
       </Text>
       <Text style={[s.hint, { marginTop: 3 }]}>{caption}</Text>
@@ -432,7 +433,9 @@ function Deckblatt({ d }: { d: InvestmentReportData }) {
             <KpiCard label="Eigenkapitalquote" value={fmt(d.kpis.ekQuote, 1)} unit="%" rating={rateEkQuote(d.kpis.ekQuote)} caption="am Gesamtinvest" />
             <KpiCard label="Bruttomietrendite" value={fmt(d.kpis.brutto, 1)} unit="%" rating={rateBrutto(d.kpis.brutto)} caption="Jahreskaltmiete ÷ Kaufpreis" />
             <KpiCard label="Nettomietrendite" value={fmt(d.kpis.netto, 1)} unit="%" rating={rateNetto(d.kpis.netto)} caption="nach laufenden Kosten" />
-            <KpiCard label="EK-Rendite" value={fmt(d.kpis.ekRendite, 1)} unit="%" rating={rateEkRendite(d.kpis.ekRendite)} caption="auf dein Eigenkapital, 1. Jahr" />
+            {d.kpis.ekRendite === null
+              ? <KpiCard label="EK-Rendite" value="–" rating={null} caption="Ohne Eigenkapital nicht berechenbar" />
+              : <KpiCard label="EK-Rendite" value={fmt(d.kpis.ekRendite, 1)} unit="%" rating={rateEkRendite(d.kpis.ekRendite)} caption="auf dein Eigenkapital, 1. Jahr" />}
           </View>
         </View>
 
@@ -828,17 +831,18 @@ function Stresstest({ d }: { d: InvestmentReportData }) {
             <Text style={[s.th, sp]}>Änderung</Text>
           </View>
           {t.zeilen.map(z => {
-            const delta = z.szenario - z.heute;
-            const zero = Math.abs(delta) < Math.pow(10, -z.digits) / 2;
-            const farbe = zero ? C.muted : z.higherIsBetter === null ? C.ink : (z.higherIsBetter ? delta > 0 : delta < 0) ? C.good : C.bad;
-            const f = (v: number) => `${fmt(v, z.digits)}${z.unit ? ` ${z.unit}` : ''}`;
+            // null = nicht berechenbar (EK-Rendite ohne Eigenkapital): "–" ohne Änderung
+            const delta = z.szenario === null || z.heute === null ? null : z.szenario - z.heute;
+            const zero = delta !== null && Math.abs(delta) < Math.pow(10, -z.digits) / 2;
+            const farbe = delta === null || zero ? C.muted : z.higherIsBetter === null ? C.ink : (z.higherIsBetter ? delta > 0 : delta < 0) ? C.good : C.bad;
+            const f = (v: number | null) => (v === null ? '–' : `${fmt(v, z.digits)}${z.unit ? ` ${z.unit}` : ''}`);
             const gewicht = z.hervorheben ? 800 : 400;
             return (
               <View key={z.label} style={s.tr}>
                 <Text style={{ width: 170, color: z.hervorheben ? C.ink : C.ink2, fontWeight: gewicht }}>{z.label}</Text>
                 <Text style={[sp, { fontWeight: z.hervorheben ? 800 : 600 }]}>{f(z.heute)}</Text>
                 <Text style={[sp, { fontWeight: z.hervorheben ? 800 : 600 }]}>{f(z.szenario)}</Text>
-                <Text style={[sp, { fontWeight: 700, color: farbe }]}>{zero ? '±0' : `${vz(delta)}${f(Math.abs(delta)).replace(' %', ' %-P.')}`}</Text>
+                <Text style={[sp, { fontWeight: 700, color: farbe }]}>{delta === null ? '–' : zero ? '±0' : `${vz(delta)}${f(Math.abs(delta)).replace(' %', ' %-P.')}`}</Text>
               </View>
             );
           })}
