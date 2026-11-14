@@ -1,56 +1,42 @@
-import { MetadataRoute } from 'next'
-import { getAllPosts } from '@/lib/blog'
+import type { MetadataRoute } from 'next'
+import { getAllPostsSync } from '@/lib/blog'
+import { alleRechner, rechnerPfad } from '@/content/rechner'
+import { SEITEN_STAND } from '@/config/seitenStand'
+import { absoluteUrl } from '@/lib/strukturDaten'
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://imvestr.de'
-  const currentDate = new Date()
+/**
+ * Sitemap: Startseite, Preise, Blog, alle Beiträge und alle Rechner-Seiten.
+ * lastModified ist überall ein echtes Änderungsdatum (Frontmatter, Content-Datei oder SEITEN_STAND).
+ * Impressum, Datenschutz und AGB fehlen bewusst: sie sind keine Suchziele.
+ */
+const datum = (d: string) => new Date(d)
+const spaeter = (a: string, b: string) => (new Date(a) > new Date(b) ? a : b)
 
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/datenschutz`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/impressum`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/agb`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-  ]
+export default function sitemap(): MetadataRoute.Sitemap {
+  const posts = getAllPostsSync()
+  const rechner = alleRechner()
 
-  const posts = await getAllPosts()
-  const blogRoutes: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.lastModified),
-    changeFrequency: 'monthly',
-    priority: 0.7,
+  // Beiträge mit eingebettetem Rechner: das spätere Datum aus Beitrag und Rechner
+  const postStand = (slug: string, lastModified: string) => {
+    const r = rechner.find(c => c.ort.typ === 'blog' && c.ort.postSlug === slug)
+    return r ? spaeter(lastModified, r.lastModified) : lastModified
+  }
+
+  const blogRoutes = posts.map(post => ({
+    url: absoluteUrl(`/blog/${post.slug}`),
+    lastModified: datum(postStand(post.slug, post.lastModified)),
   }))
+  const neuesterBeitrag = posts.reduce((max, p) => spaeter(max, p.lastModified), '1970-01-01')
 
-  return [...staticRoutes, ...blogRoutes]
+  const rechnerRoutes = rechner
+    .filter(c => c.ort.typ === 'rechner')
+    .map(c => ({ url: absoluteUrl(rechnerPfad(c)), lastModified: datum(c.lastModified) }))
+
+  return [
+    { url: absoluteUrl('/'), lastModified: datum(SEITEN_STAND.startseite) },
+    { url: absoluteUrl('/pricing'), lastModified: datum(SEITEN_STAND.preise) },
+    { url: absoluteUrl('/blog'), lastModified: datum(neuesterBeitrag) },
+    ...blogRoutes,
+    ...rechnerRoutes,
+  ]
 }
