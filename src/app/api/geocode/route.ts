@@ -1,5 +1,6 @@
 // app/api/geocode/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { kiSchutz } from '@/lib/kostenSchutz';
 
 type MapboxFeature = { place_name: string };
 type MapboxResponse = { features?: MapboxFeature[] };
@@ -16,6 +17,11 @@ export async function GET(req: NextRequest) {
   try {
     const q = req.nextUrl.searchParams.get('q') || '';
     if (!q || q.length < 2) return NextResponse.json({ features: [] } satisfies GeocodeResult);
+    if (q.length > 200) return NextResponse.json({ features: [] } satisfies GeocodeResult, { status: 400 });
+
+    // Rate Limit pro IP bzw. Nutzer (Mapbox kostet ab 100.000 Anfragen im Monat)
+    const schutz = await kiSchutz(req, { route: '/api/geocode', bucket: 'geocode', ki: false });
+    if (!schutz.ok) return schutz.response;
 
     const MAPBOX = process.env.MAPBOX_API_TOKEN;
     if (!MAPBOX) {

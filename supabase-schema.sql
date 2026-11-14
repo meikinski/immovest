@@ -109,6 +109,8 @@ CREATE TABLE IF NOT EXISTS user_premium_usage (
   premium_until TIMESTAMP WITH TIME ZONE,
   stripe_customer_id TEXT,
   stripe_subscription_id TEXT,
+  -- Wohnung(en) der kostenlosen Analyse: [{ analysis_id, adresse, at }], nur /api/agent/run schreibt
+  free_analyses JSONB NOT NULL DEFAULT '[]'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -217,3 +219,6 @@ DROP POLICY IF EXISTS "Users can view their own scenarios" ON scenarios;
 DROP POLICY IF EXISTS "Users can insert their own scenarios" ON scenarios;
 DROP POLICY IF EXISTS "Users can update their own scenarios" ON scenarios;
 DROP POLICY IF EXISTS "Users can delete their own scenarios" ON scenarios;
+
+-- Rate Limits und KI-Tagesbudget: Tabelle rate_limit_counters und Funktion rate_limit_hit()
+-- siehe supabase/migrations/2026-11-14_kosten_schutz.sql

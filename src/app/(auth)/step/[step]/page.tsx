@@ -129,7 +129,7 @@ export default function StepPage() {
     // Eigene Seite statt Clerk-Fenster: Überschrift mit der Wohnung, Rückkehr über redirect_url
     router.push(modus === 'sign_in' ? signInHref('/step/tabs') : signUpHref(quelle === 'preview' ? 'locked_preview' : 'result_banner', '/step/tabs'));
   };
-  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal, upgradeTrigger } = usePaywall();
+  const { canAccessPremium, incrementPremiumUsage, premiumUsageCount, isPremium, premiumStatusLoaded, showUpgradeModal, setShowUpgradeModal, upgradeTrigger, refreshPremiumStatus } = usePaywall();
   const freeUsagesRemaining = Math.max(0, GRATIS_ANALYSEN - premiumUsageCount);
 
   // Hydration guard
@@ -895,7 +895,12 @@ const dscr =
   tone: 'beraterhaft-kurz',
       }),
     })
-      .then(r => r.json())
+      .then(async r => {
+        const json = await r.json().catch(() => ({}));
+        // Rate Limit / Tagesbudget / Fehler: freundliche Meldung des Servers anzeigen
+        if (!r.ok) return { comment: json.message || json.error || 'Leider konnte die KI-Einschätzung nicht geladen werden.' };
+        return json;
+      })
       .then(json => {
         if (json.locked) {
           setIsCommentLocked(true);
@@ -1110,11 +1115,12 @@ const dscr =
   // Läuft schon eine Abfrage (Effekt erneut ausgelöst), nicht doppelt starten
   if (loadingDetails) return;
 
-  // Kostenlose Analyse verbrauchen (einmal pro Wohnung)
+  // Kostenlose Analyse: Gezählt wird ausschließlich auf dem Server (/api/agent/run, nach Erfolg).
+  // Die Freigabe im localStorage ist nur ein Anzeige-Zwischenspeicher, damit die Wohnung offen bleibt.
   let gespeicherteFreigabe = gratisFreigabe;
   try { if (freigabeSpeicher) gespeicherteFreigabe = localStorage.getItem(freigabeSpeicher) ?? gratisFreigabe; } catch { /* privater Modus */ }
-  if (!isPremium && gespeicherteFreigabe !== gratisSchluessel) {
-    incrementPremiumUsage();
+  const neueGratisAnalyse = !isPremium && gespeicherteFreigabe !== gratisSchluessel;
+  if (neueGratisAnalyse) {
     setGratisFreigabe(gratisSchluessel);
     try { if (freigabeSpeicher) localStorage.setItem(freigabeSpeicher, gratisSchluessel); } catch { /* privater Modus */ }
   }
@@ -1128,6 +1134,8 @@ const dscr =
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // Stabile ID der Analyse (für die Zuordnung der Gratis-Analyse auf dem Server)
+          analysisId,
           // Basis-Daten
           address: adresse,
           objektTyp: objekttyp === 'wohnung' ? 'Eigentumswohnung' : 'Haus',
@@ -1165,6 +1173,27 @@ const dscr =
         message?: string;
       };
 
+      // 402: Gratis-Analyse ist auf dem Server schon für eine andere Wohnung vergeben → Paywall
+      if (res.status === 402) {
+        if (neueGratisAnalyse) {
+          setGratisFreigabe(null);
+          try { if (freigabeSpeicher && localStorage.getItem(freigabeSpeicher) === gratisSchluessel) localStorage.removeItem(freigabeSpeicher); } catch { /* privater Modus */ }
+        }
+        marktFetched.current = true; // nicht in Schleife erneut anfragen
+        setLageComment('<p>Premium-Inhalte sind hier verfügbar. Die Lageanalyse bietet detaillierte Einblicke in die Umgebung, Infrastruktur und Entwicklungspotenzial der Immobilie.</p>');
+        setMietpreisComment('<p>Hier findest du einen umfassenden Vergleich der Mietpreise in der Umgebung, inklusive Marktpositionierung und Preisentwicklung.</p>');
+        setQmPreisComment('<p>Der Kaufpreisvergleich zeigt dir, wie der Quadratmeterpreis im Vergleich zu ähnlichen Objekten in der Gegend einzuordnen ist.</p>');
+        setInvestComment('<p>Die Investitionsanalyse kombiniert alle Faktoren und gibt dir eine fundierte Empfehlung für deine Kaufentscheidung.</p>');
+        void refreshPremiumStatus();
+        setShowUpgradeModal(true, 'tab_markt');
+        return;
+      }
+
+      // 401 / 429 / 503: freundliche Meldung vom Server, ohne Hinweis auf falsche Eingaben
+      if ([401, 429, 503].includes(res.status)) {
+        throw Object.assign(new Error(data.message || 'Bitte versuche es später noch einmal.'), { schutz: true });
+      }
+
       if (!res.ok || data.error) {
         const errorMsg = data.message || `HTTP ${res.status}`;
         throw new Error(errorMsg);
@@ -1183,6 +1212,9 @@ const dscr =
       // Mark as successfully fetched only AFTER successful API call
       marktFetched.current = true;
 
+      // Zählerstand (Gratis-Analyse) vom Server holen, der Server ist die einzige Quelle
+      if (!isPremium) void refreshPremiumStatus();
+
       // analysis_completed: Marktvergleich und KI-Investitionsanalyse sind geladen, die Prognose rechnet lokal
       meldeAnalyseAbgeschlossen({
         userId,
@@ -1193,8 +1225,15 @@ const dscr =
       console.error('Markt/Agent laden fehlgeschlagen', e);
 
       // Extract error message to show user why the agent failed
-      const errorMessage = e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten';
-      const errorHtml = `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+      const errorMessage = (e instanceof Error ? e.message : 'Ein unbekannter Fehler ist aufgetreten')
+        .replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c] as string));
+      const istSchutz = !!(e as { schutz?: boolean })?.schutz;
+      const errorHtml = istSchutz
+        ? `<div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <p class="font-semibold text-amber-800 mb-2">Kurze Pause</p>
+        <p class="text-amber-700 text-sm">${errorMessage}</p>
+      </div>`
+        : `<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
         <p class="font-semibold text-red-800 mb-2">⚠️ Analyse fehlgeschlagen</p>
         <p class="text-red-700 text-sm">${errorMessage}</p>
         <p class="text-red-600 text-xs mt-2">Bitte überprüfe deine Eingaben und versuche es erneut.</p>
@@ -1217,7 +1256,7 @@ const dscr =
   miete, hausgeld, hausgeld_umlegbar,
   ek, zins, tilgung,
   // Paywall context dependencies
-  canAccessPremium, incrementPremiumUsage, isPremium, setShowUpgradeModal, isSignedIn, premiumStatusLoaded, hatVollzugang, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
+  canAccessPremium, isPremium, setShowUpgradeModal, refreshPremiumStatus, isSignedIn, premiumStatusLoaded, hatVollzugang, analysisId, anschaffungskosten, bruttoMietrendite, cashflowAfterTax, cashflowVorSteuer, dscr, ekRendite, nettoMietrendite
   // Note: Setters and comment states are intentionally excluded to prevent infinite loops
 ]);
 
@@ -1287,12 +1326,18 @@ const exportPdf = React.useCallback(async () => {
     const res = await fetch('/api/export/pdf', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify(payload),
+      // Vollständige Adresse für die Plan-Prüfung (im Report steht sie aufgeteilt in Titel und Ort)
+      body: JSON.stringify({ ...payload, adresse }),
       signal: pdfAbortController.current?.signal
     });
-    if (res.status === 401 || res.status === 403) {
+    if (res.status === 401 || res.status === 402 || res.status === 403) {
       toast.info('Den PDF-Report gibt es in deiner kostenlosen Analyse oder mit Premium.');
       setShowUpgradeModal(true, 'pdf_export');
+      return;
+    }
+    if (res.status === 429 || res.status === 503) {
+      const d = await res.json().catch(() => ({}));
+      toast.error(d.message || 'Bitte versuche es später noch einmal.');
       return;
     }
     if (!res.ok) {
@@ -2584,11 +2629,11 @@ const exportPdf = React.useCallback(async () => {
                       </div>
                       <h3 className="text-lg font-bold mb-2 text-[#001d3d] text-center">KI-Einschätzung freischalten</h3>
                       <p className="text-slate-600 mb-5 text-sm leading-relaxed text-center">
-                        Melde dich an und erhalte die KI-Einschätzung plus eine vollständige Analyse mit Markt, Prognose, Szenarien &amp; PDF-Report kostenlos.
+                        Die KI-Einschätzung gehört zur vollständigen Analyse. Deine kostenlose Analyse ist schon für eine andere Wohnung vergeben, mit Premium bekommst du sie für jede weitere Wohnung.
                       </p>
-                      <button onClick={() => gastFreischalten('ki')} className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
+                      <button onClick={() => setShowUpgradeModal(true, 'ki_einschaetzung')} className="w-full px-5 py-3 bg-gradient-to-r from-[#ff6b00] to-[#ff8c00] hover:from-[#ff6b00]/90 hover:to-[#ff8c00]/90 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm">
                         <Lock size={18} />
-                        Kostenlos anmelden
+                        Premium ansehen
                       </button>
                     </div>
                   </div>

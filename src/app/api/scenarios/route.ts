@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { resolveAnalysisRowId } from '@/lib/analysisDb';
+import { pruefeLimitsUndBudget, standardSchutzDeps } from '@/lib/kostenSchutz';
 
 // Save scenario
 export async function POST(req: Request) {
@@ -14,6 +15,12 @@ export async function POST(req: Request) {
         { status: 401 }
       );
     }
+
+    // Rate Limit für Schreibzugriffe pro Nutzer
+    const abgelehnt = await pruefeLimitsUndBudget(req, await standardSchutzDeps(), {
+      route: 'POST /api/scenarios', bucket: 'szenarien', ki: false, userId,
+    });
+    if (abgelehnt) return abgelehnt;
 
     const data = await req.json();
 
@@ -177,6 +184,12 @@ export async function DELETE(req: Request) {
         { status: 401 }
       );
     }
+
+    // Rate Limit für Schreibzugriffe pro Nutzer
+    const abgelehnt = await pruefeLimitsUndBudget(req, await standardSchutzDeps(), {
+      route: 'DELETE /api/scenarios', bucket: 'szenarien', ki: false, userId,
+    });
+    if (abgelehnt) return abgelehnt;
 
     const { searchParams } = new URL(req.url);
     const scenarioId = searchParams.get('scenarioId');

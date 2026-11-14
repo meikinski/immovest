@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 import { detectPortal, isLikelyRealEstateListing } from '@/lib/portalDetection';
 import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
+import { kiSchutz } from '@/lib/kostenSchutz';
 
 /**
  * Normalisiert objekttyp auf erlaubte Werte (safety layer)
@@ -65,6 +66,10 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Kostenschutz: Rate Limit (IP bzw. Nutzer) und KI-Tagesbudget, erst nach den kostenlosen Prüfungen
+    const schutz = await kiSchutz(req, { route: '/api/scrape-with-agent', bucket: 'import', ki: true });
+    if (!schutz.ok) return schutz.response;
 
     // Collect warnings array
     const warnings: string[] = [];

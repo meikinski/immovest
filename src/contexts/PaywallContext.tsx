@@ -82,6 +82,11 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
     return () => document.removeEventListener('visibilitychange', beiSichtbar);
   }, [checkPremiumStatus]);
 
+  /**
+   * Nur Anzeige: zählt lokal hoch, damit die Sperren sofort greifen. Das echte Kontingent verbucht
+   * ausschließlich der Server in /api/agent/run; beim nächsten Abruf des Status gilt dessen Wert.
+   * localStorage ist nur Zwischenspeicher für die Anzeige.
+   */
   const incrementPremiumUsage = useCallback(() => {
     const newCount = premiumUsageCount + 1;
     setPremiumUsageCount(newCount);
@@ -90,29 +95,10 @@ function PaywallProviderInner({ children }: { children: ReactNode }) {
       try {
         localStorage.setItem(`premium_usage_${userId}`, newCount.toString());
       } catch { /* privater Modus */ }
-      // Zählerstand im Konto speichern, damit das Limit auch nach Neuladen und auf anderen Geräten gilt
-      (async () => {
-        let token: string | null = null;
-        try { token = await getToken(); } catch { /* Cookie kann reichen */ }
-        try {
-          const r = await fetch('/api/premium/status', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          });
-          const d = r.ok ? await r.json() : null;
-          if (typeof d?.newCount === 'number') {
-            setPremiumUsageCount(c => Math.max(c, d.newCount));
-            try { localStorage.setItem(`premium_usage_${userId}`, String(d.newCount)); } catch { /* privater Modus */ }
-          }
-        } catch (e) {
-          console.warn('[PaywallContext] Nutzung konnte nicht gespeichert werden', e);
-        }
-      })();
     } else {
-      sessionStorage.setItem('guest_premium_usage', newCount.toString());
+      try { sessionStorage.setItem('guest_premium_usage', newCount.toString()); } catch { /* privater Modus */ }
     }
-  }, [premiumUsageCount, isSignedIn, userId, getToken]);
+  }, [premiumUsageCount, isSignedIn, userId]);
 
   const setShowUpgradeModal = useCallback((show: boolean, trigger?: string) => {
     if (show) {
