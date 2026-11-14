@@ -1,5 +1,7 @@
 -- ImmoVest Database Schema
 -- Run this in your Supabase SQL Editor
+-- Kann wiederholt ausgeführt werden (auch auf einer bestehenden Datenbank).
+-- Bestehende Datenbank auf den aktuellen Stand bringen: supabase/migrations/*.sql
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -16,7 +18,7 @@ CREATE TABLE IF NOT EXISTS analyses (
   kaufpreis NUMERIC NOT NULL DEFAULT 0,
   adresse TEXT NOT NULL DEFAULT '',
   flaeche NUMERIC NOT NULL DEFAULT 0,
-  zimmer INTEGER NOT NULL DEFAULT 0,
+  zimmer NUMERIC NOT NULL DEFAULT 0, -- auch 2,5 Zimmer
   baujahr INTEGER NOT NULL DEFAULT 2024,
 
   -- Financial data
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS analyses (
   state JSONB DEFAULT NULL
 );
 
--- Migration für bestehende Datenbanken
+-- Migration für bestehende Datenbanken (vollständig: supabase/migrations/2026-11-14_analyses_speichern.sql)
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS markt_facts JSONB DEFAULT NULL;
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS client_id TEXT DEFAULT NULL;
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS state JSONB DEFAULT NULL;
@@ -174,7 +176,7 @@ ALTER TABLE user_premium_usage ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scenarios ENABLE ROW LEVEL SECURITY;
 
 -- Migration für bestehende Datenbanken: offene Policies aus früheren Versionen
--- dieses Schemas entfernen (siehe supabase/migrations/20261114000000_drop_open_rls_policies.sql)
+-- dieses Schemas entfernen (siehe supabase/migrations/2026-11-14_drop_open_rls_policies.sql)
 DROP POLICY IF EXISTS "Users can view their own analyses" ON analyses;
 DROP POLICY IF EXISTS "Users can insert their own analyses" ON analyses;
 DROP POLICY IF EXISTS "Users can update their own analyses" ON analyses;

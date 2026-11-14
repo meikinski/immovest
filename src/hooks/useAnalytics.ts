@@ -46,24 +46,6 @@ export function useAnalytics() {
     });
   }, [track]);
 
-  const trackPurchase = useCallback((
-    transactionId: string,
-    value: number,
-    items: Array<{
-      item_id: string;
-      item_name: string;
-      price: number;
-      quantity: number;
-    }>
-  ) => {
-    track(AnalyticsEvents.PURCHASE_COMPLETED, {
-      transaction_id: transactionId,
-      value,
-      currency: 'EUR',
-      items,
-    });
-  }, [track]);
-
   const trackSubscriptionPurchase = useCallback((
     planId: SubscriptionPlanId,
     transactionId: string,
@@ -77,7 +59,6 @@ export function useAnalytics() {
     trackCTA,
     trackInputMethod,
     trackUpgradeClick,
-    trackPurchase,
     trackSubscriptionPurchase,
   };
 }

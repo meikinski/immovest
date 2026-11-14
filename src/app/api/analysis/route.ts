@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
-import { dedupeRows, isMissingColumnError, resolveAnalysisRowId, rowToListItem } from '@/lib/analysisDb';
+import { dedupeRows, isMissingColumnError, rowToListItem, saveAnalysisRow } from '@/lib/analysisDb';
 
 // Save analysis
 export async function POST(req: Request) {
@@ -15,7 +15,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const data = await req.json();
+    const data = await req.json().catch(() => null);
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      return NextResponse.json({ error: 'Ungültige Daten' }, { status: 400 });
+    }
 
     const supabase = getSupabaseServerClient();
     if (!supabase) {
@@ -26,94 +29,20 @@ export async function POST(req: Request) {
       );
     }
 
-    // Prepare data for database
-    const analysisData = {
-      user_id: userId,
-      analysis_name: data.analysisName || data.adresse || 'Unbenannt',
+    console.log('[ANALYSIS] Saving analysis for user:', userId);
 
-      // Property data
-      kaufpreis: parseFloat(data.kaufpreis) || 0,
-      adresse: data.adresse || '',
-      flaeche: parseFloat(data.flaeche) || 0,
-      zimmer: parseInt(data.zimmer) || 0,
-      baujahr: parseInt(data.baujahr) || 2024,
+    // Zuordnung, Fallbacks und Logging des echten Datenbankfehlers: src/lib/analysisDb.ts
+    const ergebnis = await saveAnalysisRow(supabase, userId, data);
 
-      // Financial data
-      miete: parseFloat(data.miete) || 0,
-      hausgeld: parseFloat(data.hausgeld) || 0,
-      hausgeld_umlegbar: parseFloat(data.hausgeld_umlegbar) || 0,
-      ek: parseFloat(data.ek) || 0,
-      zins: parseFloat(data.zins) || 3.5,
-      tilgung: parseFloat(data.tilgung) || 2,
-
-      // Costs and taxes
-      grunderwerbsteuer_pct: parseFloat(data.grunderwerbsteuer_pct) || 6.5,
-      notar_pct: parseFloat(data.notar_pct) || 2,
-      makler_pct: parseFloat(data.makler_pct) || 3.57,
-      mietausfall_pct: parseFloat(data.mietausfall_pct) || 0,
-      instandhaltungskosten_pro_qm: parseFloat(data.instandhaltungskosten_pro_qm) || 0,
-      steuer: parseFloat(data.steuer) || 0,
-      afa: parseFloat(data.afa) || 2,
-      ruecklagen: parseFloat(data.ruecklagen) || 0,
-      persoenlicher_steuersatz: parseFloat(data.persoenlicher_steuersatz) || 40,
-
-      // Calculated values
-      cashflow_operativ: parseFloat(data.cashflow_operativ) || 0,
-      nettorendite: parseFloat(data.nettorendite) || 0,
-      score: parseFloat(data.score) || 0,
-      anschaffungskosten: parseFloat(data.anschaffungskosten) || 0,
-
-      // AI-generated comments
-      generated_comment: data.generatedComment || '',
-      lage_comment: data.lageComment || '',
-      mietpreis_comment: data.mietpreisComment || '',
-      qm_preis_comment: data.qmPreisComment || '',
-      invest_comment: data.investComment || '',
-    };
-
-    // Stabile Client-ID (siehe src/lib/analysisDb.ts)
-    const clientId: string =
-      typeof data.analysisId === 'string' && data.analysisId
-        ? data.analysisId
-        : `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    const fullRow = {
-      ...analysisData,
-      client_id: clientId,
-      // Kompletter Store-Zustand – damit beim Laden kein Feld verloren geht
-      state: { ...data, analysisId: clientId },
-      // Markt-Recherche (Vergleichswerte, Lage-Fakten, Quellen)
-      markt_facts: data.marktFacts
-        ? { facts: data.marktFacts, mietDelta: data.mietMarktDelta ?? null, kaufDelta: data.kaufMarktDelta ?? null }
-        : null,
-    };
-
-    console.log('[ANALYSIS] Saving analysis for user:', userId, 'client_id:', clientId);
-
-    // Bereits gespeichert? → aktualisieren statt neue Zeile anlegen
-    const existingId = await resolveAnalysisRowId(supabase, userId, clientId);
-
-    let { data: savedAnalysis, error } = existingId
-      ? await supabase.from('analyses').update(fullRow).eq('id', existingId).eq('user_id', userId).select('id').single()
-      : await supabase.from('analyses').insert(fullRow).select('id').single();
-
-    // Neue Spalten noch nicht migriert → wie früher ohne sie speichern, statt komplett zu scheitern
-    if (error && isMissingColumnError(error)) {
-      console.warn('[ANALYSIS] New columns missing – saving legacy row. Run the migration in supabase-schema.sql.');
-      ({ data: savedAnalysis, error } = await supabase
-        .from('analyses')
-        .insert(analysisData)
-        .select('id')
-        .single());
-    }
-
-    if (error || !savedAnalysis) {
-      console.error('❌ [ANALYSIS] Error saving to Supabase:', error);
+    if (!ergebnis.ok) {
+      // Der echte Fehler steht im Server-Log, nicht in der Antwort
       return NextResponse.json(
         { error: 'Fehler beim Speichern in der Datenbank' },
         { status: 500 }
       );
     }
+    const clientId = ergebnis.clientId;
+    const savedAnalysis = { id: ergebnis.dbId };
 
     console.log('✅ [ANALYSIS] Saved successfully:', savedAnalysis.id);
 

@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 import { detectPortal, isLikelyRealEstateListing } from '@/lib/portalDetection';
+import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
 
 /**
  * Normalisiert objekttyp auf erlaubte Werte (safety layer)
@@ -80,14 +81,15 @@ export async function POST(req: NextRequest) {
     }
 
     const input: UrlScraperInput = { url };
-    const result = await runUrlScraper(input);
+    // Fehlende Angaben und Platzhalter (z. B. 1 € bei "Preis auf Anfrage") bleiben leer und werden benannt
+    const { daten: result, fehlend } = pruefeImport(await runUrlScraper(input));
 
     // Konvertiere zu Frontend-Format
     const data: Record<string, unknown> = {
       kaufpreis: result.kaufpreis || 0,
       flaeche: result.flaeche || 0,
       zimmer: result.zimmer || 0,
-      baujahr: result.baujahr || undefined,
+      baujahr: result.baujahr || 0,
       adresse: result.adresse || '',
       miete: result.miete || 0,
       hausgeld: result.hausgeld || 0,
@@ -128,6 +130,9 @@ export async function POST(req: NextRequest) {
       success: true,
       data,
       warnings: allWarnings,
+      // Fehlende Angaben (Feldschlüssel) und Hinweise in Anzeigeform für die Eingabeseiten
+      fehlend,
+      hinweise: bereinigeHinweise(allWarnings, fehlend),
       _meta: {
         portal: portalInfo.name,
         portalSupported: portalInfo.supported,

@@ -1,5 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { deDE } from '@clerk/localizations';
+import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { SignupTracker } from '@/components/SignupTracker';
 
 /**
@@ -23,7 +23,7 @@ export default function StaticPublicLayout({
 }) {
   return (
     <ClerkProvider
-      localization={deDE}
+      localization={clerkLokalisierung}
       telemetry={false}
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"

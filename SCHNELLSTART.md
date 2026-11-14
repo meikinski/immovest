@@ -403,7 +403,7 @@ SELECT * FROM pg_policies WHERE tablename IN ('analyses','scenarios','user_premi
 -- Erwartet: rowsecurity = true für alle drei
 SELECT tablename, rowsecurity FROM pg_tables WHERE tablename IN ('analyses','scenarios','user_premium_usage');
 ```
-Falls dort Policies stehen oder RLS aus ist: `supabase/migrations/20261114000000_drop_open_rls_policies.sql` ausführen.
+Falls dort Policies stehen oder RLS aus ist: `supabase/migrations/2026-11-14_drop_open_rls_policies.sql` ausführen.
 
 ---
 

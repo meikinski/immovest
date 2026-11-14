@@ -1,7 +1,7 @@
 'use client';
 
 import { ClerkProvider } from '@clerk/nextjs';
-import { deDE } from '@clerk/localizations';
+import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 /**
@@ -89,7 +89,7 @@ export function SmartClerkProvider({ children }: { children: ReactNode }) {
   return (
     <ClerkLoadedContext.Provider value={true}>
       <ClerkProvider
-        localization={deDE}
+        localization={clerkLokalisierung}
         telemetry={false}
         signInFallbackRedirectUrl="/input-method"
         signUpFallbackRedirectUrl="/input-method"

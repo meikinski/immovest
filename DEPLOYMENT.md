@@ -68,7 +68,7 @@ SELECT * FROM pg_policies WHERE tablename IN ('analyses','scenarios','user_premi
 SELECT tablename, rowsecurity FROM pg_tables WHERE tablename IN ('analyses','scenarios','user_premium_usage');
 ```
 
-Falls Policies angezeigt werden (ältere Schema-Version) oder RLS deaktiviert ist: `supabase/migrations/20261114000000_drop_open_rls_policies.sql` im SQL Editor ausführen.
+Falls Policies angezeigt werden (ältere Schema-Version) oder RLS deaktiviert ist: `supabase/migrations/2026-11-14_drop_open_rls_policies.sql` im SQL Editor ausführen.
 
 ⚠️ RLS nie deaktivieren und keine Policies mit `USING (true)` anlegen.
 

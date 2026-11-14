@@ -60,12 +60,12 @@ export const AnalyticsEvents = {
 
   // Analysis
   ANALYSIS_STARTED: 'analysis_started',
-  ANALYSIS_COMPLETED: 'analysis_completed',
+  KPI_RESULT_VIEWED: 'kpi_result_viewed', // KPI-Ergebnis sichtbar, auch für Gäste (input_method, object_type, signed_in)
+  ANALYSIS_COMPLETED: 'analysis_completed', // vollständige Analyse fertig: Markt, KI, Prognose (analysis_number, plan)
   SCENARIO_CREATED: 'scenario_created',
 
   // Conversions
-  SIGN_UP: 'sign_up', // GA4-Standardereignis, zusätzlich zu signup_completed
-  SIGNUP_INITIATED: 'signup_initiated',
+  SIGN_UP: 'sign_up', // GA4-Standardereignis: nur bei neu angelegtem Konto (method)
   SIGNUP_COMPLETED: 'signup_completed',
   ADS_CONVERSION_SIGNUP: 'ads_conversion_signup', // Google Ads Conversion Event
   PRICING_PAGE_VIEWED: 'pricing_page_viewed',
@@ -99,6 +99,33 @@ export const merkeEingabeMethode = (methode: EingabeMethode) => {
 
 export const leseEingabeMethode = (): EingabeMethode | 'unknown' => {
   try { return (sessionStorage.getItem(EINGABE_METHODE_KEY) as EingabeMethode | null) || 'unknown'; } catch { return 'unknown'; }
+};
+
+/**
+ * analysis_completed: einmal je Wohnung, sobald die vollständige Analyse (Markt, KI, Prognose) fertig ist.
+ * analysis_number zählt die abgeschlossenen vollständigen Analysen dieses Kontos in diesem Browser.
+ */
+export const meldeAnalyseAbgeschlossen = (
+  { userId, schluessel, plan }: { userId: string | null | undefined; schluessel: string; plan: 'free' | 'premium' }
+) => {
+  const speicher = `analytics_analysis_completed_${userId || 'gast'}`;
+  let erledigt: string[] = [];
+  try { erledigt = JSON.parse(localStorage.getItem(speicher) || '[]'); } catch { /* privater Modus */ }
+  if (!Array.isArray(erledigt)) erledigt = [];
+  if (erledigt.includes(schluessel)) return;
+  trackEvent(AnalyticsEvents.ANALYSIS_COMPLETED, { analysis_number: erledigt.length + 1, plan });
+  try { localStorage.setItem(speicher, JSON.stringify([...erledigt, schluessel].slice(-500))); } catch { /* privater Modus */ }
+};
+
+/** purchase nur einmal je transaction_id senden (Neuladen der Rückkehrseite, zweiter Tab) */
+const kaufSchonGemeldet = (transactionId: string): boolean => {
+  const speicher = 'analytics_purchase_ids';
+  try {
+    const ids: string[] = JSON.parse(localStorage.getItem(speicher) || '[]');
+    if (ids.includes(transactionId)) return true;
+    localStorage.setItem(speicher, JSON.stringify([...ids, transactionId].slice(-20)));
+  } catch { /* privater Modus: lieber einmal zu viel als gar nicht melden */ }
+  return false;
 };
 
 /**
@@ -157,6 +184,7 @@ export const trackPurchase = (
     quantity: number;
   }>
 ) => {
+  if (kaufSchonGemeldet(transactionId)) return;
   trackEvent(AnalyticsEvents.PURCHASE_COMPLETED, {
     transaction_id: transactionId,
     value,
@@ -178,11 +206,12 @@ export const trackSubscriptionPurchase = (
 
   const itemName =
     planId === 'premium_yearly'
-      ? 'Imvestr Premium – Jahresabo'
-      : 'Imvestr Premium – Monatsabo';
+      ? 'imvestr Premium – Jahresabo'
+      : 'imvestr Premium – Monatsabo';
 
   const interval = isYearly ? 'year' : 'month';
 
+  if (kaufSchonGemeldet(transactionId)) return;
   trackEvent(AnalyticsEvents.PURCHASE_COMPLETED, {
     transaction_id: transactionId,
     value,

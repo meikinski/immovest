@@ -36,19 +36,28 @@ import { SaveAnalysisButton, speichereAnalyse } from '@/components/SaveAnalysisB
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
-import { trackEvent, AnalyticsEvents, leseEingabeMethode } from '@/lib/analytics';
+import { trackEvent, AnalyticsEvents, leseEingabeMethode, meldeAnalyseAbgeschlossen } from '@/lib/analytics';
 import { useAuth } from '@clerk/nextjs';
 import { signInHref, signUpHref } from '@/lib/anmeldeLinks';
 import { GastHinweisBanner } from '@/components/GratisVorteile';
 import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { LockedPreview } from '@/components/LockedPreview';
 import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
-import { OnboardingWizard } from '@/components/OnboardingWizard';
+import { TourLink } from '@/components/TourLink';
+import { berechneBruttomietrendite, berechneEkStartwert } from '@/lib/kennzahlen';
+import { formatZahl, formatZahlOderLeer, parseZahl } from '@/lib/zahlen';
+import { useFeldText } from '@/hooks/useFeldText';
+import { BUNDESLAENDER, istBundesland } from '@/config/grunderwerbsteuer';
+import { grunderwerbsteuerLabel } from '@/lib/grunderwerbsteuer';
+import { fehlendHinweis, type ImportFeld } from '@/lib/importPruefung';
 
 
 
 type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
 const steps = ['a', 'a2', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
+
+/** Eingabe lesen (deutsches Format); NaN bei leerer oder unlesbarer Eingabe */
+const zahl = (text: string) => parseZahl(text) ?? NaN;
 
 function cityFromAddress(addr: string): string {
   // erwartet Formate wie "Straße 1, 12345 Stadt" oder "... , Stadt"
@@ -116,7 +125,6 @@ export default function StepPage() {
   // Eingaben vorher sichern, damit man nach Google-Redirect oder E-Mail-Bestätigung wieder bei dieser Wohnung landet.
   const gastFreischalten = (bereich: GesperrterBereich, modus: 'sign_up' | 'sign_in' = 'sign_up', quelle: 'preview' | 'banner' = 'preview') => {
     if (quelle === 'preview') trackEvent(AnalyticsEvents.LOCKED_PREVIEW_CLICKED, { section: bereich, action: modus });
-    if (modus === 'sign_up') trackEvent(AnalyticsEvents.SIGNUP_INITIATED, { source: quelle === 'preview' ? `locked_preview_${bereich}` : 'result_banner' });
     sichereAnalyseVorAnmeldung(bereich);
     // Eigene Seite statt Clerk-Fenster: Überschrift mit der Wohnung, Rückkehr über redirect_url
     router.push(modus === 'sign_in' ? signInHref('/step/tabs') : signUpHref(quelle === 'preview' ? 'locked_preview' : 'result_banner', '/step/tabs'));
@@ -158,6 +166,12 @@ export default function StepPage() {
   const grEStPct    = useImmoStore(s => s.grunderwerbsteuer_pct);
   const grunderwerbsteuer_pct   = useImmoStore(s => s.grunderwerbsteuer_pct);
   const setGrunderwerbsteuerPct = useImmoStore(s => s.setGrunderwerbsteuerPct);
+  const bundesland = useImmoStore(s => s.bundesland);
+  const setBundesland = useImmoStore(s => s.setBundesland);
+  const grEStManuell = useImmoStore(s => s.grunderwerbsteuerManuell);
+  const importFehlend = useImmoStore(s => s.importFehlend);
+  const importHinweise = useImmoStore(s => s.importHinweise);
+  const erledigeImportFeld = useImmoStore(s => s.erledigeImportFeld);
 
   const notarPct    = useImmoStore(s => s.notar_pct);
   const setNotarPct = useImmoStore(s => s.setNotarPct);
@@ -188,6 +202,7 @@ export default function StepPage() {
   const instandhaltungskostenProQm = useImmoStore(s => s.instandhaltungskosten_pro_qm);
   const setInstandhaltungskostenProQm = useImmoStore(s => s.setInstandhaltungskostenProQm);
 
+  const mietausfallStore = useImmoStore(s => s.mietausfall_pct);
   const setMietausfallPct = useImmoStore(s => s.setMietausfallPct);
   const persoenlicherSteuersatz = useImmoStore(s => s.persoenlicher_steuersatz);
   const setPersoenlicherSteuersatz = useImmoStore(s => s.setPersoenlicherSteuersatz);
@@ -208,6 +223,8 @@ export default function StepPage() {
   // Step C: Werte + Setter
   const ek          = useImmoStore(s => s.ek);
   const setEk       = useImmoStore(s => s.setEk);
+  const ekManuell   = useImmoStore(s => s.ekManuell);
+  const setEkStartwert = useImmoStore(s => s.setEkStartwert);
 
   const zins        = useImmoStore(s => s.zins);
   const setZins     = useImmoStore(s => s.setZins);
@@ -223,33 +240,34 @@ export default function StepPage() {
 
 
   // === Local UI-States (Step-A Felder, damit Kommaeingaben sauber sind) ===
-  const [grunderwerbText, setGrunderwerbText] = useState(
-    grEStPct.toString().replace('.', ',')
+  // Grunderwerbsteuer: leer, solange kein Bundesland bekannt ist (kein stiller Standardwert)
+  const grEStUnbekannt = grEStPct === 0 && !grEStManuell;
+  const [grunderwerbText, setGrunderwerbText] = useFeldText(
+    grEStPct, n => (grEStUnbekannt ? '' : formatZahl(n)), { key: grEStUnbekannt ? 'leer' : 'gesetzt' }
   );
-  const [notarText, setNotarText] = useState(
-    notarPct.toString().replace('.', ',')
-  );
+  const [notarText, setNotarText] = useFeldText(notarPct, n => formatZahl(n));
   const [maklerText, setMaklerText] = useState(
-    maklerPct.toString().replace('.', ',')
+    formatZahl(maklerPct)
   );
   const [sonstigeKostenText, setSonstigeKostenText] = useState(
-    sonstigeKosten.toString().replace('.', ',')
+    formatZahl(sonstigeKosten)
   );
-  const [flaecheText, setFlaecheText] = useState(
-    flaeche.toString().replace('.', ',')
-  );
+  // Fläche und Miete: Text bleibt beim Tippen stehen ("46," darf nicht zu "46" werden), der Store bekommt die Zahl
+  const [flaecheText, setFlaecheText] = useState(formatZahlOderLeer(flaeche));
   useEffect(() => {
-    setFlaecheText(flaeche.toString().replace('.', ','));
+    setFlaecheText(t => (parseZahl(t) ?? 0) === flaeche ? t : formatZahlOderLeer(flaeche));
   }, [flaeche]);
+  const [mieteText, setMieteText] = useFeldText(miete, n => formatZahlOderLeer(n));
 
-  const [baujahrText, setBaujahrText] = useState(baujahr.toString());
+  // Baujahr ohne Tausenderpunkt, leer statt 0
+  const [baujahrText, setBaujahrText] = useState(baujahr ? String(baujahr) : '');
   useEffect(() => {
-    setBaujahrText(baujahr.toString());
+    setBaujahrText(baujahr ? String(baujahr) : '');
   }, [baujahr]);
 
   // Update maklerText when maklerPct changes (e.g., from URL scraper)
   useEffect(() => {
-    setMaklerText(maklerPct.toString().replace('.', ','));
+    setMaklerText(formatZahl(maklerPct));
   }, [maklerPct]);
 
   // Update sonstigeKostenText when sonstigeKosten changes
@@ -296,46 +314,49 @@ export default function StepPage() {
     }
   };
 
-  const [mietausfallText, setMietausfallText] = useState('1,00');
-  const [instandText,     setInstandText]     = useState('10,00');
+  // Eingetragene Werte aus dem Store übernehmen (die Seite wird je Schritt neu aufgebaut), sonst Startwerte
+  const [mietausfallText, setMietausfallText] = useFeldText(mietausfallStore, n => formatZahl(n, { min: 2 }), { start: '1,00', nurPositiv: true });
+  const [instandText,     setInstandText]     = useFeldText(instandhaltungskostenProQm, n => formatZahl(n, { min: 2 }), { start: '10,00', nurPositiv: true });
   const [persText,        setPersText]        = useState('42,00');
   const initialAfa = afaStore ?? defaultAfaForBaujahr(baujahr);
   const initialGebaeude = steuer || defaultGebaeudeAnteil(objekttyp);
-  const [afaText,         setAfaText]         = useState(initialAfa.toString().replace('.', ','));
-  const [gebText,         setGebText]         = useState(initialGebaeude.toString().replace('.', ','));
-  const [hausUmlegText,   setHausUmlegText]   = useState(() => hausgeld_umlegbar.toString());
-  const [hausNichtText,   setHausNichtText]   = useState(() => (hausgeld - hausgeld_umlegbar).toString());
+  const [afaText,         setAfaText]         = useState(formatZahl(initialAfa));
+  const [gebText,         setGebText]         = useState(formatZahl(initialGebaeude));
+  // Fehlt das Hausgeld im Inserat, bleiben die Felder leer statt 0
+  const hausgeldFehlt = importFehlend.includes('hausgeld');
+  const [hausUmlegText,   setHausUmlegText]   = useState(() => hausgeldFehlt && !hausgeld_umlegbar ? '' : formatZahl(hausgeld_umlegbar));
+  const [hausNichtText,   setHausNichtText]   = useState(() => hausgeldFehlt && !hausgeld ? '' : formatZahl(hausgeld - hausgeld_umlegbar));
   const autoAfa = useRef(false);
   const autoGebaeude = useRef(false);
 
   // Zinssatz/Tilgung (Textfelder) für Step C
-  const [zinsText,    setZinsText]    = useState((zins ?? 3.5).toString().replace('.', ','));
-  const [tilgungText, setTilgungText] = useState((tilgung ?? 2.0).toString().replace('.', ','));
+  const [zinsText,    setZinsText]    = useState(formatZahl(zins ?? 3.5));
+  const [tilgungText, setTilgungText] = useState(formatZahl(tilgung ?? 2.0));
 
   // Sync local text values with store values when navigating back from edit
   useEffect(() => {
-    setZinsText(zins.toString().replace('.', ','));
+    setZinsText(formatZahl(zins));
   }, [zins]);
 
   useEffect(() => {
-    setTilgungText(tilgung.toString().replace('.', ','));
+    setTilgungText(formatZahl(tilgung));
   }, [tilgung]);
 
   useEffect(() => {
     if (afaStore !== undefined && afaStore !== null) {
-      setAfaText(afaStore.toString().replace('.', ','));
+      setAfaText(formatZahl(afaStore));
     }
   }, [afaStore]);
 
   useEffect(() => {
     if (steuer !== undefined && steuer !== null) {
-      setGebText(steuer.toString().replace('.', ','));
+      setGebText(formatZahl(steuer));
     }
   }, [steuer]);
 
   useEffect(() => {
     if (persoenlicherSteuersatz !== undefined && persoenlicherSteuersatz !== null) {
-      setPersText(persoenlicherSteuersatz.toString().replace('.', ','));
+      setPersText(formatZahl(persoenlicherSteuersatz));
     }
   }, [persoenlicherSteuersatz]);
 
@@ -361,17 +382,17 @@ export default function StepPage() {
   const formulaDetails = {
     brutto: {
       title: 'Bruttomietrendite',
-      formula: 'Jahreskaltmiete ÷ Anschaffungskosten × 100',
-      description: 'Zeigt den Anteil der Jahresmiete am gesamten Kaufpreis (inkl. Nebenkosten).',
+      formula: 'Jahreskaltmiete ÷ Kaufpreis × 100',
+      description: 'Zeigt den Anteil der Jahreskaltmiete am Kaufpreis, ohne Kaufnebenkosten und laufende Kosten.',
     },
     netto: {
       title: 'Nettomietrendite',
-      formula: '(Jahreskaltmiete − Bewirtschaftungskosten) ÷ Anschaffungskosten × 100',
-      description: 'Bezieht laufende Kosten ein und zeigt die realistischere Rendite.',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition × 100',
+      description: 'Bezieht laufende Kosten und Kaufnebenkosten ein und zeigt die realistischere Rendite.',
     },
     cfVor: {
       title: 'Cashflow vor Steuern',
-      formula: 'Warmmiete − Hausgeld − kalk. Kosten − Zins − Tilgung',
+      formula: 'Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − kalk. Kosten (Instandhaltung, Mietausfall) − Zins − Tilgung',
       description: 'Was monatlich vor Steuern übrig bleibt (inkl. Puffer für Rücklagen).',
     },
     cfNach: {
@@ -381,12 +402,12 @@ export default function StepPage() {
     },
     ek: {
       title: 'EK-Rendite',
-      formula: '(Jahreskaltmiete − Bewirtschaftungskosten − Zinsen) ÷ Eigenkapital × 100',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung − Zinsen) ÷ Eigenkapital × 100',
       description: 'Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer).',
     },
     dscr: {
       title: 'DSCR',
-      formula: 'NOI ÷ (Zins + Tilgung)',
+      formula: '(Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − kalk. Kosten) ÷ (Zins + Tilgung)',
       description: 'Zeigt, wie gut die Miete die Kreditrate deckt.',
     },
   };
@@ -421,11 +442,11 @@ export default function StepPage() {
   };
 
   // 1) Texte -> Zahlen
-  const instandhaltungPct = Number(instandText.replace(',', '.')) || 0;
-  const mietausfallPct    = Number(mietausfallText.replace(',', '.')) || 0;
-  const afaPct            = Number(afaText.replace(',', '.')) || 0;
-  const gebPct            = Number(gebText.replace(',', '.')) || 0;
-  const effectiveStz      = Number(persText.replace(',', '.')) || 0;
+  const instandhaltungPct = zahl(instandText) || 0;
+  const mietausfallPct    = zahl(mietausfallText) || 0;
+  const afaPct            = zahl(afaText) || 0;
+  const gebPct            = zahl(gebText) || 0;
+  const effectiveStz      = zahl(persText) || 0;
 
   // 2) kalkulatorische Kosten (monatlich)
   const instandhaltungMonthly = (instandhaltungPct * flaeche) / 12;
@@ -549,14 +570,14 @@ export default function StepPage() {
     if (instandhaltungskostenProQm === 0) {
       const defaultInstand = objekttyp === 'wohnung' ? 9 : objekttyp === 'haus' ? 12 : 15;
       setInstandhaltungskostenProQm(defaultInstand);
-      setInstandText(defaultInstand.toString().replace('.', ','));
+      setInstandText(formatZahl(defaultInstand, { min: 2 }));
     }
 
     // Mietausfall-Defaults
     if (mietausfallPct === 0) {
       const defaultMietausfall = (objekttyp === 'mfh' && anzahlWohneinheiten > 3) ? 3 : 5;
       setMietausfallPct(defaultMietausfall);
-      setMietausfallText(defaultMietausfall.toFixed(2).replace('.', ','));
+      setMietausfallText(formatZahl(defaultMietausfall, { min: 2 }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objekttyp, anzahlWohneinheiten, mounted]);
@@ -565,7 +586,7 @@ export default function StepPage() {
     if (!mounted) return;
 
     const defaultAfa = defaultAfaForBaujahr(baujahr);
-    const parsedAfa = Number(afaText.replace(',', '.')) || 0;
+    const parsedAfa = zahl(afaText) || 0;
     const shouldUpdateAfa =
       autoAfa.current ||
       parsedAfa === 0 ||
@@ -573,12 +594,12 @@ export default function StepPage() {
 
     if (shouldUpdateAfa) {
       setAfa(defaultAfa);
-      setAfaText(defaultAfa.toString().replace('.', ','));
+      setAfaText(formatZahl(defaultAfa));
       autoAfa.current = true;
     }
 
     const defaultGeb = defaultGebaeudeAnteil(objekttyp);
-    const parsedGeb = Number(gebText.replace(',', '.')) || 0;
+    const parsedGeb = zahl(gebText) || 0;
     const shouldUpdateGeb =
       autoGebaeude.current ||
       parsedGeb === 0 ||
@@ -586,15 +607,14 @@ export default function StepPage() {
 
     if (shouldUpdateGeb) {
       setSteuer(defaultGeb);
-      setGebText(defaultGeb.toString().replace('.', ','));
+      setGebText(formatZahl(defaultGeb));
       autoGebaeude.current = true;
     }
   }, [baujahr, objekttyp, mounted, setAfa, setSteuer, afaText, gebText]);
 
   // KPI-Berechnungen (in %)
-  const bruttoMietrendite = anschaffungskosten > 0
-    ? (jahreskaltmiete / anschaffungskosten) * 100
-    : 0;
+  // Bruttomietrendite: Jahreskaltmiete ÷ Kaufpreis (ohne Nebenkosten, übliche Definition)
+  const bruttoMietrendite = berechneBruttomietrendite(jahreskaltmiete, kaufpreis);
 
   const nettoMietrendite  = anschaffungskosten > 0
     ? ((jahreskaltmiete - bewirtschaftungskostenJ) / anschaffungskosten) * 100
@@ -620,117 +640,132 @@ const dscr =
     s.cashflow_operativ > 0 ? s.ek / (s.cashflow_operativ * 12) : Infinity
   );*/
 
-  // Validation function for required fields
-  const validateStep = (currentStep: string): { isValid: boolean; missingFields: string[] } => {
-    const missing: string[] = [];
+  // === Pflichtfelder ===
+  // Jede Lücke gehört zu einem Schritt. "Weiter" ist gesperrt, solange im aktuellen oder einem früheren Schritt etwas fehlt.
+  type PflichtFehler = { key: string; schritt: 'a' | 'a2' | 'b' | 'c'; label: string; text: string };
+  const [fehlerSichtbar, setFehlerSichtbar] = useState(false);
 
-    if (currentStep === 'a') {
-      // Step A validation - only Kaufpreis
-      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
-    } else if (currentStep === 'a2') {
-      // Step A2 validation - Objektdaten
-      if (!adresse || adresse.trim() === '') missing.push('Adresse');
-      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
-      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
-      if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
-        if (anzahlWohneinheiten > 50) missing.push('Wohneinheiten (max. 50)');
-      } else {
-        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-        if (zimmer > 20) missing.push('Anzahl Zimmer (max. 20)');
-      }
-      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
-      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
-      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
-    } else if (currentStep === 'b') {
-      // Step B validation - ensure Step A is complete first
-      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
-      if (!adresse || adresse.trim() === '') missing.push('Adresse');
-      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
-      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
-      if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
-      } else {
-        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-      }
-      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
-      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
-      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
-      if (!miete || miete <= 0) missing.push('Kaltmiete');
-    } else if (currentStep === 'c') {
-      // Step C validation - ensure all previous steps are complete
-      if (!kaufpreis || kaufpreis <= 0) missing.push('Kaufpreis');
-      if (!adresse || adresse.trim() === '') missing.push('Adresse');
-      if (!flaeche || flaeche <= 0) missing.push('Wohnfläche');
-      if (flaeche > 0 && flaeche < 10) missing.push('Wohnfläche (mind. 10 m²)');
-      // Bei MFH: Validiere anzahl_wohneinheiten statt zimmer
-      if (objekttyp === 'mfh') {
-        if (!anzahlWohneinheiten || anzahlWohneinheiten <= 0) missing.push('Wohneinheiten');
-      } else {
-        if (!zimmer || zimmer <= 0) missing.push('Anzahl Zimmer');
-      }
-      if (!baujahr || baujahr <= 0) missing.push('Baujahr');
-      if (baujahr > 0 && baujahr < 1800) missing.push('Baujahr (muss ab 1800 sein)');
-      if (baujahr > new Date().getFullYear() + 2) missing.push('Baujahr (liegt zu weit in der Zukunft)');
-      if (!miete || miete <= 0) missing.push('Kaltmiete');
-      if (ek === null || ek === undefined || ek < 0) missing.push('Eigenkapital');
-      if (zins === null || zins === undefined || zins < 0) missing.push('Zinssatz');
-      if (zins > 20) missing.push('Zinssatz (max. 20%)');
-      if (tilgung === null || tilgung === undefined || tilgung < 0) missing.push('Tilgungssatz');
-      if (tilgung > 10) missing.push('Tilgungssatz (max. 10%)');
+  const pflichtFehler = (): PflichtFehler[] => {
+    const f: PflichtFehler[] = [];
+    const add = (key: string, schritt: PflichtFehler['schritt'], label: string, text: string) => f.push({ key, schritt, label, text });
+    const jahr = new Date().getFullYear();
+
+    if (!(kaufpreis > 0)) add('kaufpreis', 'a', 'Kaufpreis', 'Bitte trag den Kaufpreis ein.');
+    if (!adresse || adresse.trim() === '') add('adresse', 'a', 'Adresse', 'Bitte trag die Adresse ein, mindestens PLZ und Ort.');
+    const grEStFehlt = step === 'a' ? parseZahl(grunderwerbText) === null : grEStUnbekannt;
+    if (grEStFehlt) add('grunderwerbsteuer', 'a', 'Grunderwerbsteuer', 'Bitte wähle das Bundesland oder trag den Satz ein.');
+
+    if (!(flaeche > 0)) add('flaeche', 'a2', 'Wohnfläche', 'Bitte trag die Wohnfläche ein.');
+    else if (flaeche < 10) add('flaeche', 'a2', 'Wohnfläche', 'Die Wohnfläche muss mindestens 10 m² betragen.');
+    if (objekttyp === 'mfh') {
+      if (!(anzahlWohneinheiten > 0)) add('zimmer', 'a2', 'Wohneinheiten', 'Bitte trag die Anzahl der Wohneinheiten ein.');
+      else if (anzahlWohneinheiten > 50) add('zimmer', 'a2', 'Wohneinheiten', 'Maximal 50 Wohneinheiten.');
+    } else {
+      if (!(zimmer > 0)) add('zimmer', 'a2', 'Zimmer', 'Bitte trag die Anzahl der Zimmer ein.');
+      else if (zimmer > 20) add('zimmer', 'a2', 'Zimmer', 'Maximal 20 Zimmer.');
     }
+    if (!(baujahr > 0)) add('baujahr', 'a2', 'Baujahr', 'Bitte trag das Baujahr ein.');
+    else if (baujahr < 1800) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr muss ab 1800 liegen.');
+    else if (baujahr > jahr + 2) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr liegt zu weit in der Zukunft.');
 
-    return { isValid: missing.length === 0, missingFields: missing };
+    if (!(miete > 0)) add('miete', 'b', 'Kaltmiete', 'Bitte trag die Kaltmiete ein.');
+
+    if (ek === null || ek === undefined || ek < 0) add('ek', 'c', 'Eigenkapital', 'Bitte trag dein Eigenkapital ein.');
+    if (zins === null || zins === undefined || zins < 0 || zins > 20) add('zins', 'c', 'Zinssatz', 'Der Zinssatz muss zwischen 0 und 20 % liegen.');
+    if (tilgung === null || tilgung === undefined || tilgung < 0 || tilgung > 10) add('tilgung', 'c', 'Tilgung', 'Die Tilgung muss zwischen 0 und 10 % liegen.');
+
+    // Nur Lücken bis einschließlich des aktuellen Schritts zählen
+    return f.filter(x => steps.indexOf(x.schritt) <= idx);
+  };
+  const offeneFehler = fehlerSichtbar ? pflichtFehler() : [];
+  /** Meldung direkt am Feld (nur für Felder des aktuellen Schritts) */
+  const feldFehler = (key: string) => {
+    const treffer = offeneFehler.find(x => x.key === key && x.schritt === step);
+    return treffer ? (
+      <p role="alert" data-feld-fehler={key} className="text-xs font-semibold text-red-600 ml-1 mt-1">{treffer.text}</p>
+    ) : null;
+  };
+  /** Feld fehlt im importierten Inserat und ist noch nicht ergänzt */
+  const fehltImInserat = (feld: ImportFeld) => importFehlend.includes(feld);
+  const inseratHinweis = (feld: ImportFeld) =>
+    fehltImInserat(feld) && !offeneFehler.some(x => x.key === feld && x.schritt === step) ? (
+      <p className="text-xs font-semibold text-amber-700 ml-1 mt-1">Fehlt im Inserat. Bitte ergänzen.</p>
+    ) : null;
+  /** Rahmenfarbe für Felder mit Fehler (rot) oder fehlender Angabe aus dem Inserat (gelb) */
+  const feldRahmen = (key: string, feld?: ImportFeld) =>
+    offeneFehler.some(x => x.key === key && x.schritt === step)
+      ? ' border-red-500! ring-2 ring-red-500/10'
+      : feld && fehltImInserat(feld)
+        ? ' border-amber-400! bg-amber-50/50!'
+        : '';
+  const SCHRITT_NR: Record<string, number> = { a: 1, a2: 2, b: 3, c: 4 };
+  /** Lücken aus früheren Schritten, mit Link dorthin (steht über dem Weiter-Button) */
+  const fruehereFehler = () => {
+    const frueher = offeneFehler.filter(x => x.schritt !== step);
+    if (frueher.length === 0) return null;
+    return (
+      <div role="alert" className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <p className="font-semibold">Diese Angaben fehlen noch:</p>
+        <ul className="mt-1 space-y-1">
+          {frueher.map(x => (
+            <li key={x.key}>
+              <Link href={`/step/${x.schritt}`} className="font-semibold underline underline-offset-2">
+                {x.label} (Schritt {SCHRITT_NR[x.schritt]})
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
   };
 
   // Flush all text input values to store before navigation
   const flushAllInputs = () => {
     // Step A inputs
-    const grEStNum = Number(grunderwerbText.replace(',', '.'));
-    if (!isNaN(grEStNum)) setGrunderwerbsteuerPct(grEStNum);
+    // Grunderwerbsteuer nur schreiben, wenn der Nutzer den Wert geändert hat (sonst gälte er als manuell gesetzt)
+    const grEStNum = zahl(grunderwerbText);
+    if (!isNaN(grEStNum) && grEStNum !== grEStPct) setGrunderwerbsteuerPct(grEStNum);
 
-    const notarNum = Number(notarText.replace(',', '.'));
-    if (!isNaN(notarNum)) setNotarPct(notarNum);
+    const notarNum = zahl(notarText);
+    if (!isNaN(notarNum) && notarNum !== notarPct) setNotarPct(notarNum);
 
-    const maklerNum = Number(maklerText.replace(',', '.'));
-    if (!isNaN(maklerNum)) setMaklerPct(maklerNum);
+    const maklerNum = zahl(maklerText);
+    if (!isNaN(maklerNum) && maklerNum !== maklerPct) setMaklerPct(maklerNum);
 
-    const sonstigeNum = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+    const sonstigeNum = zahl(sonstigeKostenText);
     if (!isNaN(sonstigeNum)) setSonstigeKosten(sonstigeNum);
 
     // Step A2 inputs
-    const flaecheNum = Number(flaecheText.replace(/\./g, '').replace(',', '.'));
+    const flaecheNum = zahl(flaecheText);
     if (!isNaN(flaecheNum)) setFlaeche(flaecheNum);
 
     const baujahrNum = parseInt(baujahrText, 10);
     if (!isNaN(baujahrNum) && baujahrNum > 0) setBaujahr(baujahrNum);
 
     // Step B inputs
-    const afaNum = Number(afaText.replace(',', '.'));
+    const afaNum = zahl(afaText);
     if (!isNaN(afaNum)) setAfa(afaNum);
 
-    const gebNum = Number(gebText.replace(',', '.'));
+    const gebNum = zahl(gebText);
     if (!isNaN(gebNum)) setSteuer(gebNum);
 
-    const hausUmlegNum = Number(hausUmlegText.replace(',', '.'));
+    const hausUmlegNum = zahl(hausUmlegText);
     if (!isNaN(hausUmlegNum)) setHausgeldUmlegbar(hausUmlegNum);
 
-    const instandNum = Number(instandText.replace(',', '.'));
+    const instandNum = zahl(instandText);
     if (!isNaN(instandNum)) setInstandhaltungskostenProQm(instandNum);
 
-    const mietausfallNum = Number(mietausfallText.replace(',', '.'));
+    const mietausfallNum = zahl(mietausfallText);
     if (!isNaN(mietausfallNum)) setMietausfallPct(mietausfallNum);
 
-    const persNum = Number(persText.replace(',', '.'));
+    const persNum = zahl(persText);
     if (!isNaN(persNum)) setPersoenlicherSteuersatz(persNum);
 
     // Step C inputs
-    const zinsNum = Number(zinsText.replace(',', '.'));
+    const zinsNum = zahl(zinsText);
     if (!isNaN(zinsNum)) setZins(zinsNum);
 
-    const tilgungNum = Number(tilgungText.replace(',', '.'));
+    const tilgungNum = zahl(tilgungText);
     if (!isNaN(tilgungNum)) setTilgung(tilgungNum);
   };
 
@@ -738,12 +773,12 @@ const dscr =
     // Flush all pending input values first
     flushAllInputs();
 
-    const validation = validateStep(step);
-
-    if (!validation.isValid) {
-      toast.error('Bitte fülle alle Pflichtfelder aus', {
-        description: `Fehlende Felder: ${validation.missingFields.join(', ')}`,
-        duration: 4000,
+    // Gesperrt, solange Pflichtfelder fehlen: Meldung direkt am Feld, erstes betroffenes Feld in den Blick holen
+    const fehler = pflichtFehler();
+    if (fehler.length > 0) {
+      setFehlerSichtbar(true);
+      requestAnimationFrame(() => {
+        document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
@@ -964,30 +999,36 @@ const dscr =
     queueMicrotask(() => setGratisFreigabe(gratisSchluessel));
   }, [step, freigabeSpeicher, premiumStatusLoaded, isPremium, canAccessPremium, gratisSchluessel, analysisId, marktFacts]);
 
-  // analysis_completed: einmal pro Analyse, sobald die Ergebnisseite mit Zahlen steht
-  // (erst wenn Anmeldung und Plan bekannt sind, damit die Parameter stimmen)
-  const completedGemeldet = useRef<string | null>(null);
+  // kpi_result_viewed: einmal pro Wohnung, sobald das KPI-Ergebnis steht (auch für Gäste).
+  // analysis_completed folgt erst, wenn die vollständige Analyse (Markt, KI, Prognose) fertig ist.
+  const kpiGemeldet = useRef<string | null>(null);
   useEffect(() => {
     if (!mounted || step !== 'tabs' || !(kaufpreis > 0)) return;
-    if (isSignedIn === undefined || (isSignedIn && !premiumStatusLoaded)) return;
-    const schluessel = analysisId || gratisSchluessel || `kaufpreis_${kaufpreis}`;
-    // Bekommt die Analyse erst beim (automatischen) Speichern ihre ID, nicht ein zweites Mal melden
+    if (isSignedIn === undefined) return;
     const wohnung = gratisSchluessel || `kaufpreis_${kaufpreis}`;
-    if (completedGemeldet.current === wohnung) return;
-    const speicher = 'analytics_analysis_completed';
+    if (kpiGemeldet.current === wohnung) return;
+    const speicher = 'analytics_kpi_result_viewed';
     let erledigt: string[] = [];
     try { erledigt = JSON.parse(localStorage.getItem(speicher) || '[]'); } catch { /* privater Modus */ }
-    if (erledigt.includes(schluessel)) return;
-    completedGemeldet.current = wohnung;
-    trackEvent(AnalyticsEvents.ANALYSIS_COMPLETED, {
+    kpiGemeldet.current = wohnung;
+    if (erledigt.includes(wohnung)) return;
+    trackEvent(AnalyticsEvents.KPI_RESULT_VIEWED, {
       input_method: leseEingabeMethode(),
       object_type: objekttyp,
       signed_in: !!isSignedIn,
-      is_premium: isPremium,
-      free_analyses_used: premiumUsageCount,
     });
-    try { localStorage.setItem(speicher, JSON.stringify([...erledigt, schluessel].slice(-50))); } catch { /* privater Modus */ }
-  }, [mounted, step, kaufpreis, isSignedIn, premiumStatusLoaded, analysisId, gratisSchluessel, objekttyp, isPremium, premiumUsageCount]);
+    try { localStorage.setItem(speicher, JSON.stringify([...erledigt, wohnung].slice(-50))); } catch { /* privater Modus */ }
+  }, [mounted, step, kaufpreis, isSignedIn, gratisSchluessel, objekttyp]);
+
+  // Startwert fürs Eigenkapital: Kaufnebenkosten + 10 % des Kaufpreises, auf 1.000 € gerundet.
+  // Gilt nur, solange der Nutzer nichts eingetragen hat (setEkStartwert überschreibt nie eine Eingabe).
+  const ekStartwert = berechneEkStartwert({
+    kaufpreis, grunderwerbsteuerPct: grEStPct, notarPct, maklerPct, sonstigeKosten,
+  });
+  useEffect(() => {
+    if (!mounted || step !== 'c' || ekManuell || !(kaufpreis > 0)) return;
+    setEkStartwert(ekStartwert);
+  }, [mounted, step, ekManuell, kaufpreis, ekStartwert, setEkStartwert]);
 
   // Track input changes ANYWHERE in the app (not just on markt tab)
   // This ensures we detect changes made on step pages
@@ -1141,6 +1182,13 @@ const dscr =
 
       // Mark as successfully fetched only AFTER successful API call
       marktFetched.current = true;
+
+      // analysis_completed: Marktvergleich und KI-Investitionsanalyse sind geladen, die Prognose rechnet lokal
+      meldeAnalyseAbgeschlossen({
+        userId,
+        schluessel: gratisSchluessel || analysisId || `kaufpreis_${kaufpreis}`,
+        plan: isPremium ? 'premium' : 'free',
+      });
     } catch (e) {
       console.error('Markt/Agent laden fehlgeschlagen', e);
 
@@ -1320,8 +1368,41 @@ const exportPdf = React.useCallback(async () => {
           <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Kaufpreis & Nebenkosten.</h1>
         </div>
 
+        {/* Import: fehlende Angaben und Hinweise aus dem Inserat */}
+        {mounted && (importFehlend.length > 0 || importHinweise.length > 0) && (
+          <div id="import-hinweis" role="status" className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 flex items-start gap-3">
+            <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+            <div className="min-w-0">
+              {importFehlend.length > 0 && <p className="font-semibold">{fehlendHinweis(importFehlend)}</p>}
+              {importHinweise.length > 0 && (
+                <>
+                  <p className={`font-semibold ${importFehlend.length > 0 ? 'mt-3' : ''}`}>Bitte prüfe diese Werte aus dem Import:</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4 text-xs leading-relaxed">
+                    {importHinweise.map(h => <li key={h}>{h}</li>)}
+                  </ul>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Input Container */}
         <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-100/50 shadow-inner space-y-6 max-w-5xl mx-auto">
+
+          {/* Adresse: steht in Schritt 1, weil die PLZ den Grunderwerbsteuersatz bestimmt */}
+          <div className="space-y-1.5" id="adresse-feld">
+            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Adresse</label>
+            <div className={`relative group rounded-2xl${offeneFehler.some(x => x.key === 'adresse') ? ' ring-2 ring-red-500' : fehltImInserat('adresse') ? ' ring-2 ring-amber-400' : ''}`}>
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
+              <AddressAutocomplete
+                value={adresse}
+                onChange={(val: string) => { setAdresse(val); if (val.trim()) erledigeImportFeld('adresse'); }}
+              />
+            </div>
+            {feldFehler('adresse')}
+            {inseratHinweis('adresse')}
+            <p className="text-xs text-slate-400 ml-1 mt-1">Mit PLZ. Daraus ergibt sich der Grunderwerbsteuersatz deines Bundeslands.</p>
+          </div>
 
           {/* Kaufpreis */}
           <div className="space-y-1.5 w-full">
@@ -1333,11 +1414,14 @@ const exportPdf = React.useCallback(async () => {
                 type="text"
                 value={mounted ? (kaufpreis === 0 ? '' : kaufpreis.toLocaleString('de-DE')) : ''}
                 placeholder="z.B. 280.000"
-                onChange={(e) => setKaufpreis(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                inputMode="decimal"
+                onChange={(e) => { const n = zahl(e.target.value) || 0; setKaufpreis(n); if (n > 0) erledigeImportFeld('kaufpreis'); }}
                 onFocus={(e) => e.target.select()}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('kaufpreis', 'kaufpreis')}`}
               />
             </div>
+            {feldFehler('kaufpreis')}
+            {inseratHinweis('kaufpreis')}
             <p className="text-xs text-slate-400 ml-1 mt-1">Gesamtkaufpreis laut Exposé</p>
           </div>
 
@@ -1348,18 +1432,36 @@ const exportPdf = React.useCallback(async () => {
 
             <div className="grid grid-cols-1 gap-6">
               {[
-                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, amount: grunderwerbsteuer_eur, id: 'grunderwerbsteuer-input' },
-                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, amount: notar_eur, id: 'notar-input' },
-                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, amount: makler_eur, id: 'makler-input' },
+                { label: 'Grunderwerbsteuer', text: grunderwerbText, setText: setGrunderwerbText, setter: setGrunderwerbsteuerPct, wert: grEStPct, amount: grunderwerbsteuer_eur, id: 'grunderwerbsteuer-input' },
+                { label: 'Notar & Grundbuch', text: notarText, setText: setNotarText, setter: setNotarPct, wert: notarPct, amount: notar_eur, id: 'notar-input' },
+                { label: 'Maklergebühr', text: maklerText, setText: setMaklerText, setter: setMaklerPct, wert: maklerPct, amount: makler_eur, id: 'makler-input' },
               ].map((item, i) => (
                 <div key={i} className="space-y-1.5">
-                  <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                  <label htmlFor={item.id} className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">{item.label}</label>
+                  {/* Grunderwerbsteuer: Bundesland aus der PLZ, hier änderbar. Ohne Bundesland bleibt der Satz leer. */}
+                  {item.id === 'grunderwerbsteuer-input' && (
+                    <select
+                      id="bundesland-select"
+                      aria-label="Bundesland"
+                      value={bundesland ?? ''}
+                      onChange={(e) => setBundesland(istBundesland(e.target.value) ? e.target.value : null)}
+                      className={`w-full bg-white border border-slate-200 rounded-2xl py-3 px-4 text-sm font-semibold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('grunderwerbsteuer')}`}
+                    >
+                      <option value="">Bundesland wählen</option>
+                      {Object.entries(BUNDESLAENDER).map(([code, land]) => (
+                        <option key={code} value={code}>{land.name}</option>
+                      ))}
+                    </select>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     {/* Prozent Input */}
                     <div
                       onBlur={() => {
-                        const num = Number(item.text.replace(',', '.'));
-                        item.setter(isNaN(num) ? 0 : num);
+                        // Nur echte Änderungen schreiben, sonst gälte ein vorbelegter Satz als manuell gesetzt
+                        const num = zahl(item.text);
+                        const neu = isNaN(num) ? 0 : num;
+                        if (neu !== item.wert) item.setter(neu);
+                        if (!isNaN(num)) item.setText(formatZahl(num));
                       }}
                     >
                       <div className="relative group">
@@ -1367,10 +1469,12 @@ const exportPdf = React.useCallback(async () => {
                         <input
                           id={item.id}
                           type="text"
+                          inputMode="decimal"
                           value={item.text}
+                          placeholder={item.id === 'grunderwerbsteuer-input' ? 'Bundesland wählen' : undefined}
                           onChange={(e) => item.setText(e.target.value)}
                           onFocus={(e) => e.target.select()}
-                          className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                          className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold placeholder:text-sm placeholder:font-semibold placeholder:text-slate-400 text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${item.id === 'grunderwerbsteuer-input' ? feldRahmen('grunderwerbsteuer') : ''}`}
                         />
                       </div>
                     </div>
@@ -1380,12 +1484,26 @@ const exportPdf = React.useCallback(async () => {
                       <input
                         type="text"
                         readOnly
-                        value={mounted ? item.amount.toLocaleString('de-DE') : item.amount.toString()}
+                        value={mounted ? item.amount.toLocaleString('de-DE') : ''}
                         className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
                       />
                       <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
                     </div>
                   </div>
+                  {item.id === 'grunderwerbsteuer-input' && (
+                    <>
+                      {feldFehler('grunderwerbsteuer')}
+                      <p id="grunderwerbsteuer-hinweis" className="text-xs text-slate-500 ml-1 mt-1">
+                        {mounted && bundesland && grEStPct === BUNDESLAENDER[bundesland].satz
+                          ? <><span className="font-semibold text-[#001d3d]">{grunderwerbsteuerLabel(bundesland)}</span> · Satz deines Bundeslands, du kannst ihn ändern.</>
+                          : mounted && bundesland
+                            ? <>Eigener Satz. Üblich wäre: {grunderwerbsteuerLabel(bundesland)}</>
+                            : mounted && !grEStUnbekannt
+                              ? 'Eigener Satz.'
+                              : 'Bundesland wählen: Der Satz liegt je nach Bundesland zwischen 3,5 % und 6,5 %.'}
+                      </p>
+                    </>
+                  )}
                 </div>
               ))}
 
@@ -1399,8 +1517,9 @@ const exportPdf = React.useCallback(async () => {
                 </label>
                 <div
                   onBlur={() => {
-                    const num = Number(sonstigeKostenText.replace(/\./g, '').replace(',', '.'));
+                    const num = zahl(sonstigeKostenText);
                     setSonstigeKosten(isNaN(num) ? 0 : num);
+                    setSonstigeKostenText(formatZahl(isNaN(num) ? 0 : num));
                   }}
                 >
                   <div className="relative group">
@@ -1425,7 +1544,7 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     type="text"
                     readOnly
-                    value={mounted ? anschaffungskosten.toLocaleString('de-DE') : anschaffungskosten.toString()}
+                    value={mounted ? anschaffungskosten.toLocaleString('de-DE') : ''}
                     className="w-full bg-gradient-to-br from-[#ff6b00] to-[#ff6b00]/90 border-2 border-[#ff6b00] rounded-2xl py-5 px-5 text-lg font-black text-white cursor-not-allowed shadow-lg"
                   />
                   <span className="absolute right-5 top-1/2 -translate-y-1/2 text-white/90 font-black text-sm">€</span>
@@ -1449,6 +1568,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Buttons */}
+        {fruehereFehler()}
         <div className="mt-8">
           <button
             data-step-nav="next"
@@ -1520,18 +1640,6 @@ const exportPdf = React.useCallback(async () => {
             </div>
           </div>
 
-          {/* Adresse */}
-          <div className="space-y-1.5">
-            <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1">Adresse</label>
-            <div className="relative group">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors z-10" size={18} />
-              <AddressAutocomplete
-                value={adresse}
-                onChange={(val: string) => setAdresse(val)}
-              />
-            </div>
-          </div>
-
           {/* Zimmer/Wohneinheiten & Fläche */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
@@ -1546,12 +1654,19 @@ const exportPdf = React.useCallback(async () => {
                 )}
                 <input
                   type="text"
-                  value={objekttyp === 'mfh' ? anzahlWohneinheiten.toString() : zimmer.toString()}
-                  onChange={(e) => objekttyp === 'mfh' ? setAnzahlWohneinheiten(Number(e.target.value)) : setZimmer(Number(e.target.value))}
+                  inputMode="decimal"
+                  value={formatZahlOderLeer(objekttyp === 'mfh' ? anzahlWohneinheiten : zimmer)}
+                  onChange={(e) => {
+                    const n = zahl(e.target.value) || 0;
+                    if (objekttyp === 'mfh') setAnzahlWohneinheiten(n); else setZimmer(n);
+                    if (n > 0) erledigeImportFeld('zimmer');
+                  }}
                   onFocus={(e) => e.target.select()}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('zimmer', objekttyp === 'mfh' ? undefined : 'zimmer')}`}
                 />
               </div>
+              {feldFehler('zimmer')}
+              {objekttyp !== 'mfh' && inseratHinweis('zimmer')}
               {objekttyp === 'mfh' && (
                 <p className="text-xs text-slate-500 ml-1">Anzahl vermietbarer Wohnungen</p>
               )}
@@ -1565,17 +1680,25 @@ const exportPdf = React.useCallback(async () => {
                 <Ruler className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                 <input
                   type="text"
-                  value={mounted ? flaecheText : flaecheText}
+                  id="flaeche-input"
+                  inputMode="decimal"
+                  value={flaecheText}
+                  placeholder="z.B. 65"
                   onChange={(e) => {
                     const text = e.target.value;
                     setFlaecheText(text);
-                    const num = Number(text.replace(/\./g, '').replace(',', '.'));
-                    if (!isNaN(num)) setFlaeche(num);
+                    const num = zahl(text);
+                    setFlaeche(isNaN(num) ? 0 : num);
+                    if (num > 0) erledigeImportFeld('flaeche');
                   }}
+                  onBlur={() => setFlaecheText(formatZahlOderLeer(flaeche))}
                   onFocus={(e) => e.target.select()}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('flaeche', 'flaeche')}`}
                 />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">m²</span>
               </div>
+              {feldFehler('flaeche')}
+              {inseratHinweis('flaeche')}
               {objekttyp === 'mfh' && (
                 <p className="text-xs text-slate-500 ml-1">Gesamte Wohnfläche aller Einheiten</p>
               )}
@@ -1601,21 +1724,29 @@ const exportPdf = React.useCallback(async () => {
                     autoAfa.current = true;
                     autoGebaeude.current = true;
 
-                    setAfaText(newAfaValue.toString().replace('.', ','));
+                    setAfaText(formatZahl(newAfaValue));
                     setAfa(newAfaValue);
-                    setGebText(newGebValue.toString().replace('.', ','));
+                    setGebText(formatZahl(newGebValue));
                     setSteuer(newGebValue);
                     setBaujahr(newBaujahr);
+                    erledigeImportFeld('baujahr');
+                  } else if (text.trim() === '') {
+                    setBaujahr(0);
                   }
                 }}
+                inputMode="numeric"
+                placeholder="z.B. 1995"
                 onFocus={(e) => e.target.select()}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('baujahr', 'baujahr')}`}
               />
             </div>
+            {feldFehler('baujahr')}
+            {inseratHinweis('baujahr')}
           </div>
         </div>
 
         {/* Buttons */}
+        {fruehereFehler()}
         <div className="mt-8 flex gap-4">
           <button
             onClick={() => router.push('/step/a')}
@@ -1645,7 +1776,7 @@ const exportPdf = React.useCallback(async () => {
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Ertrag & Hausgeld.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Miete & Kosten.</h1>
         </div>
 
         {/* Input Container */}
@@ -1671,16 +1802,25 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     id="miete-input"
                     type="text"
-                    value={miete === 0 ? '' : miete.toString()}
+                    inputMode="decimal"
+                    value={mieteText}
                     placeholder="z.B. 950"
-                    onChange={(e) => setMiete(Number(e.target.value.replace(/\./g, '').replace(',', '.')))}
+                    onChange={(e) => {
+                      const text = e.target.value;
+                      setMieteText(text);
+                      const num = zahl(text);
+                      setMiete(isNaN(num) ? 0 : num);
+                      if (num > 0) erledigeImportFeld('miete');
+                    }}
+                    onBlur={() => setMieteText(formatZahlOderLeer(miete))}
                     onFocus={(e) => e.target.select()}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('miete', 'miete')}`}
                   />
                 </div>
+                {feldFehler('miete')}
+                {inseratHinweis('miete')}
+                <p className="text-xs text-slate-400 ml-1 mt-1">Nettokaltmiete pro Monat, ohne Nebenkosten</p>
               </div>
-
-              <p className="text-xs text-slate-400 ml-1 mt-1">Nettokaltmiete ohne Nebenkosten</p>
 
               {/* Kaltmiete pro qm */}
               <div className="space-y-1.5">
@@ -1715,12 +1855,13 @@ const exportPdf = React.useCallback(async () => {
               {/* Umlagefähig - für alle Objekttypen */}
               <div
                 onBlur={() => {
-                  const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
+                  const um = zahl(hausUmlegText);
                   setHausgeldUmlegbar(isNaN(um) ? 0 : um);
                   if (objekttyp === 'wohnung') {
-                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    const non = zahl(hausNichtText) || 0;
                     setHausgeld(isNaN(um) ? non : um + non);
                   }
+                  if (!isNaN(um)) { setHausUmlegText(formatZahl(um)); erledigeImportFeld('hausgeld'); }
                 }}
                 className="space-y-1.5"
               >
@@ -1737,22 +1878,26 @@ const exportPdf = React.useCallback(async () => {
                   <input
                     id="hausgeld-umlegbar-input"
                     type="text"
+                    inputMode="decimal"
                     value={hausUmlegText}
+                    placeholder="z.B. 150"
                     onChange={(e) => setHausUmlegText(e.target.value)}
                     onFocus={(e) => e.target.select()}
-                    className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                    className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${objekttyp === 'wohnung' ? feldRahmen('hausgeld', 'hausgeld') : ''}`}
                   />
                 </div>
+                {objekttyp === 'wohnung' && inseratHinweis('hausgeld')}
               </div>
 
               {/* Für ETW: Nicht umlagefähiges Hausgeld */}
               {objekttyp === 'wohnung' && (
                 <div
                   onBlur={() => {
-                    const um = Number(hausUmlegText.replace(/\./g, '').replace(',', '.'));
-                    const non = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
-                    setHausgeldUmlegbar(isNaN(um) ? 0 : um);
+                    const um = zahl(hausUmlegText) || 0;
+                    const non = zahl(hausNichtText);
+                    setHausgeldUmlegbar(um);
                     setHausgeld(isNaN(non) ? um : um + non);
+                    if (!isNaN(non)) { setHausNichtText(formatZahl(non)); erledigeImportFeld('hausgeld'); }
                   }}
                   className="space-y-1.5"
                 >
@@ -1767,10 +1912,12 @@ const exportPdf = React.useCallback(async () => {
                     <input
                       id="hausgeld-nicht-umlegbar-input"
                       type="text"
+                      inputMode="decimal"
                       value={hausNichtText}
+                      placeholder="z.B. 100"
                       onChange={(e) => setHausNichtText(e.target.value)}
                       onFocus={(e) => e.target.select()}
-                      className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                      className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('hausgeld', 'hausgeld')}`}
                     />
                   </div>
                 </div>
@@ -1780,7 +1927,7 @@ const exportPdf = React.useCallback(async () => {
               {(objekttyp === 'haus' || objekttyp === 'mfh') && (
                 <div
                   onBlur={() => {
-                    const verw = Number(hausNichtText.replace(/\./g, '').replace(',', '.'));
+                    const verw = zahl(hausNichtText);
                     setVerwaltungskosten(isNaN(verw) ? 0 : verw);
                   }}
                   className="space-y-1.5"
@@ -1809,8 +1956,8 @@ const exportPdf = React.useCallback(async () => {
 
             {/* Hinweise zu Hausgeld-Verteilung */}
             {objekttyp === 'wohnung' && (() => {
-              const umlegbarNum = Number(hausUmlegText.replace(/\./g, '').replace(',', '.')) || 0;
-              const nichtUmlegbarNum = Number(hausNichtText.replace(/\./g, '').replace(',', '.')) || 0;
+              const umlegbarNum = zahl(hausUmlegText) || 0;
+              const nichtUmlegbarNum = zahl(hausNichtText) || 0;
               const totalHausgeld = umlegbarNum + nichtUmlegbarNum;
 
               // Fall 1: Automatische 60/40 Verteilung wurde vorgenommen
@@ -1831,7 +1978,7 @@ const exportPdf = React.useCallback(async () => {
                     <div>
                       <p className="font-semibold">Automatische Hausgeld-Verteilung (60/40)</p>
                       <p className="text-xs mt-1">
-                        Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({(hausgeld * 0.6).toFixed(2)} €)</strong> / <strong>40% nicht umlagefähig ({(hausgeld * 0.4).toFixed(2)} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
+                        Das Hausgeld wurde automatisch im Verhältnis <strong>60% umlagefähig ({formatZahl(hausgeld * 0.6, { min: 2 })} €)</strong> / <strong>40% nicht umlagefähig ({formatZahl(hausgeld * 0.4, { min: 2 })} €)</strong> aufgeteilt. Bitte prüfe diese Werte und passe sie bei Bedarf an die tatsächliche Verteilung laut WEG-Abrechnung an.
                       </p>
                     </div>
                   </div>
@@ -1848,8 +1995,8 @@ const exportPdf = React.useCallback(async () => {
                         Du hast nur das umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
                       </p>
                       <p className="text-xs mt-1">
-                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                        • 60% umlagefähig: <strong>{formatZahl(recommendedUmlegbar, { min: 2 })} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{formatZahl(recommendedNichtUmlegbar, { min: 2 })} €</strong>
                       </p>
                     </div>
                   </div>
@@ -1866,8 +2013,8 @@ const exportPdf = React.useCallback(async () => {
                         Du hast nur das nicht umlagefähige Hausgeld eingetragen. Für eine korrekte Kalkulation sollte das Gesamthausgeld aufgeteilt werden. <strong>Standardverteilung:</strong>
                       </p>
                       <p className="text-xs mt-1">
-                        • 60% umlagefähig: <strong>{recommendedUmlegbar.toFixed(2)} €</strong><br />
-                        • 40% nicht umlagefähig: <strong>{recommendedNichtUmlegbar.toFixed(2)} €</strong>
+                        • 60% umlagefähig: <strong>{formatZahl(recommendedUmlegbar, { min: 2 })} €</strong><br />
+                        • 40% nicht umlagefähig: <strong>{formatZahl(recommendedNichtUmlegbar, { min: 2 })} €</strong>
                       </p>
                     </div>
                   </div>
@@ -1884,7 +2031,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Mietausfall */}
               <div
-                onBlur={() => setMietausfallPct(Number(mietausfallText.replace(',', '.')) || 0)}
+                onBlur={() => { const n = zahl(mietausfallText) || 0; setMietausfallPct(n); setMietausfallText(formatZahl(n, { min: 2 })); }}
                 className="space-y-1.5"
               >
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
@@ -1910,7 +2057,7 @@ const exportPdf = React.useCallback(async () => {
 
               {/* Instandhaltung */}
               <div
-                onBlur={() => setInstandhaltungskostenProQm(Number(instandText.replace(',', '.')) || 0)}
+                onBlur={() => { const n = zahl(instandText) || 0; setInstandhaltungskostenProQm(n); setInstandText(formatZahl(n, { min: 2 })); }}
                 className="space-y-1.5"
               >
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
@@ -1943,7 +2090,7 @@ const exportPdf = React.useCallback(async () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* AfA Satz */}
               <div
-                onBlur={() => setAfa(Number(afaText.replace(',', '.')))}
+                onBlur={() => { const n = zahl(afaText) || 0; setAfa(n); setAfaText(formatZahl(n)); }}
                 className="space-y-1.5"
               >
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
@@ -1972,7 +2119,7 @@ const exportPdf = React.useCallback(async () => {
 
               {/* Anteil Gebäude */}
               <div
-                onBlur={() => setSteuer(Number(gebText.replace(',', '.')))}
+                onBlur={() => { const n = zahl(gebText) || 0; setSteuer(n); setGebText(formatZahl(n)); }}
                 className="space-y-1.5"
               >
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
@@ -2001,7 +2148,7 @@ const exportPdf = React.useCallback(async () => {
 
               {/* Persönlicher Steuersatz */}
               <div
-                onBlur={() => setPersoenlicherSteuersatz(Number(persText.replace(',', '.')))}
+                onBlur={() => { const n = zahl(persText) || 0; setPersoenlicherSteuersatz(n); setPersText(formatZahl(n)); }}
                 className="space-y-1.5 col-span-full"
               >
                 <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-start min-h-[44px]">
@@ -2042,6 +2189,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Buttons */}
+        {fruehereFehler()}
         <div className="mt-8 flex gap-4">
           <button
             onClick={() => router.push('/step/a2')}
@@ -2070,7 +2218,7 @@ const exportPdf = React.useCallback(async () => {
           >
             <SkipForward size={20} className="rotate-180 text-slate-600" />
           </button>
-          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Eigenkapital & Kredit.</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-[#001d3d] tracking-tight leading-none">Finanzierung.</h1>
         </div>
 
         {/* Input Container */}
@@ -2084,12 +2232,20 @@ const exportPdf = React.useCallback(async () => {
               <input
                 id="eigenkapital-input"
                 type="text"
-                value={mounted ? ek.toLocaleString('de-DE') : '0'}
-                onChange={(e) => setEk(Number(e.target.value.replace(/\./g, '').replace(',', '.')) || 0)}
+                inputMode="decimal"
+                value={mounted ? ek.toLocaleString('de-DE') : ''}
+                onChange={(e) => setEk(zahl(e.target.value) || 0)}
                 onFocus={(e) => e.target.select()}
-                className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('ek')}`}
               />
+              <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">€</span>
             </div>
+            {feldFehler('ek')}
+            {mounted && !ekManuell && kaufpreis > 0 && (
+              <p id="eigenkapital-hinweis" className="text-xs text-slate-500 ml-1 mt-1">
+                Startwert: Kaufnebenkosten plus 10 % des Kaufpreises. Passe ihn an dein Eigenkapital an.
+              </p>
+            )}
           </div>
 
           {/* Eigenkapitalquote & Darlehenssumme */}
@@ -2103,7 +2259,7 @@ const exportPdf = React.useCallback(async () => {
                   readOnly
                   value={
                     mounted && anschaffungskosten > 0
-                      ? ((ek / anschaffungskosten) * 100).toFixed(2)
+                      ? formatZahl((ek / anschaffungskosten) * 100, { min: 1, max: 1 })
                       : '0,0'
                   }
                   className="w-full bg-slate-100 border border-slate-200 rounded-2xl py-4 px-5 text-base font-bold text-slate-500 cursor-not-allowed shadow-sm"
@@ -2132,8 +2288,9 @@ const exportPdf = React.useCallback(async () => {
             {/* Zinssatz */}
             <div
               onBlur={() => {
-                const num = Number(zinsText.replace(',', '.'));
+                const num = zahl(zinsText);
                 setZins(isNaN(num) ? 0 : num);
+                setZinsText(formatZahl(isNaN(num) ? 0 : num));
               }}
               className="space-y-1.5"
             >
@@ -2144,18 +2301,22 @@ const exportPdf = React.useCallback(async () => {
                   id="zins-input"
                   type="text"
                   value={zinsText}
+                  inputMode="decimal"
                   onChange={(e) => setZinsText(e.target.value)}
                   onFocus={(e) => e.target.select()}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('zins')}`}
                 />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">% p. a.</span>
               </div>
+              {feldFehler('zins')}
             </div>
 
             {/* Tilgung */}
             <div
               onBlur={() => {
-                const num = Number(tilgungText.replace(',', '.'));
+                const num = zahl(tilgungText);
                 setTilgung(isNaN(num) ? 0 : num);
+                setTilgungText(formatZahl(isNaN(num) ? 0 : num));
               }}
               className="space-y-1.5"
             >
@@ -2166,11 +2327,14 @@ const exportPdf = React.useCallback(async () => {
                   id="tilgung-input"
                   type="text"
                   value={tilgungText}
+                  inputMode="decimal"
                   onChange={(e) => setTilgungText(e.target.value)}
                   onFocus={(e) => e.target.select()}
-                  className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+                  className={`w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm${feldRahmen('tilgung')}`}
                 />
+                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-[10px]">% p. a.</span>
               </div>
+              {feldFehler('tilgung')}
             </div>
           </div>
 
@@ -2198,6 +2362,7 @@ const exportPdf = React.useCallback(async () => {
         </div>
 
         {/* Buttons */}
+        {fruehereFehler()}
         <div className="mt-8 flex gap-4">
           <button
             onClick={() => router.push('/step/b')}
@@ -2230,12 +2395,13 @@ const exportPdf = React.useCallback(async () => {
                     {shortAddress || adresse || 'Immobilie'}
                   </h2>
                   <p className="text-[10px] font-black text-white/60 uppercase tracking-[0.2em] mt-1">
-                    {flaeche}m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
+                    {formatZahl(flaeche)} m² • {objekttyp} • {kaufpreis.toLocaleString('de-DE')} €
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex items-center gap-4">
+                <TourLink step="tabs" hell />
                 <button
                   onClick={() => router.push('/step/c')}
                   className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition-all backdrop-blur-sm border border-white/20"
@@ -2341,7 +2507,7 @@ const exportPdf = React.useCallback(async () => {
                   caption="Jahreskaltmiete / Kaufpreis"
                   rating={bruttoRating[0]}
                   ratingLabel={bruttoRating[1]}
-                  help="Anteil der Jahresmiete am Kaufpreis (ohne Kosten). Je höher, desto besser."
+                  help="Anteil der Jahreskaltmiete am Kaufpreis, ohne Nebenkosten und laufende Kosten. Je höher, desto besser."
                   onShowFormula={() => setOpenFormulaKey('brutto')}
                 />
                 <KpiTile
@@ -2350,7 +2516,7 @@ const exportPdf = React.useCallback(async () => {
                   label="Nettorendite"
                   value={fmtNum(nettoMietrendite, 1)}
                   unit="%"
-                  caption="Nach laufenden Kosten"
+                  caption="Nach laufenden Kosten, auf Gesamtinvestition"
                   rating={nettoRating[0]}
                   ratingLabel={nettoRating[1]}
                   help="Rendite nach laufenden Kosten. Zeigt realistischer, was vom Investment bleibt."
@@ -2842,11 +3008,6 @@ const exportPdf = React.useCallback(async () => {
         />
       )}
 
-      {/* Onboarding Wizard - Auto-starts on first visit for each step */}
-      {(step === 'a' || step === 'a2' || step === 'b' || step === 'c' || step === 'tabs') && (
-        <OnboardingWizard step={step as 'a' | 'a2' | 'b' | 'c' | 'tabs'} autoStart={true} delay={500} />
-      )}
-
       {/* Upsell Banner: Show after 1st premium usage */}
       {step === 'tabs' && !isPremium && premiumUsageCount >= 1 && (
         <UpsellBanner
@@ -2861,9 +3022,13 @@ const exportPdf = React.useCallback(async () => {
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-10 pt-24">
         {showProgress && <ProgressIndicator currentStep={step as Step} />}
         {showProgress && (
-          <p className="text-sm text-gray-500 mb-6 -mt-2">
-            Gib deine Immobiliendaten ein — wir berechnen Cashflow und Rendite sofort.
-          </p>
+          <div className="mb-6 -mt-2 flex items-start justify-between gap-4">
+            <p className="text-sm text-gray-500">
+              Gib deine Immobiliendaten ein — wir berechnen Cashflow und Rendite sofort.
+            </p>
+            {/* Tour nur auf Wunsch, nie automatisch */}
+            <TourLink step={step as 'a' | 'a2' | 'b' | 'c'} className="mt-0.5 shrink-0" />
+          </div>
         )}
         {step === 'tabs' && mounted && kaufpreis === 0 && (
           <div className="mb-6 bg-orange-50 border border-orange-200 rounded-2xl px-5 py-4 flex items-center justify-between gap-4">

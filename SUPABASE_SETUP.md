@@ -20,6 +20,14 @@ Das erstellt:
 - Row Level Security (aktiviert, bewusst ohne Policies: Zugriff nur serverseitig per Service-Role-Key)
 - Auto-update Triggers für `updated_at`
 
+### Bestehende Datenbank aktualisieren
+
+Gibt es die Tabellen schon, führe im SQL Editor die Dateien unter `supabase/migrations/` aus
+(aktuell `2026-11-14_analyses_speichern.sql` und `2026-11-14_drop_open_rls_policies.sql`). Sie können beliebig oft laufen und ändern keine bestehenden Zeilen.
+
+Schlägt das Speichern fehl, steht der echte Datenbankfehler im Server-Log (Vercel → Logs,
+Suche nach `[ANALYSIS] Datenbankfehler beim Speichern`).
+
 ## 3. API Keys kopieren
 
 1. Gehe zu **Settings** → **API**

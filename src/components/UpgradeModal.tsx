@@ -6,6 +6,7 @@ import { signUpHref } from '@/lib/anmeldeLinks';
 import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { AnalyticsEvents, trackEvent } from '@/lib/analytics';
 import { toast } from 'sonner';
 import { ERSPARNIS_JAHR_PCT, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, PREIS_MONAT_AUF_JAHR, preis } from '@/lib/preise';
 
@@ -36,6 +37,7 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
 
     // Track upgrade click before initiating checkout
     trackUpgradeClick(planName, 'upgrade_modal');
+    trackEvent(AnalyticsEvents.CHECKOUT_STARTED, { plan: planName, plan_name: planName, click_location: 'upgrade_modal', currency: 'EUR' });
 
     setIsLoading(true);
     setError(null);

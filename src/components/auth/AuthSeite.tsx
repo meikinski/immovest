@@ -39,8 +39,10 @@ export const clerkAppearance = {
     formFieldInput: 'h-11 border-slate-300 text-[16px] focus:border-[#ff6b00]',
     formButtonPrimary:
       'h-11 bg-[#ff6b00] text-[15px] font-bold normal-case shadow-none hover:bg-[#ff6b00]/90',
-    // Wechsel-Link (Anmelden/Registrieren) setzen wir selbst unter das Formular
-    footer: 'hidden',
+    // Wechsel-Link (Anmelden/Registrieren) setzen wir selbst unter das Formular, Clerks eigener entfällt
+    // Als Stil statt Tailwind-Klasse: Clerks eigenes CSS hatte Vorrang vor „hidden", der Link stand doppelt da
+    footer: { display: 'none' },
+    footerAction: { display: 'none' },
   },
 };
 

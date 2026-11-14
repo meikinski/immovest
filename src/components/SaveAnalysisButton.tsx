@@ -69,14 +69,29 @@ export async function speichereAnalyse(userId: string | null | undefined): Promi
   return result.analysisId;
 }
 
+/** Inhalt der Analyse ohne Zeitstempel und ID – ändert sich nur, wenn sich wirklich etwas ändert. */
+function fingerabdruck(state: Record<string, unknown>, scenarioData?: ScenarioData): string {
+  const inhalt = Object.fromEntries(
+    Object.entries(state).filter(([k, v]) => typeof v !== 'function' && !['analysisId', 'createdAt', 'updatedAt'].includes(k))
+  );
+  return JSON.stringify([inhalt, scenarioData ?? null]);
+}
+
 export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
   const { userId } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  // Stand, der zuletzt gespeichert wurde. Der Knopf zeigt „Gespeichert“, bis sich etwas ändert.
+  const [gespeicherterStand, setGespeicherterStand] = useState<string | null>(null);
+  const aktuellerStand = fingerabdruck(
+    useImmoStore() as unknown as Record<string, unknown>,
+    scenarioData
+  );
+  const saved = gespeicherterStand === aktuellerStand;
   const router = useRouter();
 
   const handleSave = async () => {
     setIsSaving(true);
+    const standBeimSpeichern = aktuellerStand;
 
     try {
       const result = { analysisId: await speichereAnalyse(userId) };
@@ -124,15 +139,14 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
         }
       }
 
-      setSaved(true);
+      setGespeicherterStand(standBeimSpeichern);
       toast.success('Analyse gespeichert', {
         description: 'Du findest sie unter „Meine Analysen“.',
         action: { label: 'Öffnen', onClick: () => router.push('/analysen') },
       });
-      setTimeout(() => setSaved(false), 2000);
     } catch (error) {
       console.error('❌ Fehler beim Speichern:', error);
-      toast.error('Fehler beim Speichern der Analyse');
+      toast.error('Fehler beim Speichern der Analyse', { description: 'Bitte versuch es noch einmal.' });
     } finally {
       setIsSaving(false);
     }
@@ -156,6 +170,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
     <button
       onClick={handleSave}
       disabled={isSaving}
+      aria-live="polite"
       className={[
         'btn-primary flex items-center gap-2 transition-all',
         saved ? 'bg-green-600 hover:bg-green-700' : '',

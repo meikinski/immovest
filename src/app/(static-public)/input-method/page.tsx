@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { AnalyticsEvents, merkeEingabeMethode } from '@/lib/analytics';
+import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
@@ -113,7 +114,9 @@ export default function InputMethodPage() {
         throw new Error(errorMsg);
       }
 
-      const { data, warnings } = result;
+      const { warnings } = result;
+      // Fehlende Angaben und Platzhalter bleiben leer und werden auf der ersten Eingabeseite genannt
+      const { daten: data, fehlend } = pruefeImport({ objekttyp: 'wohnung', ...result.data });
 
       // Reset form before importing new data
       resetAnalysis();
@@ -125,11 +128,13 @@ export default function InputMethodPage() {
         adresse: data.adresse || '',
         flaeche: data.flaeche || 0,
         zimmer: data.zimmer || 0,
-        baujahr: data.baujahr || new Date().getFullYear(),
+        baujahr: data.baujahr || 0,
         miete: data.miete || 0,
         hausgeld: data.hausgeld || 0,
         hausgeld_umlegbar: data.hausgeld_umlegbar || 0,
         objekttyp: data.objekttyp || 'wohnung',
+        importFehlend: fehlend,
+        importHinweise: bereinigeHinweise(warnings, fehlend),
       });
 
       // Generate analysis ID without saving (user must explicitly save)
@@ -140,17 +145,12 @@ export default function InputMethodPage() {
       merkeEingabeMethode('screenshot');
       track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
         import_method: 'screenshot',
-        has_warnings: warnings && warnings.length > 0,
+        has_warnings: (warnings && warnings.length > 0) || fehlend.length > 0,
+        missing_fields: fehlend.join(',') || 'none',
       });
 
-      // Show warnings if any
-      if (warnings && warnings.length > 0) {
-        setImageWarnings(warnings);
-        // Give user time to see warnings before navigating
-        setTimeout(() => router.push('/step/a'), 2000);
-      } else {
-        router.push('/step/a');
-      }
+      // Hinweise stehen dauerhaft oben auf der ersten Eingabeseite, daher ohne Wartezeit weiter
+      router.push('/step/a');
     } catch (err) {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
@@ -199,7 +199,12 @@ export default function InputMethodPage() {
 
       // Import data into store
       if (result.data) {
-        importData(result.data);
+        const fehlend = Array.isArray(result.fehlend) ? result.fehlend : [];
+        importData({
+          ...result.data,
+          importFehlend: fehlend,
+          importHinweise: Array.isArray(result.hinweise) ? result.hinweise : [],
+        });
 
         // Generate analysis ID without saving (user must explicitly save)
         const analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
@@ -215,7 +220,8 @@ export default function InputMethodPage() {
         track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
           import_method: 'url',
           import_url: url.trim(),
-          has_warnings: result.warnings.length > 0,
+          has_warnings: (result.warnings?.length ?? 0) > 0 || fehlend.length > 0,
+          missing_fields: fehlend.join(',') || 'none',
         });
 
         router.push('/step/a');
