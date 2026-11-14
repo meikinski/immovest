@@ -5,7 +5,7 @@ import { driver, DriveStep, Driver } from 'driver.js';
 import 'driver.js/dist/driver.css';
 
 interface OnboardingOptions {
-  step?: 'a' | 'a2' | 'b' | 'c' | 'tabs';
+  step?: 'a' | 'a2' | 'b' | 'c' | 'pruefen' | 'tabs';
   onComplete?: () => void;
   onSkip?: () => void;
 }
@@ -43,6 +43,7 @@ export function useOnboarding() {
       localStorage.removeItem('hasSeenOnboarding_c');
       localStorage.removeItem('hasSeenOnboarding_a2');
       localStorage.removeItem('hasSeenOnboarding_tabs');
+      localStorage.removeItem('hasSeenOnboarding_pruefen');
     }
   }, []);
 
@@ -288,6 +289,45 @@ export function useOnboarding() {
           popover: {
             title: 'Fertig! Zur Analyse',
             description: 'Klick hier, um deine vollständige Immobilienanalyse mit Cashflow, Rendite und KI-Einschätzung zu sehen.',
+            side: 'top' as const,
+            align: 'center' as const,
+          }
+        }
+      ];
+    }
+
+    if (step === 'pruefen') {
+      return [
+        {
+          element: '#block-gelesen',
+          popover: {
+            title: 'Das haben wir gelesen',
+            description: 'Diese Werte stammen aus dem Inserat. Fehlende oder unsichere Werte stehen oben und sind markiert. Tippe auf einen Wert, um ihn zu ändern.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#block-von-dir',
+          popover: {
+            title: 'Das brauchen wir von dir',
+            description: 'Dein Eigenkapital und dein persönlicher Steuersatz. Wir haben Startwerte eingetragen, passe sie an dich an.',
+            ...commonConfig.popover,
+          }
+        },
+        {
+          element: '#block-annahmen',
+          popover: {
+            title: 'Unsere Annahmen',
+            description: 'Zins, Tilgung, Nebenkosten, Instandhaltung und Steuerwerte. Aufklappen, wenn du etwas ändern willst.',
+            side: 'top' as const,
+            align: 'start' as const,
+          }
+        },
+        {
+          element: '#pruefen-weiter',
+          popover: {
+            title: 'Ergebnis anzeigen',
+            description: 'Sobald alle Pflichtwerte da sind, siehst du Cashflow, Rendite und die KI-Einschätzung.',
             side: 'top' as const,
             align: 'center' as const,
           }

@@ -17,9 +17,15 @@ interface Props {
   value: string;
   onChange: (val: string) => void;
   placeholder?: string;
+  id?: string;
+  /** Ersetzt die Standardklassen des Eingabefelds (z. B. für kompakte Zeilen) */
+  inputClassName?: string;
+  'aria-label'?: string;
 }
 
-const AddressAutocomplete = ({ value, onChange }: Props) => {
+const STANDARD_KLASSEN = "w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm";
+
+const AddressAutocomplete = ({ value, onChange, id, inputClassName, 'aria-label': ariaLabel }: Props) => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -67,7 +73,10 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
   return (
     <div className="relative">
       <input
+        id={id}
+        aria-label={ariaLabel}
         type="text"
+        autoComplete="off"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onFocus={(e) => {
@@ -76,7 +85,7 @@ const AddressAutocomplete = ({ value, onChange }: Props) => {
         }}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         placeholder="z. B. 10115 Berlin oder Mainzer Str. 10"
-        className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
+        className={inputClassName ?? STANDARD_KLASSEN}
       />
 
       {showSuggestions && value.length >= 2 && (

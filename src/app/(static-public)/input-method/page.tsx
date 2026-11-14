@@ -135,6 +135,7 @@ export default function InputMethodPage() {
         objekttyp: data.objekttyp || 'wohnung',
         importFehlend: fehlend,
         importHinweise: bereinigeHinweise(warnings, fehlend),
+        importQuelle: 'screenshot',
       });
 
       // Generate analysis ID without saving (user must explicitly save)
@@ -149,8 +150,8 @@ export default function InputMethodPage() {
         missing_fields: fehlend.join(',') || 'none',
       });
 
-      // Hinweise stehen dauerhaft oben auf der ersten Eingabeseite, daher ohne Wartezeit weiter
-      router.push('/step/a');
+      // Eine Prüfseite statt vier Eingabeschritten: Hinweise und fehlende Angaben stehen dort ganz oben
+      router.push('/step/pruefen');
     } catch (err) {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
@@ -204,6 +205,7 @@ export default function InputMethodPage() {
           ...result.data,
           importFehlend: fehlend,
           importHinweise: Array.isArray(result.hinweise) ? result.hinweise : [],
+          importQuelle: 'url',
         });
 
         // Generate analysis ID without saving (user must explicitly save)
@@ -224,7 +226,7 @@ export default function InputMethodPage() {
           missing_fields: fehlend.join(',') || 'none',
         });
 
-        router.push('/step/a');
+        router.push('/step/pruefen');
       } else {
         throw new Error('Keine Immobiliendaten in der URL gefunden. Versuche eine andere URL.');
       }

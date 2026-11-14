@@ -7,7 +7,7 @@ interface LayoutProps {
 
 export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
   const { step } = await params
-  if (step === 'tabs') {
+  if (step === 'tabs' || step === 'pruefen') {
     return {
       robots: { index: false, follow: false },
     }

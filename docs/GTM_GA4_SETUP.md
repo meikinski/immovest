@@ -9,6 +9,7 @@ Container **GTM-PRBQ2LT9**, GA4-Property **G-H4G4G4NLSN**. Ziel: ein generisches
 | `ai_import_started` | Import gestartet | `import_method`, `import_url` |
 | `ai_import_completed` | Import erfolgreich | `import_method`, `import_url`, `has_warnings`, `missing_fields` |
 | `ai_import_failed` | Import fehlgeschlagen | `import_method`, `import_url`, `error` |
+| `review_page_viewed` | Prüfseite nach Import (Link oder Foto) geöffnet | `input_method`, `missing_fields_count` |
 | `kpi_result_viewed` | KPI-Ergebnis sichtbar (auch Gäste), einmal je Wohnung | `input_method`, `object_type`, `signed_in` |
 | `analysis_completed` | Vollständige Analyse fertig (Markt, KI, Prognose), einmal je Wohnung | `analysis_number`, `plan` |
 | `locked_preview_clicked` | Gast klickt in gesperrter Vorschau | `section`, `action` |
@@ -39,7 +40,7 @@ Trigger → Neu → Typ **Benutzerdefiniertes Ereignis**.
 - Ereignisname (Haken bei „Übereinstimmung mit regulärem Ausdruck verwenden"):
 
 ```
-^(ai_import_started|ai_import_completed|ai_import_failed|kpi_result_viewed|analysis_completed|locked_preview_clicked|sign_up_page_viewed|sign_up|paywall_viewed|checkout_started|purchase|upgrade_clicked|compare_cta_clicked|cta_clicked)$
+^(ai_import_started|ai_import_completed|ai_import_failed|review_page_viewed|kpi_result_viewed|analysis_completed|locked_preview_clicked|sign_up_page_viewed|sign_up|paywall_viewed|checkout_started|purchase|upgrade_clicked|compare_cta_clicked|cta_clicked)$
 ```
 
 - Auslösen bei: Alle benutzerdefinierten Ereignisse.
@@ -86,7 +87,7 @@ Verwaltung → Datenanzeige → **Ereignisse** → Stern bei `sign_up` und `purc
 
 1. In GTM auf „Vorschau", `https://imvestr.de` eingeben, verbinden.
 2. Ablauf durchklicken: Startseite → Link importieren → vier Schritte → Ergebnis → „Kostenlos freischalten".
-3. Links in der Ereignisliste müssen nacheinander erscheinen: `cta_clicked`, `ai_import_started`, `ai_import_completed`, `kpi_result_viewed`, `locked_preview_clicked` bzw. `sign_up_page_viewed`.
+3. Links in der Ereignisliste müssen nacheinander erscheinen: `cta_clicked`, `ai_import_started`, `ai_import_completed`, `review_page_viewed`, `kpi_result_viewed`, `locked_preview_clicked` bzw. `sign_up_page_viewed`.
 4. Jedes Event anklicken → Tab „Tags": **genau ein** Tag ausgelöst, nämlich `GA4 - Event - generisch`. Zwei ausgelöste GA4-Tags bedeuten, dass ein alter Tag noch aktiv ist.
 5. Den Tag anklicken: Ereignisname muss dem dataLayer-Event entsprechen, die Parameter müssen gefüllt sein.
 6. Mit einem Testkonto registrieren: `sign_up` erscheint einmal mit `method`. Danach Marktvergleich öffnen: `analysis_completed` erscheint erst, wenn die Marktanalyse geladen ist, mit `analysis_number: 1` und `plan: free`.

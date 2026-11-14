@@ -60,6 +60,7 @@ export const AnalyticsEvents = {
 
   // Analysis
   ANALYSIS_STARTED: 'analysis_started',
+  REVIEW_PAGE_VIEWED: 'review_page_viewed', // Prüfseite nach Import geöffnet (input_method, missing_fields_count)
   KPI_RESULT_VIEWED: 'kpi_result_viewed', // KPI-Ergebnis sichtbar, auch für Gäste (input_method, object_type, signed_in)
   ANALYSIS_COMPLETED: 'analysis_completed', // vollständige Analyse fertig: Markt, KI, Prognose (analysis_number, plan)
   SCENARIO_CREATED: 'scenario_created',
