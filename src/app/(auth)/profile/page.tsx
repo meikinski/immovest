@@ -43,7 +43,7 @@ export default function ProfilePage() {
 
   const tourStarten = () => {
     resetOnboarding();
-    router.push('/step/a');
+    router.push('/step/a?tour=1');
     toast.success('Die Tour startet');
   };
 

@@ -9,6 +9,7 @@ import { PurchaseTracker } from '@/components/konto/PurchaseTracker';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { usePaywall } from '@/contexts/PaywallContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { AnalyticsEvents, trackEvent } from '@/lib/analytics';
 import { usePlanStatus } from '@/hooks/usePlanStatus';
 import {
   ERSPARNIS_JAHR_PCT, GRATIS_ANALYSEN, gratisText, PREIS_JAHR, PREIS_JAHR_PRO_MONAT, PREIS_MONAT, preis,
@@ -43,6 +44,9 @@ function AboInhalt() {
   const checkout = async (art: 'monthly' | 'yearly') => {
     const priceId = art === 'yearly' ? process.env.NEXT_PUBLIC_STRIPE_YEARLY_PRICE_ID : process.env.NEXT_PUBLIC_STRIPE_MONTHLY_PRICE_ID;
     trackUpgradeClick(art, 'abo_page');
+    trackEvent(AnalyticsEvents.CHECKOUT_STARTED, {
+      plan: art, plan_name: art, click_location: 'abo_page', value: art === 'yearly' ? PREIS_JAHR : PREIS_MONAT, currency: 'EUR',
+    });
     setLaedt(art);
     try {
       const res = await fetch('/api/stripe/checkout', {

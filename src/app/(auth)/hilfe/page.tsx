@@ -47,7 +47,7 @@ export default function HilfePage() {
           <p className="text-sm text-slate-600">Die Tour zeigt dir Schritt für Schritt, was du wo eingibst.</p>
           <button
             type="button"
-            onClick={() => { resetOnboarding(); router.push('/step/a'); }}
+            onClick={() => { resetOnboarding(); router.push('/step/a?tour=1'); }}
             className="mt-3 rounded-xl bg-[#001d3d] px-4 py-2.5 text-sm font-bold text-white hover:bg-[#001d3d]/90"
           >
             Tour starten

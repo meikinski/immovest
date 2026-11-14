@@ -6,6 +6,9 @@ import {
     berechneScore
   } from '@/lib/calculations';
 import type { MarketFacts } from '@/lib/marketFacts';
+import { BUNDESLAENDER, istBundesland, type BundeslandCode } from '@/config/grunderwerbsteuer';
+import { bundeslandAusAdresse } from '@/lib/plzBundesland';
+import type { ImportFeld } from '@/lib/importPruefung';
 
 /** localStorage-Schlüssel für den automatisch gesicherten Arbeitsstand (siehe useStatePersistence) */
 export const AUTOSAVE_KEY = 'immovest_kpi_state';
@@ -40,7 +43,12 @@ export interface ImmoState {
   // Input fields
   kaufpreis: number;
   objekttyp: 'wohnung' | 'haus' | 'mfh';
+  /** 0 = noch kein Satz (Bundesland unbekannt) */
   grunderwerbsteuer_pct: number;
+  /** Aus der PLZ erkanntes oder gewähltes Bundesland */
+  bundesland: BundeslandCode | null;
+  /** true, sobald der Nutzer Satz oder Bundesland selbst gesetzt hat: dann nie automatisch überschreiben */
+  grunderwerbsteuerManuell: boolean;
   notar_pct: number;
   makler_pct: number;
   sonstige_kosten: number;
@@ -62,8 +70,14 @@ export interface ImmoState {
   ruecklagen: number;
   persoenlicher_steuersatz: number;
   ek: number;
+  /** true, sobald der Nutzer das Eigenkapital selbst eingetragen hat: der Startwert überschreibt es dann nie */
+  ekManuell: boolean;
   zins: number;
   tilgung: number;
+
+  // Import: fehlende Angaben und Hinweise aus dem Inserat
+  importFehlend: ImportFeld[];
+  importHinweise: string[];
 
   // AfA-Turbo Felder (§7 Abs. 4, §7 Abs. 5a, §7b EStG)
   // Vereinfacht: Nur afaModell und nutzeSonderAfa, basierend auf Baujahr
@@ -98,6 +112,9 @@ export interface ImmoState {
   setKaufpreis: (v: number) => void;
   setObjekttyp: (v: 'wohnung' | 'haus' | 'mfh') => void;
   setGrunderwerbsteuerPct: (v: number) => void;
+  setBundesland: (v: BundeslandCode | null) => void;
+  setEkStartwert: (v: number) => void;
+  erledigeImportFeld: (feld: ImportFeld) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
   setSonstigeKosten: (v: number) => void;
@@ -172,8 +189,6 @@ const getAfaSatzFromModell = (modell: AfaModell, nutzeSonderAfa: boolean): numbe
   }
 };
 
-const currentYear = new Date().getFullYear();
-
 const initialState = {
   // Metadata
   analysisId: null,
@@ -184,14 +199,16 @@ const initialState = {
   // Initialwerte
   kaufpreis: 0,
   objekttyp: 'wohnung' as const,
-  grunderwerbsteuer_pct: 6.5,
+  grunderwerbsteuer_pct: 0,
+  bundesland: null as BundeslandCode | null,
+  grunderwerbsteuerManuell: false,
   notar_pct: 2,
   makler_pct: 3.57,
   sonstige_kosten: 0,
   flaeche: 0,
   adresse: '',
   zimmer: 0,
-  baujahr: currentYear,
+  baujahr: 0,
   miete: 0,
   hausgeld: 0,
   hausgeld_umlegbar: 0,
@@ -200,10 +217,13 @@ const initialState = {
   verwaltungskosten: 0,
   instandhaltungskosten_pro_qm: 0,
   steuer: 0,
-  afa: getDefaultAfa(currentYear),
+  afa: getDefaultAfa(0),
   ruecklagen: 0,
   persoenlicher_steuersatz: 40,
   ek: 0,
+  ekManuell: false,
+  importFehlend: [] as ImportFeld[],
+  importHinweise: [] as string[],
   zins: 3.5,
   tilgung: 2,
   cashflow_operativ: 0,
@@ -278,8 +298,18 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set({ objekttyp: v, generatedComment: '' });
     get().updateDerived();
   },
+  // Eingabe des Nutzers: gilt ab jetzt, die Adresse überschreibt den Satz nicht mehr
   setGrunderwerbsteuerPct: (v: number) => {
-    set({ grunderwerbsteuer_pct: v, generatedComment: '' });
+    set({ grunderwerbsteuer_pct: v, grunderwerbsteuerManuell: true, generatedComment: '' });
+    get().updateDerived();
+  },
+  // Auswahl des Bundeslands im Formular: Satz aus der Config übernehmen
+  setBundesland: (v: BundeslandCode | null) => {
+    if (!v) {
+      set({ bundesland: null });
+      return;
+    }
+    set({ bundesland: v, grunderwerbsteuer_pct: BUNDESLAENDER[v].satz, grunderwerbsteuerManuell: true, generatedComment: '' });
     get().updateDerived();
   },
   setNotarPct: (v: number) => {
@@ -299,7 +329,13 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   setAdresse: (v: string) => {
-    set({ adresse: v, generatedComment: '' });
+    // Bundesland aus der PLZ ableiten und den Satz vorbelegen, solange der Nutzer nichts selbst gesetzt hat
+    const land = get().grunderwerbsteuerManuell ? null : bundeslandAusAdresse(v);
+    set({
+      adresse: v,
+      generatedComment: '',
+      ...(land ? { bundesland: land, grunderwerbsteuer_pct: BUNDESLAENDER[land].satz } : {}),
+    });
     get().updateDerived();
   },
   setZimmer: (v: number) => {
@@ -347,9 +383,20 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     set({ persoenlicher_steuersatz: v, generatedComment: '' });
     get().updateDerived();
   },
+  // Eingabe des Nutzers
   setEk: (v: number) => {
+    set({ ek: v, ekManuell: true, generatedComment: '' });
+    get().updateDerived();
+  },
+  // Vorbelegung (Kaufnebenkosten + 10 % des Kaufpreises): nur solange der Nutzer nichts eingetragen hat
+  setEkStartwert: (v: number) => {
+    if (get().ekManuell || get().ek === v) return;
     set({ ek: v, generatedComment: '' });
     get().updateDerived();
+  },
+  erledigeImportFeld: (feld: ImportFeld) => {
+    if (!get().importFehlend.includes(feld)) return;
+    set({ importFehlend: get().importFehlend.filter(f => f !== feld) });
   },
   setZins: (v: number) => {
     set({ zins: v, generatedComment: '' });
@@ -425,6 +472,27 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       }
     }
 
+    // Gespeicherte Stände ohne die neuen Merker: vorhandene Werte gelten als vom Nutzer gesetzt
+    if (data.grunderwerbsteuer_pct !== undefined && data.grunderwerbsteuerManuell === undefined) {
+      updates.grunderwerbsteuerManuell = true;
+    }
+    if (data.ek !== undefined && data.ekManuell === undefined) {
+      updates.ekManuell = true;
+    }
+    if (data.bundesland !== undefined && !istBundesland(data.bundesland)) {
+      updates.bundesland = null;
+    }
+    // Neuer Import oder Adresse ohne Satz: Bundesland aus der PLZ ableiten
+    if (data.adresse !== undefined && data.grunderwerbsteuer_pct === undefined && !get().grunderwerbsteuerManuell) {
+      const land = bundeslandAusAdresse(data.adresse);
+      if (land) {
+        updates.bundesland = land;
+        updates.grunderwerbsteuer_pct = BUNDESLAENDER[land].satz;
+      }
+    } else if (data.adresse !== undefined && data.bundesland === undefined) {
+      updates.bundesland = bundeslandAusAdresse(data.adresse);
+    }
+
     set(updates);
     get().updateDerived();
   },
@@ -475,6 +543,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       kaufpreis: state.kaufpreis,
       objekttyp: state.objekttyp,
       grunderwerbsteuer_pct: state.grunderwerbsteuer_pct,
+      bundesland: state.bundesland,
+      grunderwerbsteuerManuell: state.grunderwerbsteuerManuell,
       notar_pct: state.notar_pct,
       makler_pct: state.makler_pct,
       sonstige_kosten: state.sonstige_kosten,
@@ -494,6 +564,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       ruecklagen: state.ruecklagen,
       persoenlicher_steuersatz: state.persoenlicher_steuersatz,
       ek: state.ek,
+      ekManuell: state.ekManuell,
+      importFehlend: state.importFehlend,
+      importHinweise: state.importHinweise,
       zins: state.zins,
       tilgung: state.tilgung,
       cashflow_operativ: state.cashflow_operativ,

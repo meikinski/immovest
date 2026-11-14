@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ClerkProvider } from '@clerk/nextjs';
-import { deDE } from '@clerk/localizations';
+import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { PaywallProvider } from '@/contexts/PaywallContext';
 import { Toaster } from 'sonner';
 
@@ -11,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Bot detection and script blocking is handled in middleware via CSP headers
   return (
     <ClerkProvider
-      localization={deDE}
+      localization={clerkLokalisierung}
       telemetry={false}
     >
       <PaywallProvider>

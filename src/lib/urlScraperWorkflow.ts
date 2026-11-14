@@ -8,6 +8,7 @@ import {
   isImmoscoutUrl,
   mapImmoscoutExpose,
 } from './immoscoutMobileApi';
+import { hatGenugDaten, pruefeImport } from './importPruefung';
 
 export type UrlScraperInput = {
   url: string;
@@ -459,9 +460,11 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     }
 
     console.log(`[URL Scraper] 🏠 ImmobilienScout24 detected – fetching expose ${exposeId} via mobile API`);
-    const mapped = mapImmoscoutExpose(await fetchImmoscoutExpose(exposeId));
+    // Platzhalter ("Preis auf Anfrage" → 1 €) verwerfen. Fehlt nur eine Kernangabe, bleibt sie leer
+    // und wird dem Nutzer auf der ersten Eingabeseite genannt.
+    const { daten: mapped, fehlend } = pruefeImport(mapImmoscoutExpose(await fetchImmoscoutExpose(exposeId)));
 
-    if (!mapped.kaufpreis || !mapped.flaeche || !mapped.adresse) {
+    if (!hatGenugDaten(fehlend)) {
       const missing = [];
       if (!mapped.kaufpreis) missing.push('Kaufpreis');
       if (!mapped.flaeche) missing.push('Wohnfläche');
@@ -483,6 +486,8 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
   let result;
   let usedPlaywrightFallback = false;
+  // Ergebnis der ersten Methode, falls nur eine Kernangabe fehlt (z. B. "Preis auf Anfrage")
+  let teilErgebnis: UrlScraperResult | null = null;
 
   try {
     // METHOD 1: Try with webSearchTool (fast, works for most portals)
@@ -500,6 +505,10 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     const hasMinimalData = result.finalOutput?.kaufpreis &&
                            result.finalOutput?.flaeche &&
                            result.finalOutput?.adresse;
+
+    if (result.finalOutput && !hasMinimalData && hatGenugDaten(pruefeImport(result.finalOutput).fehlend)) {
+      teilErgebnis = result.finalOutput;
+    }
 
     if (!result.finalOutput || !hasMinimalData) {
       console.warn('[URL Scraper] ⚠️ webSearchTool returned incomplete data, trying Playwright fallback...');
@@ -544,41 +553,45 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
       console.error('[URL Scraper] ❌ Smart Proxy also failed:', proxyError);
 
       // Both methods failed - provide clear guidance
-      throw new Error('Die Anzeige konnte gerade nicht abgerufen werden.');
+      if (!teilErgebnis) throw new Error('Die Anzeige konnte gerade nicht abgerufen werden.');
     }
   }
 
   // Validation (same for both methods)
-  if (!result.finalOutput) {
+  const rohOutput: UrlScraperResult | null | undefined = result?.finalOutput ?? teilErgebnis;
+  if (!rohOutput) {
     throw new Error('Keine Daten gefunden. Stelle sicher, dass der Link zu einem einzelnen Angebot führt.');
   }
+  // Platzhalter verwerfen; liefert der Fallback weniger als die erste Methode, gilt die erste
+  let geprueft = pruefeImport(rohOutput);
+  if (teilErgebnis && rohOutput !== teilErgebnis) {
+    const erste = pruefeImport(teilErgebnis);
+    if (erste.fehlend.length < geprueft.fehlend.length) geprueft = erste;
+  }
+  const finalOutput = geprueft.daten;
 
   console.log('[URL Scraper] Complete (before validation):', {
-    kaufpreis: result.finalOutput.kaufpreis,
-    flaeche: result.finalOutput.flaeche,
-    miete: result.finalOutput.miete,
-    hausgeld: result.finalOutput.hausgeld,
-    maklergebuehr: result.finalOutput.maklergebuehr,
-    confidence: result.finalOutput.confidence,
+    kaufpreis: finalOutput.kaufpreis,
+    flaeche: finalOutput.flaeche,
+    miete: finalOutput.miete,
+    hausgeld: finalOutput.hausgeld,
+    maklergebuehr: finalOutput.maklergebuehr,
+    confidence: finalOutput.confidence,
     usedPlaywright: usedPlaywrightFallback,
   });
 
   // Check if we have minimal required data to consider this a valid expose
-  const hasMinimalData = result.finalOutput.kaufpreis &&
-                         result.finalOutput.flaeche &&
-                         result.finalOutput.adresse;
-
-  if (!hasMinimalData) {
+  if (!hatGenugDaten(geprueft.fehlend)) {
     const missing = [];
-    if (!result.finalOutput.kaufpreis) missing.push('Kaufpreis');
-    if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
-    if (!result.finalOutput.adresse) missing.push('Adresse');
+    if (!finalOutput.kaufpreis) missing.push('Kaufpreis');
+    if (!finalOutput.flaeche) missing.push('Wohnfläche');
+    if (!finalOutput.adresse) missing.push('Adresse');
 
     throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}.`);
   }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes
-  const validatedOutput = validateAndFixOutput(result.finalOutput);
+  const validatedOutput = validateAndFixOutput(finalOutput);
 
   // Add note if fallback was used
   if (usedPlaywrightFallback && !validatedOutput.notes) {
@@ -593,7 +606,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     hausgeld_umlegbar: validatedOutput.hausgeld_umlegbar,
     hausgeld_nicht_umlegbar: validatedOutput.hausgeld_nicht_umlegbar,
     maklergebuehr: validatedOutput.maklergebuehr,
-    swapped: validatedOutput.miete !== result.finalOutput.miete,
+    swapped: validatedOutput.miete !== finalOutput.miete,
     usedPlaywright: usedPlaywrightFallback,
   });
 
