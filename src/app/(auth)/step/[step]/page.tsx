@@ -50,10 +50,13 @@ import { useFeldText } from '@/hooks/useFeldText';
 import { BUNDESLAENDER, istBundesland } from '@/config/grunderwerbsteuer';
 import { grunderwerbsteuerLabel } from '@/lib/grunderwerbsteuer';
 import { fehlendHinweis, hausgeldUnsicherHinweis, type ImportFeld } from '@/lib/importPruefung';
+import { findePflichtLuecken, type PflichtFehler } from '@/lib/pflichtfelder';
+import { START_INSTANDHALTUNG_PRO_QM, START_MIETAUSFALL_PCT, startAfa, startGebaeudeAnteil } from '@/lib/startwerte';
+import { PruefSeite } from '@/components/PruefSeite';
 
 
 
-type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
+type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'pruefen' | 'tabs';
 const steps = ['a', 'a2', 'b', 'c', 'tabs']; // result/details ersetzt durch tabs
 
 /** Eingabe lesen (deutsches Format); NaN bei leerer oder unlesbarer Eingabe */
@@ -117,7 +120,8 @@ export default function StepPage() {
   const step = Array.isArray(stepParam) ? stepParam[0]! : stepParam!;
   const idx = steps.indexOf(step);
   const nextStep = idx < steps.length - 1 ? steps[idx + 1] : 'tabs';
-  const showProgress = step !== 'tabs';
+  // Prüfseite nach einem Import: eine Seite statt vier Schritten, ohne Fortschrittsbalken
+  const showProgress = step !== 'tabs' && step !== 'pruefen';
 
   // Auth & Paywall
   const { isSignedIn, userId, getToken } = useAuth();
@@ -172,6 +176,7 @@ export default function StepPage() {
   const importFehlend = useImmoStore(s => s.importFehlend);
   const importHinweise = useImmoStore(s => s.importHinweise);
   const erledigeImportFeld = useImmoStore(s => s.erledigeImportFeld);
+  const importQuelle = useImmoStore(s => s.importQuelle);
   const importUnsicher = useImmoStore(s => s.importUnsicher);
   const bestaetigeImportFeld = useImmoStore(s => s.bestaetigeImportFeld);
 
@@ -294,31 +299,13 @@ export default function StepPage() {
 
   // --- Steuer-Berechnung (monatlich) ---
   // Local text states & defaults for Step B (UI-Eingaben in %/€)
-  const defaultAfaForBaujahr = (year: number) => {
-    if (!year) return 2;
-    if (year < 1925) return 2.5;
-    if (year >= 2023) return 3;
-    return 2;
-  };
-
-  const defaultGebaeudeAnteil = (typ: 'wohnung' | 'haus' | 'mfh') => {
-    switch (typ) {
-      case 'haus':
-        return 80;
-      case 'mfh':
-        return 85;
-      case 'wohnung':
-      default:
-        return 75;
-    }
-  };
 
   // Eingetragene Werte aus dem Store übernehmen (die Seite wird je Schritt neu aufgebaut), sonst Startwerte
-  const [mietausfallText, setMietausfallText] = useFeldText(mietausfallStore, n => formatZahl(n, { min: 2 }), { start: '1,00', nurPositiv: true });
-  const [instandText,     setInstandText]     = useFeldText(instandhaltungskostenProQm, n => formatZahl(n, { min: 2 }), { start: '10,00', nurPositiv: true });
+  const [mietausfallText, setMietausfallText] = useFeldText(mietausfallStore, n => formatZahl(n, { min: 2 }), { start: formatZahl(START_MIETAUSFALL_PCT, { min: 2 }), nurPositiv: true });
+  const [instandText,     setInstandText]     = useFeldText(instandhaltungskostenProQm, n => formatZahl(n, { min: 2 }), { start: formatZahl(START_INSTANDHALTUNG_PRO_QM, { min: 2 }), nurPositiv: true });
   const [persText,        setPersText]        = useState('42,00');
-  const initialAfa = afaStore ?? defaultAfaForBaujahr(baujahr);
-  const initialGebaeude = steuer || defaultGebaeudeAnteil(objekttyp);
+  const initialAfa = afaStore ?? startAfa(baujahr);
+  const initialGebaeude = steuer || startGebaeudeAnteil(objekttyp);
   const [afaText,         setAfaText]         = useState(formatZahl(initialAfa));
   const [gebText,         setGebText]         = useState(formatZahl(initialGebaeude));
   // Fehlt das Hausgeld im Inserat, bleiben die Felder leer statt 0
@@ -582,9 +569,10 @@ export default function StepPage() {
   }, [objekttyp, anzahlWohneinheiten, mounted]);
 
   useEffect(() => {
-    if (!mounted) return;
+    // Die Prüfseite setzt ihre Startwerte selbst; hier würde die Automatik dort eingetragene Werte überschreiben
+    if (!mounted || step === 'pruefen') return;
 
-    const defaultAfa = defaultAfaForBaujahr(baujahr);
+    const defaultAfa = startAfa(baujahr);
     const parsedAfa = zahl(afaText) || 0;
     const shouldUpdateAfa =
       autoAfa.current ||
@@ -597,7 +585,7 @@ export default function StepPage() {
       autoAfa.current = true;
     }
 
-    const defaultGeb = defaultGebaeudeAnteil(objekttyp);
+    const defaultGeb = startGebaeudeAnteil(objekttyp);
     const parsedGeb = zahl(gebText) || 0;
     const shouldUpdateGeb =
       autoGebaeude.current ||
@@ -609,7 +597,7 @@ export default function StepPage() {
       setGebText(formatZahl(defaultGeb));
       autoGebaeude.current = true;
     }
-  }, [baujahr, objekttyp, mounted, setAfa, setSteuer, afaText, gebText]);
+  }, [baujahr, objekttyp, mounted, step, setAfa, setSteuer, afaText, gebText]);
 
   // KPI-Berechnungen (in %)
   // Bruttomietrendite: Jahreskaltmiete ÷ Kaufpreis (ohne Nebenkosten, übliche Definition)
@@ -645,44 +633,16 @@ const dscr =
 
   // === Pflichtfelder ===
   // Jede Lücke gehört zu einem Schritt. "Weiter" ist gesperrt, solange im aktuellen oder einem früheren Schritt etwas fehlt.
-  type PflichtFehler = { key: string; schritt: 'a' | 'a2' | 'b' | 'c'; label: string; text: string };
   const [fehlerSichtbar, setFehlerSichtbar] = useState(false);
 
-  const pflichtFehler = (): PflichtFehler[] => {
-    const f: PflichtFehler[] = [];
-    const add = (key: string, schritt: PflichtFehler['schritt'], label: string, text: string) => f.push({ key, schritt, label, text });
-    const jahr = new Date().getFullYear();
-
-    if (!(kaufpreis > 0)) add('kaufpreis', 'a', 'Kaufpreis', 'Bitte trag den Kaufpreis ein.');
-    if (!adresse || adresse.trim() === '') add('adresse', 'a', 'Adresse', 'Bitte trag die Adresse ein, mindestens PLZ und Ort.');
-    const grEStFehlt = step === 'a' ? parseZahl(grunderwerbText) === null : grEStUnbekannt;
-    if (grEStFehlt) add('grunderwerbsteuer', 'a', 'Grunderwerbsteuer', 'Bitte wähle das Bundesland oder trag den Satz ein.');
-
-    if (!(flaeche > 0)) add('flaeche', 'a2', 'Wohnfläche', 'Bitte trag die Wohnfläche ein.');
-    else if (flaeche < 10) add('flaeche', 'a2', 'Wohnfläche', 'Die Wohnfläche muss mindestens 10 m² betragen.');
-    if (objekttyp === 'mfh') {
-      if (!(anzahlWohneinheiten > 0)) add('zimmer', 'a2', 'Wohneinheiten', 'Bitte trag die Anzahl der Wohneinheiten ein.');
-      else if (anzahlWohneinheiten > 50) add('zimmer', 'a2', 'Wohneinheiten', 'Maximal 50 Wohneinheiten.');
-    } else {
-      if (!(zimmer > 0)) add('zimmer', 'a2', 'Zimmer', 'Bitte trag die Anzahl der Zimmer ein.');
-      else if (zimmer > 20) add('zimmer', 'a2', 'Zimmer', 'Maximal 20 Zimmer.');
-    }
-    if (!(baujahr > 0)) add('baujahr', 'a2', 'Baujahr', 'Bitte trag das Baujahr ein.');
-    else if (baujahr < 1800) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr muss ab 1800 liegen.');
-    else if (baujahr > jahr + 2) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr liegt zu weit in der Zukunft.');
-
-    if (!(miete > 0)) add('miete', 'b', 'Kaltmiete', 'Bitte trag die Kaltmiete ein.');
-    if (objekttyp === 'wohnung' && importUnsicher.includes('hausgeld')) {
-      add('hausgeld', 'b', 'Hausgeld', 'Bitte bestätige das importierte Hausgeld oder korrigiere es.');
-    }
-
-    if (ek === null || ek === undefined || ek < 0) add('ek', 'c', 'Eigenkapital', 'Bitte trag dein Eigenkapital ein.');
-    if (zins === null || zins === undefined || zins < 0 || zins > 20) add('zins', 'c', 'Zinssatz', 'Der Zinssatz muss zwischen 0 und 20 % liegen.');
-    if (tilgung === null || tilgung === undefined || tilgung < 0 || tilgung > 10) add('tilgung', 'c', 'Tilgung', 'Die Tilgung muss zwischen 0 und 10 % liegen.');
-
-    // Nur Lücken bis einschließlich des aktuellen Schritts zählen
-    return f.filter(x => steps.indexOf(x.schritt) <= idx);
-  };
+  const pflichtFehler = (): PflichtFehler[] =>
+    findePflichtLuecken({
+      kaufpreis, adresse, objekttyp, flaeche, zimmer, anzahlWohneinheiten, baujahr, miete, ek, zins, tilgung,
+      grunderwerbsteuerFehlt: step === 'a' ? parseZahl(grunderwerbText) === null : grEStUnbekannt,
+      hausgeldUnbestaetigt: objekttyp === 'wohnung' && importUnsicher.includes('hausgeld'),
+    })
+      // Nur Lücken bis einschließlich des aktuellen Schritts zählen
+      .filter(x => steps.indexOf(x.schritt) <= idx);
   const offeneFehler = fehlerSichtbar ? pflichtFehler() : [];
   /** Meldung direkt am Feld (nur für Felder des aktuellen Schritts) */
   const feldFehler = (key: string) => {
@@ -1039,7 +999,7 @@ const dscr =
     kaufpreis, grunderwerbsteuerPct: grEStPct, notarPct, maklerPct, sonstigeKosten,
   });
   useEffect(() => {
-    if (!mounted || step !== 'c' || ekManuell || !(kaufpreis > 0)) return;
+    if (!mounted || (step !== 'c' && step !== 'pruefen') || ekManuell || !(kaufpreis > 0)) return;
     setEkStartwert(ekStartwert);
   }, [mounted, step, ekManuell, kaufpreis, ekStartwert, setEkStartwert]);
 
@@ -1773,8 +1733,8 @@ const exportPdf = React.useCallback(async () => {
                   setBaujahrText(text);
                   const newBaujahr = parseInt(text, 10);
                   if (!isNaN(newBaujahr) && newBaujahr > 0) {
-                    const newAfaValue = defaultAfaForBaujahr(newBaujahr);
-                    const newGebValue = defaultGebaeudeAnteil(objekttyp);
+                    const newAfaValue = startAfa(newBaujahr);
+                    const newGebValue = startGebaeudeAnteil(objekttyp);
 
                     autoAfa.current = true;
                     autoGebaeude.current = true;
@@ -2453,6 +2413,8 @@ const exportPdf = React.useCallback(async () => {
         </div>
       </>
     );
+  } else if (step === 'pruefen') {
+    content = <PruefSeite mounted={mounted} onWeiter={() => router.push('/step/tabs')} />;
   } else if (step === 'tabs') {
     content = (
       <div className="fixed inset-0 flex flex-col bg-[#F8FAFC] pt-16">
@@ -2476,7 +2438,8 @@ const exportPdf = React.useCallback(async () => {
               <div className="flex items-center gap-4">
                 <TourLink step="tabs" hell />
                 <button
-                  onClick={() => router.push('/step/c')}
+                  // Importierte Wohnungen: alle Werte auf einer Seite prüfen, manuelle Eingabe: letzter Schritt
+                  onClick={() => router.push(importQuelle ? '/step/pruefen' : '/step/c')}
                   className="px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-bold transition-all backdrop-blur-sm border border-white/20"
                 >
                   Bearbeiten

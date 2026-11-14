@@ -17,6 +17,7 @@ Alle Events laufen über einen zentralen Helper (`src/lib/analytics.ts`). Er hä
 | `ai_import_started` | Import per Link oder Screenshot gestartet | `import_method`, `import_domain` |
 | `ai_import_completed` | Import erfolgreich | `import_method`, `import_domain`, `has_warnings`, `missing_fields` |
 | `ai_import_failed` | Import fehlgeschlagen | `import_method`, `import_domain`, `error` |
+| `review_page_viewed` | Prüfseite nach Import (Link oder Foto) geöffnet | `input_method`, `missing_fields_count` |
 | `kpi_result_viewed` | KPI-Ergebnis sichtbar (auch für Gäste), einmal je Wohnung | `input_method`, `object_type`, `signed_in` |
 | `analysis_completed` | Vollständige Analyse fertig (Markt, KI, Prognose), einmal je Wohnung | `analysis_number`, `plan` |
 | `locked_preview_clicked` | Gast klickt auf eine gesperrte Vorschau | `section`, `action` |
@@ -74,7 +75,7 @@ Tipp: Eine Variable fertig anlegen, dann in der Liste über die drei Punkte **Ko
 3. Ereignisname:
 
 ```
-^(ai_import_started|ai_import_completed|ai_import_failed|kpi_result_viewed|analysis_completed|locked_preview_clicked|compare_cta_clicked|analysis_saved|pdf_downloaded|sign_up_page_viewed|sign_up|paywall_viewed|upgrade_clicked|checkout_started|purchase|cta_clicked)$
+^(ai_import_started|ai_import_completed|ai_import_failed|review_page_viewed|kpi_result_viewed|analysis_completed|locked_preview_clicked|compare_cta_clicked|analysis_saved|pdf_downloaded|sign_up_page_viewed|sign_up|paywall_viewed|upgrade_clicked|checkout_started|purchase|cta_clicked)$
 ```
 
 4. Haken bei **Übereinstimmung mit regulärem Ausdruck verwenden**.
@@ -174,9 +175,9 @@ Die IP-basierte Regel unter Datenstreams → Tag-Einstellungen → „Internen T
 ### GTM-Vorschau
 
 1. In GTM oben rechts **Vorschau** → `https://imvestr.de` eingeben → **Connect**. Tag Assistant öffnet die Seite in einem neuen Tab.
-2. Ablauf als Gast durchklicken: Startseite → „Analyse starten“ → Link importieren → Schritte → Ergebnis → gesperrte Vorschau anklicken.
+2. Ablauf als Gast durchklicken: Startseite → „Analyse starten“ → Link importieren → Prüfseite → Ergebnis → gesperrte Vorschau anklicken.
 3. Links in Tag Assistant müssen nacheinander erscheinen:
-   `cta_clicked` → `ai_import_started` → `ai_import_completed` → `kpi_result_viewed` → `locked_preview_clicked` → `sign_up_page_viewed`.
+   `cta_clicked` → `ai_import_started` → `ai_import_completed` → `review_page_viewed` → `kpi_result_viewed` → `locked_preview_clicked` → `sign_up_page_viewed`.
 4. Jedes Event anklicken → Reiter **Tags**: unter „Tags Fired“ steht **genau ein** GA4-Tag, nämlich `GA4 - Event - generisch`. Zwei ausgelöste GA4-Tags bedeuten, dass noch ein alter Tag aktiv ist (Schritt 4).
 5. Den Tag anklicken: Der Ereignisname muss dem dataLayer-Event entsprechen, die Parameter müssen gefüllt sein.
 6. Reiter **Data Layer** beim selben Event: Parameter früherer Events stehen dort als `undefined`. Das ist gewollt.

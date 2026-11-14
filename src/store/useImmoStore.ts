@@ -33,6 +33,8 @@ const clearAutosave = () => {
  */
 export type AfaModell = 'linear_2' | 'linear_3' | 'degressiv_5';
 
+export type ImportQuelle = 'url' | 'screenshot';
+
 /**
  * State und Setter für ImmoInvest AI Eingaben (Schritt A)
  */
@@ -83,6 +85,8 @@ export interface ImmoState {
   /** Importierte, aber unplausible Angaben (z. B. Hausgeld = Kaltmiete): müssen bestätigt oder geändert werden */
   importUnsicher: ImportFeld[];
   importHinweise: string[];
+  /** Woher die Daten kommen: Import per Link oder Foto, sonst null (manuell). "Bearbeiten" öffnet bei Importen die Prüfseite. */
+  importQuelle: ImportQuelle | null;
 
   // AfA-Turbo Felder (§7 Abs. 4, §7 Abs. 5a, §7b EStG)
   // Vereinfacht: Nur afaModell und nutzeSonderAfa, basierend auf Baujahr
@@ -231,6 +235,7 @@ const initialState = {
   importFehlend: [] as ImportFeld[],
   importUnsicher: [] as ImportFeld[],
   importHinweise: [] as string[],
+  importQuelle: null as ImportQuelle | null,
   zins: 3.5,
   tilgung: 2,
   cashflow_operativ: 0,
@@ -489,6 +494,9 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     if (data.ek !== undefined && data.ekManuell === undefined) {
       updates.ekManuell = true;
     }
+    if (data.importQuelle !== undefined && data.importQuelle !== 'url' && data.importQuelle !== 'screenshot') {
+      updates.importQuelle = null;
+    }
     if (data.bundesland !== undefined && !istBundesland(data.bundesland)) {
       updates.bundesland = null;
     }
@@ -578,6 +586,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       importFehlend: state.importFehlend,
       importUnsicher: state.importUnsicher,
       importHinweise: state.importHinweise,
+      importQuelle: state.importQuelle,
       zins: state.zins,
       tilgung: state.tilgung,
       cashflow_operativ: state.cashflow_operativ,

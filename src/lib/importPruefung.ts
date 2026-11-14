@@ -142,3 +142,30 @@ export function bereinigeHinweise(warnungen: unknown, fehlend: ImportFeld[], uns
   }
   return [...aus];
 }
+
+/** Stichworte, an denen ein Import-Hinweis einem Feld zugeordnet wird */
+const HINWEIS_FELD: Array<[ImportFeld, RegExp]> = [
+  ['kaufpreis', /kaufpreis|preis auf anfrage/i],
+  ['miete', /kaltmiete|miete\b|jahresmiete/i],
+  // Hinweise zur 60/40-Aufteilung betreffen die Annahme, nicht den Betrag
+  ['hausgeld', /hausgeld(?![- ]?(aufteilung|verteilung))/i],
+  // Nicht auf "m²" prüfen: Hinweise zur Miete nennen €/m²
+  ['flaeche', /fläche|flaeche/i],
+  ['adresse', /adresse|\bplz\b|postleitzahl/i],
+  ['zimmer', /zimmer/i],
+  ['baujahr', /baujahr/i],
+];
+
+/**
+ * Felder, deren importierter Wert laut Hinweis unsicher ist (z. B. "Kaltmiete erscheint sehr niedrig").
+ * Reihenfolge wie bei den fehlenden Angaben.
+ */
+export function unsichereFelder(hinweise: unknown): ImportFeld[] {
+  if (!Array.isArray(hinweise)) return [];
+  const treffer = new Set<ImportFeld>();
+  for (const h of hinweise) {
+    if (typeof h !== 'string') continue;
+    for (const [feld, re] of HINWEIS_FELD) if (re.test(h)) treffer.add(feld);
+  }
+  return REIHENFOLGE.filter(f => treffer.has(f));
+}
