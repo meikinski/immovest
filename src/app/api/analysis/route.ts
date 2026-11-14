@@ -35,7 +35,12 @@ export async function POST(req: Request) {
     const ergebnis = await saveAnalysisRow(supabase, userId, data);
 
     if (!ergebnis.ok) {
-      // Der echte Fehler steht im Server-Log, nicht in der Antwort
+      // Der echte Fehler steht nur im Server-Log, nie in der Antwort
+      console.error('❌ [ANALYSIS] Speichern endgültig fehlgeschlagen:', {
+        code: ergebnis.error?.code, message: ergebnis.error?.message,
+        details: ergebnis.error?.details, hint: ergebnis.error?.hint,
+        fallbacks: ergebnis.hinweise, userId, clientId: ergebnis.clientId,
+      });
       return NextResponse.json(
         { error: 'Fehler beim Speichern in der Datenbank' },
         { status: 500 }

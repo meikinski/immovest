@@ -28,6 +28,9 @@ Gibt es die Tabellen schon, führe im SQL Editor die Dateien unter `supabase/mig
 Schlägt das Speichern fehl, steht der echte Datenbankfehler im Server-Log (Vercel → Logs,
 Suche nach `[ANALYSIS] Datenbankfehler beim Speichern`).
 
+Wie die Live-Tabelle wirklich aussieht (Typen, fehlende oder fremde Spalten, Constraints, Trigger),
+zeigt `supabase/diagnose/analyses_spalten.sql`. Die Abfrage liest nur.
+
 ## 3. API Keys kopieren
 
 1. Gehe zu **Settings** → **API**

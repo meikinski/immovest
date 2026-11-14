@@ -69,6 +69,33 @@ ALTER TABLE analyses ADD COLUMN IF NOT EXISTS client_id TEXT DEFAULT NULL;
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS state JSONB DEFAULT NULL;
 CREATE INDEX IF NOT EXISTS idx_analyses_user_client ON analyses(user_id, client_id);
 
+-- Bestehende Tabellen mit engeren Typen erweitern: Ganzzahl-Spalten → NUMERIC (76,5 m², 468,33 €),
+-- VARCHAR(n) → TEXT (lange KI-Kommentare). Werte bleiben unverändert, wiederholbar.
+DO $$
+DECLARE
+  c RECORD;
+BEGIN
+  FOR c IN
+    SELECT column_name, data_type
+    FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name = 'analyses'
+  LOOP
+    IF c.column_name IN (
+         'kaufpreis', 'flaeche', 'zimmer', 'miete', 'hausgeld', 'hausgeld_umlegbar', 'ek', 'zins', 'tilgung',
+         'grunderwerbsteuer_pct', 'notar_pct', 'makler_pct', 'mietausfall_pct', 'instandhaltungskosten_pro_qm',
+         'steuer', 'afa', 'ruecklagen', 'persoenlicher_steuersatz', 'cashflow_operativ', 'nettorendite',
+         'score', 'anschaffungskosten')
+       AND c.data_type IN ('smallint', 'integer', 'bigint', 'real', 'double precision') THEN
+      EXECUTE format('ALTER TABLE analyses ALTER COLUMN %I TYPE NUMERIC USING %I::numeric', c.column_name, c.column_name);
+    ELSIF c.column_name IN (
+         'analysis_name', 'adresse', 'client_id',
+         'generated_comment', 'lage_comment', 'mietpreis_comment', 'qm_preis_comment', 'invest_comment')
+       AND c.data_type IN ('character varying', 'character') THEN
+      EXECUTE format('ALTER TABLE analyses ALTER COLUMN %I TYPE TEXT', c.column_name);
+    END IF;
+  END LOOP;
+END $$;
+
 -- Create index on user_id for faster queries
 CREATE INDEX IF NOT EXISTS idx_analyses_user_id ON analyses(user_id);
 CREATE INDEX IF NOT EXISTS idx_analyses_created_at ON analyses(created_at DESC);
