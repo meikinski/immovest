@@ -24,7 +24,7 @@ assert(berechneBruttomietrendite(12000, 0) === 0, 'Ohne Kaufpreis 0 statt Divisi
 
 const basis: SzenarioBasis = {
   kaufpreis: 215000, miete: 468.33, ek: 0, zins: 3.5, tilgung: 2, grunderwerbsteuerPct: 6.5, notarPct: 2, maklerPct: 3.57,
-  sonstigeKosten: 0, hausgeld: 180, hausgeldUmlegbar: 108, instandhaltungProQmJahr: 9, instandKalkProQmJahr: 9,
+  sonstigeKosten: 0, hausgeld: 180, hausgeldUmlegbar: 108, verwaltungskosten: 0, instandhaltungProQmJahr: 9, instandKalkProQmJahr: 9,
   mietausfallPct: 1, flaeche: 48, afaJaehrlich: 3225, steuersatzPct: 42, darlehensTyp: 'annuitaet', grundstueckswert: 43000,
 };
 const heute = berechneSzenario(basis);

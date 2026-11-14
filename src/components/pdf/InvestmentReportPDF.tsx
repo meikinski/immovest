@@ -174,6 +174,10 @@ export type InvestmentReportData = {
     kaltmiete: number;
     umlage: number;
     hausgeld: number;
+    /** "Hausgeld gesamt" (Wohnung) oder "Umgelegte Nebenkosten" (Haus/MFH) */
+    hausgeldLabel?: string;
+    /** Verwaltungskosten pro Monat (Haus/MFH) */
+    verwaltung?: number;
     kalkKosten: number;
     noi: number;
     cfVorSteuer: number;
@@ -547,7 +551,8 @@ function Finanzierung({ d }: { d: InvestmentReportData }) {
             <SectionTitle nr={4}>Monatliche Rechnung (1. Jahr)</SectionTitle>
             <CalcRow label="Kaltmiete" value={m.kaltmiete} />
             {m.umlage > 0 && <CalcRow label="+ Umlagefähige Nebenkosten" value={m.umlage} />}
-            <CalcRow label="− Hausgeld gesamt" value={-m.hausgeld} />
+            {(m.hausgeld > 0 || !m.verwaltung) && <CalcRow label={`− ${m.hausgeldLabel ?? 'Hausgeld gesamt'}`} value={-m.hausgeld} />}
+            {!!m.verwaltung && <CalcRow label="− Verwaltungskosten" value={-m.verwaltung} />}
             <CalcRow label="− Rücklage & Mietausfall" value={-m.kalkKosten} />
             <View style={s.calcSub}><Text style={{ fontWeight: 700 }}>= Überschuss vor Kredit</Text><Text style={{ fontWeight: 800 }}>{eur(m.noi)}</Text></View>
             <CalcRow label="− Zinsen" value={-f.zinsMonat} />
