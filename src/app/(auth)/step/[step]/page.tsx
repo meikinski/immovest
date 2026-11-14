@@ -2959,7 +2959,8 @@ const exportPdf = React.useCallback(async () => {
                     scenarioCashflowNachSteuer: scenarioCalculations.scCashflowAfterTax,
                     scenarioNettorendite: scenarioCalculations.scNettoRendite,
                     scenarioBruttorendite: scenarioCalculations.scBruttoRendite,
-                    scenarioEkRendite: scenarioCalculations.scEkRendite,
+                    // Speicherformat erwartet eine Zahl (Spalte NOT NULL DEFAULT 0)
+                    scenarioEkRendite: scenarioCalculations.scEkRendite ?? 0,
                     scenarioNoiMonthly: scenarioCalculations.scNoiMonthly,
                     scenarioDscr: scenarioCalculations.scDSCR,
                     scenarioRateMonat: scenarioCalculations.scRateMonat,

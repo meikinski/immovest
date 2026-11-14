@@ -60,7 +60,8 @@ export interface SzenarioErgebnis {
   scDSCR: number;
   scBruttoRendite: number;
   scNettoRendite: number;
-  scEkRendite: number;
+  /** EK-Rendite in %, null ohne Eigenkapital (nicht berechenbar) */
+  scEkRendite: number | null;
   scEkQuote: number;
   /** Kalenderjahr der vollständigen Tilgung, 0 wenn nicht innerhalb von 60 Jahren */
   scAbzahlungsjahr: number;
@@ -133,7 +134,7 @@ export function berechneSzenario(b: SzenarioBasis, d: SzenarioDeltas = KEINE_DEL
     scDSCR: scRateMonat > 0 ? scNoiMonthly / scRateMonat : 0,
     scBruttoRendite: berechneBruttomietrendite(scJahresKalt, scKaufpreis),
     scNettoRendite: scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0,
-    scEkRendite: scEk > 0 ? ((scJahresKalt - scBewJ - scDarlehen * (scZins / 100)) / scEk) * 100 : 0,
+    scEkRendite: scEk > 0 ? ((scJahresKalt - scBewJ - scDarlehen * (scZins / 100)) / scEk) * 100 : null,
     scEkQuote: scAnschaffung > 0 ? (scEk / scAnschaffung) * 100 : 0,
     scAbzahlungsjahr: berechneAbzahlungsjahr(prognose) ?? 0,
   };

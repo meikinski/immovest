@@ -56,4 +56,12 @@ assert(frei.stresstest!.titel === 'Eigenes Szenario' && frei.stresstest!.beschre
 const ohneMarkt = baueReportDaten({ ...eingaben, markt: { ...eingaben.markt, mietDelta: null } });
 assert(ohneMarkt.markt === null, 'Ohne Marktdaten entfällt die Marktseite');
 
+// EK = 0: EK-Rendite im PDF nicht berechenbar (null → "–" ohne Bewertung und ohne Änderung)
+assert(d.kpis.ekRendite !== null && Math.abs(d.kpis.ekRendite - heute.scEkRendite!) < 1e-9, 'PDF-EK-Rendite = Szenarien-Tab (mit Eigenkapital)');
+const ohneEk = baueReportDaten({ ...eingaben, basis: { ...basis, ek: 0 } });
+assert(ohneEk.kpis.ekRendite === null, 'EK = 0: kpis.ekRendite ist null');
+const ekZeile = ohneEk.stresstest!.zeilen.find(z => z.label === 'EK-Rendite');
+assert(ekZeile !== undefined && ekZeile.heute === null && ekZeile.szenario === null, 'EK = 0: Stresstest-Zeile EK-Rendite heute und Szenario null');
+assert(ohneEk.stresstest!.zeilen.filter(z => z.label !== 'EK-Rendite').every(z => typeof z.heute === 'number' && typeof z.szenario === 'number'), 'EK = 0: übrige Stresstest-Zeilen bleiben Zahlen');
+
 console.log('\nAlle Report-Tests bestanden.');
