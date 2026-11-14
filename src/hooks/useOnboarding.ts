@@ -41,6 +41,8 @@ export function useOnboarding() {
       localStorage.removeItem('hasSeenOnboarding_a');
       localStorage.removeItem('hasSeenOnboarding_b');
       localStorage.removeItem('hasSeenOnboarding_c');
+      localStorage.removeItem('hasSeenOnboarding_a2');
+      localStorage.removeItem('hasSeenOnboarding_tabs');
     }
   }, []);
 
@@ -64,6 +66,14 @@ export function useOnboarding() {
           }
         },
         {
+          element: '#adresse-feld',
+          popover: {
+            title: 'Adresse',
+            description: 'Mit PLZ und Ort. Aus der PLZ ergibt sich das Bundesland und damit der Grunderwerbsteuersatz.',
+            ...commonConfig.popover,
+          }
+        },
+        {
           element: '#kaufpreis-input',
           popover: {
             title: 'Kaufpreis',
@@ -75,7 +85,7 @@ export function useOnboarding() {
           element: '#grunderwerbsteuer-input',
           popover: {
             title: 'Grunderwerbsteuer',
-            description: 'Variiert je nach Bundesland (3,5% - 6,5%). Wird später automatisch vorausgefüllt, sobald du die Adresse eingibst.',
+            description: 'Variiert je nach Bundesland (3,5 % bis 6,5 %). Der Satz wird aus der PLZ der Adresse vorbelegt. Du kannst das Bundesland auch selbst wählen oder den Satz ändern.',
             ...commonConfig.popover,
           }
         },
@@ -98,8 +108,8 @@ export function useOnboarding() {
         {
           element: '[data-step-nav="next"]',
           popover: {
-            title: 'Weiter zur Objektbeschreibung',
-            description: 'Klick hier, um zur Objektbeschreibung zu kommen. Danach erfasst du Mieten und Eigenkapital.',
+            title: 'Weiter zu den Objektdaten',
+            description: 'Schritt 2 von 4: Objektdaten. Danach folgen Miete & Kosten und die Finanzierung.',
             side: 'top' as const,
             align: 'center' as const,
           }
@@ -111,7 +121,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: 'Objektdaten erfassen',
+            title: 'Schritt 2: Objektdaten',
             description: 'Jetzt gibst du die wichtigsten Details zur Immobilie ein. Diese Daten beeinflussen die Berechnungen im nächsten Schritt.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -128,8 +138,8 @@ export function useOnboarding() {
         {
           element: '[data-step-nav="next"]',
           popover: {
-            title: 'Weiter zu Mieteinnahmen',
-            description: 'Im nächsten Schritt erfasst du alle Einnahmen und laufenden Kosten.',
+            title: 'Weiter zu Miete & Kosten',
+            description: 'Im nächsten Schritt erfasst du die Miete und alle laufenden Kosten.',
             side: 'top' as const,
             align: 'center' as const,
           }
@@ -141,7 +151,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: 'Schritt 2: Mieteinnahmen & Kosten',
+            title: 'Schritt 3: Miete & Kosten',
             description: 'Jetzt erfasst du die monatlichen Mieteinnahmen und alle laufenden Kosten. Die meisten Werte sind bereits vorausgefüllt – du kannst sie aber anpassen.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -231,7 +241,7 @@ export function useOnboarding() {
           element: '[data-step-nav="next"]',
           popover: {
             title: 'Fast fertig!',
-            description: 'Im letzten Schritt erfasst du nur noch dein Eigenkapital und die Kreditkonditionen. Danach siehst du die vollständige Analyse!',
+            description: 'Im letzten Schritt (Finanzierung) erfasst du nur noch dein Eigenkapital und die Kreditkonditionen. Danach siehst du deine Kennzahlen.',
             side: 'top' as const,
             align: 'center' as const,
           }
@@ -243,7 +253,7 @@ export function useOnboarding() {
       return [
         {
           popover: {
-            title: 'Schritt 3: Finanzierung planen',
+            title: 'Schritt 4: Finanzierung',
             description: 'Zum Schluss erfasst du dein Eigenkapital und die Kreditkonditionen.',
             side: 'bottom' as const,
             align: 'center' as const,
@@ -253,7 +263,7 @@ export function useOnboarding() {
           element: '#eigenkapital-input',
           popover: {
             title: 'Dein Eigenkapital',
-            description: 'Wie viel Geld bringst du selbst ein? Typisch sind 20-30% vom Kaufpreis. Beispiel: Bei 300.000 € Kaufpreis → 60.000 € Eigenkapital.',
+            description: 'Wie viel Geld bringst du selbst ein? Der Startwert deckt die Kaufnebenkosten plus 10 % des Kaufpreises. Passe ihn an dein Eigenkapital an.',
             ...commonConfig.popover,
           }
         },
@@ -308,7 +318,7 @@ export function useOnboarding() {
           element: '#kpi-brutto',
           popover: {
             title: 'Bruttomietrendite',
-            description: 'Zeigt das Verhältnis der Jahresmiete zum Kaufpreis. Faustregel: Ab 4% interessant, ab 5% sehr gut. Kosten sind hier noch NICHT eingerechnet.',
+            description: 'Jahreskaltmiete geteilt durch Kaufpreis. Faustregel: Ab 4 % interessant, ab 5 % sehr gut. Nebenkosten und laufende Kosten sind hier noch NICHT eingerechnet.',
             ...commonConfig.popover,
           }
         },
@@ -316,7 +326,7 @@ export function useOnboarding() {
           element: '#kpi-netto',
           popover: {
             title: 'Nettomietrendite',
-            description: 'Die realistische Rendite NACH allen laufenden Kosten (Hausgeld, Instandhaltung, Mietausfall). Das ist die wichtigste Kennzahl für Kapitalanleger.',
+            description: 'Die realistischere Rendite nach laufenden Kosten (nicht umlagefähiges Hausgeld, Instandhaltung), bezogen auf die Gesamtinvestition inklusive Kaufnebenkosten.',
             ...commonConfig.popover,
           }
         },

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Minus, Plus, RotateCcw } from 'lucide-react';
+import { formatZahl, parseZahl } from '@/lib/zahlen';
 
 type SliderProps = {
   label: string;
@@ -22,7 +23,7 @@ export default function Slider({
 }: SliderProps) {
   const sliderId = id || `sl-${label.replace(/\s+/g, '-').toLowerCase()}`;
   const [isEditing, setIsEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(value.toString());
+  const [inputValue, setInputValue] = useState(formatZahl(value));
 
   const handleDecrement = () => {
     const newValue = Math.max(min, value - step);
@@ -36,12 +37,12 @@ export default function Slider({
 
   const handleInputBlur = () => {
     setIsEditing(false);
-    const parsed = parseFloat(inputValue.replace(',', '.'));
-    if (!isNaN(parsed)) {
+    const parsed = parseZahl(inputValue);
+    if (parsed !== null) {
       const clamped = Math.max(min, Math.min(max, parsed));
       onChange(clamped);
     } else {
-      setInputValue(value.toString());
+      setInputValue(formatZahl(value));
     }
   };
 
@@ -50,7 +51,7 @@ export default function Slider({
       handleInputBlur();
     } else if (e.key === 'Escape') {
       setIsEditing(false);
-      setInputValue(value.toString());
+      setInputValue(formatZahl(value));
     }
   };
 
@@ -89,7 +90,7 @@ export default function Slider({
               type="button"
               onClick={() => {
                 setIsEditing(true);
-                setInputValue(value.toString());
+                setInputValue(formatZahl(value));
               }}
               className="hover:text-[var(--color-text-default)] transition-colors"
             >

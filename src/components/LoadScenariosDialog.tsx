@@ -146,7 +146,7 @@ export function LoadScenariosDialog({ analysisId, onLoadScenario }: LoadScenario
                             <div>Miete: {scenario.mieteDeltaPct > 0 ? '+' : ''}{scenario.mieteDeltaPct}%</div>
                             <div>Preis: {scenario.preisDeltaPct > 0 ? '+' : ''}{scenario.preisDeltaPct}%</div>
                             <div>Zins: {scenario.zinsDeltaPp > 0 ? '+' : ''}{scenario.zinsDeltaPp}pp</div>
-                            <div>Nettorendite: {scenario.scenarioNettorendite.toFixed(2)}%</div>
+                            <div>Nettorendite: {scenario.scenarioNettorendite.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} %</div>
                           </div>
                           <div className="text-xs text-gray-400 mt-2">
                             Erstellt: {new Date(scenario.createdAt).toLocaleDateString('de-DE')}

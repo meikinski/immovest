@@ -1,4 +1,5 @@
 import { berechneNebenkosten } from './calculations';
+import { berechneBruttomietrendite } from './kennzahlen';
 import { berechneAbzahlungsjahr, berechnePrognose } from './prognose-calculator';
 import type { AfaModell } from '@/store/useImmoStore';
 
@@ -130,7 +131,7 @@ export function berechneSzenario(b: SzenarioBasis, d: SzenarioDeltas = KEINE_DEL
     scCashflowVorSt: j0?.cashflowVorSteuern ?? 0,
     scCashflowAfterTax: j0?.cashflowMonatlich ?? 0,
     scDSCR: scRateMonat > 0 ? scNoiMonthly / scRateMonat : 0,
-    scBruttoRendite: scAnschaffung > 0 ? (scJahresKalt / scAnschaffung) * 100 : 0,
+    scBruttoRendite: berechneBruttomietrendite(scJahresKalt, scKaufpreis),
     scNettoRendite: scAnschaffung > 0 ? ((scJahresKalt - scBewJ) / scAnschaffung) * 100 : 0,
     scEkRendite: scEk > 0 ? ((scJahresKalt - scBewJ - scDarlehen * (scZins / 100)) / scEk) * 100 : 0,
     scEkQuote: scAnschaffung > 0 ? (scEk / scAnschaffung) * 100 : 0,

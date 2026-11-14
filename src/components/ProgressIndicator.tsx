@@ -7,10 +7,10 @@ interface ProgressProps {
 }
 
 const INPUT_STEPS: Array<{ key: Step; label: string }> = [
-  { key: 'a', label: 'Objekt' },
-  { key: 'a2', label: 'Details' },
-  { key: 'b', label: 'Finanzierung' },
-  { key: 'c', label: 'Steuern' },
+  { key: 'a', label: 'Kaufpreis' },
+  { key: 'a2', label: 'Objektdaten' },
+  { key: 'b', label: 'Miete & Kosten' },
+  { key: 'c', label: 'Finanzierung' },
 ];
 
 export function ProgressIndicator({ currentStep }: ProgressProps) {

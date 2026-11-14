@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
 import { ClerkProvider } from '@clerk/nextjs';
-import { deDE } from '@clerk/localizations';
+import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { headers } from 'next/headers';
 import { AuthProvider } from '@/components/AuthProvider';
 
@@ -38,7 +38,7 @@ export default async function PublicInteractiveLayout({
 
   return (
     <ClerkProvider
-      localization={deDE}
+      localization={clerkLokalisierung}
       telemetry={false}
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"

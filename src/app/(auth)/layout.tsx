@@ -1,5 +1,5 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { deDE } from '@clerk/localizations';
+import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { PaywallProvider } from '@/contexts/PaywallContext';
 import { SignupTracker } from '@/components/SignupTracker';
 // TODO: ChatAssistant wieder einbinden, sobald der Chat ausgereift ist
@@ -24,7 +24,7 @@ export default function AuthLayout({
 }) {
   return (
     <ClerkProvider
-      localization={deDE}
+      localization={clerkLokalisierung}
       telemetry={false}
       signInFallbackRedirectUrl="/input-method"
       signUpFallbackRedirectUrl="/input-method"

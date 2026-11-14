@@ -10,10 +10,10 @@ import { useImmoStore } from '@/store/useImmoStore';
 
 /** Map route step param to human-readable description */
 function describeStep(pathname: string): string {
-  if (pathname.includes('/step/a2')) return 'Onboarding-Tour (Schritt A2)';
-  if (pathname.includes('/step/a')) return 'Kaufpreis & Nebenkosten (Schritt A)';
-  if (pathname.includes('/step/b')) return 'Miete & Bewirtschaftung (Schritt B)';
-  if (pathname.includes('/step/c')) return 'Finanzierung & Eigenkapital (Schritt C)';
+  if (pathname.includes('/step/a2')) return 'Objektdaten (Schritt 2 von 4)';
+  if (pathname.includes('/step/a')) return 'Kaufpreis & Nebenkosten (Schritt 1 von 4)';
+  if (pathname.includes('/step/b')) return 'Miete & Kosten (Schritt 3 von 4)';
+  if (pathname.includes('/step/c')) return 'Finanzierung (Schritt 4 von 4)';
   if (pathname.includes('/step/tabs')) return 'Ergebnis-Analyse (Tabs)';
   if (pathname.includes('/dashboard')) return 'Dashboard';
   return 'Unbekannte Seite';

@@ -430,7 +430,7 @@ function Deckblatt({ d }: { d: InvestmentReportData }) {
             <KpiCard label="Cashflow nach Steuern" value={fmt(cf)} unit="€" rating={rateCf(cf)} caption="pro Monat, frei verfügbar" colorValue />
             <KpiCard label="Kapitaldienstdeckung" value={fmt(dscr, 2)} rating={rateDscr(dscr)} caption="Miete ÷ Kreditrate (DSCR)" />
             <KpiCard label="Eigenkapitalquote" value={fmt(d.kpis.ekQuote, 1)} unit="%" rating={rateEkQuote(d.kpis.ekQuote)} caption="am Gesamtinvest" />
-            <KpiCard label="Bruttomietrendite" value={fmt(d.kpis.brutto, 1)} unit="%" rating={rateBrutto(d.kpis.brutto)} caption="Jahreskaltmiete ÷ Gesamtinvest" />
+            <KpiCard label="Bruttomietrendite" value={fmt(d.kpis.brutto, 1)} unit="%" rating={rateBrutto(d.kpis.brutto)} caption="Jahreskaltmiete ÷ Kaufpreis" />
             <KpiCard label="Nettomietrendite" value={fmt(d.kpis.netto, 1)} unit="%" rating={rateNetto(d.kpis.netto)} caption="nach laufenden Kosten" />
             <KpiCard label="EK-Rendite" value={fmt(d.kpis.ekRendite, 1)} unit="%" rating={rateEkRendite(d.kpis.ekRendite)} caption="auf dein Eigenkapital, 1. Jahr" />
           </View>

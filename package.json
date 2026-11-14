@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "sample-report": "npx --yes tsx@4 scripts/sample-report.tsx"
+    "sample-report": "npx --yes tsx@4 scripts/sample-report.tsx",
+    "test": "for f in src/lib/__tests__/*.test.ts; do npx --yes tsx@4 \"$f\" || exit 1; done"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.23",
