@@ -36,7 +36,7 @@ import { SaveAnalysisButton, speichereAnalyse } from '@/components/SaveAnalysisB
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
-import { trackEvent, AnalyticsEvents, leseEingabeMethode, meldeAnalyseAbgeschlossen } from '@/lib/analytics';
+import { trackEvent, AnalyticsEvents, leseEingabeMethode, meldeAnalyseAbgeschlossen, meldeAnalyseGespeichert } from '@/lib/analytics';
 import { useAuth } from '@clerk/nextjs';
 import { signInHref, signUpHref } from '@/lib/anmeldeLinks';
 import { GastHinweisBanner } from '@/components/GratisVorteile';
@@ -993,7 +993,9 @@ const dscr =
   useEffect(() => {
     if (step !== 'tabs' || !istGratisAnalyse || !(kaufpreis > 0)) return;
     const t = setTimeout(() => {
-      speichereAnalyse(userId).catch(e => console.warn('[Analyse] Automatisches Speichern fehlgeschlagen', e));
+      speichereAnalyse(userId)
+        .then(id => meldeAnalyseGespeichert({ analysisId: id, saveType: 'auto', plan: 'free' }))
+        .catch(e => console.warn('[Analyse] Automatisches Speichern fehlgeschlagen', e));
     }, 1500);
     return () => clearTimeout(t);
   }, [step, istGratisAnalyse, kaufpreis, userId, marktFacts, generatedComment, lageComment, investComment]);
@@ -1370,6 +1372,7 @@ const exportPdf = React.useCallback(async () => {
       URL.revokeObjectURL(url);
     }, 100);
 
+    trackEvent(AnalyticsEvents.PDF_DOWNLOADED, { plan: isPremium ? 'premium' : 'free' });
     toast.success('PDF erfolgreich heruntergeladen');
   } catch (err) {
     console.error('PDF export failed', err);
@@ -1382,7 +1385,7 @@ const exportPdf = React.useCallback(async () => {
     setPdfBusy(false);
   }
 }, [
-  isSignedIn, hatVollzugang, setShowUpgradeModal, getToken,
+  isSignedIn, hatVollzugang, isPremium, setShowUpgradeModal, getToken,
   shortAddress, adresse, objekttyp, flaeche, zimmer, baujahr,
   grunderwerbsteuer_eur, notar_eur, makler_eur, grunderwerbsteuer_pct, notarPct, maklerPct,
   szenarioBasis, szenarioDeltas, anschaffungskosten, prognose,
