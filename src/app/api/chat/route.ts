@@ -1,6 +1,7 @@
 // src/app/api/chat/route.ts
 import { streamText, convertToModelMessages } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { kiSchutz } from '@/lib/kostenSchutz';
 import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const runtime = 'edge';
@@ -280,8 +281,13 @@ async function handlePOST(req: Request) {
       return new Response('Invalid messages format', { status: 400 });
     }
 
+    // Kostenschutz: nur angemeldet, Rate Limit pro Nutzer, KI-Tagesbudget
+    const schutz = await kiSchutz(req, { route: '/api/chat', bucket: 'chat', ki: true });
+    if (!schutz.ok) return schutz.response;
+
     const systemPrompt = buildSystemPrompt(userContext);
-    const modelMessages = await convertToModelMessages(messages);
+    // Nur die letzten Nachrichten mitschicken, damit der Verlauf die Kosten nicht unbegrenzt treibt
+    const modelMessages = await convertToModelMessages(messages.slice(-20));
 
     const result = streamText({
       model: anthropic('claude-opus-4-5-20251101'),

@@ -37,19 +37,17 @@ async function simuliereApis(ctx: BrowserContext) {
 
 async function importiereAlsGast(page: Page, baseUrl: string) {
   await page.goto(`${baseUrl}/input-method`, { waitUntil: 'domcontentloaded' });
-  // Vor der Hydrierung getippter Text geht verloren: so lange füllen, bis der Knopf aktiv ist
-  const knopf = page.getByRole('button', { name: 'Mit KI analysieren' });
-  for (let versuch = 0; versuch < 20 && !(await knopf.isEnabled()); versuch++) {
+  // Vor der Hydrierung getippter Text geht verloren: füllen und klicken, bis der Import startet
+  const knopf = page.getByRole('button', { name: /Mit KI analysieren|Analysiere/ });
+  for (let versuch = 0; versuch < 30 && !page.url().includes('/step/'); versuch++) {
     await page.getByLabel('Inserat-URL').fill('https://www.immobilienscout24.de/expose/123456789');
     await page.waitForTimeout(500);
+    if (await knopf.isEnabled()) await knopf.click({ timeout: 2_000 }).catch(() => {});
+    await page.waitForURL('**/step/**', { timeout: 3_000 }).catch(() => {});
   }
-  await knopf.click();
-  await page.waitForURL('**/step/a');
-  for (const ziel of ['a2', 'b', 'c']) {
-    await page.getByRole('button', { name: 'Weiter', exact: true }).click();
-    await page.waitForURL(`**/step/${ziel}`);
-  }
-  await page.getByRole('button', { name: 'Investment analysieren' }).click();
+  // Import führt auf eine Prüfseite mit allen Angaben (#508)
+  await page.waitForURL('**/step/pruefen');
+  await page.getByRole('button', { name: 'Ergebnis anzeigen' }).click();
   await page.waitForURL('**/step/tabs');
   await pruefeWohnungImErgebnis(page, 'Gast-Ergebnis');
 }

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { CircleHelp } from 'lucide-react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
-type TourStep = 'a' | 'a2' | 'b' | 'c' | 'tabs';
+type TourStep = 'a' | 'a2' | 'b' | 'c' | 'pruefen' | 'tabs';
 
 /**
  * Startet die Tour der aktuellen Seite auf Wunsch. Touren öffnen sich nie von selbst.

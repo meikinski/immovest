@@ -3,21 +3,32 @@ import { auth } from '@clerk/nextjs/server';
 import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { InvestmentReportPDF, type InvestmentReportData } from '@/components/pdf/InvestmentReportPDF';
-import { darfVollanalyse } from '@/lib/premiumServer';
+import { darfVollanalyse } from '@/lib/gratisAnalyse';
+import { kiSchutz } from '@/lib/kostenSchutz';
 import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 async function handlePOST(req: Request) {
   try {
-    // PDF-Report gibt es mit Premium und in der kostenlosen Analyse
+    // PDF-Report gibt es mit Premium und für die Wohnung der kostenlosen Analyse
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: 'Bitte melde dich an.' }, { status: 401 });
     }
-    if (!(await darfVollanalyse(userId))) {
-      return NextResponse.json({ error: 'Deine kostenlose Analyse ist aufgebraucht. Den PDF-Report gibt es mit Premium.' }, { status: 403 });
+
+    const body = (await req.json()) as InvestmentReportData & { adresse?: string };
+    const { adresse: rohAdresse, ...data } = body;
+    // Vollständige Adresse schickt der Client mit; ältere Clients: aus Titel und Ort zusammensetzen
+    const adresse = rohAdresse ?? [data?.objekt?.adresse, data?.objekt?.ort].filter(Boolean).join(', ');
+    if (!(await darfVollanalyse(userId, adresse))) {
+      return NextResponse.json(
+        { error: 'Deine kostenlose Analyse ist für eine andere Wohnung vergeben. Den PDF-Report gibt es mit Premium.', paywall: true },
+        { status: 402 }
+      );
     }
 
-    const data = (await req.json()) as InvestmentReportData;
+    // Rate Limit (keine KI-Kosten, aber rechenintensiv)
+    const schutz = await kiSchutz(req, { route: '/api/export/pdf', bucket: 'pdf', ki: false });
+    if (!schutz.ok) return schutz.response;
 
     // Render the PDF document to a buffer
     // @ts-expect-error - Type issue with React.createElement and @react-pdf/renderer

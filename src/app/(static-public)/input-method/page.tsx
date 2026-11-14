@@ -5,7 +5,7 @@ import { Keyboard, Camera, X, Link as LinkIcon, Sparkles, ChevronDown, ChevronRi
 import { useRouter } from 'next/navigation';
 import { useImmoStore } from '@/store/useImmoStore';
 import { useAnalytics } from '@/hooks/useAnalytics';
-import { AnalyticsEvents, merkeEingabeMethode } from '@/lib/analytics';
+import { AnalyticsEvents, importDomain, merkeEingabeMethode } from '@/lib/analytics';
 import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -116,7 +116,7 @@ export default function InputMethodPage() {
 
       const { warnings } = result;
       // Fehlende Angaben und Platzhalter bleiben leer und werden auf der ersten Eingabeseite genannt
-      const { daten: data, fehlend } = pruefeImport({ objekttyp: 'wohnung', ...result.data });
+      const { daten: data, fehlend, unsicher } = pruefeImport({ objekttyp: 'wohnung', ...result.data });
 
       // Reset form before importing new data
       resetAnalysis();
@@ -134,7 +134,9 @@ export default function InputMethodPage() {
         hausgeld_umlegbar: data.hausgeld_umlegbar || 0,
         objekttyp: data.objekttyp || 'wohnung',
         importFehlend: fehlend,
-        importHinweise: bereinigeHinweise(warnings, fehlend),
+        importUnsicher: unsicher,
+        importHinweise: bereinigeHinweise(warnings, fehlend, unsicher),
+        importQuelle: 'screenshot',
       });
 
       // Generate analysis ID without saving (user must explicitly save)
@@ -149,13 +151,13 @@ export default function InputMethodPage() {
         missing_fields: fehlend.join(',') || 'none',
       });
 
-      // Hinweise stehen dauerhaft oben auf der ersten Eingabeseite, daher ohne Wartezeit weiter
-      router.push('/step/a');
+      // Eine Prüfseite statt vier Eingabeschritten: Hinweise und fehlende Angaben stehen dort ganz oben
+      router.push('/step/pruefen');
     } catch (err) {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
         import_method: 'screenshot',
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: (err instanceof Error ? err.message : 'Unknown error').slice(0, 100),
       });
       setImageError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {
@@ -172,7 +174,7 @@ export default function InputMethodPage() {
     // Track AI Import Started
     track(AnalyticsEvents.AI_IMPORT_STARTED, {
       import_method: 'url',
-      import_url: url.trim()
+      import_domain: importDomain(url)
     });
 
     setUrlLoading(true);
@@ -203,7 +205,9 @@ export default function InputMethodPage() {
         importData({
           ...result.data,
           importFehlend: fehlend,
+          importUnsicher: Array.isArray(result.unsicher) ? result.unsicher : [],
           importHinweise: Array.isArray(result.hinweise) ? result.hinweise : [],
+          importQuelle: 'url',
         });
 
         // Generate analysis ID without saving (user must explicitly save)
@@ -219,12 +223,12 @@ export default function InputMethodPage() {
         merkeEingabeMethode('url');
         track(AnalyticsEvents.AI_IMPORT_COMPLETED, {
           import_method: 'url',
-          import_url: url.trim(),
+          import_domain: importDomain(url),
           has_warnings: (result.warnings?.length ?? 0) > 0 || fehlend.length > 0,
           missing_fields: fehlend.join(',') || 'none',
         });
 
-        router.push('/step/a');
+        router.push('/step/pruefen');
       } else {
         throw new Error('Keine Immobiliendaten in der URL gefunden. Versuche eine andere URL.');
       }
@@ -232,8 +236,8 @@ export default function InputMethodPage() {
       // Track failed import
       track(AnalyticsEvents.AI_IMPORT_FAILED, {
         import_method: 'url',
-        import_url: url.trim(),
-        error: err instanceof Error ? err.message : 'Unknown error',
+        import_domain: importDomain(url),
+        error: (err instanceof Error ? err.message : 'Unknown error').slice(0, 100),
       });
       setUrlError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
     } finally {

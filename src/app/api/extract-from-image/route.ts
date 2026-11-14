@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { kiSchutz } from '@/lib/kostenSchutz';
 import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const openai = new OpenAI({
@@ -35,12 +36,28 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
+    // Große Bilder kosten viele Tokens: Base64 über ~8 MB (≈ 6 MB Bild) ablehnen
+    if (imageBase64 && imageBase64.length > 8_000_000) {
+      return NextResponse.json(
+        { error: 'Das Bild ist zu groß. Bitte lade einen Screenshot unter 6 MB hoch.' },
+        { status: 413 }
+      );
+    }
+    // Nur hochgeladene Bilder, keine fremden URLs (die der Server sonst für OpenAI abruft)
+    if (!imageBase64 && imageUrl && !/^https:\/\//.test(imageUrl)) {
+      return NextResponse.json({ error: 'Ungültige Bild-URL' }, { status: 400 });
+    }
+
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
         { error: 'OpenAI API Key nicht konfiguriert' },
         { status: 500 }
       );
     }
+
+    // Kostenschutz: Rate Limit (IP bzw. Nutzer) und KI-Tagesbudget
+    const schutz = await kiSchutz(req, { route: '/api/extract-from-image', bucket: 'import', ki: true });
+    if (!schutz.ok) return schutz.response;
 
     console.log('🖼️ Analysiere Bild mit GPT-4 Vision...');
 

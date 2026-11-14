@@ -13,8 +13,9 @@ const BEGRIFFE: Array<[string, string]> = [
   ['Cashflow', 'Was nach Miete, Kreditrate, Kosten und Steuern im Monat übrig bleibt.'],
   ['DSCR', 'Wie oft die Miete nach Kosten die Kreditrate deckt. Banken wollen meist mindestens 1,2.'],
   ['AfA', 'Abschreibung: Ein Teil des Gebäudewerts senkt jedes Jahr deine Steuern.'],
-  ['EK-Rendite', 'Rendite auf das Geld, das du selbst einbringst.'],
-  ['Nettorendite', 'Jahresmiete nach laufenden Kosten im Verhältnis zum Gesamtpreis.'],
+  ['EK-Rendite', 'Jahreskaltmiete nach laufenden Kosten und Kreditzinsen im Verhältnis zu dem Geld, das du selbst einbringst. Ohne Eigenkapital nicht berechenbar.'],
+  ['Bruttorendite', 'Jahreskaltmiete im Verhältnis zum Kaufpreis, ohne Kaufnebenkosten und laufende Kosten.'],
+  ['Nettorendite', 'Jahreskaltmiete nach laufenden Kosten (nicht umlagefähiges Hausgeld, Instandhaltung) im Verhältnis zur Gesamtinvestition: Kaufpreis plus Kaufnebenkosten.'],
 ];
 
 const FRAGEN: Array<[string, string]> = [

@@ -90,60 +90,33 @@ async function handleGET() {
   }
 }
 
+/**
+ * Früher hat der Browser hier usage_count hochgezählt. Das Gratis-Kontingent wird jetzt ausschließlich
+ * serverseitig in /api/agent/run verbucht (src/lib/gratisAnalyse.ts). Bleibt als No-op für Browser mit
+ * altem Code im Cache: schreibt nichts und liefert den aktuellen Stand.
+ */
 async function handlePOST() {
   try {
     const { userId } = await auth();
-
     if (!userId) {
-      return NextResponse.json(
-        { error: 'Nicht authentifiziert' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 });
     }
 
     const supabase = getSupabaseServerClient();
-
     if (!supabase) {
-      // Fallback to localStorage on client
-      return NextResponse.json(
-        { success: false, message: 'Supabase nicht konfiguriert' },
-        { status: 503 }
-      );
+      return NextResponse.json({ success: false, deprecated: true }, { status: 200 });
     }
 
-    // Increment usage count
-    const { data: currentData } = await supabase
+    const { data } = await supabase
       .from('user_premium_usage')
       .select('usage_count')
       .eq('user_id', userId)
-      .single();
+      .maybeSingle();
 
-    const currentCount = currentData?.usage_count || 0;
-    const newCount = currentCount + 1;
-
-    const { error } = await supabase
-      .from('user_premium_usage')
-      .upsert({
-        user_id: userId,
-        usage_count: newCount,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
-
-    if (error) {
-      console.error('Error incrementing usage:', error);
-      return NextResponse.json(
-        { error: 'Fehler beim Aktualisieren der Nutzung' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true, newCount });
+    return NextResponse.json({ success: true, deprecated: true, newCount: data?.usage_count ?? 0 });
   } catch (error) {
-    console.error('Increment usage error:', error);
-    return NextResponse.json(
-      { error: 'Interner Serverfehler' },
-      { status: 500 }
-    );
+    console.error('Premium status (POST, no-op) error:', error);
+    return NextResponse.json({ error: 'Interner Serverfehler' }, { status: 500 });
   }
 }
 

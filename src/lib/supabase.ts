@@ -1,16 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase credentials not found. Using localStorage fallback.');
-}
-
-// Client for browser-side operations
-export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+// Es gibt bewusst keinen Browser-Client mit dem Anon-Key: Alle Tabellen haben RLS ohne Policies
+// (supabase/migrations/2026-11-14_drop_open_rls_policies.sql). Zugriff nur serverseitig über API-Routen.
 
 // Server-side client with service role (for API routes)
 export function getSupabaseServerClient() {

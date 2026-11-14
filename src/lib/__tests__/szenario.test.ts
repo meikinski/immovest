@@ -82,4 +82,13 @@ assert(p.leerstandMonate !== null && p.leerstandMonate > 0, 'Leerstands-Puffer i
 const negativ = berechnePuffer({ ...basis, miete: 300 }, KEINE_DELTAS);
 assert(negativ.zinsBis === null && negativ.mieteBis === null, 'Bei negativem Überschuss gibt es keinen Puffer');
 
+// EK-Rendite: mit Eigenkapital eine Zahl, ohne Eigenkapital nicht berechenbar (null statt 0 %)
+const ekRenditeErwartet = ((960 * 12 - (30 * 12 + 10 * 48) - heute.scDarlehen * 0.035) / 20000) * 100;
+assert(heute.scEkRendite !== null && near(heute.scEkRendite, ekRenditeErwartet), `EK-Rendite mit Eigenkapital (${heute.scEkRendite?.toFixed(2)} %)`);
+const ohneEk = berechneSzenario({ ...basis, ek: 0 }, KEINE_DELTAS);
+assert(ohneEk.scEkRendite === null, 'EK = 0: EK-Rendite null statt 0 %');
+assert(berechneSzenario({ ...basis, ek: 0 }, STRESSTESTS[3].deltas).scEkRendite === null, 'EK = 0 und Stresstest "Mehr Eigenkapital": weiterhin null');
+assert(berechneSzenario(basis, { ...KEINE_DELTAS, ekPct: -100 }).scEkRendite === null, 'Eigenkapital per Regler auf 0 € gesenkt: null');
+assert(ohneEk.scEkQuote === 0 && Number.isFinite(ohneEk.scCashflowAfterTax), 'EK = 0: übrige Kennzahlen bleiben Zahlen');
+
 console.log('\nAlle Szenario-Tests bestanden.');

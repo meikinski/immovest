@@ -8,6 +8,8 @@ import { useAuth } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
 import { saveAnalysis, saveScenario } from '@/lib/storage';
 import { toast } from 'sonner';
+import { usePaywall } from '@/contexts/PaywallContext';
+import { meldeAnalyseGespeichert } from '@/lib/analytics';
 
 interface ScenarioData {
   mieteDeltaPct: number;
@@ -79,6 +81,7 @@ function fingerabdruck(state: Record<string, unknown>, scenarioData?: ScenarioDa
 
 export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
   const { userId } = useAuth();
+  const { isPremium } = usePaywall();
   const [isSaving, setIsSaving] = useState(false);
   // Stand, der zuletzt gespeichert wurde. Der Knopf zeigt „Gespeichert“, bis sich etwas ändert.
   const [gespeicherterStand, setGespeicherterStand] = useState<string | null>(null);
@@ -95,7 +98,7 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
 
     try {
       const result = { analysisId: await speichereAnalyse(userId) };
-      console.log('✅ Analyse gespeichert:', result.analysisId);
+      meldeAnalyseGespeichert({ analysisId: result.analysisId, saveType: 'manual', plan: isPremium ? 'premium' : 'free' });
 
       // Save scenario if there are any changes
       if (scenarioData) {

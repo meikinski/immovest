@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { updateUserPlan } from '@/lib/onboarding';
+import { istInternerNutzer } from '@/lib/internalTraffic';
 import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -80,21 +81,19 @@ async function sendGA4PurchaseServerSide({
   const isYearly = planType === 'yearly';
   const planId = isYearly ? 'premium_yearly' : 'premium_monthly';
   const itemName = isYearly
-    ? 'Imvestr Premium – Jahresabo'
-    : 'Imvestr Premium – Monatsabo';
+    ? 'imvestr Premium – Jahresabo'
+    : 'imvestr Premium – Monatsabo';
 
-  // Use the GA4 browser client_id (_ga cookie) if captured at checkout start.
-  // Same client_id = GA4 de-duplicates via transaction_id → no double-counting.
-  // Falls back to userId if cookie wasn't captured (e.g. adblocker).
+  // GA4-client_id aus dem _ga-Cookie (beim Checkout-Start erfasst): gleiche client_id wie im Browser,
+  // GA4 dedupliziert purchase dann über transaction_id. Ohne Cookie (Adblocker) eine zufällige ID,
+  // keine Konto-ID: Events enthalten keine personenbezogenen Daten.
   const gaClientId = (session as Stripe.Checkout.Session & { metadata?: Record<string, string> }).metadata?.ga_client_id;
-  const clientId = gaClientId || userId;
+  const clientId = gaClientId || `${Math.floor(Math.random() * 2 ** 31)}.${Math.floor(Date.now() / 1000)}`;
+  const intern = await istInternerNutzer(userId);
 
   const payload = {
     client_id: clientId,
-    user_id: userId,
-    // Explicit user_properties so Jonas can segment Free→Paid in GA4 reports
     user_properties: {
-      clerk_user_id: { value: userId },
       subscription_plan: { value: planId },
     },
     events: [
@@ -104,6 +103,8 @@ async function sendGA4PurchaseServerSide({
           transaction_id: sessionId,
           value,
           currency: currency.toUpperCase(),
+          plan: isYearly ? 'yearly' : 'monthly',
+          ...(intern ? { traffic_type: 'internal' } : {}),
           subscription_plan_id: planId,
           subscription_interval: isYearly ? 'year' : 'month',
           items: [

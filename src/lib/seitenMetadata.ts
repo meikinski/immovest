@@ -21,5 +21,6 @@ export const SCHRITT_TITEL: Record<string, string> = {
   a2: 'Schritt 2 von 4: Objektdaten',
   b: 'Schritt 3 von 4: Miete & Kosten',
   c: 'Schritt 4 von 4: Finanzierung',
+  pruefen: 'Angaben prüfen',
   tabs: 'Ergebnis deiner Analyse',
 };

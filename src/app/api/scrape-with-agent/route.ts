@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 import { detectPortal, isLikelyRealEstateListing } from '@/lib/portalDetection';
 import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
+import { kiSchutz } from '@/lib/kostenSchutz';
 import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 /**
@@ -67,6 +68,10 @@ async function handlePOST(req: NextRequest) {
       );
     }
 
+    // Kostenschutz: Rate Limit (IP bzw. Nutzer) und KI-Tagesbudget, erst nach den kostenlosen Prüfungen
+    const schutz = await kiSchutz(req, { route: '/api/scrape-with-agent', bucket: 'import', ki: true });
+    if (!schutz.ok) return schutz.response;
+
     // Collect warnings array
     const warnings: string[] = [];
 
@@ -83,20 +88,21 @@ async function handlePOST(req: NextRequest) {
 
     const input: UrlScraperInput = { url };
     // Fehlende Angaben und Platzhalter (z. B. 1 € bei "Preis auf Anfrage") bleiben leer und werden benannt
-    const { daten: result, fehlend } = pruefeImport(await runUrlScraper(input));
+    // Unplausibles Hausgeld (= Kaltmiete oder über 60 % davon) wird als unsicher markiert
+    const { daten: result, fehlend, unsicher } = pruefeImport(await runUrlScraper(input));
 
-    // Konvertiere zu Frontend-Format
+    // Konvertiere zu Frontend-Format. Fehlende Angaben bleiben null (nie 0 oder 1), der Store zeigt sie als leeres Feld.
     const data: Record<string, unknown> = {
-      kaufpreis: result.kaufpreis || 0,
-      flaeche: result.flaeche || 0,
+      kaufpreis: result.kaufpreis ?? null,
+      flaeche: result.flaeche ?? null,
       zimmer: result.zimmer || 0,
       baujahr: result.baujahr || 0,
       adresse: result.adresse || '',
-      miete: result.miete || 0,
-      hausgeld: result.hausgeld || 0,
-      hausgeld_umlegbar: result.hausgeld_umlegbar || 0,
+      miete: result.miete ?? null,
+      hausgeld: result.hausgeld ?? null,
+      hausgeld_umlegbar: result.hausgeld === null ? null : result.hausgeld_umlegbar ?? null,
       // Wenn hausgeld_nicht_umlegbar nicht angegeben, berechne aus Differenz
-      hausgeld_nicht_umlegbar: result.hausgeld_nicht_umlegbar ||
+      hausgeld_nicht_umlegbar: result.hausgeld === null ? null : result.hausgeld_nicht_umlegbar ||
         ((result.hausgeld || 0) - (result.hausgeld_umlegbar || 0)),
       objekttyp: normalizeObjekttyp(result.objekttyp),
       anzahl_wohneinheiten: result.anzahl_wohneinheiten || 0,
@@ -133,7 +139,8 @@ async function handlePOST(req: NextRequest) {
       warnings: allWarnings,
       // Fehlende Angaben (Feldschlüssel) und Hinweise in Anzeigeform für die Eingabeseiten
       fehlend,
-      hinweise: bereinigeHinweise(allWarnings, fehlend),
+      unsicher,
+      hinweise: bereinigeHinweise(allWarnings, fehlend, unsicher),
       _meta: {
         portal: portalInfo.name,
         portalSupported: portalInfo.supported,

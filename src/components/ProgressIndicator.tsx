@@ -1,6 +1,6 @@
 import React from 'react';
 
-type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'tabs';
+type Step = 'input-method' | 'a' | 'a2' | 'b' | 'c' | 'pruefen' | 'tabs';
 
 interface ProgressProps {
   currentStep: Step;
