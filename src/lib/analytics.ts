@@ -39,7 +39,7 @@ export const trackEvent = (
 };
 
 /**
- * Pre-defined events for ImVestr SaaS
+ * Pre-defined events for imvestr SaaS
  * These align with key conversion points
  */
 export const AnalyticsEvents = {

@@ -51,14 +51,14 @@ export async function POST(req: NextRequest) {
 
     console.log(`[API] Portal detected: ${portalInfo.name} (supported: ${portalInfo.supported}, reliability: ${portalInfo.reliability})`);
 
-    // Early exit for unsupported portals (especially ImmobilienScout24)
+    // Early exit for unknown portals
     if (!portalInfo.supported) {
       console.warn(`[API] ❌ Portal not supported: ${portalInfo.name}`);
       return NextResponse.json(
         {
           success: false,
           error: portalInfo.warning || `Portal "${portalInfo.name}" wird aktuell nicht unterstützt.`,
-          details: portalInfo.warning || `Portal "${portalInfo.name}" wird aktuell nicht unterstützt.\n\n💡 Alternativen:\n• Gib die Daten manuell ein\n• Nutze Immowelt oder eBay Kleinanzeigen`,
+          details: portalInfo.warning || `Portal "${portalInfo.name}" wird aktuell nicht unterstützt.`,
           portal: portalInfo.name,
         },
         { status: 400 }
@@ -149,20 +149,14 @@ export async function POST(req: NextRequest) {
       const portalInfo = detectPortal(url);
       portalName = portalInfo.name;
 
-      // Enhance error message based on portal support and error type
+      // Technische Fehler in eine klare Ursache übersetzen. Die Alternativen (Foto/Screenshot scannen,
+      // manuelle Eingabe) bietet die Eingabeseite bei jedem fehlgeschlagenen Import einheitlich an.
       if (!portalInfo.supported) {
-        enhancedErrorMessage = `Portal "${portalName}" wird noch nicht unterstützt.\n\n💡 Tipp: Gib die Daten manuell ein.`;
+        enhancedErrorMessage = `Portal "${portalName}" wird beim Link-Import noch nicht unterstützt.`;
       } else if (error.message.includes('403') || error.message.includes('Forbidden') || error.message.includes('blocked') || error.message.includes('Browser-Automation ist in dieser Umgebung nicht verfügbar')) {
-        // Special handling for blocked/403 errors
-        if (portalName === 'ImmobilienScout24' || portalName.includes('immobilienscout')) {
-          enhancedErrorMessage = `ImmobilienScout24 hat den Zugriff gerade blockiert.\n\n💡 Alternativen:\n• Versuch es in ein paar Minuten nochmal\n• Gib die Daten manuell ein`;
-        } else {
-          enhancedErrorMessage = `${portalName} blockiert den Zugriff.\n\n💡 Alternativen:\n• Gib die Daten manuell ein\n• Probier's mit einem anderen Portal`;
-        }
-      } else if (error.message.includes('Fehlende Informationen')) {
-        enhancedErrorMessage = `${error.message}\n\n💡 Lösung: Gib die fehlenden Daten manuell ein.`;
+        enhancedErrorMessage = `Die Anzeige von ${portalName} konnte gerade nicht abgerufen werden. Versuch es in ein paar Minuten nochmal.`;
       } else if (error.message.includes('keine Immobilien-Exposé-Daten')) {
-        enhancedErrorMessage = `Keine Daten gefunden. Stelle sicher, dass der Link zu einem einzelnen Angebot führt.\n\n💡 Lösung: Gib die Daten manuell ein.`;
+        enhancedErrorMessage = 'Keine Daten gefunden. Stelle sicher, dass der Link zu einem einzelnen Angebot führt.';
       }
     } catch {
       // Portal detection failed, use generic error

@@ -41,7 +41,7 @@ const webSearchForScraping = webSearchTool({
 // Scraper Agent for web search tool (primary method)
 const scraperAgent = new Agent({
   name: 'ImmobilienScraper',
-  instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, Kleinanzeigen, eBay Kleinanzeigen, etc.).
+  instructions: `Du extrahierst Daten aus Immobilien-Anzeigen (ImmobilienScout24, Immowelt, Kleinanzeigen, etc.).
 
 🚨🚨🚨 SCHRITT 1 - PROVISION ZUERST SUCHEN! 🚨🚨🚨
 
@@ -371,22 +371,22 @@ function extractUrlFromText(input: string): string {
 }
 
 /**
- * Normalisiert eBay Kleinanzeigen URLs von verschiedenen Quellen (App, Mobile, Desktop)
+ * Normalisiert Kleinanzeigen-URLs von verschiedenen Quellen (App, Mobile, Desktop)
  * - Konvertiert mobile URLs (m.kleinanzeigen.de) zu Desktop (www.kleinanzeigen.de)
  * - Konvertiert alte Domain (ebay-kleinanzeigen.de) zu neuer Domain (kleinanzeigen.de)
  * - Behandelt App Deep Links und Share-URLs
  */
-function normalizeEbayKleinanzeigenUrl(url: string): string {
+function normalizeKleinanzeigenUrl(url: string): string {
   try {
     const urlObj = new URL(url);
 
-    // Check if it's an eBay Kleinanzeigen URL
+    // Check if it's a Kleinanzeigen URL
     const isKleinanzeigen =
       urlObj.hostname.includes('kleinanzeigen.de') ||
       urlObj.hostname.includes('ebay-kleinanzeigen.de');
 
     if (!isKleinanzeigen) {
-      return url; // Not an eBay Kleinanzeigen URL, return as is
+      return url; // Not a Kleinanzeigen URL, return as is
     }
 
     // Normalize domain variations
@@ -407,7 +407,7 @@ function normalizeEbayKleinanzeigenUrl(url: string): string {
 
     const normalizedUrl = urlObj.toString();
     if (normalizedUrl !== url) {
-      console.log(`[URL Normalizer] eBay Kleinanzeigen: ${url} → ${normalizedUrl}`);
+      console.log(`[URL Normalizer] Kleinanzeigen: ${url} → ${normalizedUrl}`);
     }
 
     return normalizedUrl;
@@ -439,8 +439,8 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     trimmedUrl = urlWithoutFragment;
   }
 
-  // Normalize eBay Kleinanzeigen URLs (mobile app, old domain, etc.)
-  trimmedUrl = normalizeEbayKleinanzeigenUrl(trimmedUrl);
+  // Normalize Kleinanzeigen URLs (mobile app, old domain, etc.)
+  trimmedUrl = normalizeKleinanzeigenUrl(trimmedUrl);
 
   // Log the final URL being processed
   console.log('[URL Scraper] Processing URL:', trimmedUrl);
@@ -451,11 +451,11 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     // URL parse failed, but continue anyway
   }
 
-  // ImmobilienScout24: website blocks bots, use the mobile app API instead (no AI needed)
+  // ImmobilienScout24: fetched via the mobile app API (no AI needed)
   if (isImmoscoutUrl(trimmedUrl)) {
     const exposeId = extractImmoscoutExposeId(trimmedUrl);
     if (!exposeId) {
-      throw new Error('Keine ImmoScout24-Anzeige erkannt. Der Link muss zu einem einzelnen Exposé führen (…/expose/123456789).\n\n💡 Lösung: Öffne die Anzeige und kopiere den Link erneut.');
+      throw new Error('Keine ImmoScout24-Anzeige erkannt. Der Link muss zu einem einzelnen Exposé führen (…/expose/123456789). Öffne die Anzeige und kopiere den Link erneut.');
     }
 
     console.log(`[URL Scraper] 🏠 ImmobilienScout24 detected – fetching expose ${exposeId} via mobile API`);
@@ -466,7 +466,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
       if (!mapped.kaufpreis) missing.push('Kaufpreis');
       if (!mapped.flaeche) missing.push('Wohnfläche');
       if (!mapped.adresse) missing.push('Adresse');
-      throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}\n\n💡 Lösung: Gib die fehlenden Daten manuell ein.`);
+      throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}.`);
     }
 
     return validateAndFixOutput(mapped);
@@ -520,7 +520,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
 
       if (!proxyResult.success || !proxyResult.html) {
         console.error('[URL Scraper] ❌ Smart Proxy failed:', proxyResult.error);
-        throw new Error('Seite konnte nicht geladen werden.\n\n💡 Lösung: Gib die Daten manuell ein.');
+        throw new Error('Die Seite konnte nicht geladen werden.');
       }
 
       console.log(`[URL Scraper] ✅ Smart Proxy succeeded with method: ${proxyResult.method} - extracted ${proxyResult.html.length} chars of HTML`);
@@ -544,13 +544,13 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
       console.error('[URL Scraper] ❌ Smart Proxy also failed:', proxyError);
 
       // Both methods failed - provide clear guidance
-      throw new Error('Zugriff blockiert.\n\n💡 Lösung: Gib die Daten manuell ein oder probier ein anderes Portal (Immowelt, eBay Kleinanzeigen).');
+      throw new Error('Die Anzeige konnte gerade nicht abgerufen werden.');
     }
   }
 
   // Validation (same for both methods)
   if (!result.finalOutput) {
-    throw new Error('Keine Daten gefunden. Stelle sicher, dass der Link zu einem Angebot führt.\n\n💡 Lösung: Gib die Daten manuell ein.');
+    throw new Error('Keine Daten gefunden. Stelle sicher, dass der Link zu einem einzelnen Angebot führt.');
   }
 
   console.log('[URL Scraper] Complete (before validation):', {
@@ -574,7 +574,7 @@ export async function runUrlScraper(input: UrlScraperInput): Promise<UrlScraperR
     if (!result.finalOutput.flaeche) missing.push('Wohnfläche');
     if (!result.finalOutput.adresse) missing.push('Adresse');
 
-    throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}\n\n💡 Lösung: Gib die fehlenden Daten manuell ein.`);
+    throw new Error(`Unvollständige Daten. Fehlend: ${missing.join(', ')}.`);
   }
 
   // POST-PROCESSING VALIDATION: Fix common AI mistakes

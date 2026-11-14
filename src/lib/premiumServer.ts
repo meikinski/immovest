@@ -5,21 +5,6 @@ import { GRATIS_ANALYSEN } from '@/lib/preise';
  * Prüft serverseitig, ob der Nutzer Premium hat oder noch in seiner kostenlosen Analyse ist.
  * Welche Wohnung die kostenlose ist, merkt sich der Client; hier zählt nur das Kontingent.
  */
-/** Prüft serverseitig, ob der Nutzer ein aktives Premium-Abo hat (z. B. für Speichern) */
-export async function istPremium(userId: string): Promise<boolean> {
-  const supabase = getSupabaseServerClient();
-  if (!supabase) return false;
-
-  const { data, error } = await supabase
-    .from('user_premium_usage')
-    .select('is_premium, premium_until')
-    .eq('user_id', userId)
-    .maybeSingle();
-
-  if (error || !data) return false;
-  return !!data.is_premium && !!data.premium_until && new Date(data.premium_until) > new Date();
-}
-
 export async function darfVollanalyse(userId: string): Promise<boolean> {
   const supabase = getSupabaseServerClient();
   if (!supabase) return false;

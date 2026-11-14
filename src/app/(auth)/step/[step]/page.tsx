@@ -32,7 +32,7 @@ import { SecondAnalysisPaywall } from '@/components/SecondAnalysisPaywall';
 import { PurchaseTracker } from '@/components/konto/PurchaseTracker';
 import { stelleAnalyseNachCheckoutWiederHer, vergissGesicherteAnalyse } from '@/lib/checkoutRueckkehr';
 import { UpsellBanner } from '@/components/UpsellBanner';
-import { SaveAnalysisButton } from '@/components/SaveAnalysisButton';
+import { SaveAnalysisButton, speichereAnalyse } from '@/components/SaveAnalysisButton';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { toast } from 'sonner';
@@ -941,16 +941,44 @@ const dscr =
     try { if (freigabeSpeicher) localStorage.setItem(freigabeSpeicher, gratisSchluessel); } catch { /* privater Modus */ }
   }, [step, activeTab, isSignedIn, premiumStatusLoaded, isPremium, gratisSchluessel, canAccessPremium, gratisFreigabe, freigabeSpeicher, incrementPremiumUsage]);
 
+  // Die kostenlose vollständige Analyse bleibt im Konto gespeichert: automatisch, sobald sie freigeschaltet ist,
+  // und erneut, wenn Marktdaten oder KI-Einschätzung dazukommen. Der Speichern-Knopf bleibt für alle weiteren Stände.
+  const istGratisAnalyse = !!isSignedIn && premiumStatusLoaded && !isPremium && !!gratisSchluessel && gratisFreigabe === gratisSchluessel;
+  useEffect(() => {
+    if (step !== 'tabs' || !istGratisAnalyse || !(kaufpreis > 0)) return;
+    const t = setTimeout(() => {
+      speichereAnalyse(userId).catch(e => console.warn('[Analyse] Automatisches Speichern fehlgeschlagen', e));
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [step, istGratisAnalyse, kaufpreis, userId, marktFacts, generatedComment, lageComment, investComment]);
+
+  // Neues Gerät oder gelöschte Browserdaten: Die Freigabe steht nur im Browser. Wird die gespeicherte
+  // Gratis-Analyse (mit Marktdaten) wieder geöffnet, gilt sie weiter als freigeschaltet.
+  useEffect(() => {
+    if (step !== 'tabs' || !freigabeSpeicher || !premiumStatusLoaded || isPremium || canAccessPremium) return;
+    if (!gratisSchluessel || !analysisId || !marktFacts) return;
+    try {
+      if (localStorage.getItem(freigabeSpeicher) !== null) return;
+      localStorage.setItem(freigabeSpeicher, gratisSchluessel);
+    } catch { return; /* privater Modus */ }
+    queueMicrotask(() => setGratisFreigabe(gratisSchluessel));
+  }, [step, freigabeSpeicher, premiumStatusLoaded, isPremium, canAccessPremium, gratisSchluessel, analysisId, marktFacts]);
+
   // analysis_completed: einmal pro Analyse, sobald die Ergebnisseite mit Zahlen steht
   // (erst wenn Anmeldung und Plan bekannt sind, damit die Parameter stimmen)
+  const completedGemeldet = useRef<string | null>(null);
   useEffect(() => {
     if (!mounted || step !== 'tabs' || !(kaufpreis > 0)) return;
     if (isSignedIn === undefined || (isSignedIn && !premiumStatusLoaded)) return;
     const schluessel = analysisId || gratisSchluessel || `kaufpreis_${kaufpreis}`;
+    // Bekommt die Analyse erst beim (automatischen) Speichern ihre ID, nicht ein zweites Mal melden
+    const wohnung = gratisSchluessel || `kaufpreis_${kaufpreis}`;
+    if (completedGemeldet.current === wohnung) return;
     const speicher = 'analytics_analysis_completed';
     let erledigt: string[] = [];
     try { erledigt = JSON.parse(localStorage.getItem(speicher) || '[]'); } catch { /* privater Modus */ }
     if (erledigt.includes(schluessel)) return;
+    completedGemeldet.current = wohnung;
     trackEvent(AnalyticsEvents.ANALYSIS_COMPLETED, {
       input_method: leseEingabeMethode(),
       object_type: objekttyp,
@@ -2802,7 +2830,9 @@ const exportPdf = React.useCallback(async () => {
           kaufpreis={kaufpreis}
           flaeche={flaeche}
           zimmer={zimmer}
+          gratisAdresse={gratisFreigabe}
           quelle={upgradeTrigger}
+          onGratisAnalyseGeladen={() => setActiveTab('kpi')}
         />
       ) : (
         <UpgradeModal

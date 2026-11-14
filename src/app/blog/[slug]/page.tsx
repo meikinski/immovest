@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
 
   return {
-    title: `${post.title} | Imvestr Blog`,
+    title: `${post.title} | imvestr Blog`,
     description: post.description,
     authors: [{ name: post.author }],
     alternates: {
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: `${BASE_URL}/blog/${post.slug}`,
       title: post.title,
       description: post.description,
-      siteName: 'Imvestr',
+      siteName: 'imvestr',
       publishedTime: post.date,
       modifiedTime: post.lastModified,
       authors: [post.author],
@@ -89,7 +89,7 @@ export default async function BlogPostPage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: "Imvestr",
+      name: "imvestr",
       url: BASE_URL,
     },
     mainEntityOfPage: {
@@ -214,7 +214,7 @@ export default async function BlogPostPage({ params }: Props) {
               Bereit, dein erstes Investment zu analysieren?
             </h2>
             <p className="text-gray-300 mb-7 text-sm leading-relaxed max-w-md mx-auto">
-              Imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
+              imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
               Exposé-Link eingeben und loslegen.
             </p>
             <Link

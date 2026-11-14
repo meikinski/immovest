@@ -47,7 +47,7 @@ function NeueAnalyseKnopf({ klein = false }: { klein?: boolean }) {
 export default function MeineAnalysenPage() {
   const router = useRouter();
   const { userId } = useAuth();
-  // Speichern gibt es nur mit Premium; früher gespeicherte Analysen bleiben für alle sichtbar
+  // Speichern ist kostenlos: jede angemeldete Person sieht ihre gespeicherten Analysen
   const { analysen, laedt, loeschen } = useGespeicherteAnalysen();
   const loadAnalysis = useImmoStore(s => s.loadAnalysis);
   const [suche, setSuche] = useState('');
@@ -107,7 +107,7 @@ export default function MeineAnalysenPage() {
         <section className="mx-auto max-w-xl rounded-2xl border border-slate-200/80 bg-white p-8 text-center shadow-sm">
           <h2 className="text-lg font-bold text-[#001d3d]">Noch keine Analysen gespeichert</h2>
           <p className="mx-auto mt-2 max-w-md text-sm text-slate-600">
-            Mit Premium speicherst du Analysen im Tab „Szenarien &amp; PDF Export“. Sie erscheinen dann hier.
+            Deine kostenlose vollständige Analyse wird automatisch gespeichert. Weitere speicherst du im Tab „Szenarien &amp; PDF Export“.
           </p>
           <div className="mt-6"><NeueAnalyseKnopf /></div>
         </section>
