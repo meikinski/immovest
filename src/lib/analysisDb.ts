@@ -6,6 +6,7 @@
 // Ältere Zeilen haben kein client_id – dort dient die UUID selbst als analysisId.
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SavedAnalysis } from '@/lib/storage';
+import { grunderwerbsteuerFuerAdresse } from '@/lib/grunderwerbsteuer';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -176,6 +177,22 @@ function zahl(v: unknown, fallback = 0): number {
 
 const text = (v: unknown) => (typeof v === 'string' ? v : '');
 
+/** Positive Zahl oder null: fehlende Pflichtangaben bleiben leer, nie 0 oder 1. */
+function zahlOderNull(v: unknown): number | null {
+  const n = zahl(v, NaN);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Grunderwerbsteuersatz für die Spaltenkopie: gespeicherter Satz, sonst aus der PLZ der Adresse, sonst null.
+ * Nie pauschal 6,5 %. Ein bewusst eingetragener Satz von 0 bleibt 0.
+ */
+export function grunderwerbsteuerSpalte(data: Row): number | null {
+  const n = zahl(data.grunderwerbsteuer_pct, NaN);
+  if (Number.isFinite(n) && (n > 0 || (n === 0 && data.grunderwerbsteuerManuell === true))) return n;
+  return grunderwerbsteuerFuerAdresse(text(data.adresse))?.satz ?? null;
+}
+
 /**
  * Macht den Payload datenbanktauglich: Postgres lehnt \u0000 in TEXT und JSONB ab (kann in gescrapten
  * Texten vorkommen), und NaN/Infinity (z. B. aus 1e999 im JSON) werden zu null.
@@ -211,22 +228,23 @@ export function buildAnalysisRow(userId: string, payload: Row): { clientId: stri
     analysis_name: text(data.analysisName).trim() || text(data.adresse).trim() || 'Unbenannt',
 
     // Objekt
-    kaufpreis: zahl(data.kaufpreis),
+    kaufpreis: zahlOderNull(data.kaufpreis),
     adresse: text(data.adresse),
-    flaeche: zahl(data.flaeche),
+    flaeche: zahlOderNull(data.flaeche),
     zimmer: zahl(data.zimmer),
     baujahr: Math.round(zahl(data.baujahr, new Date().getFullYear())),
 
     // Finanzierung
-    miete: zahl(data.miete),
-    hausgeld: zahl(data.hausgeld),
-    hausgeld_umlegbar: zahl(data.hausgeld_umlegbar),
+    miete: zahlOderNull(data.miete),
+    // Hausgeld 0 ist nur bei Häusern ein echter Wert, bei Wohnungen heißt es "fehlt"
+    hausgeld: data.hausgeld == null || (zahl(data.hausgeld) <= 0 && (data.objekttyp ?? 'wohnung') === 'wohnung') ? null : zahl(data.hausgeld),
+    hausgeld_umlegbar: data.hausgeld_umlegbar == null ? null : zahl(data.hausgeld_umlegbar),
     ek: zahl(data.ek),
     zins: zahl(data.zins, 3.5),
     tilgung: zahl(data.tilgung, 2),
 
     // Kosten und Steuern
-    grunderwerbsteuer_pct: zahl(data.grunderwerbsteuer_pct, 6.5),
+    grunderwerbsteuer_pct: grunderwerbsteuerSpalte(data),
     notar_pct: zahl(data.notar_pct, 2),
     makler_pct: zahl(data.makler_pct, 3.57),
     mietausfall_pct: zahl(data.mietausfall_pct),
@@ -333,7 +351,18 @@ export async function saveAnalysisRow(
       }
     }
 
-    // 3) Jeder andere Fehler an den Spaltenkopien (Text zu lang für VARCHAR, Zahl zu groß, CHECK …):
+    // 3) Spalte ist (vor der Migration) NOT NULL, die Angabe fehlt aber → Spaltenkopie weglassen.
+    //    Der exakte Wert (null) steht in state. Migration: supabase/migrations/2026-11-14_fehlende_werte_null.sql
+    if (error.code === '23502' && 'state' in row) {
+      const spalte = /column "([^"]+)"/.exec(error.message ?? '')?.[1] ?? '';
+      if (spalte && spalte in row && row[spalte] === null && !PFLICHT_SPALTEN.has(spalte)) {
+        row = Object.fromEntries(Object.entries(row).filter(([k]) => k !== spalte));
+        hinweise.push(`Spalte NOT NULL, fehlende Angabe weggelassen (null in state): ${spalte}`);
+        continue;
+      }
+    }
+
+    // 4) Jeder andere Fehler an den Spaltenkopien (Text zu lang für VARCHAR, Zahl zu groß, CHECK …):
     //    nur noch Name, ID und den kompletten Zustand schreiben. Die Analyse geht nicht verloren und
     //    lässt sich vollständig öffnen; in der Liste stehen bis zur Migration Standardwerte.
     //    Hilft nicht bei einer Pflichtspalte, die die App gar nicht schreibt (23502) – die nennt das Log.

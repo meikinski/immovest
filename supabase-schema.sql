@@ -15,22 +15,22 @@ CREATE TABLE IF NOT EXISTS analyses (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
   -- Property data
-  kaufpreis NUMERIC NOT NULL DEFAULT 0,
+  kaufpreis NUMERIC, -- NULL = fehlt (z. B. "Preis auf Anfrage")
   adresse TEXT NOT NULL DEFAULT '',
-  flaeche NUMERIC NOT NULL DEFAULT 0,
+  flaeche NUMERIC,
   zimmer NUMERIC NOT NULL DEFAULT 0, -- auch 2,5 Zimmer
   baujahr INTEGER NOT NULL DEFAULT 2024,
 
   -- Financial data
-  miete NUMERIC NOT NULL DEFAULT 0,
-  hausgeld NUMERIC NOT NULL DEFAULT 0,
-  hausgeld_umlegbar NUMERIC NOT NULL DEFAULT 0,
+  miete NUMERIC,
+  hausgeld NUMERIC,
+  hausgeld_umlegbar NUMERIC,
   ek NUMERIC NOT NULL DEFAULT 0,
   zins NUMERIC NOT NULL DEFAULT 3.5,
   tilgung NUMERIC NOT NULL DEFAULT 2,
 
   -- Costs and taxes
-  grunderwerbsteuer_pct NUMERIC NOT NULL DEFAULT 6.5,
+  grunderwerbsteuer_pct NUMERIC, -- NULL = Bundesland unbekannt, kein pauschaler Satz
   notar_pct NUMERIC NOT NULL DEFAULT 2,
   makler_pct NUMERIC NOT NULL DEFAULT 3.57,
   mietausfall_pct NUMERIC NOT NULL DEFAULT 0,

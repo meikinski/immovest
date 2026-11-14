@@ -116,7 +116,7 @@ export default function InputMethodPage() {
 
       const { warnings } = result;
       // Fehlende Angaben und Platzhalter bleiben leer und werden auf der ersten Eingabeseite genannt
-      const { daten: data, fehlend } = pruefeImport({ objekttyp: 'wohnung', ...result.data });
+      const { daten: data, fehlend, unsicher } = pruefeImport({ objekttyp: 'wohnung', ...result.data });
 
       // Reset form before importing new data
       resetAnalysis();
@@ -134,7 +134,8 @@ export default function InputMethodPage() {
         hausgeld_umlegbar: data.hausgeld_umlegbar || 0,
         objekttyp: data.objekttyp || 'wohnung',
         importFehlend: fehlend,
-        importHinweise: bereinigeHinweise(warnings, fehlend),
+        importUnsicher: unsicher,
+        importHinweise: bereinigeHinweise(warnings, fehlend, unsicher),
       });
 
       // Generate analysis ID without saving (user must explicitly save)
@@ -203,6 +204,7 @@ export default function InputMethodPage() {
         importData({
           ...result.data,
           importFehlend: fehlend,
+          importUnsicher: Array.isArray(result.unsicher) ? result.unsicher : [],
           importHinweise: Array.isArray(result.hinweise) ? result.hinweise : [],
         });
 

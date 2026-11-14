@@ -1,12 +1,26 @@
 /**
  * Grunderwerbsteuersätze je Bundesland (in % des Kaufpreises).
  *
- * Zuletzt geprüft: siehe GRUNDERWERBSTEUER_STAND.
- * Quelle der Prüfung: Abgleich mehrerer 2026 aktualisierter Übersichten (u. a. schiffer.immo,
- * kaufodermieten.de, deutschland-rechner.de). Die amtlichen Seiten (Landesfinanzverwaltungen, BMF) konnten bei
- * der letzten Prüfung nicht automatisch abgerufen werden. Vor einer Änderung bitte dort gegenprüfen.
+ * Zuletzt geprüft: siehe GRUNDERWERBSTEUER_STAND. Jeder Satz wurde gegen eine amtliche Seite des Landes
+ * (Finanzverwaltung, Landesrecht oder Gesetzblatt) abgeglichen:
+ *   BW 5,0  finanzamt-bw.fv-bwl.de (FAQ "Wann muss ich Grunderwerbsteuer zahlen und wie hoch ist diese?")
+ *   BY 3,5  lfst.bayern.de/steuerinfos/haeufig-gestellte-fragen/grunderwerbsteuer
+ *   BE 6,0  berlin.de/sen/finanzen (FAQ Grunderwerbsteuer)
+ *   BB 6,5  finanzamt.brandenburg.de/fa/de/steuern/steuerinformationen/grunderwerbsteuer, bravors.brandenburg.de/gesetze/mdf_2015
+ *   HB 5,5  gesetzblatt.bremen.de (GBl. 2025 Nr. 9, gilt ab 01.07.2025)
+ *   HH 5,5  hamburg.de/service/info/11311613 (Grunderwerbsteuer, Informationen und Zuständigkeit)
+ *   HE 6,0  verwaltungsportal.hessen.de (Grunderwerbsteuer festsetzen)
+ *   MV 6,0  steuerportal-mv.de (Rund ums Grundstück, Grunderwerbsteuer)
+ *   NI 5,0  voris (GrEStFG NI), lstn.niedersachsen.de (FAQ)
+ *   NW 6,5  finanzamt.nrw.de (Grunderwerbsteuer: Wissenswertes), recht.nrw.de (Gesetz vom 01.01.2015)
+ *   RP 5,0  fm.rlp.de/themen/steuerrecht/fragen-und-antworten
+ *   SL 6,5  service.saarland.de (Bescheid über Grunderwerbsteuer erhalten)
+ *   SN 5,5  steuern.sachsen.de/grunderwerb-und-grundsteuer-4009.html
+ *   ST 5,0  buerger.sachsen-anhalt.de, Statistisches Landesamt Sachsen-Anhalt
+ *   SH 6,5  schleswig-holstein.de (Landeshaushalt, Einzelplan 11, Entwurf 2026)
+ *   TH 5,0  parldok.thueringer-landtag.de (Drs. 7/8722, ab 01.01.2024), finanzen.thueringen.de (Bilanz der Finanzämter 2025)
  * Letzte bekannte Änderungen: Bremen 5,0 → 5,5 % (01.07.2025), Thüringen 6,5 → 5,0 % (01.01.2024),
- * Hamburg 4,5 → 5,5 % und Sachsen 3,5 → 5,5 % (01.01.2023).
+ * Hamburg 4,5 → 5,5 % und Sachsen 3,5 → 5,5 % (01.01.2023). Vor einer Änderung bitte erneut amtlich prüfen.
  */
 export const GRUNDERWERBSTEUER_STAND = '2026-11-14';
 

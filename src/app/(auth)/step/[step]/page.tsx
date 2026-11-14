@@ -44,12 +44,12 @@ import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { LockedPreview } from '@/components/LockedPreview';
 import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
 import { TourLink } from '@/components/TourLink';
-import { berechneBruttomietrendite, berechneEkStartwert } from '@/lib/kennzahlen';
+import { berechneBruttomietrendite, berechneEkRendite, berechneEkStartwert, berechneNettomietrendite, type KennzahlenEingabe } from '@/lib/kennzahlen';
 import { formatZahl, formatZahlOderLeer, parseZahl } from '@/lib/zahlen';
 import { useFeldText } from '@/hooks/useFeldText';
 import { BUNDESLAENDER, istBundesland } from '@/config/grunderwerbsteuer';
 import { grunderwerbsteuerLabel } from '@/lib/grunderwerbsteuer';
-import { fehlendHinweis, type ImportFeld } from '@/lib/importPruefung';
+import { fehlendHinweis, hausgeldUnsicherHinweis, type ImportFeld } from '@/lib/importPruefung';
 
 
 
@@ -172,6 +172,8 @@ export default function StepPage() {
   const importFehlend = useImmoStore(s => s.importFehlend);
   const importHinweise = useImmoStore(s => s.importHinweise);
   const erledigeImportFeld = useImmoStore(s => s.erledigeImportFeld);
+  const importUnsicher = useImmoStore(s => s.importUnsicher);
+  const bestaetigeImportFeld = useImmoStore(s => s.bestaetigeImportFeld);
 
   const notarPct    = useImmoStore(s => s.notar_pct);
   const setNotarPct = useImmoStore(s => s.setNotarPct);
@@ -289,9 +291,6 @@ export default function StepPage() {
   const darlehensSumme     = kaufpreis + nk + sonstigeKosten - ek;
 
   const jahreskaltmiete     = miete * 12;
-  const bewirtschaftungskostenJ =
-    (hausgeld - hausgeld_umlegbar) * 12 + instandhaltungskostenProQm * flaeche;
-  const fkZinsenJahr        = darlehensSumme * (zins / 100);
 
   // --- Steuer-Berechnung (monatlich) ---
   // Local text states & defaults for Step B (UI-Eingaben in %/€)
@@ -387,7 +386,7 @@ export default function StepPage() {
     },
     netto: {
       title: 'Nettomietrendite',
-      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition × 100',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition × 100. Gesamtinvestition = Kaufpreis + Kaufnebenkosten (Grunderwerbsteuer, Notar, Makler) + sonstige Kosten',
       description: 'Bezieht laufende Kosten und Kaufnebenkosten ein und zeigt die realistischere Rendite.',
     },
     cfVor: {
@@ -402,8 +401,8 @@ export default function StepPage() {
     },
     ek: {
       title: 'EK-Rendite',
-      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung − Zinsen) ÷ Eigenkapital × 100',
-      description: 'Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer).',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung − Zinsen im 1. Jahr) ÷ Eigenkapital × 100',
+      description: 'Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Ohne Eigenkapital lässt sie sich nicht berechnen.',
     },
     dscr: {
       title: 'DSCR',
@@ -616,16 +615,20 @@ export default function StepPage() {
   // Bruttomietrendite: Jahreskaltmiete ÷ Kaufpreis (ohne Nebenkosten, übliche Definition)
   const bruttoMietrendite = berechneBruttomietrendite(jahreskaltmiete, kaufpreis);
 
-  const nettoMietrendite  = anschaffungskosten > 0
-    ? ((jahreskaltmiete - bewirtschaftungskostenJ) / anschaffungskosten) * 100
-    : 0;
+  // Nettomietrendite und EK-Rendite: dieselben Funktionen wie im Store (Speichern, Liste, Chat)
+  const kennzahlenEingabe: KennzahlenEingabe = {
+    kaufpreis, grunderwerbsteuerPct: grEStPct, notarPct, maklerPct, sonstigeKosten, miete, hausgeld,
+    hausgeldUmlegbar: hausgeld_umlegbar, instandhaltungProQmJahr: instandhaltungskostenProQm, flaeche,
+    mietausfallPct, ek, zins, tilgung,
+  };
+  // (Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition
+  const nettoMietrendite = berechneNettomietrendite(kennzahlenEingabe);
 
   // Alias
   const nettorendite = nettoMietrendite;
 
-  const ekRendite = ek > 0
-    ? ((jahreskaltmiete - bewirtschaftungskostenJ - fkZinsenJahr) / ek) * 100
-    : 0;
+  // null bei EK = 0: dann neutrale Anzeige statt 0,0 %
+  const ekRendite = berechneEkRendite(kennzahlenEingabe);
 
     // Debt Service Coverage Ratio (DSCR): Nettoeinnahmen / Kreditrate
 const dscr =
@@ -669,6 +672,9 @@ const dscr =
     else if (baujahr > jahr + 2) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr liegt zu weit in der Zukunft.');
 
     if (!(miete > 0)) add('miete', 'b', 'Kaltmiete', 'Bitte trag die Kaltmiete ein.');
+    if (objekttyp === 'wohnung' && importUnsicher.includes('hausgeld')) {
+      add('hausgeld', 'b', 'Hausgeld', 'Bitte bestätige das importierte Hausgeld oder korrigiere es.');
+    }
 
     if (ek === null || ek === undefined || ek < 0) add('ek', 'c', 'Eigenkapital', 'Bitte trag dein Eigenkapital ein.');
     if (zins === null || zins === undefined || zins < 0 || zins > 20) add('zins', 'c', 'Zinssatz', 'Der Zinssatz muss zwischen 0 und 20 % liegen.');
@@ -1147,7 +1153,8 @@ const dscr =
           cashflowNachSteuern: cashflowAfterTax,
           nettoMietrendite,
           bruttoMietrendite,
-          ekRendite,
+          // Ohne Eigenkapital keine EK-Rendite (Feld entfällt)
+          ekRendite: ekRendite ?? undefined,
           dscr,
           anschaffungskosten,
         }),
@@ -1954,6 +1961,24 @@ const exportPdf = React.useCallback(async () => {
               )}
             </div>
 
+            {/* Importiertes Hausgeld unplausibel (= Kaltmiete oder über 60 % davon): Nutzer muss bestätigen */}
+            {mounted && objekttyp === 'wohnung' && importUnsicher.includes('hausgeld') && hausgeld > 0 && miete > 0 && (
+              <div id="hausgeld-unsicher" role="alert" className="mt-4 p-4 bg-amber-50 border border-amber-300 rounded-2xl text-amber-900 text-sm flex items-start gap-3">
+                <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <p className="font-semibold">Hausgeld unsicher</p>
+                  <p className="text-xs mt-1">{hausgeldUnsicherHinweis(hausgeld, miete)}</p>
+                  <button
+                    type="button"
+                    onClick={() => bestaetigeImportFeld('hausgeld')}
+                    className="mt-3 inline-flex items-center rounded-xl border border-amber-400 bg-white px-3 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100 transition"
+                  >
+                    Hausgeld stimmt so
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Hinweise zu Hausgeld-Verteilung */}
             {objekttyp === 'wohnung' && (() => {
               const umlegbarNum = zahl(hausUmlegText) || 0;
@@ -2461,8 +2486,10 @@ const exportPdf = React.useCallback(async () => {
                 bruttoMietrendite >= 5 ? ['good', 'Stark'] : bruttoMietrendite >= 4 ? ['ok', 'Solide'] : ['bad', 'Niedrig'];
               const nettoRating: [KpiRating, string] =
                 nettoMietrendite >= 4 ? ['good', 'Stark'] : nettoMietrendite >= 3 ? ['good', 'Solide'] : nettoMietrendite >= 2 ? ['ok', 'Moderat'] : ['bad', 'Niedrig'];
-              const ekRating: [KpiRating, string] =
-                ekRendite >= 6 ? ['good', 'Stark'] : ekRendite >= 3 ? ['ok', 'Moderat'] : ['bad', 'Niedrig'];
+              // EK = 0: neutraler Zustand ohne Bewertung
+              const ekRating: [KpiRating, string] | [undefined, undefined] =
+                ekRendite === null ? [undefined, undefined]
+                  : ekRendite >= 6 ? ['good', 'Stark'] : ekRendite >= 3 ? ['ok', 'Moderat'] : ['bad', 'Niedrig'];
               const dscrRating: [KpiRating, string] =
                 dscr >= 1.2 ? ['good', 'Komfortabel'] : dscr >= 1.0 ? ['ok', 'Knapp'] : ['bad', 'Kritisch'];
               const cfVorRating = rateCf(cfVor);
@@ -2550,9 +2577,9 @@ const exportPdf = React.useCallback(async () => {
                 <KpiTile
                   icon={TrendingUp}
                   label="EK-Rendite"
-                  value={fmtNum(ekRendite, 1)}
-                  unit="%"
-                  caption="Auf eingesetztes Eigenkapital"
+                  value={ekRendite === null ? '–' : fmtNum(ekRendite, 1)}
+                  unit={ekRendite === null ? undefined : '%'}
+                  caption={ekRendite === null ? 'Ohne Eigenkapital nicht berechenbar' : 'Auf eingesetztes Eigenkapital'}
                   rating={ekRating[0]}
                   ratingLabel={ekRating[1]}
                   help="Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Je höher, desto effizienter arbeitet dein Eigenkapital."
