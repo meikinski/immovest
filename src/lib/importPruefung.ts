@@ -1,7 +1,9 @@
 /**
  * Prüfung importierter Inserate: Fehlende Angaben bleiben leer und werden benannt.
  * Portale liefern bei "Preis auf Anfrage" oft Platzhalter wie 1 €, die nie als echter Wert gelten dürfen.
+ * Unplausible Angaben (z. B. Hausgeld = Kaltmiete) werden als unsicher markiert und müssen bestätigt werden.
  */
+import { formatZahl } from './zahlen';
 
 export type ImportFeld = 'kaufpreis' | 'miete' | 'hausgeld' | 'flaeche' | 'adresse' | 'zimmer' | 'baujahr';
 
@@ -40,7 +42,31 @@ export type ImportErgebnis<T> = {
   daten: T;
   /** Fehlende Angaben in fester Reihenfolge */
   fehlend: ImportFeld[];
+  /** Vorhandene, aber unplausible Angaben, die der Nutzer bestätigen muss */
+  unsicher: ImportFeld[];
 };
+
+/** Hausgeld über diesem Anteil der Kaltmiete gilt als unplausibel (meist hat der Import die Miete doppelt gelesen). */
+export const HAUSGELD_MAX_ANTEIL_MIETE = 0.6;
+
+/**
+ * Hausgeld ist unsicher, wenn es der Kaltmiete entspricht oder mehr als 60 % davon beträgt.
+ * Beispiel aus dem Live-Test (Kleinanzeigen): Hausgeld 350 € und Kaltmiete 350 € für dieselbe Wohnung.
+ */
+export function hausgeldUnsicher(hausgeld: number | null | undefined, miete: number | null | undefined): boolean {
+  if (!(typeof hausgeld === 'number' && hausgeld > 0) || !(typeof miete === 'number' && miete > 0)) return false;
+  return Math.abs(hausgeld - miete) < 0.005 || hausgeld > miete * HAUSGELD_MAX_ANTEIL_MIETE;
+}
+
+/** Hinweis am Hausgeld-Feld, z. B. "Hausgeld (350 €) ist so hoch wie die Kaltmiete (350 €). ..." */
+export function hausgeldUnsicherHinweis(hausgeld: number, miete: number): string {
+  const hg = `${formatZahl(hausgeld)} €`;
+  const km = `${formatZahl(miete)} €`;
+  const vergleich = Math.abs(hausgeld - miete) < 0.005
+    ? `so hoch wie die Kaltmiete (${km})`
+    : `mehr als ${formatZahl(HAUSGELD_MAX_ANTEIL_MIETE * 100)} % der Kaltmiete (${km})`;
+  return `Das importierte Hausgeld (${hg}) ist ${vergleich}. Bitte prüfe den Wert im Inserat und bestätige ihn oder korrigiere ihn.`;
+}
 
 /**
  * Ersetzt Platzhalter durch null und listet fehlende Angaben.
@@ -72,7 +98,12 @@ export function pruefeImport<T extends Rohdaten>(roh: T): ImportErgebnis<T> {
     if ('hausgeld_nicht_umlegbar' in roh && objekttyp === 'wohnung') daten.hausgeld_nicht_umlegbar = null;
   }
 
-  return { daten: daten as T, fehlend };
+  const unsicher: ImportFeld[] = [];
+  if (objekttyp === 'wohnung' && hausgeldUnsicher(daten.hausgeld as number | null, daten.miete as number | null)) {
+    unsicher.push('hausgeld');
+  }
+
+  return { daten: daten as T, fehlend, unsicher };
 }
 
 /** Ein Import ist brauchbar, wenn mindestens zwei der drei Kernangaben vorhanden sind. */
@@ -90,16 +121,19 @@ export function fehlendHinweis(fehlend: ImportFeld[]): string {
 }
 
 /** Import-Warnungen für die Anzeige: ohne Emoji-Präfix, ohne Dopplung mit der Fehlt-Liste */
-export function bereinigeHinweise(warnungen: unknown, fehlend: ImportFeld[]): string[] {
+export function bereinigeHinweise(warnungen: unknown, fehlend: ImportFeld[], unsicher: ImportFeld[] = []): string[] {
   if (!Array.isArray(warnungen)) return [];
   const doppelt: Array<[ImportFeld, RegExp]> = [
     ['hausgeld', /kein Hausgeld angegeben/i],
     ['miete', /keine Kaltmiete|Kaltmiete konnte nicht gefunden/i],
   ];
+  // Steht schon als Bestätigung am Hausgeld-Feld
+  const doppeltUnsicher: Array<[ImportFeld, RegExp]> = [['hausgeld', /Kaltmiete erscheint ungewöhnlich niedrig im Verhältnis zum Hausgeld/i]];
   const aus = new Set<string>();
   for (const w of warnungen) {
     if (typeof w !== 'string') continue;
     if (doppelt.some(([feld, re]) => fehlend.includes(feld) && re.test(w))) continue;
+    if (doppeltUnsicher.some(([feld, re]) => unsicher.includes(feld) && re.test(w))) continue;
     const text = w
       .replace(/^[^A-Za-zÄÖÜäöü0-9]+/, '')
       .replace(/^(ACHTUNG|KRITISCH|AUTOMATISCH KORRIGIERT):\s*/i, m => (/KORRIGIERT/i.test(m) ? 'Automatisch korrigiert: ' : ''))

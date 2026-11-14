@@ -77,3 +77,8 @@ assert(
   unsichereFelder(['Kaltmiete erscheint sehr niedrig (11,26 €/m²). Bitte manuell in der Originalanzeige überprüfen!']).join(',') === 'miete',
   'Miet-Hinweis mit €/m² markiert nicht die Wohnfläche'
 );
+
+// --- Unplausibles Hausgeld aus dem Import muss bestätigt werden (wie in Schritt 3) ---
+const hg = findePflichtLuecken({ ...vollstaendig, hausgeldUnbestaetigt: true }, 2026);
+assert(hg.length === 1 && hg[0].key === 'hausgeld' && hg[0].schritt === 'b', 'Unbestätigtes Hausgeld ist eine offene Pflichtangabe');
+assert(findePflichtLuecken({ ...vollstaendig, objekttyp: 'haus', hausgeldUnbestaetigt: true }, 2026).length === 0, 'Bei Häusern zählt die Hausgeld-Bestätigung nicht');

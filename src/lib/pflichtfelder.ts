@@ -24,6 +24,8 @@ export type PflichtWerte = {
   anzahlWohneinheiten: number;
   baujahr: number;
   miete: number;
+  /** Importiertes Hausgeld ist unplausibel (z. B. so hoch wie die Kaltmiete) und noch nicht bestätigt */
+  hausgeldUnbestaetigt?: boolean;
   ek: number | null | undefined;
   zins: number | null | undefined;
   tilgung: number | null | undefined;
@@ -52,6 +54,9 @@ export function findePflichtLuecken(w: PflichtWerte, jahr = new Date().getFullYe
   else if (w.baujahr > jahr + 2) add('baujahr', 'a2', 'Baujahr', 'Das Baujahr liegt zu weit in der Zukunft.');
 
   if (!(w.miete > 0)) add('miete', 'b', 'Kaltmiete', 'Bitte trag die Kaltmiete ein.');
+  if (w.objekttyp === 'wohnung' && w.hausgeldUnbestaetigt) {
+    add('hausgeld', 'b', 'Hausgeld', 'Bitte bestätige das importierte Hausgeld oder korrigiere es.');
+  }
 
   if (w.ek === null || w.ek === undefined || w.ek < 0) add('ek', 'c', 'Eigenkapital', 'Bitte trag dein Eigenkapital ein.');
   if (w.zins === null || w.zins === undefined || w.zins < 0 || w.zins > 20) add('zins', 'c', 'Zinssatz', 'Der Zinssatz muss zwischen 0 und 20 % liegen.');

@@ -11,7 +11,7 @@ import { formatZahl } from '@/lib/zahlen';
 import { parseZahl } from '@/lib/zahlen';
 import { berechneEkStartwert } from '@/lib/kennzahlen';
 import { findePflichtLuecken, type PflichtFehler } from '@/lib/pflichtfelder';
-import { IMPORT_FELD_LABEL, unsichereFelder, type ImportFeld } from '@/lib/importPruefung';
+import { IMPORT_FELD_LABEL, hausgeldUnsicherHinweis, unsichereFelder, type ImportFeld } from '@/lib/importPruefung';
 import { BUNDESLAENDER, istBundesland } from '@/config/grunderwerbsteuer';
 import { grunderwerbsteuerLabel } from '@/lib/grunderwerbsteuer';
 import {
@@ -45,12 +45,14 @@ type ZahlZeileProps = {
   inputMode?: 'decimal' | 'numeric';
   /** Leeres Feld nicht übernehmen: beim Verlassen steht wieder der bisherige Wert da (Annahmen, Startwerte) */
   ohneLeer?: boolean;
+  /** Zusätzlicher Knopf unter der Zeile, z. B. "Wert stimmt" */
+  aktion?: React.ReactNode;
 };
 
 /** Eine Zeile mit Bezeichnung links und direkt editierbarem Wert rechts */
 function ZahlZeile({
   id, label, wert, onWert, einheit, status = null, meldung, hinweis, placeholder,
-  leerBeiNull = false, format = n => formatZahl(n), inputMode = 'decimal', ohneLeer = false,
+  leerBeiNull = false, format = n => formatZahl(n), inputMode = 'decimal', ohneLeer = false, aktion,
 }: ZahlZeileProps) {
   const [text, setText] = useFeldText(wert, format, leerBeiNull ? { start: '', nurPositiv: true } : {});
   const hinweisId = meldung || hinweis ? `${id}-hinweis` : undefined;
@@ -108,6 +110,7 @@ function ZahlZeile({
           {meldung || hinweis}
         </p>
       )}
+      {aktion}
     </div>
   );
 }
@@ -143,7 +146,7 @@ export function PruefSeite({ mounted, onWeiter }: { mounted: boolean; onWeiter: 
     kaufpreis, adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, objekttyp, anzahl_wohneinheiten,
     grunderwerbsteuer_pct, grunderwerbsteuerManuell, bundesland, notar_pct, makler_pct, sonstige_kosten,
     zins, tilgung, mietausfall_pct, instandhaltungskosten_pro_qm, afa, steuer, ek, ekManuell, persoenlicher_steuersatz,
-    importFehlend, importHinweise, importQuelle,
+    importFehlend, importHinweise, importQuelle, importUnsicher,
   } = s;
 
   // Daten sind da (nach Neuladen kommen sie erst aus dem Autosave)
@@ -183,7 +186,10 @@ export function PruefSeite({ mounted, onWeiter }: { mounted: boolean; onWeiter: 
 
   // Reihenfolge einmal festlegen, sobald die Daten da sind: fehlende und unsichere Werte oben.
   // Danach bleibt sie stehen, damit Zeilen beim Tippen nicht springen.
-  const unsicher = useMemo(() => unsichereFelder(importHinweise), [importHinweise]);
+  const unsicher = useMemo(
+    () => [...new Set([...unsichereFelder(importHinweise), ...importUnsicher])],
+    [importHinweise, importUnsicher],
+  );
   const [reihenfolge, setReihenfolge] = useState<ImportFeld[] | null>(null);
   const [geprueft, setGeprueft] = useState<Set<ImportFeld>>(() => new Set());
   const [hausgeldLeer, setHausgeldLeer] = useState(false);
@@ -214,6 +220,7 @@ export function PruefSeite({ mounted, onWeiter }: { mounted: boolean; onWeiter: 
   const basisLuecken = findePflichtLuecken({
     kaufpreis, adresse, grunderwerbsteuerFehlt: grEStFehlt, objekttyp, flaeche, zimmer,
     anzahlWohneinheiten: anzahl_wohneinheiten, baujahr, miete, ek, zins, tilgung,
+    hausgeldUnbestaetigt: istWohnung && importUnsicher.includes('hausgeld'),
   });
   // Hausgeld ist hier zusätzlich Pflicht, wenn es im Inserat fehlte (0 eintragen, falls keins anfällt)
   const luecken: PflichtFehler[] = [
@@ -252,6 +259,10 @@ export function PruefSeite({ mounted, onWeiter }: { mounted: boolean; onWeiter: 
   /** Status einer Zeile aus Block 1: fehlt (leer), fehler (ungültig), unsicher (laut Import-Hinweis) */
   const statusVon = (feld: ImportFeld): { status: Status; meldung: string | null } => {
     const l = luecke(feld);
+    // Unplausibles Hausgeld (z. B. so hoch wie die Kaltmiete): bestätigen oder ändern
+    if (feld === 'hausgeld' && importUnsicher.includes('hausgeld') && hausgeld > 0 && miete > 0) {
+      return { status: 'unsicher', meldung: hausgeldUnsicherHinweis(hausgeld, miete) };
+    }
     if (l && istLeer[feld]) return { status: 'fehlt', meldung: importFehlend.includes(feld) || feld === 'hausgeld' ? 'Fehlt im Inserat. Bitte ergänzen.' : l.text };
     if (l) return { status: 'fehler', meldung: l.text };
     if (unsicher.includes(feld) && !geprueft.has(feld)) return { status: 'unsicher', meldung: null };
@@ -340,6 +351,16 @@ export function PruefSeite({ mounted, onWeiter }: { mounted: boolean; onWeiter: 
           <ZahlZeile key={feld} id="pruefen-hausgeld" label="Hausgeld" einheit="€/Mon." wert={hausgeld} leerBeiNull={hausgeldLeer} placeholder="z. B. 250"
             {...st}
             hinweis={!st.meldung ? `Davon ${formatZahl(umlagePct)} % umlagefähig (siehe Annahmen)` : undefined}
+            aktion={importUnsicher.includes('hausgeld') && hausgeld > 0 ? (
+              <button
+                id="pruefen-hausgeld-bestaetigen"
+                type="button"
+                onClick={() => { s.bestaetigeImportFeld('hausgeld'); markiereGeprueft('hausgeld'); }}
+                className="mt-2 rounded-full border border-amber-400 bg-white px-3 py-1.5 text-xs font-bold text-amber-900 hover:bg-amber-100"
+              >
+                Wert stimmt
+              </button>
+            ) : undefined}
             onWert={n => {
               setHausgeldLeer(n === null);
               markiereGeprueft('hausgeld');

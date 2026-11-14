@@ -3,13 +3,14 @@
 // Premium-Kunden werden als Gratis-Nutzer angezeigt.
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { cronAutorisiert } from '@/lib/cronAuth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  // Vercel schickt CRON_SECRET als Bearer-Token mit, wenn die Variable gesetzt ist
-  const secret = process.env.CRON_SECRET;
-  if (secret && request.headers.get('authorization') !== `Bearer ${secret}`) {
+  // Vercel schickt CRON_SECRET als Bearer-Token mit. Ohne gesetztes Secret wird abgelehnt (fail closed).
+  if (!cronAutorisiert(request.headers.get('authorization'), process.env.CRON_SECRET)) {
+    if (!process.env.CRON_SECRET) console.error('[Keepalive] CRON_SECRET ist nicht gesetzt, Aufruf abgelehnt');
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
   }
 
