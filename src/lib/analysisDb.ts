@@ -11,10 +11,28 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 export const isUuid = (v: string) => UUID_RE.test(v);
 
-/** Fehler, weil eine neue Spalte (client_id/state/markt_facts) noch nicht migriert ist. */
-export function isMissingColumnError(error: { code?: string; message?: string } | null): boolean {
+/** Minimale Form eines Supabase/PostgREST-Fehlers. */
+export type DbError = { code?: string; message?: string; details?: string | null; hint?: string | null };
+
+/** Fehler, weil eine Spalte in der Tabelle fehlt (Migration noch nicht gelaufen). */
+export function isMissingColumnError(error: DbError | null): boolean {
   if (!error) return false;
-  return error.code === 'PGRST204' || error.code === '42703' || /client_id|markt_facts|'state'|column/i.test(error.message ?? '');
+  // PGRST204: Spalte nicht im Schema-Cache (Insert/Update), 42703: Spalte existiert nicht (Select/Filter)
+  return error.code === 'PGRST204' || error.code === '42703';
+}
+
+/** Name der fehlenden Spalte aus der Fehlermeldung, falls erkennbar. */
+export function missingColumnName(error: DbError): string | null {
+  const m = error.message ?? '';
+  const treffer =
+    /Could not find the '([^']+)' column/i.exec(m) ??
+    /column "?(?:[a-z_]+\.)?([a-z_0-9]+)"? (?:of relation "[^"]+" )?does not exist/i.exec(m);
+  return treffer ? treffer[1] : null;
+}
+
+/** Wert passt nicht zum Spaltentyp (z. B. 76.5 in einer INTEGER-Spalte) oder ist zu groß. */
+export function isTypeMismatchError(error: DbError | null): boolean {
+  return !!error && (error.code === '22P02' || error.code === '22003');
 }
 
 /** Findet die DB-Zeile (id) zu einer Client-analysisId oder einer UUID. */
@@ -138,4 +156,173 @@ export function rowToState(row: Row): Record<string, unknown> {
     mietMarktDelta: markt?.mietDelta ?? null,
     kaufMarktDelta: markt?.kaufDelta ?? null,
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Speichern
+//
+// Die Wahrheit liegt in `state` (kompletter Store-Zustand als JSONB). Neue Felder im Store brauchen
+// deshalb keine Schema-Änderung. Die einzelnen Spalten sind nur eine Kopie für Liste, Suche und
+// Sortierung. Weicht die Live-Tabelle vom erwarteten Schema ab (fehlende Spalte, INTEGER statt
+// NUMERIC), wird trotzdem gespeichert, statt mit HTTP 500 zu scheitern.
+// ---------------------------------------------------------------------------------------------
+
+/** Endliche Zahl oder Standardwert (NaN, Infinity, null und leere Strings führen zum Standardwert). */
+function zahl(v: unknown, fallback = 0): number {
+  if (v === null || v === undefined || v === '') return fallback;
+  const n = typeof v === 'number' ? v : Number(String(v).replace(',', '.'));
+  return Number.isFinite(n) ? n : fallback;
+}
+
+const text = (v: unknown) => (typeof v === 'string' ? v : '');
+
+/** Postgres lehnt \u0000 in TEXT und JSONB ab – kann in gescrapten Texten vorkommen. */
+function ohneNullBytes<T>(v: T): T {
+  if (typeof v === 'string') return v.replace(/\u0000/g, '') as T;
+  if (Array.isArray(v)) return v.map(ohneNullBytes) as T;
+  if (v && typeof v === 'object') {
+    return Object.fromEntries(Object.entries(v as Row).map(([k, w]) => [k, ohneNullBytes(w)])) as T;
+  }
+  return v;
+}
+
+const neueClientId = () => `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+
+/** Ohne diese Spalten ist eine Zeile nicht brauchbar – sie werden nie weggelassen. */
+const PFLICHT_SPALTEN = new Set(['user_id', 'analysis_name']);
+
+/** Store-Zustand (exportState) → Zeile für die analyses-Tabelle. */
+export function buildAnalysisRow(userId: string, payload: Row): { clientId: string; row: Row } {
+  const data = ohneNullBytes(payload);
+  const clientId = typeof data.analysisId === 'string' && data.analysisId ? data.analysisId : neueClientId();
+
+  const row: Row = {
+    user_id: userId,
+    analysis_name: text(data.analysisName).trim() || text(data.adresse).trim() || 'Unbenannt',
+
+    // Objekt
+    kaufpreis: zahl(data.kaufpreis),
+    adresse: text(data.adresse),
+    flaeche: zahl(data.flaeche),
+    zimmer: zahl(data.zimmer),
+    baujahr: Math.round(zahl(data.baujahr, new Date().getFullYear())),
+
+    // Finanzierung
+    miete: zahl(data.miete),
+    hausgeld: zahl(data.hausgeld),
+    hausgeld_umlegbar: zahl(data.hausgeld_umlegbar),
+    ek: zahl(data.ek),
+    zins: zahl(data.zins, 3.5),
+    tilgung: zahl(data.tilgung, 2),
+
+    // Kosten und Steuern
+    grunderwerbsteuer_pct: zahl(data.grunderwerbsteuer_pct, 6.5),
+    notar_pct: zahl(data.notar_pct, 2),
+    makler_pct: zahl(data.makler_pct, 3.57),
+    mietausfall_pct: zahl(data.mietausfall_pct),
+    instandhaltungskosten_pro_qm: zahl(data.instandhaltungskosten_pro_qm),
+    steuer: zahl(data.steuer),
+    afa: zahl(data.afa, 2),
+    ruecklagen: zahl(data.ruecklagen),
+    persoenlicher_steuersatz: zahl(data.persoenlicher_steuersatz, 40),
+
+    // Ergebnisse
+    cashflow_operativ: zahl(data.cashflow_operativ),
+    nettorendite: zahl(data.nettorendite),
+    score: zahl(data.score),
+    anschaffungskosten: zahl(data.anschaffungskosten),
+
+    // KI-Kommentare
+    generated_comment: text(data.generatedComment),
+    lage_comment: text(data.lageComment),
+    mietpreis_comment: text(data.mietpreisComment),
+    qm_preis_comment: text(data.qmPreisComment),
+    invest_comment: text(data.investComment),
+
+    client_id: clientId,
+    // Kompletter Store-Zustand – auch Felder, die es heute noch nicht gibt
+    state: { ...data, analysisId: clientId },
+    markt_facts: data.marktFacts
+      ? { facts: data.marktFacts, mietDelta: data.mietMarktDelta ?? null, kaufDelta: data.kaufMarktDelta ?? null }
+      : null,
+  };
+  return { clientId, row };
+}
+
+export type SaveAnalysisResult =
+  | { ok: true; clientId: string; dbId: string; hinweise: string[] }
+  | { ok: false; clientId: string; error: DbError | null; hinweise: string[] };
+
+/**
+ * Speichert die Analyse (aktualisiert die vorhandene Zeile derselben client_id, sonst neue Zeile).
+ * Jeder Datenbankfehler wird mit Code, Meldung, Details und Hinweis ins Server-Log geschrieben.
+ */
+export async function saveAnalysisRow(
+  supabase: SupabaseClient,
+  userId: string,
+  payload: Row
+): Promise<SaveAnalysisResult> {
+  const { clientId, row: vollstaendig } = buildAnalysisRow(userId, payload);
+  let row = vollstaendig;
+  const hinweise: string[] = [];
+  let gerundetAlle = false;
+
+  const existingId = await resolveAnalysisRowId(supabase, userId, clientId);
+  const schreiben = (r: Row) =>
+    existingId
+      ? supabase.from('analyses').update(r).eq('id', existingId).eq('user_id', userId).select('id').single()
+      : supabase.from('analyses').insert(r).select('id').single();
+
+  // Höchstens ein Versuch je Spalte plus Reserve – endet sicher
+  for (let versuch = 0; versuch <= Object.keys(vollstaendig).length + 2; versuch++) {
+    const { data, error } = await schreiben(row);
+    if (!error && data) {
+      if (hinweise.length) {
+        console.warn(
+          `[ANALYSIS] Gespeichert mit Abweichungen vom Schema (${hinweise.join('; ')}). ` +
+            'Bitte supabase/migrations/2026-11-14_analyses_speichern.sql ausführen.'
+        );
+      }
+      return { ok: true, clientId, dbId: (data as { id: string }).id, hinweise };
+    }
+
+    console.error('❌ [ANALYSIS] Datenbankfehler beim Speichern:', {
+      code: error?.code, message: error?.message, details: error?.details, hint: error?.hint,
+      versuch, spalten: Object.keys(row).length, userId, clientId,
+    });
+    if (!error) return { ok: false, clientId, error: null, hinweise };
+
+    // 1) Spalte fehlt in der Live-Tabelle → ohne sie speichern
+    if (isMissingColumnError(error)) {
+      const spalte = missingColumnName(error);
+      const weg = spalte && spalte in row
+        ? [spalte]
+        : ['client_id', 'state', 'markt_facts'].filter(s => s in row); // Name nicht erkennbar → wie vor der Migration
+      if (!weg.length || weg.some(s => PFLICHT_SPALTEN.has(s))) return { ok: false, clientId, error, hinweise };
+      row = Object.fromEntries(Object.entries(row).filter(([k]) => !weg.includes(k)));
+      hinweise.push(`Spalte fehlt: ${weg.join(', ')}`);
+      continue;
+    }
+
+    // 2) Dezimalwert in Ganzzahl-Spalte → Spaltenkopie runden. Nur wenn `state` die exakten Werte hält.
+    //    Postgres nennt den Wert, nicht die Spalte: invalid input syntax for type integer: "76.5"
+    if (isTypeMismatchError(error) && 'state' in row) {
+      const wert = /: "([^"]+)"/.exec(error.message ?? '')?.[1];
+      const betroffen = Object.entries(row).filter(
+        ([, v]) => typeof v === 'number' && !Number.isInteger(v) && (gerundetAlle || !wert || String(v) === wert)
+      );
+      // Wert nicht zuordenbar → beim nächsten Mal alle Dezimalwerte runden
+      const ziel = betroffen.length ? betroffen : Object.entries(row).filter(([, v]) => typeof v === 'number' && !Number.isInteger(v));
+      if (ziel.length) {
+        if (!betroffen.length || !wert) gerundetAlle = true;
+        const namen = new Set(ziel.map(([k]) => k));
+        row = Object.fromEntries(Object.entries(row).map(([k, v]) => [k, namen.has(k) ? Math.round(v as number) : v]));
+        hinweise.push(`Ganzzahl-Spalte, Wert gerundet (exakt in state): ${[...namen].join(', ')}`);
+        continue;
+      }
+    }
+
+    return { ok: false, clientId, error, hinweise };
+  }
+  return { ok: false, clientId, error: { message: 'Zu viele Versuche' }, hinweise };
 }
