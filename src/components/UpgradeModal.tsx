@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { signUpHref } from '@/lib/anmeldeLinks';
 import { Crown, X, Check, Sparkles, Loader2, Zap } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -20,15 +21,16 @@ export function UpgradeModal({ isOpen, onClose, remainingFreeUses }: UpgradeModa
   const { userId } = useAuth();
   const { trackUpgradeClick } = useAnalytics();
   const router = useRouter();
+  const pathname = usePathname();
 
   if (!isOpen) return null;
 
   const handleSelectPlan = async (priceId: string, planName: string) => {
     if (!userId) {
-      // Redirect to sign-in page
+      // Gäste registrieren sich und kommen danach hierher zurück (eingegebene Wohnung bleibt im Autosave)
       toast.info('Bitte melde dich an, um Premium freizuschalten');
       onClose(); // Close modal first
-      router.push('/sign-in');
+      router.push(signUpHref('paywall', pathname));
       return;
     }
 

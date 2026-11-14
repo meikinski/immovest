@@ -50,3 +50,33 @@ export function holeAnmeldeRueckkehr(): GesperrterBereich | null {
 export function hatAnmeldeRueckkehr(): boolean {
   try { return !!localStorage.getItem(SPEICHER); } catch { return false; }
 }
+
+export type WohnungKurz = { titel: string; kaufpreis: number };
+
+/**
+ * Wohnung, die ein Gast vor der Anmeldung eingegeben hat (gesicherte Anmelde-Rückkehr, sonst Autosave).
+ * Nur lesen, nichts entfernen: für die Kopfzeile auf /sign-up.
+ */
+export function leseWohnungFuerAnmeldung(): WohnungKurz | null {
+  try {
+    let daten: Record<string, unknown> | null = null;
+    const roh = localStorage.getItem(SPEICHER);
+    if (roh) {
+      const eintrag = JSON.parse(roh) as Gesichert;
+      if (eintrag?.daten && Date.now() - eintrag.zeit <= MAX_ALTER_MS) daten = eintrag.daten;
+    }
+    if (!daten) {
+      const auto = localStorage.getItem(AUTOSAVE_KEY);
+      if (auto) daten = JSON.parse(auto) as Record<string, unknown>;
+    }
+    const kaufpreis = Number(daten?.kaufpreis) || 0;
+    if (!daten || kaufpreis <= 0) return null;
+    const zimmer = Number(daten.zimmer) || 0;
+    const typ = daten.objekttyp === 'haus' ? 'Haus' : daten.objekttyp === 'mfh' ? 'Mehrfamilienhaus' : 'Wohnung';
+    const art = zimmer > 0 && typ === 'Wohnung' ? `${String(zimmer).replace('.', ',')}-Zimmer-Wohnung` : typ;
+    const adresse = String(daten.adresse || '').trim();
+    return { titel: adresse ? `${art}, ${adresse}` : art, kaufpreis };
+  } catch {
+    return null;
+  }
+}

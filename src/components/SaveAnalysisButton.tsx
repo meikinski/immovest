@@ -1,5 +1,6 @@
 'use client';
 
+import { signUpHref } from '@/lib/anmeldeLinks';
 import React, { useState } from 'react';
 import { Save, Check, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';

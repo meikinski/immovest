@@ -1,17 +1,8 @@
-'use client';
+import { SignUpSeite } from '@/components/auth/SignUpSeite';
 
-import { SignUp, useAuth } from "@clerk/nextjs";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Check } from "lucide-react";
-import { GRATIS_VORTEILE } from "@/components/GratisVorteile";
-import { GRATIS_ANALYSEN } from "@/lib/preise";
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-export default function Page() {
-  const { isSignedIn, isLoaded } = useAuth();
-  const router = useRouter();
+const erster = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
 
   // Redirect if already signed in
   useEffect(() => {
