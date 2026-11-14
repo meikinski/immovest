@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint .",
     "test": "for f in src/lib/__tests__/*.test.ts; do npx --yes tsx@4 \"$f\" || exit 1; done",
-    "sample-report": "npx --yes tsx@4 scripts/sample-report.tsx"
+    "sample-report": "npx --yes tsx@4 scripts/sample-report.tsx",
+    "e2e:setup": "rm -rf e2e/.clerk-pakete && mkdir -p e2e/.clerk-pakete/clerk-js e2e/.clerk-pakete/ui && npm pack @clerk/clerk-js@6.37.0 --pack-destination e2e/.clerk-pakete >/dev/null && npm pack @clerk/ui@1.38.1 --pack-destination e2e/.clerk-pakete >/dev/null && tar xzf e2e/.clerk-pakete/clerk-clerk-js-6.37.0.tgz -C e2e/.clerk-pakete/clerk-js && tar xzf e2e/.clerk-pakete/clerk-ui-1.38.1.tgz -C e2e/.clerk-pakete/ui",
+    "e2e": "npx --yes tsx@4 e2e/anmelde-rueckkehr.e2e.ts",
+    "e2e:screenshots": "npx --yes tsx@4 e2e/auth-screenshots.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.23",
@@ -17,6 +20,7 @@
     "@clerk/nextjs": "^7.2.3",
     "@openai/agents": "^0.1.10",
     "@react-pdf/renderer": "^4.3.2",
+    "@sentry/nextjs": "11.10.0",
     "@stripe/stripe-js": "^8.1.0",
     "@supabase/supabase-js": "^2.49.4",
     "ai": "^6.0.49",

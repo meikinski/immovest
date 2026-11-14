@@ -2,6 +2,8 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { PaywallProvider } from '@/contexts/PaywallContext';
 import { SignupTracker } from '@/components/SignupTracker';
+import { AnmeldeRueckkehr } from '@/components/AnmeldeRueckkehr';
+import { MonitoringNutzer } from '@/components/MonitoringNutzer';
 // TODO: ChatAssistant wieder einbinden, sobald der Chat ausgereift ist
 // (import { ChatAssistant } from '@/components/ChatAssistant'; und <ChatAssistant /> nach {children})
 
@@ -31,9 +33,12 @@ export default function AuthLayout({
       afterSignOutUrl="/"
     >
       <SignupTracker />
+      <MonitoringNutzer />
       <PaywallProvider>
         {children}
       </PaywallProvider>
+      {/* Nach den Seiten: läuft nach deren Effekten (z. B. dem Zurücksetzen auf /input-method) */}
+      <AnmeldeRueckkehr />
     </ClerkProvider>
   );
 }

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { buildLocationProfilePrompt, Morphologie, LocationProfileInput } from '@/utils/locationProfile';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const dynamic = 'force-dynamic';
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const body = (await req.json()) as {
       address: string;
@@ -39,3 +40,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export const POST = mitMonitoring('POST /api/lageProfile', handlePOST);

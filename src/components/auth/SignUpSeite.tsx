@@ -7,7 +7,7 @@ import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { Check } from 'lucide-react';
 import { AuthSeite, clerkAppearance } from '@/components/auth/AuthSeite';
 import { fuehrtZurAnalyse, sichererPfad, signInHref } from '@/lib/anmeldeLinks';
-import { leseWohnungFuerAnmeldung } from '@/lib/anmeldeRueckkehr';
+import { anmeldeZiel, keinAbo, leseWohnungFuerAnmeldung } from '@/lib/anmeldeRueckkehr';
 import { AnalyticsEvents, trackEvent } from '@/lib/analytics';
 
 const VORTEILE = ['KI-Einschätzung, Markt & Prognose', 'Szenarien und PDF-Report inklusive', 'Ohne Kreditkarte, kein Abo'];
@@ -15,7 +15,6 @@ const VORTEILE = ['KI-Einschätzung, Markt & Prognose', 'Szenarien und PDF-Repor
 const euro = (n: number) => `${Math.round(n).toLocaleString('de-DE')} €`;
 
 // Wohnung aus dem Browser-Speicher als einzeilige Zeichenkette (stabiler Snapshot, auf dem Server leer)
-const keinAbo = () => () => {};
 const wohnungZeile = () => {
   const w = leseWohnungFuerAnmeldung();
   return w ? `${w.titel}\t${euro(w.kaufpreis)}` : '';
@@ -26,6 +25,8 @@ export function SignUpSeite({ source, redirectUrl }: { source: string | null; re
   // Kommt jemand mit einer eingegebenen Wohnung (Ergebnis, gesperrte Vorschau, Paywall), steht das schon in der URL fest
   const mitWohnung = fuehrtZurAnalyse(ziel);
   const [wohnungTitel, wohnungPreis] = useSyncExternalStore(keinAbo, wohnungZeile, () => '').split('\t');
+  // Ohne Rücksprung: zur zuletzt eingegebenen Wohnung (24 h), sonst zur Eingabe
+  const fallback = useSyncExternalStore(keinAbo, anmeldeZiel, () => '/input-method');
 
   const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
@@ -41,8 +42,8 @@ export function SignUpSeite({ source, redirectUrl }: { source: string | null; re
 
   // Bereits angemeldet (z. B. zweiter Tab): direkt weiter. Die Middleware fängt den Normalfall schon serverseitig ab.
   useEffect(() => {
-    if (isLoaded && isSignedIn) router.replace(ziel || '/input-method');
-  }, [isLoaded, isSignedIn, router, ziel]);
+    if (isLoaded && isSignedIn) router.replace(ziel || fallback);
+  }, [isLoaded, isSignedIn, router, ziel, fallback]);
 
   return (
     <AuthSeite
@@ -62,7 +63,7 @@ export function SignUpSeite({ source, redirectUrl }: { source: string | null; re
           path="/sign-up"
           appearance={clerkAppearance}
           signInUrl={signInHref(ziel)}
-          fallbackRedirectUrl="/input-method"
+          fallbackRedirectUrl={fallback}
         />
       }
       wechsel={

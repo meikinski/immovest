@@ -3,12 +3,13 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
 });
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -122,3 +123,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/stripe/portal', handlePOST);

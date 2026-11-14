@@ -8,6 +8,7 @@ import {
   type StrategyCheck,
   type StrategyTone,
 } from '@/lib/strategyCheck';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const dynamic = 'force-dynamic';
 
@@ -159,7 +160,7 @@ function normalizeModelOutput(text: string, tone: StrategyTone): string | null {
   return parsed ? JSON.stringify(parsed) : null;
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     // --- Auth-Check: Nur angemeldete User bekommen den vollen Kommentar ---
     let userId: string | null = null;
@@ -337,3 +338,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ comment: 'Zu wenige Daten für eine Kurzbewertung.' });
   }
 }
+
+export const POST = mitMonitoring('POST /api/generateComment', handlePOST);

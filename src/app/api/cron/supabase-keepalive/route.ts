@@ -3,10 +3,11 @@
 // Premium-Kunden werden als Gratis-Nutzer angezeigt.
 import { NextResponse } from 'next/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   // Vercel schickt CRON_SECRET als Bearer-Token mit, wenn die Variable gesetzt ist
   const secret = process.env.CRON_SECRET;
   if (secret && request.headers.get('authorization') !== `Bearer ${secret}`) {
@@ -29,3 +30,5 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export const GET = mitMonitoring('GET /api/cron/supabase-keepalive', handleGET);

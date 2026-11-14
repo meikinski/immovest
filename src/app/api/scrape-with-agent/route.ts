@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { runUrlScraper, type UrlScraperInput } from '@/lib/urlScraperWorkflow';
 import { detectPortal, isLikelyRealEstateListing } from '@/lib/portalDetection';
 import { bereinigeHinweise, pruefeImport } from '@/lib/importPruefung';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 /**
  * Normalisiert objekttyp auf erlaubte Werte (safety layer)
@@ -30,7 +31,7 @@ function normalizeObjekttyp(rawTyp: string | null | undefined): 'wohnung' | 'hau
   return 'wohnung';
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   let url = '';  // Declare outside try block for error handling
 
   try {
@@ -178,3 +179,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/scrape-with-agent', handlePOST);

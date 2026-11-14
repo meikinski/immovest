@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { dedupeRows, isMissingColumnError, rowToListItem, saveAnalysisRow } from '@/lib/analysisDb';
+import { meldeUrsache, mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 // Save analysis
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -41,6 +42,11 @@ export async function POST(req: Request) {
         details: ergebnis.error?.details, hint: ergebnis.error?.hint,
         fallbacks: ergebnis.hinweise, userId, clientId: ergebnis.clientId,
       });
+      // Nur technische Angaben an die Überwachung: Fehlercode und -text der Datenbank, keine Eingaben
+      await meldeUrsache('POST /api/analysis', new Error(`Supabase: ${ergebnis.error?.code ?? 'ohne Code'} ${ergebnis.error?.message ?? ''}`.trim()), {
+        db_code: ergebnis.error?.code ?? null,
+        fallbacks: ergebnis.hinweise.length,
+      });
       return NextResponse.json(
         { error: 'Fehler beim Speichern in der Datenbank' },
         { status: 500 }
@@ -59,6 +65,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('Save analysis error:', error);
+    await meldeUrsache('POST /api/analysis', error);
     return NextResponse.json(
       { error: 'Fehler beim Speichern' },
       { status: 500 }
@@ -67,7 +74,7 @@ export async function POST(req: Request) {
 }
 
 // Get all analyses for user
-export async function GET() {
+async function handleGET() {
   try {
     const { userId } = await auth();
 
@@ -122,3 +129,6 @@ export async function GET() {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/analysis', handlePOST);
+export const GET = mitMonitoring('GET /api/analysis', handleGET);

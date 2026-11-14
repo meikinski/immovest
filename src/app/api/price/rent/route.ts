@@ -1,8 +1,9 @@
 // src/app/api/price/rent/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { summarizeRent, type PriceBasis, type PriceComp } from '@/utils/price';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const body = await req.json() as { basis: PriceBasis; comps: PriceComp[] };
     if (!body?.basis?.radius_km || !Array.isArray(body?.comps)) {
@@ -27,3 +28,5 @@ export async function POST(req: NextRequest) {
  *   ]
  * }
  */
+
+export const POST = mitMonitoring('POST /api/price/rent', handlePOST);

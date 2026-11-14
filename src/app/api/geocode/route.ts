@@ -1,5 +1,6 @@
 // app/api/geocode/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 type MapboxFeature = { place_name: string };
 type MapboxResponse = { features?: MapboxFeature[] };
@@ -12,7 +13,7 @@ type GeocodeResult  = { features: GeocodeFeature[] };
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+async function handleGET(req: NextRequest) {
   try {
     const q = req.nextUrl.searchParams.get('q') || '';
     if (!q || q.length < 2) return NextResponse.json({ features: [] } satisfies GeocodeResult);
@@ -44,3 +45,5 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ features: [] } satisfies GeocodeResult, { status: 200 });
   }
 }
+
+export const GET = mitMonitoring('GET /api/geocode', handleGET);

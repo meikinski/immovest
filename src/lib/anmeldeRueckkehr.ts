@@ -1,54 +1,100 @@
 import { AUTOSAVE_KEY, useImmoStore } from '@/store/useImmoStore';
 
 /**
- * Gäste auf der Ergebnis-Seite: Eingaben der Wohnung vor der Anmeldung (Google-Redirect oder E-Mail im Modal)
- * sichern und merken, welcher Bereich freigeschaltet werden sollte. Nach der Rückkehr landet man wieder
- * bei derselben Wohnung und die vollständige Analyse startet automatisch.
+ * Wohnung eines Gastes über die Anmeldung retten (Google-Redirect, E-Mail-Bestätigung, Kopfzeile „Anmelden").
+ * Gäste auf der Ergebnis-Seite sichern ihre Eingaben laufend unter einem eigenen Schlüssel, getrennt vom Autosave
+ * (den /input-method beim Start leert). Nach jeder Anmeldung innerhalb von 24 Stunden landet man wieder beim
+ * Ergebnis dieser Wohnung. Kam die Anmeldung über eine gesperrte Vorschau, startet die vollständige Analyse.
  */
 
 const SPEICHER = 'anmelde_rueckkehr_analyse';
-const MAX_ALTER_MS = 60 * 60 * 1000;
+export const MAX_ALTER_MS = 24 * 60 * 60 * 1000;
 
 export type GesperrterBereich = 'ki' | 'markt' | 'prognose';
 
-type Gesichert = { zeit: number; bereich: GesperrterBereich; adresse: string; daten: Record<string, unknown> };
+type Gesichert = { zeit: number; bereich: GesperrterBereich | null; adresse: string; daten: Record<string, unknown> };
 
-export function sichereAnalyseVorAnmeldung(bereich: GesperrterBereich) {
+function leseEintrag(): Gesichert | null {
   try {
-    const daten = useImmoStore.getState().exportState() as Record<string, unknown>;
-    const adresse = String(useImmoStore.getState().adresse || '');
-    const eintrag: Gesichert = { zeit: Date.now(), bereich, adresse, daten };
+    const roh = localStorage.getItem(SPEICHER);
+    if (!roh) return null;
+    const eintrag = JSON.parse(roh) as Gesichert;
+    if (!eintrag?.daten || !(Number(eintrag.daten.kaufpreis) > 0)) return null;
+    if (!(Date.now() - eintrag.zeit <= MAX_ALTER_MS)) return null;
+    return eintrag;
+  } catch {
+    return null;
+  }
+}
+
+/** Gesicherte Wohnung verwerfen (abgeholt oder durch eine andere offene Analyse überholt) */
+export function vergissGastWohnung() {
+  try { localStorage.removeItem(SPEICHER); } catch { /* privater Modus */ }
+}
+
+/**
+ * Aktuelle Wohnung des Gastes sichern. Ohne Kaufpreis passiert nichts: ein leerer Stand überschreibt nie
+ * eine gesicherte Wohnung. Ohne Bereich bleibt ein vorher gemerkter Bereich derselben Wohnung erhalten.
+ */
+export function sichereGastWohnung(bereich?: GesperrterBereich) {
+  try {
+    const store = useImmoStore.getState();
+    if (!(store.kaufpreis > 0)) return;
+    const daten = store.exportState() as Record<string, unknown>;
+    const adresse = String(store.adresse || '');
+    const vorher = leseEintrag();
+    const gemerkt = bereich ?? (vorher && vorher.adresse === adresse ? vorher.bereich : null);
+    const eintrag: Gesichert = { zeit: Date.now(), bereich: gemerkt, adresse, daten };
     localStorage.setItem(SPEICHER, JSON.stringify(eintrag));
     // Autosave sofort schreiben (sonst nur alle 2 s), damit die Seite nach dem Google-Redirect diesen Stand lädt
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(daten));
   } catch { /* privater Modus: dann bleibt nur der normale Autosave */ }
 }
 
-/**
- * Gesicherte Anmelde-Rückkehr einmalig abholen. Lädt die gesicherten Eingaben zurück, falls der Store
- * inzwischen eine andere oder gar keine Wohnung enthält. Gibt den Bereich zurück, der geöffnet werden soll.
- */
-export function holeAnmeldeRueckkehr(): GesperrterBereich | null {
-  try {
-    const roh = localStorage.getItem(SPEICHER);
-    if (!roh) return null;
-    localStorage.removeItem(SPEICHER);
-    const eintrag = JSON.parse(roh) as Gesichert;
-    if (!eintrag?.daten || Date.now() - eintrag.zeit > MAX_ALTER_MS) return null;
-    const store = useImmoStore.getState();
-    const gleicheWohnung = store.kaufpreis > 0 && String(store.adresse || '') === eintrag.adresse;
-    if (!gleicheWohnung) {
-      store.importData(eintrag.daten as Parameters<typeof store.importData>[0]);
-      setTimeout(() => useImmoStore.getState().updateDerived(), 0);
-    }
-    return eintrag.bereich;
-  } catch {
-    return null;
-  }
+/** Gesperrte Vorschau angeklickt: Wohnung und gewünschten Bereich vor der Anmeldung sichern */
+export function sichereAnalyseVorAnmeldung(bereich: GesperrterBereich) {
+  sichereGastWohnung(bereich);
 }
 
-export function hatAnmeldeRueckkehr(): boolean {
-  try { return !!localStorage.getItem(SPEICHER); } catch { return false; }
+/** Ziel nach der Anmeldung ohne ausdrücklichen Rücksprung: Ergebnis der gesicherten Wohnung, sonst die Eingabe */
+export function anmeldeZiel(): string {
+  return hatGastWohnung() ? '/step/tabs' : '/input-method';
+}
+
+/** Für useSyncExternalStore: localStorage meldet Änderungen im selben Tab nicht, daher kein Abo */
+export const keinAbo = () => () => {};
+
+/** Gibt es eine gesicherte Wohnung aus den letzten 24 Stunden? */
+export function hatGastWohnung(): boolean {
+  return leseEintrag() !== null;
+}
+
+/**
+ * Gesicherte Wohnung in den Store laden. Überschreibt nie eine andere geöffnete Analyse und lädt nie einen
+ * leeren Stand. Gibt true zurück, wenn der Store danach diese Wohnung enthält.
+ */
+export function stelleGastWohnungWiederHer(eintrag: Gesichert | null = leseEintrag()): boolean {
+  if (!eintrag) return false;
+  const store = useImmoStore.getState();
+  const offeneAdresse = String(store.adresse || '').trim();
+  if (store.kaufpreis > 0 && String(store.adresse || '') === eintrag.adresse) return true;
+  if (store.kaufpreis > 0 || offeneAdresse) return false; // andere Analyse offen: bleibt, wie sie ist
+  store.importData(eintrag.daten as Parameters<typeof store.importData>[0]);
+  useImmoStore.getState().updateDerived();
+  try { localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(eintrag.daten)); } catch { /* privater Modus */ }
+  return true;
+}
+
+/**
+ * Nach der Anmeldung auf der Ergebnis-Seite einmalig abholen: Wohnung wiederherstellen (falls nötig) und den
+ * Bereich nennen, der automatisch geöffnet werden soll (null: nur das Ergebnis zeigen).
+ * Gibt null zurück, wenn nichts gesichert war oder eine andere Analyse offen ist.
+ */
+export function holeAnmeldeRueckkehr(): { bereich: GesperrterBereich | null } | null {
+  const eintrag = leseEintrag();
+  vergissGastWohnung();
+  if (!eintrag) return null;
+  return stelleGastWohnungWiederHer(eintrag) ? { bereich: eintrag.bereich } : null;
 }
 
 export type WohnungKurz = { titel: string; kaufpreis: number };

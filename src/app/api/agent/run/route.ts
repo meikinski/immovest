@@ -4,6 +4,7 @@ import { runWorkflow, type WorkflowInput } from '@/lib/agentWorkflow';
 import { z } from 'zod';
 import { geocodeBasics } from '@/utils/geocoding';
 import { wikidataAreaByPoint } from '@/utils/wikidata';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 // ============================================
 // INPUT VALIDATION SCHEMA
@@ -147,7 +148,7 @@ function optionalNumber(val: unknown): number | undefined {
   return Number.isNaN(num) ? undefined : num;
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const body = await req.json();
 
@@ -319,3 +320,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/agent/run', handlePOST);

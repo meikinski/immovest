@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,7 +21,7 @@ type ExtractedData = {
   verwaltungskosten?: number;
 };
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const { imageBase64, imageUrl } = await req.json() as {
       imageBase64?: string;
@@ -209,3 +210,5 @@ Wenn ein Wert nicht gefunden wird, lasse ihn weg. Antworte NUR mit dem JSON, kei
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/extract-from-image', handlePOST);

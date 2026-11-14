@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { resolveAnalysisRowId } from '@/lib/analysisDb';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 // Save scenario
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -108,7 +109,7 @@ export async function POST(req: Request) {
 }
 
 // Get all scenarios for an analysis
-export async function GET(req: Request) {
+async function handleGET(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -167,7 +168,7 @@ export async function GET(req: Request) {
 }
 
 // Delete scenario
-export async function DELETE(req: Request) {
+async function handleDELETE(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -227,3 +228,7 @@ export async function DELETE(req: Request) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/scenarios', handlePOST);
+export const GET = mitMonitoring('GET /api/scenarios', handleGET);
+export const DELETE = mitMonitoring('DELETE /api/scenarios', handleDELETE);

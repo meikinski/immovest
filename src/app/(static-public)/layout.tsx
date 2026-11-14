@@ -1,6 +1,8 @@
 import { ClerkProvider } from '@clerk/nextjs';
 import { clerkLokalisierung } from '@/lib/clerkLokalisierung';
 import { SignupTracker } from '@/components/SignupTracker';
+import { AnmeldeRueckkehr } from '@/components/AnmeldeRueckkehr';
+import { MonitoringNutzer } from '@/components/MonitoringNutzer';
 
 /**
  * Static Public Layout
@@ -29,7 +31,10 @@ export default function StaticPublicLayout({
       signUpFallbackRedirectUrl="/input-method"
     >
       <SignupTracker />
+      <MonitoringNutzer />
       {children}
+      {/* Nach den Seiten: läuft nach deren Effekten (z. B. dem Zurücksetzen auf /input-method) */}
+      <AnmeldeRueckkehr />
     </ClerkProvider>
   );
 }

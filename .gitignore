@@ -47,3 +47,7 @@ next-env.d.ts
 
 # secrets directory (service account keys, credentials)
 secrets/
+e2e-fehler-*.png
+
+# Ende-zu-Ende-Tests: lokal entpackte Clerk-Pakete
+/e2e/.clerk-pakete/

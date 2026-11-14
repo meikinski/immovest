@@ -12,6 +12,7 @@ import {
 import { useImmoStore } from '@/store/useImmoStore';
 import { usePlanStatus } from '@/hooks/usePlanStatus';
 import { GRATIS_ANALYSEN } from '@/lib/preise';
+import { signInHref } from '@/lib/anmeldeLinks';
 
 interface HeaderProps {
   variant?: 'fixed' | 'sticky' | 'static';
@@ -268,7 +269,8 @@ export function Header({ variant = 'fixed' }: HeaderProps) {
             <Link href="/pricing" className="hover:text-[#001d3d]">Preise</Link>
             <Link href="/blog" className="hover:text-[#001d3d]">Blog</Link>
           </nav>
-          <Link href="/sign-in" className="ml-auto text-sm font-bold text-[#001d3d] md:ml-0">Anmelden</Link>
+          {/* Aus einer Analyse heraus: nach der Anmeldung zurück zu dieser Wohnung (siehe AnmeldeRueckkehr) */}
+          <Link href={signInHref(pathname?.startsWith('/step/') ? pathname : null)} className="ml-auto text-sm font-bold text-[#001d3d] md:ml-0">Anmelden</Link>
           <Link href="/input-method" className="hidden rounded-xl bg-[#ff6b00] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#ff6b00]/90 md:inline-flex">
             Kostenlos starten
           </Link>

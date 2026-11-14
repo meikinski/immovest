@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 type MarketStat = {
   p25: number;
@@ -141,7 +142,7 @@ function heuristicSnapshot(args: {
   };
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const body = (await req.json()) as {
     address?: string;
@@ -175,3 +176,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ snapshot: null }, { status: 200 });
   }
 }
+
+export const POST = mitMonitoring('POST /api/invest', handlePOST);

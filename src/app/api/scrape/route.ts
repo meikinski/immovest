@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 type ScrapedData = {
   kaufpreis?: number;
@@ -70,7 +71,7 @@ async function scrapeGeneric(html: string, patterns: typeof PATTERNS.immoscout):
   return data;
 }
 
-export async function POST(req: NextRequest) {
+async function handlePOST(req: NextRequest) {
   try {
     const { url } = await req.json() as { url: string };
 
@@ -178,3 +179,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/scrape', handlePOST);

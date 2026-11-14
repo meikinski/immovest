@@ -1,6 +1,7 @@
 // src/app/api/chat/route.ts
 import { streamText, convertToModelMessages } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 export const runtime = 'edge';
 
@@ -271,7 +272,7 @@ Formulierung: "Gängige Werte liegen bei X-Y" oder "Historisch üblich sind X%".
 Hinweis: "Diese Werte dienen zur Orientierung - keine Anlageberatung."`;
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { messages, userContext } = await req.json();
 
@@ -303,3 +304,5 @@ export async function POST(req: Request) {
     return new Response('Ein Fehler ist aufgetreten. Bitte versuche es erneut.', { status: 500 });
   }
 }
+
+export const POST = mitMonitoring('POST /api/chat', handlePOST);

@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { updateUserPlan } from '@/lib/onboarding';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
@@ -144,7 +145,7 @@ async function sendGA4PurchaseServerSide({
   }
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const body = await req.text();
     const signature = req.headers.get('stripe-signature')!;
@@ -516,3 +517,5 @@ async function handleInvoicePaymentFailed(invoice: Stripe.Invoice) {
   console.error('Payment failed for invoice:', invoice.id);
   // Could send email notification here
 }
+
+export const POST = mitMonitoring('POST /api/stripe/webhook', handlePOST);

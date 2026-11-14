@@ -4,8 +4,9 @@ import React from 'react';
 import { renderToBuffer } from '@react-pdf/renderer';
 import { InvestmentReportPDF, type InvestmentReportData } from '@/components/pdf/InvestmentReportPDF';
 import { darfVollanalyse } from '@/lib/premiumServer';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     // PDF-Report gibt es mit Premium und in der kostenlosen Analyse
     const { userId } = await auth();
@@ -36,3 +37,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/export/pdf', handlePOST);

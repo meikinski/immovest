@@ -4,6 +4,7 @@ import { auth, currentUser } from '@clerk/nextjs/server';
 import Stripe from 'stripe';
 import { getSupabaseServerClient } from '@/lib/supabase';
 import { getActiveFounderPriceId, getFounderOffer } from '@/lib/founderOffer';
+import { mitMonitoring } from '@/lib/monitoring/apiRoute';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-10-29.clover',
@@ -31,7 +32,7 @@ function parseGaClientId(cookieHeader: string | null): string {
   return '';
 }
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { userId } = await auth();
 
@@ -166,3 +167,5 @@ export async function POST(req: Request) {
     );
   }
 }
+
+export const POST = mitMonitoring('POST /api/stripe/checkout', handlePOST);

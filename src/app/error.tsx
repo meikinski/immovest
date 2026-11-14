@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Home, RefreshCw, AlertTriangle } from 'lucide-react';
+import * as Sentry from '@sentry/nextjs';
 
 export default function Error({
   error,
@@ -14,8 +15,8 @@ export default function Error({
   const router = useRouter();
 
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error('Application Error:', error);
+    Sentry.captureException(error);
   }, [error]);
 
   return (
