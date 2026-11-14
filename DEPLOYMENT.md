@@ -57,12 +57,20 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### 1.4 Row Level Security (RLS) überprüfen
 
-Die Policies sind bereits im Schema enthalten. Überprüfe sie:
+RLS ist auf allen Tabellen aktiviert, und es gibt **absichtlich keine Policies**. Die App greift nur serverseitig mit dem `service_role` Key zu (umgeht RLS). Über den öffentlichen `anon` Key ist damit kein Zugriff möglich.
 
-1. Gehe zu **Authentication** → **Policies**
-2. Du solltest Policies für beide Tabellen sehen:
-   - `analyses` - 4 Policies
-   - `user_premium_usage` - 3 Policies
+Überprüfe das im **SQL Editor**:
+
+```sql
+-- Erwartet: 0 Zeilen
+SELECT * FROM pg_policies WHERE tablename IN ('analyses','scenarios','user_premium_usage');
+-- Erwartet: rowsecurity = true für alle drei
+SELECT tablename, rowsecurity FROM pg_tables WHERE tablename IN ('analyses','scenarios','user_premium_usage');
+```
+
+Falls Policies angezeigt werden (ältere Schema-Version) oder RLS deaktiviert ist: `supabase/migrations/2026-11-14_drop_open_rls_policies.sql` im SQL Editor ausführen.
+
+⚠️ RLS nie deaktivieren und keine Policies mit `USING (true)` anlegen.
 
 ---
 

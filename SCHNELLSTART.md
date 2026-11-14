@@ -389,15 +389,21 @@ OPENAI_API_KEY = sk-...
    - Gehe zu Supabase → SQL Editor
    - Führe `supabase-schema.sql` nochmal aus
 
-3. ✅ RLS Policies blockieren?
-   - Gehe zu Supabase → Table Editor → `analyses`
-   - Klicke rechts auf "..." → "View Policies"
-   - Sollte 4 Policies haben
+3. ✅ `SUPABASE_SERVICE_ROLE_KEY` fehlt oder ist falsch?
+   - Die App schreibt nur serverseitig mit dem Service-Role-Key. Dieser umgeht RLS.
+   - RLS ist aktiviert und es gibt **absichtlich keine Policies**. Das ist korrekt und blockiert die App nicht.
+   - Fehlt der Key (lokal in `.env.local` oder in Vercel), wird nichts gespeichert.
 
-**QUICK FIX:** Temporär RLS deaktivieren (nur zum Testen!)
+⚠️ **RLS niemals deaktivieren und keine Policies mit `USING (true)` anlegen** (auch nicht "nur zum Testen").
+Der Anon-Key ist öffentlich im Browser sichtbar. Ohne RLS oder mit offenen Policies kann jeder damit die Daten
+aller Nutzer lesen, ändern und löschen. Prüfen lässt sich der Zustand im SQL Editor:
 ```sql
-ALTER TABLE analyses DISABLE ROW LEVEL SECURITY;
+-- Erwartet: 0 Zeilen
+SELECT * FROM pg_policies WHERE tablename IN ('analyses','scenarios','user_premium_usage');
+-- Erwartet: rowsecurity = true für alle drei
+SELECT tablename, rowsecurity FROM pg_tables WHERE tablename IN ('analyses','scenarios','user_premium_usage');
 ```
+Falls dort Policies stehen oder RLS aus ist: `supabase/migrations/2026-11-14_drop_open_rls_policies.sql` ausführen.
 
 ---
 
