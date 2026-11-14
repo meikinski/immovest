@@ -51,3 +51,7 @@ e2e-fehler-*.png
 
 # Ende-zu-Ende-Tests: lokal entpackte Clerk-Pakete
 /e2e/.clerk-pakete/
+
+# Von next dev erzeugt (agentRules)
+/AGENTS.md
+/CLAUDE.md
