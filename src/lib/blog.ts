@@ -31,7 +31,8 @@ function ensureBlogDir() {
   }
 }
 
-export async function getAllPosts(): Promise<BlogPostMeta[]> {
+/** Alle veröffentlichten Beiträge (ohne Entwürfe), neueste zuerst. Synchron, für Registry-Prüfungen beim Build. */
+export function getAllPostsSync(): BlogPostMeta[] {
   ensureBlogDir()
 
   const files = fs.readdirSync(BLOG_DIR).filter((f) => f.endsWith('.mdx') || f.endsWith('.md'))
@@ -58,6 +59,10 @@ export async function getAllPosts(): Promise<BlogPostMeta[]> {
   return posts
     .filter((p) => !p.draft)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+}
+
+export async function getAllPosts(): Promise<BlogPostMeta[]> {
+  return getAllPostsSync()
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {

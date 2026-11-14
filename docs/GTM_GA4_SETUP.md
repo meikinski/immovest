@@ -18,7 +18,7 @@ Alle Events laufen über einen zentralen Helper (`src/lib/analytics.ts`). Er hä
 | `ai_import_completed` | Import erfolgreich | `import_method`, `import_domain`, `has_warnings`, `missing_fields` |
 | `ai_import_failed` | Import fehlgeschlagen | `import_method`, `import_domain`, `error` |
 | `review_page_viewed` | Prüfseite nach Import (Link oder Foto) geöffnet | `input_method`, `missing_fields_count` |
-| `kpi_result_viewed` | KPI-Ergebnis sichtbar (auch für Gäste), einmal je Wohnung | `input_method`, `object_type`, `signed_in` |
+| `kpi_result_viewed` | KPI-Ergebnis sichtbar (auch für Gäste), einmal je Wohnung. Auf Rechner-Seiten: erste Eingabe im Rechner, einmal je Seitenaufruf | `input_method`, `object_type`, `signed_in`; auf Rechner-Seiten `input_method` = `rechner` und `source` = Slug der Seite (z. B. `cashflow-immobilie-berechnen`) |
 | `analysis_completed` | Vollständige Analyse fertig (Markt, KI, Prognose), einmal je Wohnung | `analysis_number`, `plan` |
 | `locked_preview_clicked` | Gast klickt auf eine gesperrte Vorschau | `section`, `action` |
 | `compare_cta_clicked` | Klick auf „Zweite Wohnung prüfen“ | `plan` |
@@ -30,7 +30,7 @@ Alle Events laufen über einen zentralen Helper (`src/lib/analytics.ts`). Er hä
 | `upgrade_clicked` | Klick auf einen Plan | `plan_name`, `click_location` |
 | `checkout_started` | Klick auf Bezahlen, vor der Weiterleitung zu Stripe | `plan`, `value`, `currency`, `click_location`, `founder_price` |
 | `purchase` | Rückkehr von Stripe, einmal je `transaction_id` | `transaction_id`, `value`, `currency`, `plan`, `items`, `subscription_plan_id`, `subscription_interval` |
-| `cta_clicked` | Start-Buttons auf Startseite und Preisseite | `cta_name`, `cta_location` |
+| `cta_clicked` | Start-Buttons auf Startseite und Preisseite; auf Rechner-Seiten der CTA zur vollständigen Analyse (`cta_name` = `volle_analyse`, `cta_location` = `rechner:<slug>`); in Blogbeiträgen der Link-Block zum Rechner (`cta_name` = `rechner_link`, `cta_location` = `blog:<slug>`) | `cta_name`, `cta_location` |
 
 Zusätzlich an jedem Event bei internen Nutzern: `traffic_type` = `internal`.
 

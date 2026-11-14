@@ -5,8 +5,9 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import { getAllPosts, getPostBySlug } from '@/lib/blog'
 import { Header } from '@/components/Header'
-
-const BASE_URL = 'https://imvestr.de'
+import { passenderRechnerFuerBlogPost, rechnerImBlogPost } from '@/content/rechner'
+import { PassenderRechnerBlock, RechnerInhaltBlock, RechnerLinks } from '@/components/rechner/RechnerBausteine'
+import { BASE_URL, breadcrumbSchema, faqPageSchema, jsonLd, webApplicationSchema } from '@/lib/strukturDaten'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -29,20 +30,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {}
 
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
+  // Beiträge mit eingebettetem Rechner nehmen Titel und Beschreibung aus der Rechner-Content-Datei
+  const rechner = rechnerImBlogPost(post.slug)
+  const title = rechner?.title ?? `${post.title} | imvestr Blog`
+  const ogTitle = rechner?.h1 ?? post.title
+  const description = rechner?.metaDescription ?? post.description
 
   return {
-    title: `${post.title} | imvestr Blog`,
-    description: post.description,
+    title: { absolute: title },
+    description,
     authors: [{ name: post.author }],
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical: `${BASE_URL}/blog/${post.slug}`,
     },
     openGraph: {
       type: 'article',
       locale: 'de_DE',
       url: `${BASE_URL}/blog/${post.slug}`,
-      title: post.title,
-      description: post.description,
+      title: ogTitle,
+      description,
       siteName: 'imvestr',
       publishedTime: post.date,
       modifiedTime: post.lastModified,
@@ -58,8 +64,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.description,
+      title: ogTitle,
+      description,
       images: [ogImage],
     },
   }
@@ -73,11 +79,15 @@ export default async function BlogPostPage({ params }: Props) {
 
   const ogImage = post.image ? `${BASE_URL}${post.image}` : `${BASE_URL}/og-image.png`
   const readingTime = calcReadingTime(post.content)
+  const rechner = rechnerImBlogPost(post.slug)
+  const passenderRechner = rechner ? undefined : passenderRechnerFuerBlogPost(post.slug)
+  const h1 = rechner?.h1 ?? post.title
+  const pfad = `/blog/${post.slug}`
 
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: post.title,
+    headline: h1,
     description: post.description,
     image: ogImage,
     datePublished: post.date,
@@ -98,34 +108,26 @@ export default async function BlogPostPage({ params }: Props) {
     },
   }
 
-  const faqJsonLd =
-    post.faq && post.faq.length > 0
-      ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: post.faq.map((item) => ({
-            "@type": "Question",
-            name: item.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: item.answer,
-            },
-          })),
-        }
-      : null
+  // Eine FAQPage je Seite: Fragen aus dem Beitrag plus Fragen zum Rechner (beide sichtbar auf der Seite)
+  const faqEintraege = [
+    ...(post.faq ?? []).map((item) => ({ frage: item.question, antwort: item.answer })),
+    ...(rechner?.faq ?? []),
+  ]
+  const faqJsonLd = faqEintraege.length > 0 ? faqPageSchema(faqEintraege) : null
+  const breadcrumbJsonLd = breadcrumbSchema([
+    { name: 'Startseite', pfad: '/' },
+    { name: 'Blog', pfad: '/blog' },
+    { name: h1, pfad },
+  ])
+  const webAppJsonLd = rechner
+    ? webApplicationSchema({ name: h1, beschreibung: rechner.metaDescription, pfad })
+    : null
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
-      />
-      {faqJsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-        />
-      )}
+      {[articleJsonLd, webAppJsonLd, faqJsonLd, breadcrumbJsonLd].filter(Boolean).map((daten, i) => (
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(daten) }} />
+      ))}
       <Header variant="static" />
       <main className="bg-white">
         <div className="max-w-3xl mx-auto px-6 py-16">
@@ -139,15 +141,15 @@ export default async function BlogPostPage({ params }: Props) {
               Blog
             </Link>
             <span className="text-gray-300">›</span>
-            <span className="text-gray-500 truncate max-w-xs">{post.title}</span>
+            <span className="text-gray-500 truncate max-w-xs">{h1}</span>
           </nav>
 
           {/* Header */}
           <header className="mb-10">
             <h1 className="text-4xl font-extrabold tracking-tighter text-[#001d3d] mb-4 leading-tight">
-              {post.title}
+              {h1}
             </h1>
-            {post.description && (
+            {!rechner && post.description && (
               <p className="text-xl text-gray-500 mb-6 leading-relaxed">
                 {post.description}
               </p>
@@ -175,6 +177,8 @@ export default async function BlogPostPage({ params }: Props) {
               )}
             </div>
           </header>
+
+          {rechner && <RechnerInhaltBlock c={rechner} />}
 
           {/* Article Body */}
           <article
@@ -208,7 +212,12 @@ export default async function BlogPostPage({ params }: Props) {
             />
           </article>
 
+          {passenderRechner && <PassenderRechnerBlock c={passenderRechner} postSlug={post.slug} />}
+
+          {rechner && <RechnerLinks c={rechner} />}
+
           {/* CTA Block */}
+          {!rechner && (
           <div className="mt-16 rounded-2xl bg-[#001d3d] px-8 py-10 text-center shadow-lg">
             <h2 className="text-2xl font-extrabold tracking-tight text-white mb-3">
               Bereit, dein erstes Investment zu analysieren?
@@ -224,6 +233,7 @@ export default async function BlogPostPage({ params }: Props) {
               Jetzt kostenlos analysieren →
             </Link>
           </div>
+          )}
 
           {/* Back to Blog */}
           <footer className="mt-10 flex justify-start">
