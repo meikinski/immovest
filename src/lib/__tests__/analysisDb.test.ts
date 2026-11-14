@@ -36,6 +36,7 @@ const numerisch = [
   'grunderwerbsteuer_pct', 'notar_pct', 'makler_pct', 'mietausfall_pct', 'instandhaltungskosten_pro_qm', 'steuer',
   'afa', 'ruecklagen', 'persoenlicher_steuersatz', 'cashflow_operativ', 'nettorendite', 'score', 'anschaffungskosten',
 ];
+const OHNE_STANDARD = ['kaufpreis', 'flaeche', 'miete', 'hausgeld', 'hausgeld_umlegbar', 'grunderwerbsteuer_pct'];
 const SCHEMA_AKTUELL: Record<string, Spalte> = {
   id: { typ: 'text' }, created_at: { typ: 'text' }, updated_at: { typ: 'text' },
   user_id: { typ: 'text', notNull: true },
@@ -43,6 +44,8 @@ const SCHEMA_AKTUELL: Record<string, Spalte> = {
   adresse: { typ: 'text', notNull: true, standard: '' },
   baujahr: { typ: 'integer', notNull: true, standard: 2024 },
   ...Object.fromEntries(numerisch.map(n => [n, { typ: 'numeric', notNull: true, standard: 0 } as Spalte])),
+  // Nach 2026-11-14_fehlende_werte_null.sql: fehlende Angaben sind NULL
+  ...Object.fromEntries(OHNE_STANDARD.map(n => [n, { typ: 'numeric' } as Spalte])),
   ...Object.fromEntries(
     ['generated_comment', 'lage_comment', 'mietpreis_comment', 'qm_preis_comment', 'invest_comment']
       .map(n => [n, { typ: 'text', standard: '' } as Spalte])
@@ -325,10 +328,45 @@ async function main() {
     const r = await saveAnalysisRow(db.client, USER, JSON.parse(JSON.stringify(schmutzig)));
     assert(r.ok && db.versuche === 1, 'Strings statt Zahlen, null, NaN und Null-Bytes führen nicht zu einem Datenbankfehler');
     const z = db.zeilen[0];
-    assert(z.kaufpreis === 215000 && z.flaeche === 76.5 && z.miete === 0 && z.zimmer === 0 && z.score === 0 && z.baujahr === 1900, 'Zahlen werden sauber umgewandelt');
+    assert(z.kaufpreis === 215000 && z.flaeche === 76.5 && z.miete === null && z.zimmer === 0 && z.score === 0 && z.baujahr === 1900, 'Zahlen werden sauber umgewandelt, fehlende Miete bleibt null');
     assert(z.lage_comment === 'Lage gut' && z.generated_comment === '', 'Texte werden bereinigt');
     assert(r.ok && /^analysis_\d+_/.test(r.clientId) && z.client_id === r.clientId, 'ohne analysisId wird eine vergeben');
     assert(buildAnalysisRow(USER, {}).row.analysis_name === 'Unbenannt', 'leerer Payload ergibt eine gültige Zeile');
+  }
+
+  console.log('\n"Preis auf Anfrage": fehlende Angaben bleiben null');
+  {
+    // So exportiert der Store einen Import ohne Kaufpreis, Miete und Hausgeld (Platzhalter 1 € verworfen)
+    const store = useImmoStore.getState();
+    store.resetAnalysis();
+    store.importData({ kaufpreis: 0, miete: 0, hausgeld: 0, hausgeld_umlegbar: 0, flaeche: 76.5, adresse: 'Irgendwo ohne PLZ', objekttyp: 'wohnung' });
+    const leer = JSON.parse(JSON.stringify(store.exportState())) as Record<string, unknown>;
+    assert(leer.kaufpreis === null && leer.miete === null && leer.hausgeld === null, 'Export: Kaufpreis, Miete und Hausgeld sind null (nicht 0 oder 1)');
+    assert(leer.grunderwerbsteuer_pct === null, 'Export: ohne Bundesland ist der Steuersatz null (keine 6,5 %)');
+    assert(leer.flaeche === 76.5, 'Export: vorhandene Fläche bleibt');
+
+    const db = new FakeDb(SCHEMA_AKTUELL);
+    const r = await saveAnalysisRow(db.client, USER, leer);
+    const z = db.zeilen[0];
+    assert(r.ok && z.kaufpreis === null && z.miete === null && z.hausgeld === null && z.grunderwerbsteuer_pct === null, 'Spalten: null statt 0 bzw. 6,5');
+    const geladen = await lade(db, USER, r.clientId);
+    store.resetAnalysis();
+    store.importData(geladen as Parameters<typeof store.importData>[0]);
+    const s2 = useImmoStore.getState();
+    assert(s2.kaufpreis === 0 && s2.miete === 0 && s2.grunderwerbsteuer_pct === 0 && !s2.grunderwerbsteuerManuell, 'Nach dem Öffnen sind die Felder wieder leer (Store-Leerwert), der Satz gilt nicht als manuell gesetzt');
+
+    // Leipzig 04317 ohne gespeicherten Satz: Spaltenkopie aus der PLZ (Sachsen 5,5 %), nie pauschal 6,5 %
+    const leipzig = buildAnalysisRow(USER, { adresse: 'Prager Straße 123, 04317 Leipzig', grunderwerbsteuer_pct: null }).row;
+    assert(leipzig.grunderwerbsteuer_pct === 5.5, 'Server: ohne Satz wird er aus der PLZ abgeleitet (04317 → 5,5 %)');
+    assert(buildAnalysisRow(USER, {}).row.grunderwerbsteuer_pct === null, 'Server: ohne Satz und ohne PLZ null statt 6,5 %');
+    assert(buildAnalysisRow(USER, { grunderwerbsteuer_pct: 3.5, adresse: '04317 Leipzig' }).row.grunderwerbsteuer_pct === 3.5, 'Server: eingetragener Satz hat Vorrang');
+
+    // Live-Tabelle noch mit NOT NULL: Spalte wird weggelassen, Speichern gelingt
+    const alt = new FakeDb({ ...SCHEMA_AKTUELL, ...Object.fromEntries(OHNE_STANDARD.map(n => [n, { typ: 'numeric', notNull: true, standard: n === 'grunderwerbsteuer_pct' ? 6.5 : 0 } as Spalte])) });
+    const ra = await saveAnalysisRow(alt.client, USER, leer);
+    assert(ra.ok && ra.hinweise.every(h => h.startsWith('Spalte NOT NULL')), 'Vor der Migration: Speichern gelingt, fehlende Angaben werden weggelassen');
+    assertNode.deepEqual(await lade(alt, USER, ra.clientId), { ...leer, analysisId: ra.clientId });
+    assert(true, 'Vor der Migration: state hält weiterhin null');
   }
 
   console.log('\nLive-Tabelle ohne Migration (client_id, state, markt_facts fehlen)');

@@ -9,6 +9,7 @@ import {
   mapImmoscoutExpose,
 } from './immoscoutMobileApi';
 import { hatGenugDaten, pruefeImport } from './importPruefung';
+import { formatZahl } from './zahlen';
 
 export type UrlScraperInput = {
   url: string;
@@ -693,7 +694,7 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
       console.log(`[VALIDATION] ✓ Miete per m² (${mietePerSqm.toFixed(2)} €/m²) is in normal range - OK`);
     } else {
       console.warn(`[VALIDATION] ⚠️ Miete per m² is very low: ${mietePerSqm.toFixed(2)} €/m²`);
-      warnings.push(`⚠️ Kaltmiete erscheint sehr niedrig (${mietePerSqm.toFixed(2)} €/m²). Bitte manuell in der Originalanzeige überprüfen!`);
+      warnings.push(`⚠️ Kaltmiete erscheint sehr niedrig (${formatZahl(mietePerSqm, { min: 2, max: 2 })} €/m²). Bitte manuell in der Originalanzeige überprüfen!`);
     }
   }
   // Fallback for when flaeche is missing - use absolute values
@@ -705,7 +706,7 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
     // Fallback to absolute values when area is unknown
     if (validated.miete < 400) {
       console.warn('[VALIDATION] ⚠️ Miete value is suspiciously low:', validated.miete);
-      warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400€). Falls dies Hausgeld ist, bitte manuell korrigieren!');
+      warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400 €). Falls dies Hausgeld ist, bitte manuell korrigieren!');
     }
   }
   else if (validated.miete === null && validated.hausgeld !== null) {
@@ -717,13 +718,13 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
   // Check if Kaltmiete is suspiciously low (but still high enough to not be Hausgeld)
   if (validated.miete !== null && validated.miete > 0 && validated.miete < 400) {
     console.warn('[VALIDATION] ⚠️ Kaltmiete is very low:', validated.miete);
-    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400€). Bitte manuell überprüfen!');
+    warnings.push('⚠️ Kaltmiete erscheint sehr niedrig (unter 400 €). Bitte manuell überprüfen!');
   }
 
   // Check if Kaltmiete is suspiciously high (might be yearly)
   if (validated.miete !== null && validated.miete > 5000) {
     console.warn('[VALIDATION] ⚠️ Kaltmiete is very high:', validated.miete);
-    warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5000€). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
+    warnings.push('⚠️ Kaltmiete erscheint sehr hoch (über 5.000 €). Falls Jahresmiete angegeben war, bitte durch 12 teilen!');
   }
 
   // Check if Hausgeld is suspiciously high (using €/m² if available)
@@ -732,12 +733,12 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
       const hausgeldPerSqm = validated.hausgeld / validated.flaeche;
       if (hausgeldPerSqm > TYPICAL_HAUSGELD_MAX_PER_SQM) {
         console.warn(`[VALIDATION] ⚠️ Hausgeld per m² is unusually high: ${hausgeldPerSqm.toFixed(2)} €/m²`);
-        warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (${hausgeldPerSqm.toFixed(2)} €/m²). Bitte manuell überprüfen!`);
+        warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (${formatZahl(hausgeldPerSqm, { min: 2, max: 2 })} €/m²). Bitte manuell überprüfen!`);
       }
     } else if (validated.hausgeld > 800) {
       // Fallback: absolute value check when flaeche missing
       console.warn('[VALIDATION] ⚠️ Hausgeld is unusually high:', validated.hausgeld);
-      warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über 800€). Bitte manuell überprüfen!`);
+      warnings.push(`⚠️ Hausgeld erscheint ungewöhnlich hoch (über 800 €). Bitte manuell überprüfen!`);
     }
   }
 
@@ -773,14 +774,14 @@ function validateAndFixOutput(output: UrlScraperResult): UrlScraperResult {
   if (validated.kaufpreis !== null && validated.kaufpreis > 0) {
     if (validated.maklergebuehr === null) {
       console.error('[VALIDATION] 🚨 Maklergebühr is NULL but Kaufpreis exists - agent FAILED to find it!');
-      warnings.push('🚨 KRITISCH: Maklergebühr wurde nicht gefunden! Bitte manuell als Prozentsatz (z.B. 3.0 für 3%) nachtragen.');
+      warnings.push('🚨 KRITISCH: Maklergebühr wurde nicht gefunden! Bitte manuell als Prozentsatz (z. B. 3,0 für 3 %) nachtragen.');
     } else if (validated.maklergebuehr === 0) {
       console.error('[VALIDATION] 🚨 Maklergebühr is 0 - agent should only set this if "provisionsfrei"!');
       warnings.push('⚠️ Maklergebühr wurde als 0 erkannt. Falls KEINE explizite "provisionsfrei" Angabe existiert, bitte manuell nachtragen!');
     } else if (validated.maklergebuehr > 10) {
       // Check if percentage looks suspicious (too high)
       console.warn('[VALIDATION] ⚠️ Maklergebühr percentage seems very high:', validated.maklergebuehr);
-      warnings.push(`⚠️ Maklergebühr erscheint sehr hoch (${validated.maklergebuehr}%). Bitte überprüfen - normalerweise 2-4%.`);
+      warnings.push(`⚠️ Maklergebühr erscheint sehr hoch (${formatZahl(validated.maklergebuehr)} %). Bitte überprüfen - normalerweise 2–4 %.`);
     }
   }
 

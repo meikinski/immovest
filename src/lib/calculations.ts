@@ -14,65 +14,6 @@ export function berechneNebenkosten(
   }
   
   /**
- * Berechnet den operativen Monats-Cashflow
- */
-export function berechneCashflowOperativ(
-    miete: number,
-    hausgeld: number,
-    hausgeld_umlegbar: number,
-    mietausfall_pct: number,
-    instandhaltungskosten_pro_qm: number,
-    kaufpreis: number,
-    grunderwerbsteuer_pct: number,
-    notar_pct: number,
-    makler_pct: number,
-    ek: number,
-    zins: number,
-    tilgung: number,
-    steuer: number,
-    afa: number,
-    ruecklagen: number,
-    objekttyp?: 'wohnung' | 'haus' | 'mfh',
-    verwaltungskosten?: number
-  ): number {
-    // Bei ETW: hausgeld = WEG-Kosten
-    // Bei Haus/MFH: hausgeld = 0, verwaltungskosten separat
-    const betriebskosten = objekttyp === 'wohnung'
-      ? hausgeld_umlegbar + (hausgeld - hausgeld_umlegbar)
-      : (verwaltungskosten || 0);
-
-    const mietausfall = (mietausfall_pct / 100) * (miete + hausgeld_umlegbar);
-    const instandhaltung = (instandhaltungskosten_pro_qm * (/* qm aus Store holen oder übergeben */ 1)) / 12;
-    const zinsRaten = ((kaufpreis - ek) * (zins / 100 + tilgung / 100)) / 12;
-    return miete + hausgeld_umlegbar - betriebskosten - mietausfall - instandhaltung - zinsRaten - ruecklagen;
-  }
-  
-  /**
-   * Berechnet die Nettomietrendite in Prozent
-   */
-  export function berechneNettomietrendite(
-    miete: number,
-    hausgeld: number,
-    hausgeld_umlegbar: number,
-    kaufpreis: number,
-    grunderwerbsteuer_pct: number,
-    notar_pct: number,
-    makler_pct: number,
-    objekttyp?: 'wohnung' | 'haus' | 'mfh',
-    verwaltungskosten?: number
-  ): number {
-    // Bei ETW: nicht umlagefähiges Hausgeld
-    // Bei Haus/MFH: Verwaltungskosten
-    const nichtUmlage = objekttyp === 'wohnung'
-      ? hausgeld - hausgeld_umlegbar
-      : (verwaltungskosten || 0);
-    const jahresNetto = (miete * 12) - (nichtUmlage * 12);
-    const kaufneben = berechneNebenkosten(kaufpreis, grunderwerbsteuer_pct, notar_pct, makler_pct).nk;
-    const investition = kaufpreis + kaufneben;
-    return (jahresNetto / investition) * 100;
-  }
-  
-  /**
  * Score auf Basis von Yield, Cashflow-EK-Rendite, DSCR-Proxy und BreakEven.
  */
 export function berechneScore(

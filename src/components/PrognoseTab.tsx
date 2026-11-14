@@ -24,6 +24,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { PrognoseJahr } from '@/lib/prognose-calculator';
+import { berechneVervielfachung, OHNE_EK_TEXT } from '@/lib/kennzahlen';
 import {
   baueMeilensteine, baueVerlauf, ETF_RENDITE, SPEKULATIONSFRIST_JAHRE,
   type PrognoseViewJahr,
@@ -152,11 +153,14 @@ export function PrognoseTab(props: PrognoseTabProps) {
   let kacheln: React.ReactNode;
 
   if (ziel === 'vermoegen') {
-    const faktor = ek > 0 ? letztes.vermoegen / ek : 0;
+    // Ohne Eigenkapital gibt es keinen Einsatz, auf den sich eine Vervielfachung beziehen ließe
+    const faktor = berechneVervielfachung(letztes.vermoegen, ek);
     lead = (
       <>
-        Aus deinen <B>{eur(ek)}</B> <Begriff k="einsatz">Einsatz</Begriff> werden in {n} Jahren rund <B>{eur(letztes.vermoegen)}</B> Vermögen.
-        Die Mieter zahlen deinen Kredit ab{schuldenfrei ? <>, ab <B>{schuldenfrei + 1}</B> gehört dir die Wohnung komplett</> : null}.
+        {faktor !== null
+          ? <>Aus deinen <B>{eur(ek)}</B> <Begriff k="einsatz">Einsatz</Begriff> werden in {n} Jahren rund <B>{eur(letztes.vermoegen)}</B> Vermögen.</>
+          : <>Ohne Eigenkapital finanzierst du die Wohnung komplett. In {n} Jahren entstehen rund <B>{eur(letztes.vermoegen)}</B> Vermögen. {OHNE_EK_TEXT}.</>}
+        {' '}Die Mieter zahlen deinen Kredit ab{schuldenfrei ? <>, ab <B>{schuldenfrei + 1}</B> gehört dir die Wohnung komplett</> : null}.
       </>
     );
     kacheln = (
@@ -164,10 +168,15 @@ export function PrognoseTab(props: PrognoseTabProps) {
         <KpiTile icon={House} label={`Vermögen ${letztes.jahr}`} value={fmt(letztes.vermoegen)} unit="€" caption="Wohnung + Konto − Kredit"
           rating={letztes.vermoegen > ek ? 'good' : 'bad'} ratingLabel={letztes.vermoegen > ek ? 'Wachsend' : 'Schrumpfend'} colorValue
           help="Wert der Wohnung minus Restschuld, plus alle Überschüsse auf deinem Konto." />
-        <KpiTile icon={TrendingUp} label="Vervielfachung" value={`× ${faktor.toLocaleString('de-DE', { maximumFractionDigits: 1 })}`}
-          caption={`deines Einsatzes von ${eur(ek)}`} rating={faktor >= 5 ? 'good' : faktor >= 2 ? 'ok' : 'bad'}
-          ratingLabel={faktor >= 5 ? 'Stark' : faktor >= 2 ? 'Solide' : 'Schwach'}
-          help="Wie oft dein eingesetztes Eigenkapital in deinem Vermögen steckt." />
+        {faktor !== null ? (
+          <KpiTile icon={TrendingUp} label="Vervielfachung" value={`× ${faktor.toLocaleString('de-DE', { maximumFractionDigits: 1 })}`}
+            caption={`deines Einsatzes von ${eur(ek)}`} rating={faktor >= 5 ? 'good' : faktor >= 2 ? 'ok' : 'bad'}
+            ratingLabel={faktor >= 5 ? 'Stark' : faktor >= 2 ? 'Solide' : 'Schwach'}
+            help="Wie oft dein eingesetztes Eigenkapital in deinem Vermögen steckt." />
+        ) : (
+          <KpiTile icon={TrendingUp} label="Vervielfachung" value="–" caption={OHNE_EK_TEXT}
+            help="Wie oft dein eingesetztes Eigenkapital in deinem Vermögen steckt. Ohne Eigenkapital gibt es keinen Einsatz, auf den sich das beziehen ließe." />
+        )}
         <KpiTile icon={CalendarDays} label="Schuldenfrei" value={schuldenfrei ? String(schuldenfrei) : '–'}
           caption={schuldenfrei ? `nach ${schuldenfrei - startJahr + 1} Jahren` : `nicht innerhalb von ${n} Jahren`}
           rating={schuldenfrei ? 'good' : 'ok'} ratingLabel={schuldenfrei ? 'In Sicht' : 'Später'}
@@ -247,9 +256,9 @@ export function PrognoseTab(props: PrognoseTabProps) {
           rating={sel.gewinn > 0 ? 'good' : 'bad'} ratingLabel={sel.gewinn > 0 ? 'Positiv' : 'Negativ'} colorValue
           help="Verkaufspreis minus Verkaufskosten, Restschuld und Steuern, plus deine Überschüsse, minus dein Eigenkapital." />
         <KpiTile icon={Percent} label="Rendite p.a." value={rendite !== null ? pct(rendite) : '–'} unit={rendite !== null ? '%' : undefined}
-          caption="auf dein Eigenkapital"
-          rating={rendite === null ? 'bad' : rendite >= 0.08 ? 'good' : rendite >= 0.04 ? 'ok' : 'bad'}
-          ratingLabel={rendite === null ? 'Verlust' : rendite >= 0.08 ? 'Stark' : rendite >= 0.04 ? 'Solide' : 'Schwach'}
+          caption={ek > 0 ? 'auf dein Eigenkapital' : 'ohne Eigenkapital nicht berechenbar'}
+          rating={ek > 0 ? (rendite === null ? 'bad' : rendite >= 0.08 ? 'good' : rendite >= 0.04 ? 'ok' : 'bad') : undefined}
+          ratingLabel={ek > 0 ? (rendite === null ? 'Verlust' : rendite >= 0.08 ? 'Stark' : rendite >= 0.04 ? 'Solide' : 'Schwach') : undefined}
           help={BEGRIFFE.rendite} />
         <KpiTile icon={BarChart3} label="vs. ETF" value={`${diff >= 0 ? '+' : '−'}${fmt(Math.abs(diff))}`} unit="€"
           caption={`${diff >= 0 ? 'mehr' : 'weniger'} als im ETF mit ${pctZahl(ETF_RENDITE * 100)}`}
@@ -284,7 +293,9 @@ export function PrognoseTab(props: PrognoseTabProps) {
     detailExtra = (
       <>
         <div className="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-          Zum Vergleich: {eur(ek)} im ETF mit {pctZahl(ETF_RENDITE * 100)} pro Jahr ergeben bis {sel.jahr} <span className="font-bold text-[#001d3d]">{eur(sel.etfGewinn)}</span> Gewinn.
+          {ek > 0
+            ? <>Zum Vergleich: {eur(ek)} im ETF mit {pctZahl(ETF_RENDITE * 100)} pro Jahr ergeben bis {sel.jahr} <span className="font-bold text-[#001d3d]">{eur(sel.etfGewinn)}</span> Gewinn.</>
+            : <>Ohne Eigenkapital gibt es keinen Einsatz, den du stattdessen in einen ETF stecken könntest.</>}
         </div>
         {sel.spekulationssteuer > 0 && steuerfreiAb && (
           <div className="mt-3 rounded-xl bg-amber-50 p-3 text-xs text-amber-700">
@@ -341,7 +352,7 @@ export function PrognoseTab(props: PrognoseTabProps) {
         <Zeile label="− Gehört noch der Bank" value={`−${eur(sel.restschuld)}`} hint={<><Begriff k="restschuld">Restschuld</Begriff> deines Kredits</>} />
         <Zeile label="= In der Wohnung" value={eur(sel.anteilWohnung)} hint={`dein abbezahlter Teil: ${anteilPct} % der Wohnung gehören dir`} />
         <Zeile label="+ Auf deinem Konto" value={eurVz(sel.konto)} hint={<>alle <Begriff k="ueberschuss">Monatsüberschüsse</Begriff> bis {sel.jahr}</>} />
-        <Zeile label="Dein Vermögen" value={eur(sel.vermoegen)} total schlecht={sel.vermoegen < 0} hint={`aus ${eur(ek)} Einsatz`} />
+        <Zeile label="Dein Vermögen" value={eur(sel.vermoegen)} total schlecht={sel.vermoegen < 0} hint={ek > 0 ? `aus ${eur(ek)} Einsatz` : 'ohne Eigenkapital finanziert'} />
       </>
     );
   }

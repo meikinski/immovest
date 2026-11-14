@@ -1,14 +1,17 @@
 // src/store/useImmoStore.ts
 import { create } from 'zustand';
+import { berechneScore } from '@/lib/calculations';
 import {
-    berechneCashflowOperativ,
-    berechneNettomietrendite,
-    berechneScore
-  } from '@/lib/calculations';
+  berechneCashflowVorSteuern,
+  berechneDarlehen,
+  berechneNettomietrendite,
+  type KennzahlenEingabe,
+} from '@/lib/kennzahlen';
 import type { MarketFacts } from '@/lib/marketFacts';
 import { BUNDESLAENDER, istBundesland, type BundeslandCode } from '@/config/grunderwerbsteuer';
 import { bundeslandAusAdresse } from '@/lib/plzBundesland';
 import type { ImportFeld } from '@/lib/importPruefung';
+import { leereWerteAlsNull, nullAlsLeererWert } from '@/lib/leereWerte';
 
 /** localStorage-Schlüssel für den automatisch gesicherten Arbeitsstand (siehe useStatePersistence) */
 export const AUTOSAVE_KEY = 'immovest_kpi_state';
@@ -77,6 +80,8 @@ export interface ImmoState {
 
   // Import: fehlende Angaben und Hinweise aus dem Inserat
   importFehlend: ImportFeld[];
+  /** Importierte, aber unplausible Angaben (z. B. Hausgeld = Kaltmiete): müssen bestätigt oder geändert werden */
+  importUnsicher: ImportFeld[];
   importHinweise: string[];
 
   // AfA-Turbo Felder (§7 Abs. 4, §7 Abs. 5a, §7b EStG)
@@ -115,6 +120,7 @@ export interface ImmoState {
   setBundesland: (v: BundeslandCode | null) => void;
   setEkStartwert: (v: number) => void;
   erledigeImportFeld: (feld: ImportFeld) => void;
+  bestaetigeImportFeld: (feld: ImportFeld) => void;
   setNotarPct: (v: number) => void;
   setMaklerPct: (v: number) => void;
   setSonstigeKosten: (v: number) => void;
@@ -223,6 +229,7 @@ const initialState = {
   ek: 0,
   ekManuell: false,
   importFehlend: [] as ImportFeld[],
+  importUnsicher: [] as ImportFeld[],
   importHinweise: [] as string[],
   zins: 3.5,
   tilgung: 2,
@@ -249,44 +256,33 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
   ...initialState,
   updateDerived: () => {
     const s = get();
-    const cf = berechneCashflowOperativ(
-      s.miete,
-      s.hausgeld,
-      s.hausgeld_umlegbar,
-      s.mietausfall_pct,
-      s.instandhaltungskosten_pro_qm,
-      s.kaufpreis,
-      s.grunderwerbsteuer_pct,
-      s.notar_pct,
-      s.makler_pct,
-      s.ek,
-      s.zins,
-      s.tilgung,
-      s.steuer,
-      s.afa,
-      s.ruecklagen,
-      s.objekttyp,
-      s.verwaltungskosten
-    );
-    const nr = berechneNettomietrendite(
-      s.miete,
-      s.hausgeld,
-      s.hausgeld_umlegbar,
-      s.kaufpreis,
-      s.grunderwerbsteuer_pct,
-      s.notar_pct,
-      s.makler_pct,
-      s.objekttyp,
-      s.verwaltungskosten
-    );
+    // Dieselben Formeln wie die Ergebnis-Karten (src/lib/kennzahlen.ts), damit gespeicherte Werte,
+    // die Liste "Meine Analysen" und der Chat dieselben Zahlen zeigen wie die Karten
+    const eingabe: KennzahlenEingabe = {
+      kaufpreis: s.kaufpreis,
+      grunderwerbsteuerPct: s.grunderwerbsteuer_pct,
+      notarPct: s.notar_pct,
+      maklerPct: s.makler_pct,
+      sonstigeKosten: s.sonstige_kosten,
+      miete: s.miete,
+      hausgeld: s.hausgeld,
+      hausgeldUmlegbar: s.hausgeld_umlegbar,
+      instandhaltungProQmJahr: s.instandhaltungskosten_pro_qm,
+      flaeche: s.flaeche,
+      mietausfallPct: s.mietausfall_pct,
+      ek: s.ek,
+      zins: s.zins,
+      tilgung: s.tilgung,
+    };
+    const cf = berechneCashflowVorSteuern(eingabe);
+    const nr = berechneNettomietrendite(eingabe);
 
-    const darlehensSumme = s.kaufpreis - s.ek;
+    const darlehensSumme = berechneDarlehen(eingabe);
     const jahresrate = darlehensSumme * ((s.zins + s.tilgung) / 100);
 
     const breakEvenJahre = cf > 0 ? s.ek / (cf * 12) : Infinity;
 
     const sc = berechneScore(nr, cf, s.ek, jahresrate, breakEvenJahre);
-    console.log('updateDerived →', { cf, nr, sc, ek: s.ek, kaufpreis: s.kaufpreis });
     set({ cashflow_operativ: cf, nettorendite: nr, score: sc });
   },
   // Setter-Implementierungen
@@ -352,7 +348,13 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
   setHausgeld: (v: number) => {
-    set({ hausgeld: v, generatedComment: '' });
+    // Ein geänderter Wert gilt als geprüft; Verlassen des Felds ohne Änderung nicht
+    const geaendert = Math.abs(v - get().hausgeld) >= 0.005;
+    set({
+      hausgeld: v,
+      generatedComment: '',
+      ...(geaendert ? { importUnsicher: get().importUnsicher.filter(f => f !== 'hausgeld') } : {}),
+    });
     get().updateDerived();
   },
   setHausgeldUmlegbar: (v: number) => {
@@ -393,6 +395,10 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     if (get().ekManuell || get().ek === v) return;
     set({ ek: v, generatedComment: '' });
     get().updateDerived();
+  },
+  bestaetigeImportFeld: (feld: ImportFeld) => {
+    if (!get().importUnsicher.includes(feld)) return;
+    set({ importUnsicher: get().importUnsicher.filter(f => f !== feld) });
   },
   erledigeImportFeld: (feld: ImportFeld) => {
     if (!get().importFehlend.includes(feld)) return;
@@ -455,9 +461,13 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
     get().updateDerived();
   },
 
-  importData: (data) => {
+  importData: (eingang) => {
+    // Gespeicherte und importierte Stände tragen null für fehlende Angaben, der Store 0 (Feld leer)
+    const grEStOffen = (eingang as Record<string, unknown>).grunderwerbsteuer_pct === null;
+    const data = nullAlsLeererWert(eingang as Record<string, unknown>) as typeof eingang;
+    if (grEStOffen) delete (data as Record<string, unknown>).grunderwerbsteuer_pct;
     // Automatically calculate AfA based on baujahr if not explicitly provided
-    const updates = { ...data };
+    const updates = { ...data, ...(grEStOffen ? { grunderwerbsteuer_pct: 0 } : {}) };
     if (data.baujahr !== undefined && data.afa === undefined) {
       updates.afa = getDefaultAfa(data.baujahr);
     }
@@ -535,7 +545,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
 
   exportState: () => {
     const state = get();
-    return {
+    return leereWerteAlsNull({
       analysisId: state.analysisId,
       analysisName: state.analysisName || state.adresse || 'Unbenannte Analyse',
       createdAt: state.createdAt || new Date().toISOString(),
@@ -566,6 +576,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       ek: state.ek,
       ekManuell: state.ekManuell,
       importFehlend: state.importFehlend,
+      importUnsicher: state.importUnsicher,
       importHinweise: state.importHinweise,
       zins: state.zins,
       tilgung: state.tilgung,
@@ -586,6 +597,6 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       afaModell: state.afaModell,
       nutzeSonderAfa: state.nutzeSonderAfa,
       grundstueckswert: state.grundstueckswert,
-    };
+    });
   },
 }));
