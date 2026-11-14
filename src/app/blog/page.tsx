@@ -4,7 +4,7 @@ import { getAllPosts } from '@/lib/blog'
 import { Header } from '@/components/Header'
 
 export const metadata: Metadata = {
-  title: 'Blog – Immobilien-Wissen & Investment-Tipps | Imvestr',
+  title: 'Blog – Immobilien-Wissen & Investment-Tipps | imvestr',
   description:
     'Fundiertes Wissen rund um Immobilien-Investment: Rendite, Cashflow, Finanzierung und mehr. Alles was du brauchst, um kluge Entscheidungen zu treffen.',
   alternates: {
@@ -14,10 +14,10 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'de_DE',
     url: 'https://imvestr.de/blog',
-    title: 'Blog – Immobilien-Wissen & Investment-Tipps | Imvestr',
+    title: 'Blog – Immobilien-Wissen & Investment-Tipps | imvestr',
     description:
       'Fundiertes Wissen rund um Immobilien-Investment: Rendite, Cashflow, Finanzierung und mehr.',
-    siteName: 'Imvestr',
+    siteName: 'imvestr',
   },
 }
 
@@ -32,7 +32,7 @@ export default async function BlogPage() {
         {/* Hero */}
         <section className="max-w-5xl mx-auto px-6 pt-14 pb-16 text-center">
           <p className="text-sm font-semibold tracking-widest text-[#ff6b00] uppercase mb-4">
-            Imvestr Blog
+            imvestr Blog
           </p>
           <h1 className="text-5xl font-extrabold tracking-tighter text-[#001d3d] mb-5 leading-tight">
             Wissen für smarte{" "}
@@ -115,7 +115,7 @@ export default async function BlogPage() {
               Bereit, dein Investment zu analysieren?
             </h2>
             <p className="text-gray-300 text-sm leading-relaxed mb-7 max-w-md mx-auto">
-              Imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
+              imvestr berechnet Rendite, Cashflow und Risiko — in Sekunden. Einfach
               Exposé-Link eingeben und loslegen.
             </p>
             <Link

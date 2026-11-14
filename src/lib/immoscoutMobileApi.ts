@@ -57,7 +57,7 @@ export async function fetchImmoscoutExpose(exposeId: string): Promise<unknown> {
       console.log(`[IS24 Mobile API] expose ${exposeId} (${userAgent}): HTTP ${response.status}`);
 
       if (response.status === 404) {
-        throw new Error('Diese ImmoScout24-Anzeige ist nicht (mehr) online.\n\n💡 Lösung: Prüfe den Link oder gib die Daten manuell ein.');
+        throw new Error('Diese ImmoScout24-Anzeige ist nicht (mehr) online. Prüfe den Link.');
       }
 
       const contentType = response.headers.get('content-type') ?? '';
@@ -73,7 +73,7 @@ export async function fetchImmoscoutExpose(exposeId: string): Promise<unknown> {
     }
   }
 
-  throw new Error(`ImmoScout24 konnte gerade nicht abgerufen werden (${lastError}).\n\n💡 Lösung: Versuch es gleich nochmal oder gib die Daten manuell ein.`);
+  throw new Error(`ImmoScout24 konnte gerade nicht abgerufen werden (${lastError}). Versuch es gleich nochmal.`);
 }
 
 type Attribute = { label?: string; text?: string };

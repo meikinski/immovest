@@ -2,11 +2,10 @@
 
 import { signUpHref } from '@/lib/anmeldeLinks';
 import React, { useState } from 'react';
-import { Save, Check, Lock } from 'lucide-react';
+import { Save, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@clerk/nextjs';
 import { useImmoStore } from '@/store/useImmoStore';
-import { usePaywall } from '@/contexts/PaywallContext';
 import { saveAnalysis, saveScenario } from '@/lib/storage';
 import { toast } from 'sonner';
 
@@ -43,51 +42,45 @@ interface SaveAnalysisButtonProps {
   scenarioData?: ScenarioData;
 }
 
+/**
+ * Speichert die aktuelle Analyse im Konto (Supabase) und als lokale Kopie.
+ * Speichern ist für jedes Konto kostenlos. Gibt die stabile analysisId zurück.
+ */
+export async function speichereAnalyse(userId: string | null | undefined): Promise<string> {
+  const store = useImmoStore.getState();
+  const stateData = store.exportState();
+  // Stabile ID vor dem ersten Speichern vergeben – Supabase und localStorage nutzen dieselbe
+  if (!stateData.analysisId) {
+    stateData.analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  }
+
+  const response = await fetch('/api/analysis', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(stateData),
+  });
+  if (!response.ok) throw new Error('Failed to save analysis');
+
+  const result = (await response.json()) as { analysisId: string };
+  if (useImmoStore.getState().analysisId !== result.analysisId) store.setAnalysisId(result.analysisId);
+
+  // Lokale Kopie als Backup (schnelles Öffnen, auch offline)
+  try { saveAnalysis(userId || null, { ...stateData, analysisId: result.analysisId }); } catch { /* Speicher voll oder privater Modus */ }
+  return result.analysisId;
+}
+
 export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
   const { userId } = useAuth();
-  const exportState = useImmoStore((s) => s.exportState);
-  const setAnalysisId = useImmoStore((s) => s.setAnalysisId);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const router = useRouter();
-  const { isPremium, setShowUpgradeModal } = usePaywall();
 
   const handleSave = async () => {
     setIsSaving(true);
 
     try {
-      const stateData = exportState();
-      // Stabile ID vor dem ersten Speichern vergeben – Supabase und localStorage nutzen dieselbe
-      if (!stateData.analysisId) {
-        stateData.analysisId = `analysis_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      }
-
-      // Save to Supabase via API
-      const response = await fetch('/api/analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(stateData),
-      });
-
-      // Kein Premium (z. B. abgelaufen): Paywall statt Fehlermeldung
-      if (response.status === 403) {
-        setShowUpgradeModal(true, 'speichern');
-        return;
-      }
-      if (!response.ok) {
-        throw new Error('Failed to save analysis');
-      }
-
-      const result = await response.json();
+      const result = { analysisId: await speichereAnalyse(userId) };
       console.log('✅ Analyse gespeichert:', result.analysisId);
-
-      // Update analysisId in store
-      setAnalysisId(result.analysisId);
-
-      // Also save to localStorage as backup
-      saveAnalysis(userId || null, { ...stateData, analysisId: result.analysisId });
 
       // Save scenario if there are any changes
       if (scenarioData) {
@@ -145,16 +138,16 @@ export function SaveAnalysisButton({ scenarioData }: SaveAnalysisButtonProps) {
     }
   };
 
-  // Speichern gibt es nur mit Premium (ohne Konto führt die Paywall zur Anmeldung)
-  if (!userId || !isPremium) {
+  // Speichern ist kostenlos, braucht aber ein Konto
+  if (!userId) {
     return (
       <button
         type="button"
-        onClick={() => setShowUpgradeModal(true, 'speichern')}
+        onClick={() => router.push(signUpHref('save_analysis', '/step/tabs'))}
         className="btn-primary flex items-center gap-2"
       >
-        <Lock size={18} />
-        Speichern mit Premium
+        <Save size={18} />
+        Anmelden und speichern
       </button>
     );
   }

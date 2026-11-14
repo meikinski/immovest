@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     "rendite rechner immobilie",
     "immobilien roi rechner",
   ],
-  authors: [{ name: "Imvestr" }],
-  creator: "Imvestr",
-  publisher: "Imvestr",
+  authors: [{ name: "imvestr" }],
+  creator: "imvestr",
+  publisher: "imvestr",
   metadataBase: new URL('https://imvestr.de'),
   alternates: {
     canonical: '/',
@@ -45,13 +45,13 @@ export const metadata: Metadata = {
     url: "https://imvestr.de",
     title: "Cashflow Immobilie berechnen — KI-Renditerechner | imvestr",
     description: "Rendite & Cashflow berechnen, Szenarien testen, PDF exportieren. Mit KI-Import von ImmoScout24 & Immowelt. Cashflow, Nettomietrendite, EK-Rendite & DSCR automatisch berechnen.",
-    siteName: "Imvestr",
+    siteName: "imvestr",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Imvestr - KI-basierter Immobilien-Renditerechner",
+        alt: "imvestr - KI-basierter Immobilien-Renditerechner",
       },
     ],
   },
@@ -78,7 +78,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Imvestr',
+    title: 'imvestr',
   },
   manifest: '/manifest.json',
 };

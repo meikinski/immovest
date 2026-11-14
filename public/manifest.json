@@ -1,6 +1,6 @@
 {
-  "name": "ImVestr - Immobilien Renditerechner",
-  "short_name": "ImVestr",
+  "name": "imvestr - Immobilien Renditerechner",
+  "short_name": "imvestr",
   "description": "KI-basierter Immobilien-Renditerechner: Cashflow, Nettomietrendite & EK-Rendite berechnen",
   "start_url": "/",
   "display": "standalone",

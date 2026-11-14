@@ -13,18 +13,18 @@
  * - Portal detection from any URL
  * - Reliability ratings (high/medium/unknown)
  * - User-facing warnings for unknown/experimental portals
- * - Better error messages that guide users to alternatives
+ * - Clear error reasons; the input page adds the fallback (Foto/Screenshot scannen, manuelle Eingabe)
  *
  * HOW IT WORKS:
  * 1. User enters URL → detectPortal() identifies the portal
  * 2. API adds portal-specific warnings BEFORE attempting scraping
- * 3. If scraping fails, error message explains WHY and suggests alternatives
+ * 3. If scraping fails, the error message explains WHY; the input page offers the fallback
  * 4. Frontend shows warnings clearly so users know what to expect
  *
  * SUPPORTED PORTALS:
  * - ImmobilienScout24 (high reliability)
  * - Immowelt (high reliability)
- * - eBay Kleinanzeigen (high reliability)
+ * - Kleinanzeigen (high reliability)
  * - Immonet (medium - experimental)
  * - Austrian portals (medium - different data format)
  *
@@ -57,13 +57,13 @@ const KNOWN_PORTALS: Record<string, PortalInfo> = {
     reliability: 'high',
   },
   'kleinanzeigen.de': {
-    name: 'eBay Kleinanzeigen',
+    name: 'Kleinanzeigen',
     domain: 'kleinanzeigen.de',
     supported: true,
     reliability: 'high',
   },
   'ebay-kleinanzeigen.de': {
-    name: 'eBay Kleinanzeigen (alte Domain)',
+    name: 'Kleinanzeigen',
     domain: 'ebay-kleinanzeigen.de',
     supported: true,
     reliability: 'high',
@@ -119,7 +119,7 @@ export function detectPortal(url: string): PortalInfo {
       domain: hostname,
       supported: false,
       reliability: 'unknown',
-      warning: `⚠️ UNBEKANNTES PORTAL: ${hostname} ist nicht in unserer Liste bekannter Immobilienportale. Die KI wird versuchen, Daten zu extrahieren, aber die Erfolgsrate ist ungewiss. Bitte überprüfe alle Werte manuell sehr sorgfältig!`,
+      warning: `${hostname} wird beim Link-Import noch nicht unterstützt. Der Link-Import funktioniert mit ImmoScout24, Immowelt und Kleinanzeigen.`,
     };
   } catch {
     // Invalid URL
