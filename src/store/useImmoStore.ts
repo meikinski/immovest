@@ -477,6 +477,7 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       grunderwerbsteuer_pct: state.grunderwerbsteuer_pct,
       notar_pct: state.notar_pct,
       makler_pct: state.makler_pct,
+      sonstige_kosten: state.sonstige_kosten,
       flaeche: state.flaeche,
       adresse: state.adresse,
       zimmer: state.zimmer,

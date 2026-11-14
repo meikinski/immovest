@@ -1,5 +1,7 @@
 -- ImmoVest Database Schema
 -- Run this in your Supabase SQL Editor
+-- Kann wiederholt ausgeführt werden (auch auf einer bestehenden Datenbank).
+-- Bestehende Datenbank auf den aktuellen Stand bringen: supabase/migrations/*.sql
 
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -16,7 +18,7 @@ CREATE TABLE IF NOT EXISTS analyses (
   kaufpreis NUMERIC NOT NULL DEFAULT 0,
   adresse TEXT NOT NULL DEFAULT '',
   flaeche NUMERIC NOT NULL DEFAULT 0,
-  zimmer INTEGER NOT NULL DEFAULT 0,
+  zimmer NUMERIC NOT NULL DEFAULT 0, -- auch 2,5 Zimmer
   baujahr INTEGER NOT NULL DEFAULT 2024,
 
   -- Financial data
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS analyses (
   state JSONB DEFAULT NULL
 );
 
--- Migration für bestehende Datenbanken
+-- Migration für bestehende Datenbanken (vollständig: supabase/migrations/2026-11-14_analyses_speichern.sql)
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS markt_facts JSONB DEFAULT NULL;
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS client_id TEXT DEFAULT NULL;
 ALTER TABLE analyses ADD COLUMN IF NOT EXISTS state JSONB DEFAULT NULL;
@@ -112,34 +114,55 @@ ALTER TABLE user_premium_usage ENABLE ROW LEVEL SECURITY;
 -- RLS Policies for analyses
 -- Note: Since we're using Clerk, we'll handle authorization in the API layer
 -- For now, allow authenticated users to access their own data
-CREATE POLICY "Users can view their own analyses"
-  ON analyses FOR SELECT
-  USING (true); -- Will be filtered in API by user_id
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'analyses' AND policyname = 'Users can view their own analyses') THEN
+    CREATE POLICY "Users can view their own analyses"
+      ON analyses FOR SELECT USING (true);
+  END IF;
+END $$; -- Will be filtered in API by user_id
 
-CREATE POLICY "Users can insert their own analyses"
-  ON analyses FOR INSERT
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'analyses' AND policyname = 'Users can insert their own analyses') THEN
+    CREATE POLICY "Users can insert their own analyses"
+      ON analyses FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can update their own analyses"
-  ON analyses FOR UPDATE
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'analyses' AND policyname = 'Users can update their own analyses') THEN
+    CREATE POLICY "Users can update their own analyses"
+      ON analyses FOR UPDATE USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can delete their own analyses"
-  ON analyses FOR DELETE
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'analyses' AND policyname = 'Users can delete their own analyses') THEN
+    CREATE POLICY "Users can delete their own analyses"
+      ON analyses FOR DELETE USING (true);
+  END IF;
+END $$;
 
 -- RLS Policies for user_premium_usage
-CREATE POLICY "Users can view their own premium usage"
-  ON user_premium_usage FOR SELECT
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'user_premium_usage' AND policyname = 'Users can view their own premium usage') THEN
+    CREATE POLICY "Users can view their own premium usage"
+      ON user_premium_usage FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can update their own premium usage"
-  ON user_premium_usage FOR UPDATE
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'user_premium_usage' AND policyname = 'Users can update their own premium usage') THEN
+    CREATE POLICY "Users can update their own premium usage"
+      ON user_premium_usage FOR UPDATE USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "System can insert premium usage"
-  ON user_premium_usage FOR INSERT
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'user_premium_usage' AND policyname = 'System can insert premium usage') THEN
+    CREATE POLICY "System can insert premium usage"
+      ON user_premium_usage FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
 -- Scenarios table
 CREATE TABLE IF NOT EXISTS scenarios (
@@ -196,18 +219,30 @@ CREATE TRIGGER update_scenarios_updated_at BEFORE UPDATE ON scenarios
 -- Row Level Security (RLS) for scenarios
 ALTER TABLE scenarios ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view their own scenarios"
-  ON scenarios FOR SELECT
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'scenarios' AND policyname = 'Users can view their own scenarios') THEN
+    CREATE POLICY "Users can view their own scenarios"
+      ON scenarios FOR SELECT USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can insert their own scenarios"
-  ON scenarios FOR INSERT
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'scenarios' AND policyname = 'Users can insert their own scenarios') THEN
+    CREATE POLICY "Users can insert their own scenarios"
+      ON scenarios FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can update their own scenarios"
-  ON scenarios FOR UPDATE
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'scenarios' AND policyname = 'Users can update their own scenarios') THEN
+    CREATE POLICY "Users can update their own scenarios"
+      ON scenarios FOR UPDATE USING (true);
+  END IF;
+END $$;
 
-CREATE POLICY "Users can delete their own scenarios"
-  ON scenarios FOR DELETE
-  USING (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname = current_schema() AND tablename = 'scenarios' AND policyname = 'Users can delete their own scenarios') THEN
+    CREATE POLICY "Users can delete their own scenarios"
+      ON scenarios FOR DELETE USING (true);
+  END IF;
+END $$;
