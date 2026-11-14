@@ -29,6 +29,7 @@ const basis: SzenarioBasis = {
   sonstigeKosten: 1000,
   hausgeld: 180,
   hausgeldUmlegbar: 150,
+  verwaltungskosten: 0,
   instandhaltungProQmJahr: 10,
   instandKalkProQmJahr: 10,
   mietausfallPct: 2,

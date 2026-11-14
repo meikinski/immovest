@@ -14,8 +14,10 @@ export interface SzenarioBasis {
   notarPct: number;
   maklerPct: number;
   sonstigeKosten: number;
-  hausgeld: number; // Hausgeld gesamt pro Monat
+  // Laufende Kosten wie aus berechneLaufendeKosten (kennzahlen.ts), also schon je Objekttyp aufgeteilt
+  hausgeld: number; // Hausgeld gesamt pro Monat (Haus/MFH: umgelegte Nebenkosten)
   hausgeldUmlegbar: number; // davon auf den Mieter umlegbar
+  verwaltungskosten: number; // Verwaltungskosten pro Monat (Haus/MFH), nicht umlagefähig
   instandhaltungProQmJahr: number; // für die Bewirtschaftungskosten (Rendite-Kennzahlen)
   instandKalkProQmJahr: number; // für die kalkulatorische Rücklage im Cashflow
   mietausfallPct: number;
@@ -79,9 +81,10 @@ export function berechneSzenario(b: SzenarioBasis, d: SzenarioDeltas = KEINE_DEL
 
   const scWarmmiete = scMiete + b.hausgeldUmlegbar;
   const scJahresKalt = scMiete * 12;
-  const scBewJ = (b.hausgeld - b.hausgeldUmlegbar) * 12 + b.instandhaltungProQmJahr * b.flaeche;
+  const verwaltung = b.verwaltungskosten || 0;
+  const scBewJ = (b.hausgeld - b.hausgeldUmlegbar + verwaltung) * 12 + b.instandhaltungProQmJahr * b.flaeche;
   const scKalkKostenMon = (b.instandKalkProQmJahr * b.flaeche) / 12 + scMiete * (b.mietausfallPct / 100);
-  const scNoiMonthly = scWarmmiete - b.hausgeld - scKalkKostenMon;
+  const scNoiMonthly = scWarmmiete - b.hausgeld - verwaltung - scKalkKostenMon;
 
   // Cashflow, Rate und Steuer über dieselbe Rechnung wie die Prognose,
   // damit Basis und Szenario ohne Änderung identisch sind
@@ -95,6 +98,7 @@ export function berechneSzenario(b: SzenarioBasis, d: SzenarioDeltas = KEINE_DEL
       tilgung: scTilgung,
       warmmiete: scWarmmiete,
       hausgeld: b.hausgeld,
+      verwaltungskosten: verwaltung,
       kalkKostenMonthly: scKalkKostenMon,
       afaJaehrlich: b.afaJaehrlich * kaufpreisFaktor,
       steuersatz: b.steuersatzPct,

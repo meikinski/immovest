@@ -59,7 +59,7 @@ const BEGRIFFE = {
   restschuld: 'Der Teil des Kredits, den du noch nicht zurückgezahlt hast. Sinkt mit jeder Rate.',
   afa: 'Abschreibung: Das Finanzamt erkennt jedes Jahr einen Teil des Gebäudewerts als Kosten an, obwohl du dafür nichts bezahlst. Das senkt deine Steuern.',
   zinsen: 'Kreditzinsen sind bei vermieteten Wohnungen absetzbar. Die Tilgung nicht, denn damit baust du Vermögen auf.',
-  ueberschuss: 'Was nach Miete minus Kreditrate, Hausgeld, Rücklagen und Steuern übrig bleibt.',
+  ueberschuss: 'Was nach Miete minus Kreditrate, Hausgeld bzw. Verwaltungskosten, Rücklagen und Steuern übrig bleibt.',
   rendite: 'Um wie viel Prozent pro Jahr dein Eigenkapital im Schnitt gewachsen ist. Direkt vergleichbar mit Zinsen oder ETF-Renditen.',
   spekfrist: 'Verkaufst du eine vermietete Immobilie nach mehr als 10 Jahren, ist der Gewinn steuerfrei. Davor wird er mit deinem Steuersatz versteuert.',
   einsatz: 'Dein Eigenkapital beim Kauf: Anzahlung plus Kaufnebenkosten.',
@@ -119,6 +119,8 @@ export interface PrognoseTabProps {
   setVerkaufsNebenkostenPct: (v: number) => void;
   darlehensTyp: DarlehensTyp;
   setDarlehensTyp: (v: DarlehensTyp) => void;
+  /** Haus/MFH: statt Hausgeld umgelegte Nebenkosten und Verwaltungskosten */
+  istHaus?: boolean;
   onWeiter: () => void;
 }
 
@@ -236,7 +238,7 @@ export function PrognoseTab(props: PrognoseTabProps) {
         <KpiTile icon={Percent} label={`Steuer ${erstes.jahr}`} value={fmt(Math.abs(erstes.steuer))} unit="€"
           caption={erstes.steuer < 0 ? 'Erstattung vom Finanzamt' : 'zahlst du auf den Mietgewinn'}
           rating={erstes.steuer < 0 ? 'good' : 'ok'} ratingLabel={erstes.steuer < 0 ? 'Erstattung' : 'Zahlung'} colorValue={erstes.steuer < 0}
-          help="Mieteinnahmen minus Hausgeld, Zinsen und AfA, multipliziert mit deinem Steuersatz. Negativ heißt: Die Wohnung senkt deine Steuerlast." />
+          help="Mieteinnahmen minus Hausgeld bzw. Verwaltungskosten, Zinsen und AfA, multipliziert mit deinem Steuersatz. Negativ heißt: Die Wohnung senkt deine Steuerlast." />
       </>
     );
   } else {
@@ -310,7 +312,12 @@ export function PrognoseTab(props: PrognoseTabProps) {
       <>
         <Zeile label="Mieteinnahme (warm)" value={`+${eur(sel.mieteMonatlich)}`} />
         <Zeile label="− Kreditrate" value={`−${eur(sel.rateMonatlich)}`} hint={sel.rateMonatlich < 0.5 ? 'Kredit ist abbezahlt' : 'Zins und Tilgung'} />
-        <Zeile label="− Hausgeld" value={`−${eur(sel.hausgeldMonatlich)}`} />
+        {(!props.istHaus || sel.hausgeldMonatlich > 0) && (
+          <Zeile label={props.istHaus ? '− Umgelegte Nebenkosten' : '− Hausgeld'} value={`−${eur(sel.hausgeldMonatlich)}`} />
+        )}
+        {sel.verwaltungskostenMonatlich > 0 && (
+          <Zeile label="− Verwaltungskosten" value={`−${eur(sel.verwaltungskostenMonatlich)}`} hint="nicht umlagefähig" />
+        )}
         <Zeile label="− Rücklagen & Mietausfall" value={`−${eur(sel.kalkKostenMonatlich)}`} hint="Instandhaltung und Leerstand" />
         <Zeile label={sel.steuerMonatlich >= 0 ? '− Steuer' : '+ Steuererstattung'} value={eurVz(-sel.steuerMonatlich)}
           hint={<>inkl. <Begriff k="afa">AfA</Begriff>-Vorteil</>} />
@@ -328,7 +335,12 @@ export function PrognoseTab(props: PrognoseTabProps) {
     detailZeilen = (
       <>
         <Zeile label="Mieteinnahmen" value={`+${eur(sel.mieteinnahmen)}`} />
-        <Zeile label="− Hausgeld" value={`−${eur(sel.hausgeld)}`} />
+        {(!props.istHaus || sel.hausgeld > 0) && (
+          <Zeile label={props.istHaus ? '− Umgelegte Nebenkosten' : '− Hausgeld'} value={`−${eur(sel.hausgeld)}`} />
+        )}
+        {sel.verwaltungskosten > 0 && (
+          <Zeile label="− Verwaltungskosten" value={`−${eur(sel.verwaltungskosten)}`} hint="Werbungskosten, absetzbar" />
+        )}
         <Zeile label="− Kreditzinsen" value={`−${eur(sel.zinsen)}`} hint={<><Begriff k="zinsen">absetzbar</Begriff>, die Tilgung nicht</>} />
         <Zeile label="− Abschreibung (AfA)" value={`−${eur(sel.afa)}`} hint={<>jährlicher <Begriff k="afa">Abschreibungsbetrag</Begriff></>} />
         <Zeile label={sel.zuVersteuern >= 0 ? '= Zu versteuern' : '= Steuerlicher Verlust'} value={`${sel.zuVersteuern < 0 ? '−' : ''}${eur(Math.abs(sel.zuVersteuern))}`}
@@ -665,7 +677,7 @@ export function PrognoseTab(props: PrognoseTabProps) {
               <Slider label="Mietsteigerung p.a." value={props.mietInflationPct} onChange={props.setMietInflationPct} min={0} max={5} step={0.1} suffix="%"
                 helpText="Um wie viel steigt die Miete pro Jahr?" showReset={false} />
               <Slider label="Kostensteigerung p.a." value={props.kostenInflationPct} onChange={props.setKostenInflationPct} min={0} max={5} step={0.1} suffix="%"
-                helpText="Hausgeld, Rücklagen und Reparaturen" showReset={false} />
+                helpText="Hausgeld bzw. Verwaltung, Rücklagen und Reparaturen" showReset={false} />
               <Slider label="Verkaufskosten" value={props.verkaufsNebenkostenPct} onChange={props.setVerkaufsNebenkostenPct} min={0} max={15} step={0.5} suffix="%"
                 helpText="Makler und Notar beim Verkauf" showReset={false} />
               <div className="slider-card md:col-span-2">

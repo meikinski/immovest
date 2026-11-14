@@ -15,7 +15,8 @@ const BEGRIFFE: Array<[string, string]> = [
   ['AfA', 'Abschreibung: Ein Teil des Gebäudewerts senkt jedes Jahr deine Steuern.'],
   ['EK-Rendite', 'Jahreskaltmiete nach laufenden Kosten und Kreditzinsen im Verhältnis zu dem Geld, das du selbst einbringst. Ohne Eigenkapital nicht berechenbar.'],
   ['Bruttorendite', 'Jahreskaltmiete im Verhältnis zum Kaufpreis, ohne Kaufnebenkosten und laufende Kosten.'],
-  ['Nettorendite', 'Jahreskaltmiete nach laufenden Kosten (nicht umlagefähiges Hausgeld, Instandhaltung) im Verhältnis zur Gesamtinvestition: Kaufpreis plus Kaufnebenkosten.'],
+  ['Nettorendite', 'Jahreskaltmiete nach laufenden Kosten (nicht umlagefähiges Hausgeld, bei Häusern stattdessen die Verwaltungskosten, dazu Instandhaltung) im Verhältnis zur Gesamtinvestition: Kaufpreis plus Kaufnebenkosten.'],
+  ['Verwaltungskosten', 'Bei Häusern und Mehrfamilienhäusern die monatlichen Kosten der Hausverwaltung für das ganze Objekt. Sie sind nicht auf Mieter umlegbar und zählen wie nicht umlagefähiges Hausgeld: Sie senken Cashflow, Netto- und EK-Rendite und sind steuerlich absetzbar.'],
 ];
 
 const FRAGEN: Array<[string, string]> = [

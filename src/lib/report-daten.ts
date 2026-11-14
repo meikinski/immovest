@@ -175,6 +175,8 @@ export function baueReportDaten(e: ReportEingaben): InvestmentReportData {
       kaltmiete: b.miete,
       umlage: b.hausgeldUmlegbar,
       hausgeld: b.hausgeld,
+      hausgeldLabel: e.objekttyp === 'haus' || e.objekttyp === 'mfh' ? 'Umgelegte Nebenkosten' : 'Hausgeld gesamt',
+      verwaltung: b.verwaltungskosten || 0,
       kalkKosten: heute.scKalkKostenMon,
       noi: heute.scNoiMonthly,
       cfVorSteuer: heute.scCashflowVorSt,

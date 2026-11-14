@@ -30,6 +30,7 @@ export interface PrognoseViewJahr {
   cashflowMonatlich: number;
   mieteMonatlich: number;
   hausgeldMonatlich: number;
+  verwaltungskostenMonatlich: number;
   kalkKostenMonatlich: number;
   rateMonatlich: number;
   steuerMonatlich: number;
@@ -37,6 +38,7 @@ export interface PrognoseViewJahr {
   // Steuer (Jahr)
   mieteinnahmen: number;
   hausgeld: number;
+  verwaltungskosten: number;
   zinsen: number;
   afa: number;
   zuVersteuern: number;
@@ -108,15 +110,17 @@ export function baueVerlauf(jahre: PrognoseJahr[], o: PrognoseViewOptionen): Pro
       cashflowMonatlich: cur.cashflowMonatlich,
       mieteMonatlich: cur.mieteinnahmenJaehrlich / 12,
       hausgeldMonatlich: cur.hausgeldJaehrlich / 12,
+      verwaltungskostenMonatlich: (cur.verwaltungskostenJaehrlich ?? 0) / 12,
       kalkKostenMonatlich: cur.kalkKostenJaehrlich / 12,
       rateMonatlich: (cur.zinslast + cur.tilgungJaehrlich) / 12,
       steuerMonatlich: cur.steuerJaehrlich / 12,
 
       mieteinnahmen: cur.mieteinnahmenJaehrlich,
       hausgeld: cur.hausgeldJaehrlich,
+      verwaltungskosten: cur.verwaltungskostenJaehrlich ?? 0,
       zinsen: cur.zinslast,
       afa: cur.afaGesamt,
-      zuVersteuern: cur.mieteinnahmenJaehrlich - cur.hausgeldJaehrlich - cur.zinslast - cur.afaGesamt,
+      zuVersteuern: cur.mieteinnahmenJaehrlich - cur.hausgeldJaehrlich - (cur.verwaltungskostenJaehrlich ?? 0) - cur.zinslast - cur.afaGesamt,
       steuer: cur.steuerJaehrlich,
       ersparnisAfa,
       ersparnisZinsen,

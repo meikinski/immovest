@@ -44,7 +44,7 @@ import { useStatePersistence } from '@/hooks/useLoginStatePersistence';
 import { LockedPreview } from '@/components/LockedPreview';
 import { holeAnmeldeRueckkehr, sichereAnalyseVorAnmeldung, type GesperrterBereich } from '@/lib/anmeldeRueckkehr';
 import { TourLink } from '@/components/TourLink';
-import { berechneBruttomietrendite, berechneEkRendite, berechneEkStartwert, berechneNettomietrendite, type KennzahlenEingabe } from '@/lib/kennzahlen';
+import { berechneBruttomietrendite, berechneEkRendite, berechneEkStartwert, berechneLaufendeKosten, berechneNettomietrendite, type KennzahlenEingabe } from '@/lib/kennzahlen';
 import { formatZahl, formatZahlOderLeer, parseZahl } from '@/lib/zahlen';
 import { useFeldText } from '@/hooks/useFeldText';
 import { BUNDESLAENDER, istBundesland } from '@/config/grunderwerbsteuer';
@@ -197,7 +197,6 @@ export default function StepPage() {
   const anzahlWohneinheiten = useImmoStore(s => s.anzahl_wohneinheiten);
   const setAnzahlWohneinheiten = useImmoStore(s => s.setAnzahlWohneinheiten);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const verwaltungskosten = useImmoStore(s => s.verwaltungskosten);
   const setVerwaltungskosten = useImmoStore(s => s.setVerwaltungskosten);
 
@@ -279,6 +278,9 @@ export default function StepPage() {
 
   // === Derived Values (einheitlich, keine Duplikate) ===
   const warmmiete = miete + hausgeld_umlegbar;
+  // Laufende Kosten je Objekttyp: Wohnung Hausgeld, Haus/MFH umgelegte Nebenkosten + Verwaltungskosten
+  const laufendeKosten = berechneLaufendeKosten({ objekttyp, hausgeld, hausgeldUmlegbar: hausgeld_umlegbar, verwaltungskosten });
+  const verwaltungMonthly = laufendeKosten.verwaltungskosten;
 
   const {
     grunderwerbsteuer_eur,
@@ -325,6 +327,8 @@ export default function StepPage() {
   const hausgeldFehlt = importFehlend.includes('hausgeld');
   const [hausUmlegText,   setHausUmlegText]   = useState(() => hausgeldFehlt && !hausgeld_umlegbar ? '' : formatZahl(hausgeld_umlegbar));
   const [hausNichtText,   setHausNichtText]   = useState(() => hausgeldFehlt && !hausgeld ? '' : formatZahl(hausgeld - hausgeld_umlegbar));
+  // Haus/MFH: eigenes Feld, gespeist aus den Verwaltungskosten (nicht aus dem Hausgeld)
+  const [verwText,        setVerwText]        = useFeldText(verwaltungskosten || 0, n => formatZahl(n));
   const autoAfa = useRef(false);
   const autoGebaeude = useRef(false);
 
@@ -386,12 +390,12 @@ export default function StepPage() {
     },
     netto: {
       title: 'Nettomietrendite',
-      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition × 100. Gesamtinvestition = Kaufpreis + Kaufnebenkosten (Grunderwerbsteuer, Notar, Makler) + sonstige Kosten',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld bzw. Verwaltungskosten (Haus/MFH) − Instandhaltung) ÷ Gesamtinvestition × 100. Gesamtinvestition = Kaufpreis + Kaufnebenkosten (Grunderwerbsteuer, Notar, Makler) + sonstige Kosten',
       description: 'Bezieht laufende Kosten und Kaufnebenkosten ein und zeigt die realistischere Rendite.',
     },
     cfVor: {
       title: 'Cashflow vor Steuern',
-      formula: 'Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − kalk. Kosten (Instandhaltung, Mietausfall) − Zins − Tilgung',
+      formula: 'Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − Verwaltungskosten (Haus/MFH) − kalk. Kosten (Instandhaltung, Mietausfall) − Zins − Tilgung',
       description: 'Was monatlich vor Steuern übrig bleibt (inkl. Puffer für Rücklagen).',
     },
     cfNach: {
@@ -401,12 +405,12 @@ export default function StepPage() {
     },
     ek: {
       title: 'EK-Rendite',
-      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung − Zinsen im 1. Jahr) ÷ Eigenkapital × 100',
+      formula: '(Jahreskaltmiete − nicht umlagefähiges Hausgeld bzw. Verwaltungskosten (Haus/MFH) − Instandhaltung − Zinsen im 1. Jahr) ÷ Eigenkapital × 100',
       description: 'Rendite auf dein eingesetztes Eigenkapital (vor Tilgung/Steuer). Ohne Eigenkapital lässt sie sich nicht berechnen.',
     },
     dscr: {
       title: 'DSCR',
-      formula: '(Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − kalk. Kosten) ÷ (Zins + Tilgung)',
+      formula: '(Kaltmiete + umlagefähiges Hausgeld − Hausgeld gesamt − Verwaltungskosten (Haus/MFH) − kalk. Kosten) ÷ (Zins + Tilgung)',
       description: 'Zeigt, wie gut die Miete die Kreditrate deckt.',
     },
   };
@@ -452,8 +456,8 @@ export default function StepPage() {
   const mietausfallMonthly    = miete * (mietausfallPct / 100);
   const kalkKostenMonthly     = instandhaltungMonthly + mietausfallMonthly;
 
-  // 3) Hausgeld gesamt (bereits umlagefähig + nicht umlagefähig)
-  const hausgeldTotal = hausgeld;
+  // 3) Hausgeld gesamt (bereits umlagefähig + nicht umlagefähig); Haus/MFH: umgelegte Nebenkosten
+  const hausgeldTotal = laufendeKosten.hausgeld;
 
   // 4) AfA (monatlich) - needed for prognose calculation
   const gebaeudeAnteilEur = (kaufpreis * gebPct) / 100;
@@ -477,6 +481,7 @@ export default function StepPage() {
           tilgung,
           warmmiete,
           hausgeld: hausgeldTotal,
+          verwaltungskosten: verwaltungMonthly,
           kalkKostenMonthly,
           afaJaehrlich: afaAnnualEur,
           steuersatz: effectiveStz,
@@ -507,6 +512,7 @@ export default function StepPage() {
       tilgung,
       warmmiete,
       hausgeldTotal,
+      verwaltungMonthly,
       kalkKostenMonthly,
       afaAnnualEur,
       effectiveStz,
@@ -534,14 +540,14 @@ export default function StepPage() {
   const szenarioBasis = useMemo<SzenarioBasis>(() => ({
     kaufpreis, miete, ek, zins, tilgung,
     grunderwerbsteuerPct: grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
-    hausgeld: hausgeldTotal, hausgeldUmlegbar: hausgeld_umlegbar,
+    hausgeld: hausgeldTotal, hausgeldUmlegbar: hausgeld_umlegbar, verwaltungskosten: verwaltungMonthly,
     instandhaltungProQmJahr: instandhaltungskostenProQm, instandKalkProQmJahr: instandhaltungPct,
     mietausfallPct, flaeche,
     afaJaehrlich: afaAnnualEur, steuersatzPct: effectiveStz, darlehensTyp,
     afaModell, nutzeSonderAfa, grundstueckswert: effectiveGrundstueckswert,
   }), [
     kaufpreis, miete, ek, zins, tilgung, grunderwerbsteuer_pct, notarPct, maklerPct, sonstigeKosten,
-    hausgeldTotal, hausgeld_umlegbar, instandhaltungskostenProQm, instandhaltungPct, mietausfallPct, flaeche,
+    hausgeldTotal, hausgeld_umlegbar, verwaltungMonthly, instandhaltungskostenProQm, instandhaltungPct, mietausfallPct, flaeche,
     afaAnnualEur, effectiveStz, darlehensTyp, afaModell, nutzeSonderAfa, effectiveGrundstueckswert,
   ]);
   const szenarioDeltas = useMemo<SzenarioDeltas>(() => ({
@@ -619,9 +625,9 @@ export default function StepPage() {
   const kennzahlenEingabe: KennzahlenEingabe = {
     kaufpreis, grunderwerbsteuerPct: grEStPct, notarPct, maklerPct, sonstigeKosten, miete, hausgeld,
     hausgeldUmlegbar: hausgeld_umlegbar, instandhaltungProQmJahr: instandhaltungskostenProQm, flaeche,
-    mietausfallPct, ek, zins, tilgung,
+    mietausfallPct, ek, zins, tilgung, objekttyp, verwaltungskosten,
   };
-  // (Jahreskaltmiete − nicht umlagefähiges Hausgeld − Instandhaltung) ÷ Gesamtinvestition
+  // (Jahreskaltmiete − nicht umlagefähiges Hausgeld bzw. Verwaltungskosten − Instandhaltung) ÷ Gesamtinvestition
   const nettoMietrendite = berechneNettomietrendite(kennzahlenEingabe);
 
   // Alias
@@ -632,7 +638,7 @@ export default function StepPage() {
 
     // Debt Service Coverage Ratio (DSCR): Nettoeinnahmen / Kreditrate
 const dscr =
-  ((warmmiete - hausgeldTotal - kalkKostenMonthly) /
+  ((warmmiete - hausgeldTotal - verwaltungMonthly - kalkKostenMonthly) /
     (((darlehensSumme * (zins / 100)) / 12) +
      ((darlehensSumme * (tilgung / 100)) / 12))) || 0;
 
@@ -757,6 +763,11 @@ const dscr =
 
     const hausUmlegNum = zahl(hausUmlegText);
     if (!isNaN(hausUmlegNum)) setHausgeldUmlegbar(hausUmlegNum);
+
+    if (objekttyp === 'haus' || objekttyp === 'mfh') {
+      const verwNum = zahl(verwText);
+      if (!isNaN(verwNum)) setVerwaltungskosten(Math.max(0, verwNum));
+    }
 
     const instandNum = zahl(instandText);
     if (!isNaN(instandNum)) setInstandhaltungskostenProQm(instandNum);
@@ -893,8 +904,9 @@ const dscr =
 
   // Schuldendienst & Deckung
   debtServiceMonthly: ((darlehensSumme * ((zins + tilgung) / 100)) / 12),
-  noiMonthly: (warmmiete - hausgeldTotal - kalkKostenMonthly),
-  dscr: ((warmmiete - hausgeldTotal - kalkKostenMonthly) /
+  verwaltungskosten: verwaltungMonthly,
+  noiMonthly: (warmmiete - hausgeldTotal - verwaltungMonthly - kalkKostenMonthly),
+  dscr: ((warmmiete - hausgeldTotal - verwaltungMonthly - kalkKostenMonthly) /
         (((darlehensSumme * (zins / 100)) / 12) + ((darlehensSumme * (tilgung / 100)) / 12))) || 0,
 
   // Bitte: Ton & Stil (wird im Prompt genutzt)
@@ -916,7 +928,7 @@ const dscr =
       .finally(() => setIsLoadingComment(false));
   }, [step, activeTab, isSignedIn, score, generatedComment, setGeneratedComment,
   cashflowVorSteuer, cashflowAfterTax, bruttoMietrendite, nettoMietrendite, ek, anschaffungskosten,
-  adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, kalkKostenMonthly, warmmiete, objekttyp]);
+  adresse, flaeche, zimmer, baujahr, miete, hausgeld, hausgeld_umlegbar, zins, tilgung, kaufpreis,darlehensSumme, hausgeldTotal, verwaltungMonthly, kalkKostenMonthly, warmmiete, objekttyp]);
 
   // Note: Removed the reset effect - we now use fingerprint-based caching
 
@@ -1934,25 +1946,30 @@ const exportPdf = React.useCallback(async () => {
               {(objekttyp === 'haus' || objekttyp === 'mfh') && (
                 <div
                   onBlur={() => {
-                    const verw = zahl(hausNichtText);
-                    setVerwaltungskosten(isNaN(verw) ? 0 : verw);
+                    const verw = zahl(verwText);
+                    const wert = isNaN(verw) ? 0 : Math.max(0, verw);
+                    setVerwaltungskosten(wert);
+                    setVerwText(formatZahl(wert));
                   }}
                   className="space-y-1.5"
                 >
                   <label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] ml-1 flex items-center">
-                    Verwaltungskosten
+                    Verwaltungskosten / Monat
                     <Tooltip text={objekttyp === 'mfh'
-                      ? 'Externe Hausverwaltung (typisch: 18-30 € pro Wohneinheit/Monat).'
-                      : 'Externe Verwaltung falls vorhanden (bei Selbstverwaltung: 0 €).'}>
+                      ? 'Monatlich für das ganze Haus, also alle Wohneinheiten zusammen (typisch: 18-30 € pro Wohneinheit). Nicht auf Mieter umlegbar.'
+                      : 'Monatlich für externe Verwaltung, falls vorhanden (bei Selbstverwaltung: 0 €). Nicht auf Mieter umlegbar.'}>
                       <Info className="w-4 h-4 text-slate-400 cursor-pointer ml-1 hover:text-slate-600" />
                     </Tooltip>
                   </label>
                   <div className="relative group">
                     <WrenchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#ff6b00] transition-colors" size={18} />
                     <input
+                      id="verwaltungskosten-input"
                       type="text"
-                      value={hausNichtText}
-                      onChange={(e) => setHausNichtText(e.target.value)}
+                      inputMode="decimal"
+                      value={verwText}
+                      placeholder="z.B. 0"
+                      onChange={(e) => setVerwText(e.target.value)}
                       onFocus={(e) => e.target.select()}
                       className="w-full bg-white border border-slate-200 rounded-2xl py-4 pl-12 pr-5 text-base font-bold text-[#001d3d] focus:ring-4 focus:ring-[#ff6b00]/10 focus:border-[#ff6b00] outline-none transition-all shadow-sm"
                     />
@@ -2882,6 +2899,7 @@ const exportPdf = React.useCallback(async () => {
               setVerkaufsNebenkostenPct={setVerkaufsNebenkostenPct}
               darlehensTyp={darlehensTyp}
               setDarlehensTyp={setDarlehensTyp}
+              istHaus={objekttyp === 'haus' || objekttyp === 'mfh'}
               onWeiter={() => (isSignedIn && hatVollzugang) ? setActiveTab('szenarien') : setShowUpgradeModal(true, 'weiter_szenarien')}
             />
             </div>

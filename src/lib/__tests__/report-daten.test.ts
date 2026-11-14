@@ -22,7 +22,7 @@ assert(kuerzen(lang, 60) === 'Erster Satz ist hier. Zweiter Satz ist auch da.', 
 
 const basis: SzenarioBasis = {
   kaufpreis: 100000, miete: 960, ek: 20000, zins: 3.5, tilgung: 2, grunderwerbsteuerPct: 5.5, notarPct: 2, maklerPct: 3.57,
-  sonstigeKosten: 1000, hausgeld: 180, hausgeldUmlegbar: 150, instandhaltungProQmJahr: 10, instandKalkProQmJahr: 10,
+  sonstigeKosten: 1000, hausgeld: 180, hausgeldUmlegbar: 150, verwaltungskosten: 0, instandhaltungProQmJahr: 10, instandKalkProQmJahr: 10,
   mietausfallPct: 2, flaeche: 48, afaJaehrlich: 1600, steuersatzPct: 42, darlehensTyp: 'annuitaet', grundstueckswert: 20000,
 };
 const heute = berechneSzenario(basis);

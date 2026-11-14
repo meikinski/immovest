@@ -20,6 +20,7 @@ export interface PrognoseJahr {
   // Jahreswerte für die Aufschlüsselung im Prognose-Tab
   mieteinnahmenJaehrlich: number;
   hausgeldJaehrlich: number;
+  verwaltungskostenJaehrlich: number;
   kalkKostenJaehrlich: number;
   tilgungJaehrlich: number;
   steuerJaehrlich: number; // negativ = Erstattung
@@ -48,6 +49,8 @@ export interface PrognoseInput {
   tilgung: number;
   warmmiete: number;
   hausgeld: number;
+  /** Verwaltungskosten pro Monat (Haus/MFH): nicht umlagefähig, steigen mit den Kosten, steuerlich absetzbar */
+  verwaltungskosten?: number;
   kalkKostenMonthly: number;
   afaJaehrlich?: number;
   afaLaufzeitJahre?: number;
@@ -136,6 +139,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
     // Inflation: Miete und Kosten steigen
     const warmmieteAktuell = input.warmmiete * Math.pow(1 + mietInflation / 100, jahr);
     const hausgeldAktuell = input.hausgeld * Math.pow(1 + kostenInflation / 100, jahr);
+    const verwaltungAktuell = (input.verwaltungskosten ?? 0) * Math.pow(1 + kostenInflation / 100, jahr);
     const kalkKostenAktuell = input.kalkKostenMonthly * Math.pow(1 + kostenInflation / 100, jahr);
 
     // Tilgungsberechnung je nach Darlehenstyp
@@ -166,16 +170,16 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
 
     // Cashflow MIT Sondertilgung
     const cashflowVorSteuern =
-      warmmieteAktuell - hausgeldAktuell - kalkKostenAktuell - zinsMonthly - tilgungMonthly;
+      warmmieteAktuell - hausgeldAktuell - verwaltungAktuell - kalkKostenAktuell - zinsMonthly - tilgungMonthly;
 
     // Cashflow OHNE Sondertilgung
     const cashflowVorSteuernOhneSondertilgung =
-      warmmieteAktuell - hausgeldAktuell - kalkKostenAktuell - zinsMonthly - regulareTilgungMonthlyFinal;
+      warmmieteAktuell - hausgeldAktuell - verwaltungAktuell - kalkKostenAktuell - zinsMonthly - regulareTilgungMonthlyFinal;
 
     // Steuerberechnung (für beide gleich, da Sondertilgung steuerlich nicht relevant)
     // Verwende die AfA-Turbo Werte wenn verfügbar, sonst Legacy
     const afaMonthlyAktuell = afaGesamt / 12;
-    const taxableCashflow = warmmieteAktuell - hausgeldAktuell - zinsMonthly - afaMonthlyAktuell;
+    const taxableCashflow = warmmieteAktuell - hausgeldAktuell - verwaltungAktuell - zinsMonthly - afaMonthlyAktuell;
     const taxMonthly = taxableCashflow * ((input.steuersatz ?? 0) / 100);
 
     const cashflowMonatlich = cashflowVorSteuern - taxMonthly;
@@ -226,6 +230,7 @@ export function berechnePrognose(input: PrognoseInput, jahre = 30): PrognoseData
       afaVorteil: afaVorteilJaehrlich,
       mieteinnahmenJaehrlich: warmmieteAktuell * 12,
       hausgeldJaehrlich: hausgeldAktuell * 12,
+      verwaltungskostenJaehrlich: verwaltungAktuell * 12,
       kalkKostenJaehrlich: kalkKostenAktuell * 12,
       tilgungJaehrlich: tilgung,
       steuerJaehrlich: taxMonthly * 12,

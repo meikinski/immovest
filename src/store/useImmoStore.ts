@@ -273,6 +273,8 @@ export const useImmoStore = create<ImmoState>((set: SetFn, get) => ({
       ek: s.ek,
       zins: s.zins,
       tilgung: s.tilgung,
+      objekttyp: s.objekttyp,
+      verwaltungskosten: s.verwaltungskosten,
     };
     const cf = berechneCashflowVorSteuern(eingabe);
     const nr = berechneNettomietrendite(eingabe);
